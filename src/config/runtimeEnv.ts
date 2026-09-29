@@ -16,6 +16,7 @@ interface RuntimeEnv {
   VITE_GA4_MEASUREMENT_ID: string;
   VITE_GTM_ID: string;
   VITE_ENABLE_GTM: string;
+  VITE_DNO_TEAM_COORDINATORS_ORGANISATIONS_ENABLED: string;
   VITE_DISABLE_TELEMETRY: string;
   VITE_SESSION_TIMEOUT_SECONDS: string;
   VITE_SESSION_WARNING_SECONDS: string;
@@ -31,6 +32,7 @@ interface RuntimeEnv {
   VITE_AWS_REGION: string;
   VITE_SRI_MODE: string;
   VITE_TRUSTED_ORIGIN: string;
+  VITE_ENABLE_MANAGE_USER_ROLE_CHANGE: string;
   MODE: string;
 }
 
@@ -48,6 +50,7 @@ if (typeof window !== 'undefined' && !window._env_) {
     VITE_GA4_MEASUREMENT_ID: '',
     VITE_GTM_ID: '',
     VITE_ENABLE_GTM: 'false',
+    VITE_DNO_TEAM_COORDINATORS_ORGANISATIONS_ENABLED: 'false',
     VITE_DISABLE_TELEMETRY: 'false',
     VITE_SESSION_TIMEOUT_SECONDS: '1800',
     VITE_SESSION_WARNING_SECONDS: '120',
@@ -63,6 +66,7 @@ if (typeof window !== 'undefined' && !window._env_) {
     VITE_AWS_REGION: 'eu-west-2',
     VITE_SRI_MODE: 'report',
     VITE_TRUSTED_ORIGIN: '',
+    VITE_ENABLE_MANAGE_USER_ROLE_CHANGE: import.meta.env.VITE_ENABLE_MANAGE_USER_ROLE_CHANGE || 'false',
     MODE: 'development'
   };
 }

@@ -6,14 +6,14 @@ import { ROLES } from '../constants/roles';
 
 /**
  * Hook to determine if application should be read-only
- * Returns true if application is submitted AND user is not a DESNZ admin
+ * Returns true if application is submitted AND user is not a Superuser
  */
 export const useApplicationReadOnly = (
   application: Application | null | undefined,
   user: AuthUser | null | undefined
 ): boolean => {
   const isSubmitted = application?.status?.toLowerCase() === 'submitted';
-  const isAdmin = user?.role === ROLES.DESNZ_ADMIN;
+  const isAdmin = user?.role === ROLES.SUPERUSER;
   
   // Application is read-only if submitted AND user is not an admin
   return isSubmitted && !isAdmin;

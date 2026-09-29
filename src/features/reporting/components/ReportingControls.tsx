@@ -1,6 +1,5 @@
 import React from "react";
 import { DATE_RANGE_OPTIONS, REPORT_SECTION_LINKS } from "../constants";
-import { formatReportDate } from "../reportingUtils";
 import type { DateRangePreset } from "../types";
 
 interface ReportingFiltersProps {
@@ -56,23 +55,18 @@ export const ReportingFilters: React.FC<ReportingFiltersProps> = ({
         </div>
         <button className="govuk-button reporting-filter-button" type="submit" disabled={loading}>{loading ? "Loading" : "Update"}</button>
       </div>
-      {availabilityLoaded && availableDateRange && (
-        <p className="govuk-hint reporting-availability" id="reporting-availability">
-          Completed reporting data is available from {formatReportDate(availableDateRange.startDate)} to {formatReportDate(availableDateRange.endDate)}.
-        </p>
-      )}
     </fieldset>
   </form>
 );
 
 export const ReportingContents = () => (
   <aside className="govuk-grid-column-one-third reporting-contents" aria-labelledby="contents-heading">
-    <h2 className="govuk-heading-m" id="contents-heading">Contents</h2>
+    <h2 className="govuk-heading-s" id="contents-heading">Contents</h2>
     <nav aria-label="Report sections">
-      <ul className="reporting-contents__list">
+      <ul className="govuk-list reporting-contents__list">
         {REPORT_SECTION_LINKS.map(([id, label]) => (
           <li className="reporting-contents__item" key={id}>
-            <a className="reporting-contents__link" href={`#${id}`}>{label}</a>
+            <a className="govuk-link reporting-contents__link" href={`#${id}`}>{label}</a>
           </li>
         ))}
       </ul>

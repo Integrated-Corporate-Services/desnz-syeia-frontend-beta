@@ -4,7 +4,7 @@ import { getRoutesWithPoints, createRouteWithPoints, saveRoutesWithPoints, delet
 export interface Route {
   route_id?: string;
   routeName?: string;
-  gridPoints: Array<{ easting: number; northing: number; point_id?: string; route_id?: string }>;
+  gridPoints: Array<{ easting: string; northing: string; point_id?: string; route_id?: string }>;
   disconnectedroute_justification?: string;
 }
 

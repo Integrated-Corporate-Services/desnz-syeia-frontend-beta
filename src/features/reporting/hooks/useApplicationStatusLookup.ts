@@ -1,0 +1,182 @@
+import { useState } from "react";
+import axios from "axios";
+import { getApplicationStatusByReference } from "../../../services/adminReportingService";
+import {
+  buildDocumentExport,
+  generateApplicationSummaryPdf,
+  getDocumentExport,
+  reconcileSubmission,
+} from "../services/operationalTasksService";
+import {
+  APPLICATION_SUMMARY_PDF_MESSAGES,
+  DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS,
+  OPERATIONAL_TASKS_MESSAGES,
+} from "../constants";
+import type { ApplicationStatusLookup, DocumentExportRecord } from "../types";
+
+export const useApplicationStatusLookup = () => {
+  const [reference, setReference] = useState("");
+  const [result, setResult] = useState<ApplicationStatusLookup | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [documentExport, setDocumentExport] = useState<DocumentExportRecord | null>(null);
+  const [checkingDocumentExport, setCheckingDocumentExport] = useState(false);
+  const [buildingDocumentExport, setBuildingDocumentExport] = useState(false);
+  const [documentExportError, setDocumentExportError] = useState<string | null>(null);
+  const [generatingApplicationSummary, setGeneratingApplicationSummary] = useState(false);
+  const [applicationSummaryMessage, setApplicationSummaryMessage] = useState<string | null>(null);
+  const [applicationSummaryError, setApplicationSummaryError] = useState<string | null>(null);
+
+  const refreshDocumentExport = async (applicationId: string, applicationStatus: string) => {
+    setDocumentExportError(null);
+    if (applicationStatus === DOWNLOAD_RECOVERY_EXCLUDED_APPLICATION_STATUS) {
+      setDocumentExport(null);
+      return;
+    }
+    setCheckingDocumentExport(true);
+    try {
+      setDocumentExport(await getDocumentExport(applicationId));
+    } catch {
+      setDocumentExportError(OPERATIONAL_TASKS_MESSAGES.DOWNLOAD_CHECK_FAILED);
+    } finally {
+      setCheckingDocumentExport(false);
+    }
+  };
+
+  // overrideReference lets a caller (e.g. clicking a row in the submitted-applications
+  // summary) trigger a search for a specific reference immediately, without waiting on
+  // a setReference() state update to land first.
+  const search = async (overrideReference?: string) => {
+    const trimmedReference = (overrideReference ?? reference).trim();
+    setVerifyMessage(null);
+    setVerifyError(null);
+    setDocumentExport(null);
+    setDocumentExportError(null);
+    setApplicationSummaryMessage(null);
+    setApplicationSummaryError(null);
+
+    if (!trimmedReference) {
+      setResult(null);
+      setError(OPERATIONAL_TASKS_MESSAGES.REFERENCE_REQUIRED);
+      return;
+    }
+
+    if (overrideReference !== undefined) {
+      setReference(overrideReference);
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const lookupResult = await getApplicationStatusByReference(trimmedReference);
+      setResult(lookupResult);
+      if (lookupResult) {
+        await refreshDocumentExport(lookupResult.applicationId, lookupResult.applicationStatus);
+      }
+    } catch (requestError) {
+      setResult(null);
+      setError(
+        axios.isAxiosError(requestError) && requestError.response?.status === 404
+          ? OPERATIONAL_TASKS_MESSAGES.NOT_FOUND
+          : OPERATIONAL_TASKS_MESSAGES.LOAD_FAILED
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reconcileApplicationSubmission = async () => {
+    if (!result?.applicationId) return;
+
+    setVerifying(true);
+    setVerifyMessage(null);
+    setVerifyError(null);
+    try {
+      const reconciliation = await reconcileSubmission(result.applicationId);
+      if (reconciliation.submitted) {
+        setVerifyMessage(reconciliation.message);
+      } else {
+        setVerifyError(reconciliation.message);
+      }
+      const refreshedResult = await getApplicationStatusByReference(reference.trim());
+      setResult(refreshedResult);
+      if (refreshedResult) {
+        await refreshDocumentExport(refreshedResult.applicationId, refreshedResult.applicationStatus);
+      }
+    } catch (requestError) {
+      setVerifyError(
+        axios.isAxiosError(requestError) && requestError.response?.data?.error
+          ? requestError.response.data.error
+          : OPERATIONAL_TASKS_MESSAGES.VERIFY_FAILED
+      );
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const generateApplicationSummary = async () => {
+    if (!result?.applicationId) return;
+
+    setGeneratingApplicationSummary(true);
+    setApplicationSummaryMessage(null);
+    setApplicationSummaryError(null);
+    try {
+      await generateApplicationSummaryPdf(result.applicationId);
+      setApplicationSummaryMessage(APPLICATION_SUMMARY_PDF_MESSAGES.SUCCESS);
+      const refreshedResult = await getApplicationStatusByReference(reference.trim());
+      setResult(refreshedResult);
+    } catch (requestError) {
+      setApplicationSummaryError(
+        axios.isAxiosError(requestError) && requestError.response?.data?.error
+          ? requestError.response.data.error
+          : APPLICATION_SUMMARY_PDF_MESSAGES.FAILED
+      );
+    } finally {
+      setGeneratingApplicationSummary(false);
+    }
+  };
+
+  const buildDownloadBundle = async (forceRebuild: boolean = false) => {
+    if (!result?.applicationId) return;
+
+    setBuildingDocumentExport(true);
+    setDocumentExportError(null);
+    try {
+      await buildDocumentExport(result.applicationId, forceRebuild);
+      setDocumentExport(await getDocumentExport(result.applicationId));
+    } catch (requestError) {
+      setDocumentExportError(
+        axios.isAxiosError(requestError) && requestError.response?.data?.error
+          ? requestError.response.data.error
+          : OPERATIONAL_TASKS_MESSAGES.DOWNLOAD_BUILD_FAILED
+      );
+    } finally {
+      setBuildingDocumentExport(false);
+    }
+  };
+
+  return {
+    reference,
+    setReference,
+    result,
+    loading,
+    error,
+    verifying,
+    verifyMessage,
+    verifyError,
+    documentExport,
+    checkingDocumentExport,
+    buildingDocumentExport,
+    documentExportError,
+    search,
+    reconcileSubmission: reconcileApplicationSubmission,
+    buildDownloadBundle,
+    generatingApplicationSummary,
+    applicationSummaryMessage,
+    applicationSummaryError,
+    generateApplicationSummary,
+  };
+};

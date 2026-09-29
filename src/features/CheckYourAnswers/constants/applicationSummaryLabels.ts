@@ -84,6 +84,7 @@ export const FIELD_LABELS = {
   
   WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
   WITHDRAWAL_NOTIFICATION_BANNER: 'You sent a request to withdraw this application. This is being reviewed by your case officer.',
+  WITHDRAWAL_REJECTED_NOTIFICATION_BANNER: 'Your withdrawal request was not approved. Your application continues as normal. Check your email for details.',
   // Route fields
   EASTING: 'Easting',
   NORTHING: 'Northing',

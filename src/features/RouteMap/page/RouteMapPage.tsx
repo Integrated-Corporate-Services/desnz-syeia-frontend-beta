@@ -155,8 +155,8 @@ const RouteMapPage: React.FC = () => {
           route_id: '',
           routeName: routeName,
           gridPoints: points.map(pt => ({
-            easting: Number(pt.easting),
-            northing: Number(pt.northing),
+            easting: pt.easting,
+            northing: pt.northing,
             point_id:''
           })),
           disconnectedroute_justification: details
@@ -167,8 +167,8 @@ const RouteMapPage: React.FC = () => {
           route_id: routeId,
           routeName: routeName,
           gridPoints: points.map(pt => ({
-            easting: Number(pt.easting),
-            northing: Number(pt.northing),
+            easting: pt.easting,
+            northing: pt.northing,
             point_id: pt.point_id,
           })),
           disconnectedroute_justification: details

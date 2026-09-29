@@ -6,9 +6,11 @@ import { downloadOrganisationCsv, getLatestAvailableDateRange, getPresetDates, i
 import type { AdminReport, DateRangePreset } from "./types";
 
 export const useReportingDashboard = () => {
-  const [preset, setPreset] = useState<DateRangePreset>("yesterday");
-  const [startDate, setStartDate] = useState(() => getPresetDates("yesterday").startDate);
-  const [endDate, setEndDate] = useState(() => getPresetDates("yesterday").endDate);
+  // Opens on Today so work done today is visible straight away (was "yesterday", which
+  // showed zeros for anything done today until the user changed the filter).
+  const [preset, setPreset] = useState<DateRangePreset>("today");
+  const [startDate, setStartDate] = useState(() => getPresetDates("today").startDate);
+  const [endDate, setEndDate] = useState(() => getPresetDates("today").endDate);
   const [report, setReport] = useState<AdminReport | null>(null);
   const [organisationFilter, setOrganisationFilter] = useState("");
   const [loading, setLoading] = useState(true);
@@ -103,9 +105,13 @@ export const useReportingDashboard = () => {
     availableDates,
     availabilityLoaded,
     availableDateRange: getLatestAvailableDateRange(availableDates),
-    isPresetAvailable: (candidatePreset: DateRangePreset) => candidatePreset === "custom" || candidatePreset === "available-data" || (() => {
+    // availableDates is completed snapshot days. Live "today" is usually absent from that
+    // list, so it must stay selectable after availability loads (the dashboard opens on it).
+    isPresetAvailable: (candidatePreset: DateRangePreset) => candidatePreset === "custom" || candidatePreset === "available-data" || candidatePreset === "today" || (() => {
       const dates = getPresetDates(candidatePreset);
       return isDateRangeAvailable(dates.startDate, dates.endDate, availableDates);
     })(),
   };
 };
+
+export type ReportingDashboardState = ReturnType<typeof useReportingDashboard>;

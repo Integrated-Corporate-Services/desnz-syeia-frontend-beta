@@ -15,7 +15,7 @@ const DeleteApplicationPage: React.FC = () => {
   const [error, setError] = React.useState<string | null>(null);
   const { application, fetchApplication } = useApplication();
   const { user } = useAuthUserContext();
-  const isAdmin = (user as AuthUser)?.role === ROLES.DESNZ_ADMIN;
+  const isAdmin = (user as AuthUser)?.role === ROLES.SUPERUSER;
 
   useEffect(() => {
     if (applicationId) {
