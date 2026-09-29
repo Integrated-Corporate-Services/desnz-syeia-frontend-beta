@@ -43,7 +43,7 @@ const UserManagementDashboard: React.FC = () => {
             <p className="govuk-body-m">
               {isSuperUser
                 ? "Manage access request and users across all Distribution Network Operators."
-                : "Manage access request and users for your organisation"}
+                : "Manage access request and users for your Organisation"}
             </p>
 
             <TabNavigation

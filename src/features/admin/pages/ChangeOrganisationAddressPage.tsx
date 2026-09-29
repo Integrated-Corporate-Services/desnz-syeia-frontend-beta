@@ -53,10 +53,10 @@ const ChangeOrganisationAddressPage: React.FC = () => {
     if (!form.line1.trim()) nextErrors.line1 = 'Enter address line 1, typically the building and street';
     else if (form.line1.trim().length > FIELD_MAX_LENGTHS.line1) nextErrors.line1 = `Address line 1 must be ${FIELD_MAX_LENGTHS.line1} characters or fewer`;
     if (form.line2.trim().length > FIELD_MAX_LENGTHS.line2) nextErrors.line2 = `Address line 2 must be ${FIELD_MAX_LENGTHS.line2} characters or fewer`;
-    if (!form.townCity.trim()) nextErrors.townCity = 'Enter a town or city';
+    if (!form.townCity.trim()) nextErrors.townCity = 'Enter town or city';
     else if (form.townCity.trim().length > FIELD_MAX_LENGTHS.townCity) nextErrors.townCity = `Town or city must be ${FIELD_MAX_LENGTHS.townCity} characters or fewer`;
     if (form.county.trim().length > FIELD_MAX_LENGTHS.county) nextErrors.county = `County must be ${FIELD_MAX_LENGTHS.county} characters or fewer`;
-    if (!UK_POSTCODE_REGEX.test(form.postcode.trim())) nextErrors.postcode = 'Enter a full UK postcode';
+    if (!UK_POSTCODE_REGEX.test(form.postcode.trim())) nextErrors.postcode = 'Enter postcode';
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
       return;
