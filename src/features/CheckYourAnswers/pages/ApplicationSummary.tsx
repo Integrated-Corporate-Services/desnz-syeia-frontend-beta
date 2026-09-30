@@ -576,7 +576,7 @@ const ApplicationSummary: React.FC = () => {
                       {formatCaseType(applicationMetadata?.formType)}
                     </dd>
                   </div>
-                    {assigneeName && <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Assigned to</dt><dd className="govuk-summary-list__value">{assigneeName}</dd></div>}
+                    <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Assigned to</dt><dd className="govuk-summary-list__value">{assigneeName || 'Not assigned'}</dd></div>
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
                     <dd className="govuk-summary-list__value">
