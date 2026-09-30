@@ -8,7 +8,7 @@ type Assignee = { user_id: string; first_name: string; last_name: string; email:
 type HistoryEntry = { previous_assignee_name?: string; new_assignee_name: string; assigned_by_name: string; assigned_at: string };
 type AssignmentDetails = { application_reference: string | null; current_assignee_name: string | null; history: HistoryEntry[] };
 
-const isTerminal = (status: string | null) => ["COMPLETED", "WITHDRAWN", "CLOSED", "ARCHIVED", "INVALID"].includes((status || "").toUpperCase().replaceAll(" ", "_"));
+const isTerminal = (status: string | null) => ["COMPLETED", "WITHDRAWN", "CLOSED", "ARCHIVED", "INVALID", "REJECTED"].includes((status || "").toUpperCase().replaceAll(" ", "_"));
 const formatReassignmentDate = (timestamp: string) => {
   const date = new Date(timestamp);
   return `${new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }).format(date).replaceAll("/", ".")}, ${new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false }).format(date)}`;
@@ -55,6 +55,7 @@ export const ApplicationReassignment: React.FC<{ applicationId: string; status: 
   const [details, setDetails] = useState<AssignmentDetails>({ application_reference: null, current_assignee_name: null, history: [] });
   const [selectedId, setSelectedId] = useState("");
   const [search, setSearch] = useState("");
+  const [justification, setJustification] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,11 +71,11 @@ export const ApplicationReassignment: React.FC<{ applicationId: string; status: 
 
   const selected = assignees.find((assignee) => assignee.user_id === selectedId);
   const submit = async () => {
-    if (!selected || submitting) return;
+    if (!selected || !justification.trim() || submitting) return;
     try {
       setSubmitting(true);
       setError(null);
-      await applicationApiService.reassignApplication(applicationId, selected.user_id, "Manual application reassignment");
+      await applicationApiService.reassignApplication(applicationId, selected.user_id, justification.trim());
       navigate(pathname.replace(/\/reassign\/?$/, "/application-summary"), { state: { reassignment: { reference: details.application_reference || applicationId, name: `${selected.first_name} ${selected.last_name}` } } });
     } catch (reason: unknown) {
       setError(reason instanceof Error ? reason.message : "Unable to reassign application");
@@ -98,7 +99,10 @@ export const ApplicationReassignment: React.FC<{ applicationId: string; status: 
       <dl className="govuk-summary-list"><div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">DESNZ reference</dt><dd className="govuk-summary-list__value">{details.application_reference || applicationId}</dd></div><div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Current assignee</dt><dd className="govuk-summary-list__value">{details.current_assignee_name || "Not assigned"}</dd></div><div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">New assignee</dt><dd className="govuk-summary-list__value">{selected?.first_name} {selected?.last_name}</dd></div></dl>
       <h2 className="govuk-heading-s">What happens next</h2><p className="govuk-body">The new assignee will become the contact person for this application. We will email relevant contacts to tell them about this reassignment.</p>
       {(status || "").toUpperCase().replaceAll(" ", "_") === "FURTHER_INFORMATION_REQUESTED" && <div className="govuk-inset-text">A further information request is still outstanding. We will email this request to the new assignee.</div>}
-      <button className="govuk-button govuk-!-margin-top-3" type="button" disabled={submitting} onClick={submit}>Reassign now</button>{" "}
+      <label className="govuk-label" htmlFor="reassignment-justification">Reason for reassignment</label>
+      <div className="govuk-hint" id="reassignment-justification-hint">This reason will be recorded in the reassignment history.</div>
+      <textarea className="govuk-textarea" id="reassignment-justification" name="justification" rows={4} maxLength={2000} required aria-describedby="reassignment-justification-hint" value={justification} onChange={(event) => setJustification(event.target.value)} />
+      <button className="govuk-button govuk-!-margin-top-3" type="button" disabled={submitting || !justification.trim()} onClick={submit}>Reassign now</button>{" "}
       <button className="govuk-button govuk-button--secondary" type="button" disabled={submitting} onClick={() => setConfirming(false)}>Cancel</button>
     </>}
   </section>;
