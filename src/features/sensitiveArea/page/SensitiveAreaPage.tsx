@@ -96,12 +96,10 @@ const SensitiveAreaPage: React.FC = () => {
     // While checking consultation status, show loading to prevent flash
     if (consultationsLoading) {
         return (
-            <div className="govuk-width-container">
+            <>
                 <PageTitle title="Sensitive area check" />
-                <div className="govuk-main-wrapper">
-                    <p className="govuk-body">Loading...</p>
-                </div>
-            </div>
+                <p className="govuk-body">Loading...</p>
+            </>
         );
     }
 
@@ -113,7 +111,6 @@ const SensitiveAreaPage: React.FC = () => {
     return (
         <>
                         <PageTitle title="Sensitive area check" />
-                        <div className="govuk-width-container">
             <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
                 {error && (
                     <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
@@ -274,7 +271,6 @@ const SensitiveAreaPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                        </div>
         </>
     );
 };
