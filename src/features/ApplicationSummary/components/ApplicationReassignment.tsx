@@ -28,11 +28,21 @@ export const ApplicationReassignmentLinks: React.FC<{ applicationId: string; sta
   const { user } = useAuthUserContext();
   const { pathname } = useLocation();
   const [lastActor, setLastActor] = useState<string | null>(null);
+  const [canReassignApplication, setCanReassignApplication] = useState(false);
   useEffect(() => { applicationApiService.getAssignmentHistory(applicationId).then((details: AssignmentDetails) => setLastActor(details.history[0]?.assigned_by_name || null)).catch(() => setLastActor(null)); }, [applicationId]);
   const base = pathname.replace(/\/application-summary\/?$/, "");
   const canReassign = ["SUPERUSER", "APPLICANT_TEAM_COORDINATOR"].includes(getUserRole(user as any) || "");
+  useEffect(() => {
+    setCanReassignApplication(false);
+    if (!canReassign || isTerminal(status)) return;
+    let active = true;
+    applicationApiService.getEligibleAssignees(applicationId)
+      .then(() => { if (active) setCanReassignApplication(true); })
+      .catch(() => { if (active) setCanReassignApplication(false); });
+    return () => { active = false; };
+  }, [applicationId, status, canReassign]);
   return <div className="govuk-!-margin-top-6">
-    {canReassign && !isTerminal(status) && <p><Link className="govuk-button govuk-button--secondary" to={`${base}/reassign`}>Reassign application</Link></p>}
+    {canReassignApplication && <p><Link className="govuk-button govuk-button--secondary" to={`${base}/reassign`}>Reassign application</Link></p>}
     {lastActor && <p className="govuk-body">Last reassigned by {lastActor}</p>}
     <Link className="govuk-link" to={`${base}/reassignment-history`}>View reassignment history</Link>
   </div>;

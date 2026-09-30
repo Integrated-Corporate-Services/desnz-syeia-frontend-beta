@@ -2,7 +2,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { applicationApiService } from '../../../services/applicationApiService';
-import { ApplicationReassignment, ReassignmentHistoryPage, ReassignmentSuccessBanner } from './ApplicationReassignment';
+import { ApplicationReassignment, ApplicationReassignmentLinks, ReassignmentHistoryPage, ReassignmentSuccessBanner } from './ApplicationReassignment';
+
+vi.mock('../../../context/AuthUserContext', () => ({
+  useAuthUserContext: () => ({ user: { role: 'APPLICANT_TEAM_COORDINATOR' } }),
+}));
 
 vi.mock('../../../services/applicationApiService', () => ({
   applicationApiService: {
@@ -65,5 +69,21 @@ describe('application reassignment confirmation', () => {
     expect(await screen.findByText('03.06.2026, 11:34')).toBeInTheDocument();
     expect(screen.getByText('Reassigned from Priya Nair to Sam Okoro by DESNZ Coordinator.')).toBeInTheDocument();
     expect(screen.queryByText('Private internal note')).not.toBeInTheDocument();
+  });
+
+  it('shows the CTA only after the backend authorizes this coordinator for the application', async () => {
+    vi.mocked(applicationApiService.getEligibleAssignees).mockRejectedValueOnce(new Error('Forbidden'));
+    const view = render(<MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
+      <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
+    </MemoryRouter>);
+    await waitFor(() => expect(applicationApiService.getEligibleAssignees).toHaveBeenCalled());
+    expect(screen.queryByRole('link', { name: 'Reassign application' })).not.toBeInTheDocument();
+
+    view.unmount();
+    vi.mocked(applicationApiService.getEligibleAssignees).mockResolvedValueOnce([]);
+    render(<MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
+      <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
+    </MemoryRouter>);
+    expect(await screen.findByRole('link', { name: 'Reassign application' })).toBeInTheDocument();
   });
 });
