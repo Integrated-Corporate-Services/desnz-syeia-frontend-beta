@@ -21,6 +21,9 @@ export const applicationApiService = {
       await fetchCsrfToken();
       csrfHeaders = getCsrfHeaders();
     }
+    if (!csrfHeaders['X-CSRF-Token']) {
+      throw new Error('Unable to obtain CSRF token');
+    }
     const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/assignment`), {
       method: "PATCH",
       credentials: "include",

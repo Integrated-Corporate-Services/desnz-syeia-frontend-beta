@@ -52,8 +52,12 @@ describe('application reassignment confirmation', () => {
     if (showRequest) expect(screen.getByText(/A further information request is still outstanding/)).toBeInTheDocument();
     else expect(screen.queryByText(/A further information request is still outstanding/)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText('Reassign now'));
-    await waitFor(() => expect(applicationApiService.reassignApplication).toHaveBeenCalledWith(applicationId, assigneeId, 'Manual application reassignment'));
+    const reassignButton = screen.getByRole('button', { name: 'Reassign now' });
+    expect(reassignButton).toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Reason for reassignment'), { target: { value: 'Covering the current assignee’s absence' } });
+    expect(reassignButton).toBeEnabled();
+    fireEvent.click(reassignButton);
+    await waitFor(() => expect(applicationApiService.reassignApplication).toHaveBeenCalledWith(applicationId, assigneeId, 'Covering the current assignee’s absence'));
     expect(await screen.findByText('Application reassigned')).toBeInTheDocument();
     expect(screen.getByText('S3700004 is now assigned to Sam Okoro.')).toBeInTheDocument();
   });
@@ -101,7 +105,7 @@ describe('application reassignment confirmation', () => {
     expect(screen.queryByRole('link', { name: 'Reassign application' })).not.toBeInTheDocument();
   });
 
-  it.each(['WITHDRAWN', 'INVALID', 'ARCHIVED', 'COMPLETED', 'CLOSED'])('does not request reassignment eligibility for %s applications', async (status) => {
+  it.each(['WITHDRAWN', 'INVALID', 'ARCHIVED', 'COMPLETED', 'CLOSED', 'REJECTED'])('does not request reassignment eligibility for %s applications', async (status) => {
     render(<MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
       <ApplicationReassignmentLinks applicationId={applicationId} status={status} />
     </MemoryRouter>);
