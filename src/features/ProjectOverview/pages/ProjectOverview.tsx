@@ -732,7 +732,7 @@ const ProjectOverview = () => {
 								)}
 								<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 									<div className="govuk-radios__item">
-										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} data-aria-controls="areWorkStartDatesKnown-hidden" onChange={() => {
+										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} data-aria-controls="areWorkStartDatesKnown-hidden" aria-controls="areWorkStartDatesKnown-hidden" aria-expanded={formState.areWorkStartDatesKnown === "true"} onChange={() => {
 											setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }));
 											clearFieldError('areWorkStartDatesKnown');
 										}} />
@@ -957,6 +957,8 @@ const ProjectOverview = () => {
 											value="true"
 											checked={formState.hasRelatedApplications === "true"}
 											data-aria-controls="hasRelatedApplications-hidden"
+											aria-controls="hasRelatedApplications-hidden"
+											aria-expanded={formState.hasRelatedApplications === "true"}
 											onChange={() => {
 												setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
 												clearFieldError('hasRelatedApplications-inputValue');
