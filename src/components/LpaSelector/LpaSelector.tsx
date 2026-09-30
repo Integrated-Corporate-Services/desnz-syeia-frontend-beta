@@ -142,7 +142,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
       )}
 
     { hasLpaConsultee&& (
-                                    <div className="govuk-checkboxes__conditional">
+                                    <div className="govuk-checkboxes__conditional" id="hasLpaConsultee-hidden">
                                         {selectedLpas.length > 0 && (
                                             <div className="govuk-!-margin-bottom-4" style={{ width: '100%' }}>
                                                 {selectedLpas.map((entry) => (
