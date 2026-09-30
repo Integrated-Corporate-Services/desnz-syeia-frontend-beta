@@ -125,6 +125,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
                 type="checkbox"
                 checked={hasLpaConsultee}
                 onChange={(e) => setHasLpaConsultee(e.target.checked)}
+                data-aria-controls="hasLpaConsultee-hidden"
                 aria-controls="hasLpaConsultee-hidden"
                 aria-expanded={hasLpaConsultee}
               />
@@ -141,8 +142,7 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
         <h2 className="govuk-heading-m">Local planning authority</h2>
       )}
 
-    { hasLpaConsultee&& (
-                                    <div className="govuk-checkboxes__conditional">
+                                    <div className={`govuk-checkboxes__conditional${hasLpaConsultee ? '' : ' govuk-checkboxes__conditional--hidden'}`} id="hasLpaConsultee-hidden">
                                         {selectedLpas.length > 0 && (
                                             <div className="govuk-!-margin-bottom-4" style={{ width: '100%' }}>
                                                 {selectedLpas.map((entry) => (
@@ -258,7 +258,6 @@ const LpaSelector: React.FC<LpaSelectorProps> = ({
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 };

@@ -126,6 +126,18 @@ button:focus,
     padding-right: 10px;
   }
 
+
+  .govuk-grid-row {
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+  }
+
+
+  [class*="govuk-grid-column"] {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
   .govuk-heading-xl {
     font-size: 1.5rem !important;
   }

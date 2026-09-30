@@ -177,7 +177,13 @@ const ApplicationDashboard: React.FC = () => {
               counts={tabCounts}
             />
 
-            <div className="application-dashboard-table-wrapper">
+            <div
+              className="application-dashboard-table-wrapper"
+              id="dashboard-tabpanel"
+              role="tabpanel"
+              aria-labelledby={`${activeTab}-tab`}
+              tabIndex={0}
+            >
               <span
                 className="application-dashboard-items-count"
                 role="status"

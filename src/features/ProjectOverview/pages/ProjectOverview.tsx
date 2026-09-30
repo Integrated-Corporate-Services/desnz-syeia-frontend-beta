@@ -732,14 +732,13 @@ const ProjectOverview = () => {
 								)}
 								<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 									<div className="govuk-radios__item">
-										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} onChange={() => {
+										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} data-aria-controls="areWorkStartDatesKnown-hidden" aria-controls="areWorkStartDatesKnown-hidden" aria-expanded={formState.areWorkStartDatesKnown === "true"} onChange={() => {
 											setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }));
 											clearFieldError('areWorkStartDatesKnown');
 										}} />
 										<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown">Yes</label>
 									</div>
-									{formState.areWorkStartDatesKnown === "true" && (
-										<div className="govuk-radios__conditional" id="areWorkStartDatesKnown-hidden">
+									<div className={`govuk-radios__conditional ${formState.areWorkStartDatesKnown === "true" ? "" : "govuk-radios__conditional--hidden"}`} id="areWorkStartDatesKnown-hidden">
 											{/* Earliest Start Date */}
 											<div className={`govuk-form-group${(fieldErrors?.['earliestWorkStartDate-month'] || fieldErrors?.['earliestWorkStartDate-year']) ? " govuk-form-group--error" : ""}`}>
 												<fieldset className="govuk-fieldset">
@@ -857,7 +856,6 @@ const ProjectOverview = () => {
 												</fieldset>
 											</div>
 										</div>
-									)}
 									<div className="govuk-radios__item">
 										<input className="govuk-radios__input" id="areWorkStartDatesKnown-no" name="areWorkStartDatesKnown" type="radio" value="false" checked={formState.areWorkStartDatesKnown === "false"} onChange={() => {
 											setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "false" }));
@@ -958,6 +956,9 @@ const ProjectOverview = () => {
 											type="radio"
 											value="true"
 											checked={formState.hasRelatedApplications === "true"}
+											data-aria-controls="hasRelatedApplications-hidden"
+											aria-controls="hasRelatedApplications-hidden"
+											aria-expanded={formState.hasRelatedApplications === "true"}
 											onChange={() => {
 												setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
 												clearFieldError('hasRelatedApplications-inputValue');
@@ -965,8 +966,7 @@ const ProjectOverview = () => {
 										/>
 										<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 									</div>
-									{formState.hasRelatedApplications === "true" && (
-										<div className="govuk-radios__conditional" id="hasRelatedApplications-hidden">
+									<div className={`govuk-radios__conditional ${formState.hasRelatedApplications === "true" ? "" : "govuk-radios__conditional--hidden"}`} id="hasRelatedApplications-hidden">
 											<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 												<label className="govuk-label govuk-!-width-two-thirds" htmlFor="relatedApplicationsDetails-inputValue">
 													{projectOverview.relatedApplicationsDetails}
@@ -1002,7 +1002,6 @@ const ProjectOverview = () => {
 												<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {remainingRelatedAppsChars} characters remaining</div>
 											</div>
 										</div>
-									)}
 									<div className="govuk-radios__item">
 										<input
 											className="govuk-radios__input"

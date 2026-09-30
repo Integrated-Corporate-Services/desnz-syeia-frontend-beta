@@ -39,7 +39,7 @@ export const ApplicationDashboardHeader: React.FC<ApplicationDashboardHeaderProp
           data-module="govuk-button"
           onClick={onToggleFilters}
           aria-expanded={showFilters}
-          aria-controls="application-dashboard-filters"
+          aria-controls="filterPanel"
         >
           {showFilters ? "Hide search and filter" : "Show search and filter"}
         </button>
