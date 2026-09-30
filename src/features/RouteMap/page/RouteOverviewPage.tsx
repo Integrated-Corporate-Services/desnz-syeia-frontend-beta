@@ -198,7 +198,7 @@ export const RouteOverviewPage: React.FC = () => {
                         </div>
                         <div className="govuk-grid-column-one-half">
                             {/* Show map for the first route with gridPoints */}
-                            <div style={{ width: 466, height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff', margin: '0 auto' }}>
+                            <div style={{ maxWidth: 466, width: '100%', height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff', margin: '0 auto' }}>
                                 <SensitiveAreaCheckMap
                                     routes={routes
                                         .filter((r) => Array.isArray(r.gridPoints) && r.gridPoints.length > 0)
