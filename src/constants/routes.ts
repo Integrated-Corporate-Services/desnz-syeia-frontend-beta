@@ -83,7 +83,6 @@ import AgentQuestionPage from '../features/SignIn/AgentQuestionPage';
 import CompanyNamePage from '../features/SignIn/CompanyNamePage';
 import SelectOrganisationsPage from '../features/SignIn/SelectOrganisationsPage';
 import AccessRequestSubmittedPage from '../features/SignIn/AccessRequestSubmittedPage';
-import OTPVerifyPage from '../features/OTPVerifyPage';
 import ReviewRequestPage from '../features/admin/pages/ReviewRequestPage';
 import AccessApprovedPage from '../features/admin/pages/AccessApprovedPage';
 import AccessDeniedPage from '../features/admin/pages/AccessDeniedPage';
@@ -368,13 +367,6 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     //     auth: false,
     //     layout: true,
     // },
-
-    {
-        path: '/otp-verify',
-        component: OTPVerifyPage,
-        auth: true,
-        layout: true,
-    },
     {
         path: '/admin/user-management',
         component: UserManagementDashboard,

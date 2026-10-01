@@ -64,11 +64,12 @@ const ConsultationResponseInitialQuestion: React.FC = () => {
                 </div>
               </div>
             )}
-            <h1 className="govuk-heading-l">Have you received a response from the consultee?</h1>
             <form noValidate>
               <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
                 <fieldset className="govuk-fieldset" aria-describedby={error ? 'responseReceived-error' : undefined}>
-                  
+                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    <h1 className="govuk-fieldset__heading">Have you received a response from the consultee?</h1>
+                  </legend>
                   {error && (
                     <p id="responseReceived-error" className="govuk-error-message">
                       <span className="govuk-visually-hidden">Error:</span> {error}

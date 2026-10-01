@@ -340,7 +340,7 @@ useEffect(() => {
                 <h2 className="govuk-heading-l">Application detail overview</h2>
                 <div className="govuk-card">
                   <div className="govuk-card__content">
-                    <div className="govuk-fieldset">
+                    <fieldset className="govuk-fieldset">
                       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                         Field details only
                       </legend>
@@ -396,7 +396,7 @@ useEffect(() => {
                           ))}
                         </tbody>
                       </table>
-                    </div>
+                    </fieldset>
                   </div>
                 </div>
               </div>
@@ -406,13 +406,14 @@ useEffect(() => {
                 aria-labelledby="tab-documents"
               >
                 <h2 className="govuk-heading-l">Documents by section</h2>
-                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                        Field details only
-                      </legend>
-                <p className="govuk-body">
-                  Choose the information and documents you want to share with the consultant.
-                </p>
-                <table className="govuk-table">
+                <fieldset className="govuk-fieldset">
+                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    Field details only
+                  </legend>
+                  <p className="govuk-body">
+                    Choose the information and documents you want to share with the consultant.
+                  </p>
+                  <table className="govuk-table">
                   <thead>
                     <tr>
                     <th className="govuk-table__header" style={{ textAlign: 'center', padding: '2px 4px' }}>
@@ -460,6 +461,7 @@ useEffect(() => {
                     ))}
                   </tbody>
                 </table>
+                </fieldset>
               </div>
             </div>
 

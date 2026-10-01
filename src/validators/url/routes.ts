@@ -25,7 +25,6 @@ export const ALLOWED_ROUTES = [
   '/request-access/select-organisations',
   '/request-access/select-organisation',
   '/request-access/submitted',
-  '/otp-verify',
   '/application-dashboard',
   '/your-details',
   '/your-details/change-full-name',

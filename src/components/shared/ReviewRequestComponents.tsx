@@ -183,7 +183,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
 
 export const RelatedContentSidebar: React.FC = () => (
   <aside className="app-related-items" role="complementary">
-    <hr className="app-related-items__divider" aria-hidden="true" />
+    <div className="app-related-items__divider" aria-hidden="true" />
     <h2 className="govuk-heading-s" id="related-content-title">Related content</h2>
     <nav role="navigation" aria-labelledby="related-content-title">
       <ul className="govuk-list govuk-list--spaced">

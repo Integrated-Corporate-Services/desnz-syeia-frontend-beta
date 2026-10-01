@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { FEEDBACK_PATH } from '../../constants/routes';
+import '../../styles/GovUKHeader.css';
 
 const GovUKHeader: React.FC = () => (
   <>
@@ -55,7 +56,7 @@ const GovUKHeader: React.FC = () => (
           This is a new service – your <Link to={FEEDBACK_PATH} className="govuk-link">feedback</Link> will help us to improve it.
         </p>
       </div>
-      <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: 0 }} aria-hidden="true" />
+      <div className="govuk-header-divider" aria-hidden="true" />
   </>
 );
 

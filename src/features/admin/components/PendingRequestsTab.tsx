@@ -43,7 +43,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
   handlePageChange
 }) => {
   return (
-    <div className="govuk-tabs__panel" id="pending-requests">
+    <div className="govuk-tabs__panel">
       <h2 className="govuk-heading-m">Pending access requests</h2>
       
       <div className="govuk-grid-row govuk-!-margin-bottom-4">
@@ -53,8 +53,8 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
       </div>
 
       {requestsError && (
-        <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
-          <h2 className="govuk-error-summary__title" id="error-summary-title">
+        <div className="govuk-error-summary" aria-labelledby="pending-requests-error-summary-title" role="alert" tabIndex={-1}>
+          <h2 className="govuk-error-summary__title" id="pending-requests-error-summary-title">
             There is a problem
           </h2>
           <div className="govuk-error-summary__body">

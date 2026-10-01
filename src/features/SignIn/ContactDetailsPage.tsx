@@ -7,6 +7,7 @@ import { useAccessRequest } from "../../hooks/useAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
+import PageTitle from "../../components/PageTitle";
 
 const logger = createLogger('ContactDetailsPage');
 
@@ -158,6 +159,7 @@ const ContactDetailsPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Enter your contact details" />
             <div className="govuk-width-container">
         <Link
           to="/request-access"

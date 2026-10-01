@@ -69,9 +69,6 @@ export function categorizeUrl(pathname: string): UrlMetadata {
   if (path.includes('request-access')) {
     return { applicationType: COMMON_APP_TYPE, category: 'Onboarding' };
   }
-  if (path.includes('otp-verify')) {
-    return { applicationType: COMMON_APP_TYPE, category: 'Authentication' };
-  }
 
   if (path.includes('payment-success')) {
     return { applicationType: COMMON_APP_TYPE, category: 'Pay and submit' };

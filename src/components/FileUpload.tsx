@@ -75,6 +75,7 @@ export interface FileUploadProps {
   showDocumentsHeading?: boolean;
   showTitle?: boolean;
   titleHeadingLevel?: 'h2' | 'h3' | 'h4';
+  hasExternalLabel?: boolean;
   onValidationErrors?: (errors: string[]) => void;
   onUploaded?: (
     uploadedFiles: UploadedFile[],
@@ -110,6 +111,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   showDocumentsHeading = true,
   showTitle = true,
   titleHeadingLevel = 'h2',
+  hasExternalLabel = false,
   onValidationErrors,
   onUploaded,
   uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
@@ -900,9 +902,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           fileInputRef.current?.click();
         }}
       >
-        <label htmlFor="file-upload-input" className="govuk-visually-hidden">
-          {title}
-        </label>
+        {!hasExternalLabel && (
+          <label htmlFor="file-upload-input" className="govuk-visually-hidden">
+            {title}
+          </label>
+        )}
         <input
           type="file"
           multiple

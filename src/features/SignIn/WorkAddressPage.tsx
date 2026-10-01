@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
+import PageTitle from "../../components/PageTitle";
 
 const WorkAddressPage: React.FC = () => {
   const navigate = useNavigate();
@@ -117,6 +118,7 @@ const WorkAddressPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Enter your work address" />
             <div className="govuk-width-container">
         <Link
           to="/request-access/contact-details"
