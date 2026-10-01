@@ -37,9 +37,9 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
 
   return (
     <div className="govuk-!-margin-top-8">
-      <h2 className="govuk-heading-m govuk-!-margin-bottom-4">{idx + 1}. {section.title}</h2>
+      <h2 id={`s37-task-heading-${idx}`} className="govuk-heading-m govuk-!-margin-bottom-4">{idx + 1}. {section.title}</h2>
       <hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
-      <ul className="govuk-task-list">
+      <ul className="govuk-task-list" aria-labelledby={`s37-task-heading-${idx}`}>
           {section.items.map((item, itemIndex) => (
             <li className="govuk-task-list__item" key={item.name}>
               <div className="govuk-task-list__name-and-hint">
@@ -73,8 +73,10 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                   item.name === 'Route' ? (
                     <RouteEntry applicationId={applicationId}>
                       <Link 
+                        id={`s37-task-link-${idx}-${itemIndex}`}
                         className="govuk-link govuk-!-font-weight-bold" 
                         to={item.link}
+                        aria-labelledby={`s37-task-heading-${idx} s37-task-link-${idx}-${itemIndex}`}
                         aria-describedby={`s37-task-status-${idx}-${itemIndex}`}
                       >
                         {item.name}
@@ -82,8 +84,10 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                     </RouteEntry>
                   ) : (
                     <Link 
+                      id={`s37-task-link-${idx}-${itemIndex}`}
                       className="govuk-link govuk-!-font-weight-bold" 
                       to={item.link}
+                      aria-labelledby={`s37-task-heading-${idx} s37-task-link-${idx}-${itemIndex}`}
                       aria-describedby={`s37-task-status-${idx}-${itemIndex}`}
                     >
                       {item.name}
