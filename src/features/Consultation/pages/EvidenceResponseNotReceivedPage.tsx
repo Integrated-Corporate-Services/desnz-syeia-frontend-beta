@@ -395,29 +395,27 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
                             {/* Declaration */}
                             <div className={`govuk-form-group ${errors.declaration ? 'govuk-form-group--error' : ''}`}>
-                                <fieldset className="govuk-fieldset">
-                                    {errors.declaration && (
-                                        <p id="declaration-error" className="govuk-error-message">
-                                            <span className="govuk-visually-hidden">Error:</span> {errors.declaration}
-                                        </p>
-                                    )}
-                                    <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                                        <div className="govuk-checkboxes__item">
-                                            <input
-                                                className="govuk-checkboxes__input"
-                                                id="declaration"
-                                                name="declaration"
-                                                type="checkbox"
-                                                checked={formData.declarationAccepted}
-                                                onChange={handleDeclarationChange}
-                                                aria-describedby={errors.declaration ? 'declaration-error' : undefined}
-                                            />
-                                            <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
-                                                Confirm you have provided all relevant information, uploaded all supporting documents and want to close this consultation. You cannot undo this action.
-                                            </label>
-                                        </div>
+                                {errors.declaration && (
+                                    <p id="declaration-error" className="govuk-error-message">
+                                        <span className="govuk-visually-hidden">Error:</span> {errors.declaration}
+                                    </p>
+                                )}
+                                <div className="govuk-checkboxes" data-module="govuk-checkboxes">
+                                    <div className="govuk-checkboxes__item">
+                                        <input
+                                            className="govuk-checkboxes__input"
+                                            id="declaration"
+                                            name="declaration"
+                                            type="checkbox"
+                                            checked={formData.declarationAccepted}
+                                            onChange={handleDeclarationChange}
+                                            aria-describedby={errors.declaration ? 'declaration-error' : undefined}
+                                        />
+                                        <label className="govuk-label govuk-checkboxes__label" htmlFor="declaration">
+                                            Confirm you have provided all relevant information, uploaded all supporting documents and want to close this consultation. You cannot undo this action.
+                                        </label>
                                     </div>
-                                </fieldset>
+                                </div>
                             </div>
 
                             {/* Buttons */}

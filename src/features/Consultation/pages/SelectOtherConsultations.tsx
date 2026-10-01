@@ -229,6 +229,10 @@ const SelectOtherConsultations: React.FC = () => {
                                             onRemove={handleLpaRemove}
                                             showCheckbox={true}
                                         />
+                                <fieldset className="govuk-fieldset">
+                                    <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                        Which other consultations do you want to add?
+                                    </legend>
                                 <div className="govuk-checkboxes" data-module="govuk-checkboxes">
 
                                     {/* Dynamic OTHER consultees from database */}
@@ -270,6 +274,7 @@ const SelectOtherConsultations: React.FC = () => {
                                         </label>
                                     </div>
                                 </div>
+                                </fieldset>
 
                                 {/* Show text input if "Other" checkbox is selected */}
                                 <div

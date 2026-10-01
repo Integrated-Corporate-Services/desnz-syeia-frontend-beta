@@ -112,6 +112,7 @@ export const ApplicationDeletionConfirmation: React.FC<ApplicationDeletionConfir
 
             <div className="govuk-form-group">
               <fieldset className="govuk-fieldset">
+                <legend className="govuk-visually-hidden">Are you sure you want to delete this application?</legend>
                 <div className="govuk-radios" data-module="govuk-radios">
                   <div className="govuk-radios__item">
                     <input
