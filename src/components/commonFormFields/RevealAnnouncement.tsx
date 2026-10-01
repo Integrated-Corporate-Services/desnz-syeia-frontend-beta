@@ -55,13 +55,18 @@ const RevealAnnouncement: React.FC<RevealAnnouncementProps> = ({ shown, message,
     const prev = previous.current;
     previous.current = { shown, message };
 
+    if (!announceOnLoad && !shown) {
+      setText('');
+    }
+
     if (announceOnLoad) {
       if (!loadReady.current) {
         loadReady.current = true;
         return;
       }
+    } else if (!fromUser.current) {
+      return;
     } else {
-      if (!fromUser.current) return;
       fromUser.current = false;
       window.clearTimeout(clearTimer.current);
     }
