@@ -138,7 +138,7 @@ const NWLTaskList: React.FC = () => {
 
 						<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">1. Applicant details</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
+						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
 						<ul className="govuk-task-list">
 							{renderTask(NWL_SUBSECTIONS.APPLICANT_DETAILS, <Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.APPLICANT_DETAILS, appId)}>Applicant details</Link>)}
 							{renderTask(NWL_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS, <Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.NETWORK_OPERATOR_CONTACT_DETAILS, appId)}>Check applicant contact details</Link>)}
