@@ -466,6 +466,7 @@ const BankTransferConfirmationPage: React.FC = () => {
               <FileUpload
                 ref={fileUploadRef}
                 showTitle={false}
+                hasExternalLabel
                 prefix={`${applicationId}/${FILE_CATEGORIES.PAYMENT_PROOF}`}
                 applicationId={applicationId}
                 category={FILE_CATEGORIES.PAYMENT_PROOF}
