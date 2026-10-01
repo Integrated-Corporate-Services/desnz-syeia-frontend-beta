@@ -21,7 +21,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
-import Accordion from '../../../components/Accordion';
+import Details from '../../../components/Details';
 
 // Exact set of anchor ids this page's createErrorLink() calls can produce - used to validate
 // the href extracted back out of an error string before it's rendered, since error text can
@@ -662,20 +662,11 @@ const ProjectOverview = () => {
 						</div>
 
 						{/* Details: What type of information should be provided */}
-						<Accordion
-							initialOpen={false}
-							sections={[
-								{
-									id: 'info-details',
-									heading: projectOverview.infoDetailsSummary,
-									children: (
-										<p className="govuk-body">
-											{projectOverview.infoDetailsText}
-										</p>
-									),
-								},
-							]}
-						/>
+						<Details id="info-details" summary={projectOverview.infoDetailsSummary} className="govuk-!-margin-bottom-6">
+							<p className="govuk-body">
+								{projectOverview.infoDetailsText}
+							</p>
+						</Details>
 
 						{/* Tallest Pole Height Section */}
 						<h2 className="govuk-heading-s govuk-!-margin-bottom-2">{projectOverview.tallestPoleHeight}</h2>
@@ -927,20 +918,11 @@ const ProjectOverview = () => {
 						</div>
 
 						{/* Details: What information should be included in the plan */}
-						<Accordion
-							initialOpen={false}
-							sections={[
-								{
-									id: 'plan-details',
-									heading: projectOverview.planDetailsSummary,
-									children: (
-										<p className="govuk-body">
-											{projectOverview.planDetailsText}
-										</p>
-									),
-								},
-							]}
-						/>
+						<Details id="plan-details" summary={projectOverview.planDetailsSummary} className="govuk-!-margin-bottom-6">
+							<p className="govuk-body">
+								{projectOverview.planDetailsText}
+							</p>
+						</Details>
 
 						{/* Related Applications */}
 						<div className={`govuk-form-group${fieldErrors['hasRelatedApplications-inputValue'] ? " govuk-form-group--error" : ""}`}>

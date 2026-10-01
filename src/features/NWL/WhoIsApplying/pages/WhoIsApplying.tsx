@@ -1,6 +1,6 @@
 import React from "react";
 import PageTitle from "../../../../components/PageTitle";
-import Accordion from "../../../../components/Accordion";
+import Details from "../../../../components/Details";
 import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import { useNetworkOperators } from "../hooks/useNetworkOperators";
 import { useWhoIsApplyingForm } from "../hooks/useWhoIsApplyingForm";
@@ -90,36 +90,27 @@ const WhoIsApplying: React.FC = () => {
                   ))}
                 </select>
               </div>
-              <div style={{ maxWidth: 600, marginTop: "2rem" }}>
-                <Accordion
-                  initialOpen={false}
-                  sections={[
-                    {
-                      id: 'network-operator-not-listed',
-                      heading: 'The network operator is not listed',
-                      children: (
-                        <>
-                          <p>
-                            You must contact the team coordinator in your organisation
-                            that you want to create an application for to provide you
-                            with access to their organisation.
-                          </p>
-                          <p>
-                            If you do not know who the team coordinator is then contact
-                            the service desk for advice at{" "}
-                            <a
-                              href="mailto:ukop@nstauthority.co.uk"
-                              className="govuk-link"
-                            >
-                              ukop@nstauthority.co.uk
-                            </a>
-                          </p>
-                        </>
-                      ),
-                    },
-                  ]}
-                />
-              </div>
+              <Details
+                id="network-operator-not-listed"
+                summary="The network operator is not listed"
+                style={{ maxWidth: 600, marginTop: "2rem" }}
+              >
+                <p>
+                  You must contact the team coordinator in your organisation
+                  that you want to create an application for to provide you
+                  with access to their organisation.
+                </p>
+                <p>
+                  If you do not know who the team coordinator is then contact
+                  the service desk for advice at{" "}
+                  <a
+                    href="mailto:ukop@nstauthority.co.uk"
+                    className="govuk-link"
+                  >
+                    ukop@nstauthority.co.uk
+                  </a>
+                </p>
+              </Details>
               <div className="govuk-!-static-margin-top-6">
                 <button
                   type="submit"
