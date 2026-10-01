@@ -403,7 +403,7 @@ const WayleaveExpiryDate: React.FC = () => {
                 
                 {uploadedFiles && uploadedFiles.length > 0 && (
                   <div className="govuk-!-margin-top-2">
-                    <h3 className="govuk-heading-s">{SHARED_UPLOAD_LABELS.DOCUMENTS_UPLOADED}</h3>
+                    <h2 className="govuk-heading-s">{SHARED_UPLOAD_LABELS.DOCUMENTS_UPLOADED}</h2>
                   </div>
                 )}
                 

@@ -266,11 +266,8 @@ const DownloadLpaConsultationFormPage: React.FC = () => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h2 className="govuk-caption-xl govuk-!-margin-top-0">
-              <strong>{lpaName}</strong>
-            </h2>
-
             <h1 className="govuk-heading-l">
+              <span className="govuk-caption-xl govuk-!-margin-top-0"><strong>{lpaName}</strong></span>
               Download and send the LPA consultation form
             </h1>
 

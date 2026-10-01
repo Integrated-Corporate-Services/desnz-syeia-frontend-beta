@@ -74,6 +74,7 @@ export interface FileUploadProps {
   consultationId?: string;
   showDocumentsHeading?: boolean;
   showTitle?: boolean;
+  titleHeadingLevel?: 'h2' | 'h3' | 'h4';
   onValidationErrors?: (errors: string[]) => void;
   onUploaded?: (
     uploadedFiles: UploadedFile[],
@@ -108,6 +109,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   consultationId,
   showDocumentsHeading = true,
   showTitle = true,
+  titleHeadingLevel = 'h2',
   onValidationErrors,
   onUploaded,
   uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
@@ -707,6 +709,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
   };
 
+  const TitleHeading = titleHeadingLevel;
+
   return (
     <div className="gds-upload-container" tabIndex={-1}>
       {/* Documents Uploaded Section - Show uploaded files first */}
@@ -846,9 +850,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
       {/* File Upload Section - Upload controls appear after uploaded files */}
       {showTitle && (
-        <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
+        <TitleHeading className="govuk-heading-s govuk-!-margin-bottom-2">
           {title}
-        </h3>
+        </TitleHeading>
       )}
       <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
