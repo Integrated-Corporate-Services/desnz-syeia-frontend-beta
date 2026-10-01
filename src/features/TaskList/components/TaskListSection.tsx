@@ -38,7 +38,7 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
   return (
     <div className="govuk-!-margin-top-8">
       <h2 className="govuk-heading-m govuk-!-margin-bottom-4">{idx + 1}. {section.title}</h2>
-      <hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+      <div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
       <ul className="govuk-task-list">
           {section.items.map((item, itemIndex) => (
             <li className="govuk-task-list__item" key={item.name}>
