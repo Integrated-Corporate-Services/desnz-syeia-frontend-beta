@@ -9,11 +9,12 @@ interface AccordionSection {
 interface AccordionProps {
   sections: AccordionSection[];
   heading?: string;
+  initialOpen?: boolean;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ sections, heading }) => {
+const Accordion: React.FC<AccordionProps> = ({ sections, heading, initialOpen = true }) => {
   const [openSections, setOpenSections] = useState<{ [id: string]: boolean }>(
-    sections.reduce((acc, section) => ({ ...acc, [section.id]: true }), {})
+    sections.reduce((acc, section) => ({ ...acc, [section.id]: initialOpen }), {})
   );
 
   const toggleSection = (id: string) => {

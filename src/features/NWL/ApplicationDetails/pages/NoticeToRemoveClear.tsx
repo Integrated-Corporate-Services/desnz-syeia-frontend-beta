@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
+import Accordion from "../../../../components/Accordion";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -181,20 +182,24 @@ const NoticeToRemoveClear: React.FC = () => {
                 </fieldset>
               </div>
 
-              <details className="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    {LABELS.GUIDANCE_TITLE}
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  {LABELS.GUIDANCE_CONTENT.split('\n\n').map((para, idx) => (
-                    <p key={idx} className="govuk-body">
-                      {para}
-                    </p>
-                  ))}
-                </div>
-              </details>
+              <Accordion
+                initialOpen={false}
+                sections={[
+                  {
+                    id: 'notice-to-remove-guidance',
+                    heading: LABELS.GUIDANCE_TITLE,
+                    children: (
+                      <>
+                        {LABELS.GUIDANCE_CONTENT.split('\n\n').map((para, idx) => (
+                          <p key={idx} className="govuk-body">
+                            {para}
+                          </p>
+                        ))}
+                      </>
+                    ),
+                  },
+                ]}
+              />
 
               <div className="govuk-button-group">
                 <button

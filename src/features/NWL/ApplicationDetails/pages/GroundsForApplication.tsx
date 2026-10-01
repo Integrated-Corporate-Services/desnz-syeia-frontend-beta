@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
+import Accordion from "../../../../components/Accordion";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { 
   useApplicationNavigation, 
@@ -207,16 +208,16 @@ const GroundsForApplication: React.FC = () => {
                 </fieldset>
               </div>
 
-              <details className="govuk-details" data-module="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    {LABELS.OBJECTOR_TITLE}
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  {LABELS.OBJECTOR_CONTENT}
-                </div>
-              </details>
+              <Accordion
+                initialOpen={false}
+                sections={[
+                  {
+                    id: 'objector-details',
+                    heading: LABELS.OBJECTOR_TITLE,
+                    children: <>{LABELS.OBJECTOR_CONTENT}</>,
+                  },
+                ]}
+              />
 
               <p className="govuk-body">
                 <a
