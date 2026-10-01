@@ -32,7 +32,6 @@ const Accordion: React.FC<AccordionProps> = ({ sections, heading, initialOpen = 
               id={`accordion-section-button-${section.id}`}
               aria-controls={`accordion-section-content-${section.id}`}
               aria-expanded={openSections[section.id]}
-              aria-labelledby={`accordion-section-heading-${section.id}`}
               onClick={() => toggleSection(section.id)}
             >
               <span className="govuk-accordion__section-heading-text">
@@ -43,6 +42,7 @@ const Accordion: React.FC<AccordionProps> = ({ sections, heading, initialOpen = 
                   <span className={`govuk-accordion-nav__chevron${openSections[section.id] ? " govuk-accordion-nav__chevron--down" : ""}`}></span>
                   <span className="govuk-accordion__section-toggle-text">
                     {openSections[section.id] ? "Hide" : "Show"}
+                    <span className="govuk-visually-hidden"> this section</span>
                   </span>
                 </span>
               </span>
@@ -52,7 +52,6 @@ const Accordion: React.FC<AccordionProps> = ({ sections, heading, initialOpen = 
             id={`accordion-section-content-${section.id}`}
             className="govuk-accordion__section-content"
             style={{ display: openSections[section.id] ? 'block' : 'none', marginTop: '8px' }}
-            aria-labelledby={`accordion-section-heading-${section.id}`}
           >
             {section.children}
           </div>
