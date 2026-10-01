@@ -20,6 +20,7 @@ import {
 } from "../constants/networkOperatorDetails";
 import PageTitle from "../../../components/PageTitle";
 import Accordion from "../../../components/Accordion";
+import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
 
 /**
  * Network Operator Details Page
@@ -247,7 +248,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   This person will be the designated contact for this application and all official correspondence will be addressed to them.
                 </div>
                 {errors.includes(FORM_ERRORS.MISSING_OPERATOR) && (
-                  <p id="location-error" className="govuk-error-message">
+                  <p id="location-error" className="govuk-error-message" role="alert">
                     <span className="govuk-visually-hidden">Error:</span>
                     {FORM_ERRORS.MISSING_CONTACT_NAME}
                   </p>
@@ -282,6 +283,14 @@ const NetworkOperatorDetails: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                <RevealAnnouncement
+                  shown={filteredOptions.length > 0}
+                  message={`${filteredOptions.length} applicant contact${filteredOptions.length === 1 ? "" : "s"} available in Applicant contact name.`}
+                />
+                <RevealAnnouncement
+                  shown={Boolean(selectedOrgName)}
+                  message={`Selected applicant contact ${selectedOrgName}. You can add additional contacts below.`}
+                />
               </div>
               {additionalContacts.length > 0 && (
                 <ul className="govuk-list">

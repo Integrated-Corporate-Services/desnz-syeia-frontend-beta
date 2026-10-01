@@ -270,7 +270,7 @@ export const RouteOverviewPage: React.FC = () => {
                                         If you have a line off the main route, you will need to add a route spur. If your routes do not connect, you need to provide justification for including it in this application.
                                     </div>
                                     {formError === ROUTE_ERROR_MESSAGES.addAnotherRoute && (
-                                        <span className="govuk-error-message" id="addRouteRadioGroup-error">
+                                        <span className="govuk-error-message" id="addRouteRadioGroup-error" role="alert">
                                             <span className="govuk-visually-hidden">Error:</span> {formError}
                                         </span>
                                     )}
