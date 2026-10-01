@@ -95,6 +95,15 @@ body {
   box-shadow: none !important;
 }
 
+@media (max-width: 640px) {
+  .govuk-select {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
 a:focus,
 button:focus,
 [tabindex]:focus {
