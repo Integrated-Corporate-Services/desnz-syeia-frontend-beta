@@ -62,6 +62,9 @@ const RevealAnnouncement: React.FC<RevealAnnouncementProps> = ({ shown, message,
     if (announceOnLoad) {
       if (!loadReady.current) {
         loadReady.current = true;
+        if (shown) {
+          setText(message);
+        }
         return;
       }
     } else if (!fromUser.current) {
