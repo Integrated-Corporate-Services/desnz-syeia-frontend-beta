@@ -104,7 +104,7 @@ export const ApplicationDeletionConfirmation: React.FC<ApplicationDeletionConfir
       }}>
         {step === 'confirm' && (
           <>
-            <h1 className="govuk-heading-l">Are you sure you want to delete this application?</h1>
+            <h2 className="govuk-heading-l">Are you sure you want to delete this application?</h2>
             
             <div className="govuk-body">
               <p>This will remove all the information you have entered and remove the application from your dashboard. You cannot retrieve deleted applications.</p>

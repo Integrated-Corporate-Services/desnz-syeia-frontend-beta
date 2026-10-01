@@ -170,9 +170,11 @@ const PaymentFailurePage: React.FC = () => {
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-visually-hidden">
-              The payment was unsuccessful and your application has not been submitted.
-            </h1>
+            {showBanner && (
+              <h1 className="govuk-visually-hidden">
+                The payment was unsuccessful and your application has not been submitted.
+              </h1>
+            )}
 
             {showBanner && (
               <div
