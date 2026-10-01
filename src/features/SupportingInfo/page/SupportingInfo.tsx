@@ -14,6 +14,7 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
 import { clearKeyedErrors } from '../validations';
 import PageTitle from '../../../components/PageTitle';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 const logger = createLogger('SupportingInfo');
 
@@ -431,6 +432,8 @@ const SupportingInfo: React.FC = () => {
                   clearError("wayleaves", "wayleavesReason");
                 }}
                 aria-describedby={hasError("wayleaves") ? "wayleaves-error" : undefined}
+                aria-controls="haveAllWayleavesBeenObtained-no-hidden"
+                aria-expanded={wayleaves === "no"}
               />
               <label className="govuk-label govuk-radios__label" htmlFor="wayleaves-no">
                 No
@@ -464,6 +467,7 @@ const SupportingInfo: React.FC = () => {
               </div>
             )}
           </div>
+          <RevealAnnouncement shown={wayleaves === "no"} message="A new question is shown below: Why have all wayleaves not been obtained?" />
         </fieldset>
       </div>
 
@@ -553,12 +557,15 @@ const SupportingInfo: React.FC = () => {
           setSupportingDocs("yes");
           clearError("supportingDocs");
         }}
+        aria-controls="hasSupportingDocuments-hidden"
+        aria-expanded={supportingDocs === "yes"}
       />
       <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments">
         Yes
       </label>
     </div>
 
+    <RevealAnnouncement shown={supportingDocs === "yes"} message="A new question is shown below: Upload a file" />
     {supportingDocs === "yes" && (
         <div
           className={`govuk-radios__conditional govuk-form-group${hasError("supportingDocsFiles") || fileValidationErrors.length > 0 ? " govuk-form-group--error" : ""}`}

@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import PageTitle from "../../../../components/PageTitle";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import logger from "../../../../logger";
+import RevealAnnouncement from "../../../../components/commonFormFields/RevealAnnouncement";
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -329,7 +330,7 @@ const LandownerOccupantDetails: React.FC = () => {
               <div id="grantorRep-hint" className="govuk-hint"></div>
               <div className="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                 <div className="govuk-radios__item">
-                  <input className="govuk-radios__input" id="grantorRep" name="grantorRep" type="radio" value="Yes" checked={grantorRep === "Yes"} onChange={e => { setGrantorRep(e.target.value); setShowRepFields(e.target.value === "Yes"); }} />
+                  <input className="govuk-radios__input" id="grantorRep" name="grantorRep" type="radio" value="Yes" checked={grantorRep === "Yes"} onChange={e => { setGrantorRep(e.target.value); setShowRepFields(e.target.value === "Yes"); }} aria-controls="grantorRep-hidden" aria-expanded={showRepFields} />
                   <label className="govuk-label govuk-radios__label" htmlFor="grantorRep">Yes</label>
                 </div>
                 <div className="govuk-radios__item">
@@ -338,8 +339,9 @@ const LandownerOccupantDetails: React.FC = () => {
                 </div>
               </div>
             </fieldset>
+            <RevealAnnouncement shown={showRepFields} message="New questions are shown below: representative name, address, email address and phone number" />
             {showRepFields && (
-              <div className="grantor-rep">
+              <div className="grantor-rep" id="grantorRep-hidden">
                 <div className={`govuk-form-group${errors.grantorRepDescription ? ' govuk-form-group--error' : ''}`}>  
                   <label className="govuk-label govuk-label--s" htmlFor="grantorRepDescription">Representative name</label>
                   <div id="grantorRepDescription-hint" className="govuk-hint">E.g. Smith and Smith Solicitors Ltd</div>
