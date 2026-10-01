@@ -130,15 +130,12 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
      */
     function renderDocumentLink(doc: DocumentType, idx: number) {
         const displayName = doc.name || doc.filename || doc.fileName || '';
-        // Truncate extremely long filenames for display
-        const truncatedName = displayName.length > 40 ? `${displayName.substring(0, 37)}...` : displayName;
 
         return (
             <div key={idx} className="govuk-!-margin-bottom-1">
                 <a
                     href="#"
                     className="govuk-link govuk-!-word-break govuk-!-display-inline-block govuk-!-width-full"
-                    title={displayName}
                     onClick={async (e) => {
                         e.preventDefault();
                         const key = doc.key || doc.url;
@@ -150,7 +147,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         }
                     }}
                 >
-                    {truncatedName}
+                    {displayName}
                 </a>
             </div>
         );
