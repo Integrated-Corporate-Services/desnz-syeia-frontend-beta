@@ -6,7 +6,7 @@ import {
   submitCurrentUserOrganisationRequest,
 } from '../services/yourDetailsService';
 import PageTitle from '../../../components/PageTitle';
-import Accordion from '../../../components/Accordion';
+import Details from '../../../components/Details';
 
 type FormErrors = {
   organisationIds?: string;
@@ -211,44 +211,33 @@ const ChangeOrganisationsPage: React.FC = () => {
                 </p>
               </div>
 
-              <Accordion
-                initialOpen={false}
-                sections={[
-                  {
-                    id: 'previously-selected-organisations',
-                    heading: 'Organisations you have previously selected',
-                    children: (
-                      <>
-                        <p className="govuk-body">Approved organisations:</p>
-                        {approvedOrganisations.length > 0 ? (
-                          <ul className="govuk-list govuk-list--bullet">
-                            {approvedOrganisations.map((org) => (
-                              <li key={`approved-${org.organisationId}`}>{org.organisationName}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="govuk-body">None</p>
-                        )}
+              <Details id="previously-selected-organisations" summary="Organisations you have previously selected">
+                <p className="govuk-body">Approved organisations:</p>
+                {approvedOrganisations.length > 0 ? (
+                  <ul className="govuk-list govuk-list--bullet">
+                    {approvedOrganisations.map((org) => (
+                      <li key={`approved-${org.organisationId}`}>{org.organisationName}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="govuk-body">None</p>
+                )}
 
-                        <p className="govuk-body">Organisations waiting for approval:</p>
-                        {pendingOrganisations.length > 0 ? (
-                          <ul className="govuk-list govuk-list--bullet">
-                            {pendingOrganisations.map((org) => (
-                              <li key={`pending-${org.organisationId}`}>{org.organisationName}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="govuk-body">None</p>
-                        )}
+                <p className="govuk-body">Organisations waiting for approval:</p>
+                {pendingOrganisations.length > 0 ? (
+                  <ul className="govuk-list govuk-list--bullet">
+                    {pendingOrganisations.map((org) => (
+                      <li key={`pending-${org.organisationId}`}>{org.organisationName}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="govuk-body">None</p>
+                )}
 
-                        <p className="govuk-body">
-                          To remove an organisation you must contact their team coordinator directly.
-                        </p>
-                      </>
-                    ),
-                  },
-                ]}
-              />
+                <p className="govuk-body">
+                  To remove an organisation you must contact their team coordinator directly.
+                </p>
+              </Details>
 
               <button type="submit" className="govuk-button" disabled={saving}>
                 {saving ? 'Saving...' : 'Save and continue'}
