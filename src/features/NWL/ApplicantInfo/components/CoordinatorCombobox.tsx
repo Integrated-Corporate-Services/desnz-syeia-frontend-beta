@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import "./CoordinatorCombobox.css";
+import "../../../../styles/CoordinatorCombobox.css";
 
 export interface CoordinatorOption {
   id: string;
