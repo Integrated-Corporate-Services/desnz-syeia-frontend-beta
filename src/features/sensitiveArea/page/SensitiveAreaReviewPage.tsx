@@ -10,7 +10,7 @@ import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 import PageTitle from '../../../components/PageTitle';
-import Accordion from '../../../components/Accordion';
+import Details from '../../../components/Details';
 
 const SensitiveAreaReviewPage: React.FC = () => {
   // Get applicationId from URL params or query string
@@ -386,20 +386,9 @@ const SensitiveAreaReviewPage: React.FC = () => {
             />
           </div>
 
-          <Accordion
-            initialOpen={false}
-            sections={[
-              {
-                id: 'environmental-archaeological-documents-info',
-                heading: 'What information should be included in the environmental and archaeological documents',
-                children: (
-                  <>
-                    Upload all the supporting documentation and environmental reports relating to your application. This should include Natural England / Natural Resources Wales as well as ecological reports, heritage reports and evidence of other consultations you have had with statutory bodies
-                  </>
-                ),
-              },
-            ]}
-          />
+          <Details id="document-information-details" summary="What information should be included in the environmental and archaeological documents" className="govuk-!-margin-bottom-6">
+            Upload all the supporting documentation and environmental reports relating to your application. This should include Natural England / Natural Resources Wales as well as ecological reports, heritage reports and evidence of other consultations you have had with statutory bodies
+          </Details>
 
           <div id="pole-radio-group" className={`govuk-form-group govuk-!-margin-bottom-6${formErrors.includes(SENSITIVE_AREA_ERRORS.SELECT_POLE_OPTION) ? ' govuk-form-group--error' : ''}`}> 
             <fieldset className="govuk-fieldset">
