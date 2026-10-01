@@ -51,7 +51,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
   return (
     <div className="govuk-tabs__panel" id="active-users">
       <h2 className="govuk-heading-m">Active users</h2>
-      <p className="govuk-body-s govuk-!-margin-bottom-3">{totalResults} results</p>
+      <p className="govuk-body-s govuk-!-margin-bottom-3" role="status">{totalResults} results</p>
 
      
 

@@ -11,6 +11,7 @@ import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted'
 import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 import PageTitle from '../../../components/PageTitle';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -198,6 +199,7 @@ const SensitiveAreaPage: React.FC = () => {
                                                         Yes
                                                     </label>
                                                 </div>
+                                                <RevealAnnouncement shown={toleranceRequired === 'yes'} message="A new question is shown below: Tolerance required in metres" />
                                                 <div
                                                     className={`govuk-radios__conditional${toleranceRequired === 'yes' ? '' : ' govuk-radios__conditional--hidden'}`}
                                                     id="routeToleranceRequired-hidden"

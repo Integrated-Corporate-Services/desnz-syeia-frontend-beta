@@ -1,6 +1,7 @@
 // src/components/ContactDetailsConfirmationRadio.tsx
 import React from 'react';
 import { CONTENT } from '../../../constants/content';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 type Props = {
   value: string;
@@ -39,6 +40,8 @@ const ContactDetailsConfirmationRadio: React.FC<Props> = ({ value, onChange }) =
             value="false"
             checked={value === 'false'}
             onChange={() => onChange('false')}
+            aria-controls="contactDetailsConfirmed-no-hidden"
+            aria-expanded={value === 'false'}
           />
           <label className="govuk-label govuk-radios__label" htmlFor="contactDetailsConfirmed-no">
             {CONTENT.networkOperatorContact.confirmation.no}
@@ -51,6 +54,7 @@ const ContactDetailsConfirmationRadio: React.FC<Props> = ({ value, onChange }) =
           </div>
         )}
       </div>
+      <RevealAnnouncement shown={value === 'false'} message={`${CONTENT.networkOperatorContact.confirmation.noDetails1} ${CONTENT.networkOperatorContact.confirmation.noDetails2}`} />
     </fieldset>
   </div>
 );

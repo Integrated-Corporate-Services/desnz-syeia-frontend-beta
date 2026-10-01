@@ -10,6 +10,7 @@ import {
   OPTIONS,
 } from "../constants/standardTermConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import RevealAnnouncement from "../../../../components/commonFormFields/RevealAnnouncement";
 
 const StandardTerm: React.FC = () => {
   const appId = useGetApplicationId();
@@ -187,6 +188,8 @@ const StandardTerm: React.FC = () => {
                             handleTermChange(e.target.value);
                           }}
                           data-aria-controls={option.value === "no" ? "conditional-explanation" : undefined}
+                          aria-controls={option.value === "no" ? "conditional-explanation" : undefined}
+                          aria-expanded={option.value === "no" ? isStandardTerm === "no" : undefined}
                         />
                         <label
                           className="govuk-label govuk-radios__label"
@@ -198,6 +201,7 @@ const StandardTerm: React.FC = () => {
                     ))}
                   </div>
                   
+                  <RevealAnnouncement shown={isStandardTerm === "no"} message={`A new question is shown below: ${LABELS.TEXTAREA_LABEL}`} />
                   {isStandardTerm === "no" && (
                     <div className="govuk-radios__conditional" id="conditional-explanation">
                       <div className={`govuk-form-group ${explanationError ? "govuk-form-group--error" : ""}`}>
