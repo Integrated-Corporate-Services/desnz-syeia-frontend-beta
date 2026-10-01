@@ -261,6 +261,8 @@ const SelectOtherConsultations: React.FC = () => {
                                             type="checkbox"
                                             checked={isOtherSelected}
                                             onChange={() => setIsOtherSelected(!isOtherSelected)}
+                                            aria-controls="other-checkbox-hidden"
+                                            aria-expanded={isOtherSelected}
                                         />
                                         <label className="govuk-label govuk-checkboxes__label" htmlFor="other-checkbox">
                                             Other
@@ -270,7 +272,7 @@ const SelectOtherConsultations: React.FC = () => {
 
                                 {/* Show text input if "Other" checkbox is selected */}
                                 {isOtherSelected && (
-                                    <div className="govuk-checkboxes__conditional">
+                                    <div className="govuk-checkboxes__conditional" id="other-checkbox-hidden">
                                         {otherEntries.length > 0 && (
                                             <div className="govuk-!-margin-bottom-4" style={{ width: '100%' }}>
                                                 {otherEntries.map((entry) => (

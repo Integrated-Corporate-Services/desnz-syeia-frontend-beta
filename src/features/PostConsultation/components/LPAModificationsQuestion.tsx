@@ -1,4 +1,5 @@
 import React from 'react';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 interface LPAModificationsQuestionProps {
     lpaModifications: string;
@@ -35,11 +36,14 @@ const LPAModificationsQuestion: React.FC<LPAModificationsQuestionProps> = ({ lpa
                             checked={lpaModifications === 'yes'}
                             onChange={(e) => onLpaModificationsChange(e.target.value)}
                             data-aria-controls="conditional-lpa-modifications-yes"
+                            aria-controls="conditional-lpa-modifications-yes"
+                            aria-expanded={lpaModifications === 'yes'}
                         />
                         <label className="govuk-label govuk-radios__label" htmlFor="lpa-modifications-yes">
                             Yes
                         </label>
                     </div>
+                    <RevealAnnouncement shown={lpaModifications === 'yes'} message="A new question is shown below: Do you accept all the conditions imposed by the LPA?" />
                     <div className={`govuk-radios__conditional ${lpaModifications === 'yes' ? '' : 'govuk-radios__conditional--hidden'}`} id="conditional-lpa-modifications-yes">
                         <div className="govuk-form-group">
                             <fieldset className="govuk-fieldset">
@@ -71,11 +75,14 @@ const LPAModificationsQuestion: React.FC<LPAModificationsQuestionProps> = ({ lpa
                                             checked={acceptConditions === 'no'}
                                             onChange={(e) => onAcceptConditionsChange(e.target.value)}
                                             data-aria-controls="conditional-accept-conditions-no"
+                                            aria-controls="conditional-accept-conditions-no"
+                                            aria-expanded={acceptConditions === 'no'}
                                         />
                                         <label className="govuk-label govuk-radios__label" htmlFor="accept-conditions-no">
                                             No
                                         </label>
                                     </div>
+                                    <RevealAnnouncement shown={acceptConditions === 'no'} message="A new question is shown below: Explain why you do not accept all the LPA's conditions" />
                                     <div className={`govuk-radios__conditional ${acceptConditions === 'no' ? '' : 'govuk-radios__conditional--hidden'}`} id="conditional-accept-conditions-no">
                                         <div className={`govuk-form-group${explanationError ? ' govuk-form-group--error' : ''}`}>
                                             <label className="govuk-label govuk-label--s" htmlFor="explanation">

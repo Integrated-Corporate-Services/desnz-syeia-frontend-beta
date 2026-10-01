@@ -12,6 +12,7 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import RouteSummary from './RouteSummary';
 import PageTitle from '../../../components/PageTitle';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 export const RouteOverviewPage: React.FC = () => {
     const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
     const [details, setDetails] = React.useState('');
@@ -289,14 +290,17 @@ export const RouteOverviewPage: React.FC = () => {
                                                 value="notconnected"
                                                 checked={spurChoice === 'notconnected'}
                                                 onChange={() => setSpurChoice('notconnected')}
+                                                aria-controls="addRouteRadioOption-2-hidden"
+                                                aria-expanded={spurChoice === 'notconnected'}
                                             />
                                             <label className="govuk-label govuk-radios__label" htmlFor="addRouteRadioOption-2">
                                                 Yes, I want to add another route not connected to the main route
                                             </label>
                                         </div>
+                                        <RevealAnnouncement shown={spurChoice === 'notconnected'} message="A new question is shown below: Explain why this additional route should be included with the main route of this application" />
                                         {/* Justification error only for textarea */}
                                         {spurChoice === 'notconnected' && (
-                                            <div className="govuk-inset-text" style={{ marginLeft: 0, marginTop: 8, borderLeft: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? '4px solid #d4351c' : undefined }}>
+                                            <div className="govuk-inset-text" id="addRouteRadioOption-2-hidden" style={{ marginLeft: 0, marginTop: 8, borderLeft: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? '4px solid #d4351c' : undefined }}>
                                                 <div className={`govuk-form-group govuk-character-count${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? ' govuk-form-group--error' : ''}`} data-module="govuk-character-count" data-maxlength={DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH}>
                                                     <label htmlFor="routeDetails" className="govuk-label">
                                                         Explain why this additional route should be included with the main route of this application

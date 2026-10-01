@@ -1,5 +1,6 @@
 
 import React from 'react';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 interface RadioOption {
 	value: string;
@@ -63,6 +64,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							/>
 							<label className="govuk-label govuk-radios__label" htmlFor={idx === 0 ? id : `${id}-${opt.value}`}>{opt.label}</label>
 						</div>
+						{opt.conditionalRender && <RevealAnnouncement shown={value === opt.value} message="More information is needed. A new question is shown below." />}
 						{opt.conditionalRender && (
 							<div
 								className={`govuk-radios__conditional ${value === opt.value ? '' : 'govuk-radios__conditional--hidden'}`}

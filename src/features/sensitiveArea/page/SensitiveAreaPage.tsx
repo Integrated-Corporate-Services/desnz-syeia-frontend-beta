@@ -11,6 +11,7 @@ import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted'
 import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 import PageTitle from '../../../components/PageTitle';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -190,11 +191,14 @@ const SensitiveAreaPage: React.FC = () => {
                                                         checked={toleranceRequired === 'yes'}
                                                         onChange={() => setToleranceRequired('yes')}
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
+                                                        aria-controls="routeToleranceRequired-hidden"
+                                                        aria-expanded={toleranceRequired === 'yes'}
                                                     />
                                                     <label className="govuk-label govuk-radios__label" htmlFor="routeToleranceRequired">
                                                         Yes
                                                     </label>
                                                 </div>
+                                                <RevealAnnouncement shown={toleranceRequired === 'yes'} message="A new question is shown below: Tolerance required in metres" />
                                                 {toleranceRequired === 'yes' && (
                                                     <div className="govuk-radios__conditional" id="routeToleranceRequired-hidden">
                                                         <div className={`govuk-form-group${formError ? ' govuk-form-group--error' : ''}`}>

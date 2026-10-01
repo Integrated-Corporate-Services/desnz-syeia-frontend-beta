@@ -7,6 +7,7 @@ import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '..
 import nwlAssetService from '../services/nwlAssetService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
 
 const logger = createLogger('AssetsMatchPlan');
 
@@ -270,6 +271,8 @@ const AssetsMatchPlan: React.FC = () => {
                       value="no"
                       checked={assetsMatch === 'no'}
                       onChange={(e) => handleRadioChange(e.target.value)}
+                      aria-controls="conditional-assets-match-2"
+                      aria-expanded={assetsMatch === 'no'}
                     />
                     <label className="govuk-label govuk-radios__label" htmlFor="assets-match-2">
                       {LABELS.NO}
@@ -327,6 +330,7 @@ const AssetsMatchPlan: React.FC = () => {
                     </div>
                   )}
                 </div>
+                <RevealAnnouncement shown={assetsMatch === 'no'} message={`A new question is shown below: ${LABELS.EXPLAIN_MISMATCH_LABEL}`} />
               </fieldset>
             </div>
 

@@ -5,6 +5,7 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Link, useParams } from "react-router-dom";
+import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
@@ -172,7 +173,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 							</fieldset>
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<hr className="govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h2 className="govuk-heading-m">Land details</h2>
 						<div className={`govuk-form-group${errors.landLocation ? ' govuk-form-group--error' : ''}`}>  
 							<label className="govuk-label govuk-label--s" htmlFor="landLocation">Land location</label>
@@ -202,7 +203,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 								<div className="govuk-radios" data-module="govuk-radios">
 									<div className="govuk-radios__item">
-										<input className="govuk-radios__input" id="landRegistry-yes" name="landRegistry" type="radio" value="yes" checked={landRegistry === "yes"} onChange={e => setLandRegistry(e.target.value)} />
+										<input className="govuk-radios__input" id="landRegistry-yes" name="landRegistry" type="radio" value="yes" checked={landRegistry === "yes"} onChange={e => setLandRegistry(e.target.value)} aria-controls="landRegistry-yes-hidden" aria-expanded={landRegistry === "yes"} />
 										<label className="govuk-label govuk-radios__label" htmlFor="landRegistry-yes">Yes</label>
 									</div>
 									<div className="govuk-radios__item">
@@ -210,8 +211,9 @@ const ApplicationLandDetails: React.FC = () => {
 										<label className="govuk-label govuk-radios__label" htmlFor="landRegistry-no">No</label>
 									</div>
 								</div>
+								<RevealAnnouncement shown={landRegistry === "yes"} message="A new question is shown below: Reference number" />
 								{landRegistry === "yes" && (
-									<div className={`govuk-form-group${errors.landRegistryRef ? ' govuk-form-group--error' : ''}`}>  
+									<div className={`govuk-form-group${errors.landRegistryRef ? ' govuk-form-group--error' : ''}`} id="landRegistry-yes-hidden">  
 										<label className="govuk-label" htmlFor="landRegistryRef">Reference number</label>
 										<div className="govuk-hint">Usually found on the land title or deeds</div>
 										{errors.landRegistryRef && (
@@ -222,7 +224,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 							</fieldset>
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<hr className="govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h3 className="govuk-heading-m">OS Grid Reference <span className="govuk-hint">(optional)</span></h3>
 						<div id="OSGrid" className="govuk-hint">Enter the Ordinance Survey Grid reference number for this location.</div>
 						<div className="govuk-grid-row">
@@ -245,7 +247,7 @@ const ApplicationLandDetails: React.FC = () => {
 								</div>
 							</div>
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<hr className="govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h2 className="govuk-heading-m" id="location">Other identifying information</h2>
 						<div className="govuk-form-group" id="What3Words-group">
 							<label className="govuk-label govuk-label--s" htmlFor="What3Words">What3Words location for the site <span className="govuk-hint">(optional)</span></label>
