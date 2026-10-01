@@ -21,6 +21,7 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
+import Accordion from '../../../components/Accordion';
 
 // Exact set of anchor ids this page's createErrorLink() calls can produce - used to validate
 // the href extracted back out of an error string before it's rendered, since error text can
@@ -661,16 +662,20 @@ const ProjectOverview = () => {
 						</div>
 
 						{/* Details: What type of information should be provided */}
-						<details className="govuk-details govuk-!-margin-bottom-6" data-module="govuk-details">
-							<summary className="govuk-details__summary">
-								<span className="govuk-details__summary-text">{projectOverview.infoDetailsSummary}</span>
-							</summary>
-							<div className="govuk-details__text">
-								<p className="govuk-body">
-									{projectOverview.infoDetailsText}
-								</p>
-							</div>
-						</details>
+						<Accordion
+							initialOpen={false}
+							sections={[
+								{
+									id: 'info-details',
+									heading: projectOverview.infoDetailsSummary,
+									children: (
+										<p className="govuk-body">
+											{projectOverview.infoDetailsText}
+										</p>
+									),
+								},
+							]}
+						/>
 
 						{/* Tallest Pole Height Section */}
 						<h2 className="govuk-heading-s govuk-!-margin-bottom-2">{projectOverview.tallestPoleHeight}</h2>
@@ -922,16 +927,20 @@ const ProjectOverview = () => {
 						</div>
 
 						{/* Details: What information should be included in the plan */}
-						<details className="govuk-details govuk-!-margin-bottom-6">
-							<summary className="govuk-details__summary">
-								<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
-							</summary>
-							<div className="govuk-details__text">
-								<p className="govuk-body">
-									{projectOverview.planDetailsText}
-								</p>
-							</div>
-						</details>
+						<Accordion
+							initialOpen={false}
+							sections={[
+								{
+									id: 'plan-details',
+									heading: projectOverview.planDetailsSummary,
+									children: (
+										<p className="govuk-body">
+											{projectOverview.planDetailsText}
+										</p>
+									),
+								},
+							]}
+						/>
 
 						{/* Related Applications */}
 						<div className={`govuk-form-group${fieldErrors['hasRelatedApplications-inputValue'] ? " govuk-form-group--error" : ""}`}>

@@ -9,6 +9,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
+import Accordion from '../Accordion';
 
 /**
  * Enum for empty state variants following Type Safety principles
@@ -178,21 +179,25 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
         {/* Loading error shows additional guidance */}
         {variant === 'loading-error' && (
-          <details className="govuk-details govuk-!-margin-top-4">
-            <summary className="govuk-details__summary">
-              <span className="govuk-details__summary-text">
-                What you can do
-              </span>
-            </summary>
-            <div className="govuk-details__text">
-              <ul className="govuk-list govuk-list--bullet">
-                <li>Check your internet connection</li>
-                <li>Refresh the page</li>
-                <li>Try again in a few minutes</li>
-                <li>Contact support if the problem continues</li>
-              </ul>
-            </div>
-          </details>
+          <div className="govuk-!-margin-top-4">
+            <Accordion
+              initialOpen={false}
+              sections={[
+                {
+                  id: 'what-you-can-do',
+                  heading: 'What you can do',
+                  children: (
+                    <ul className="govuk-list govuk-list--bullet">
+                      <li>Check your internet connection</li>
+                      <li>Refresh the page</li>
+                      <li>Try again in a few minutes</li>
+                      <li>Contact support if the problem continues</li>
+                    </ul>
+                  ),
+                },
+              ]}
+            />
+          </div>
         )}
       </div>
 

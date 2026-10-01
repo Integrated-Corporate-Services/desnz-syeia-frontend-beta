@@ -11,6 +11,7 @@ import { progressApiService } from '../../../services/progressApiService';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import Accordion from '../../../components/Accordion';
 
 const logger = createLogger('ConsultationDetailsPage');
 
@@ -234,43 +235,51 @@ const ConsultationDetailsPage: React.FC = () => {
 
                     {/* View Previous Consultations - Expandable Section */}
                     {allHistoricalConsultations.length > 0 && (
-                        <details className="govuk-details govuk-!-margin-top-6 govuk-!-margin-bottom-6" data-module="govuk-details">
-                            <summary className="govuk-details__summary">
-                                <span className="govuk-details__summary-text">View previous consultations ({allHistoricalConsultations.length})</span>
-                            </summary>
-                            <div className="govuk-details__text">
-                                <p className="govuk-body">These consultations have been withdrawn and are shown here for reference.</p>
+                        <div className="govuk-!-margin-top-6">
+                            <Accordion
+                                initialOpen={false}
+                                sections={[
+                                    {
+                                        id: 'previous-consultations',
+                                        heading: `View previous consultations (${allHistoricalConsultations.length})`,
+                                        children: (
+                                            <>
+                                                <p className="govuk-body">These consultations have been withdrawn and are shown here for reference.</p>
 
-                                {allHistoricalConsultations.map((consultation) => {
-                                    const isPublic = consultation.consultationType === ConsultationType.PUBLIC;
+                                                {allHistoricalConsultations.map((consultation) => {
+                                                    const isPublic = consultation.consultationType === ConsultationType.PUBLIC;
 
-                                    return (
-                                        <ConsultationSummaryCard
-                                            key={consultation.id}
-                                            orgName={consultation.consulteeOrganisationName}
-                                            consultationName={consultation.otherConsultee || consultation.consulteeOrganisationName || consultation.consultationType}
-                                            status={consultation.status}
-                                            consultationId={consultation.id}
-                                            applicationId={applicationId}
-                                            consultationType={consultation.consultationType}
-                                            dateRequestCreated={isPublic ? (consultation.firstDatePublished ?? undefined) : (consultation.dateRequestCreated ?? undefined)}
-                                            secondDatePublished={isPublic ? (consultation.secondDatePublished ?? undefined) : (consultation.secondDate ?? undefined)}
-                                            dateClosed={consultation.dateClosed ?? undefined}
-                                            objectionRaised={consultation.objectionRaised}
-                                            closeComments={consultation.closeComments}
-                                            responseDocuments={isPublic ? consultation.publicResponseDocuments : consultation.responseDocuments}
-                                            respondingConsulteeName={consultation.respondingConsulteeName}
-                                            respondingConsulteeEmail={consultation.respondingConsulteeEmail}
-                                            notRequiredMessage={consultation.notRequiredReason}
-                                            notRequiredDocs={consultation.notRequiredDocs}
-                                            consultationRequestDocs={isPublic ? consultation.evidenceOfPublicationDocs : consultation.consultationRequestDocs}
-                                            lpaConsultationForm={consultation.lpaConsultationForm}
-                                            evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </details>
+                                                    return (
+                                                        <ConsultationSummaryCard
+                                                            key={consultation.id}
+                                                            orgName={consultation.consulteeOrganisationName}
+                                                            consultationName={consultation.otherConsultee || consultation.consulteeOrganisationName || consultation.consultationType}
+                                                            status={consultation.status}
+                                                            consultationId={consultation.id}
+                                                            applicationId={applicationId}
+                                                            consultationType={consultation.consultationType}
+                                                            dateRequestCreated={isPublic ? (consultation.firstDatePublished ?? undefined) : (consultation.dateRequestCreated ?? undefined)}
+                                                            secondDatePublished={isPublic ? (consultation.secondDatePublished ?? undefined) : (consultation.secondDate ?? undefined)}
+                                                            dateClosed={consultation.dateClosed ?? undefined}
+                                                            objectionRaised={consultation.objectionRaised}
+                                                            closeComments={consultation.closeComments}
+                                                            responseDocuments={isPublic ? consultation.publicResponseDocuments : consultation.responseDocuments}
+                                                            respondingConsulteeName={consultation.respondingConsulteeName}
+                                                            respondingConsulteeEmail={consultation.respondingConsulteeEmail}
+                                                            notRequiredMessage={consultation.notRequiredReason}
+                                                            notRequiredDocs={consultation.notRequiredDocs}
+                                                            consultationRequestDocs={isPublic ? consultation.evidenceOfPublicationDocs : consultation.consultationRequestDocs}
+                                                            lpaConsultationForm={consultation.lpaConsultationForm}
+                                                            evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
+                                                        />
+                                                    );
+                                                })}
+                                            </>
+                                        ),
+                                    },
+                                ]}
+                            />
+                        </div>
                     )}
 
                     {error && (
