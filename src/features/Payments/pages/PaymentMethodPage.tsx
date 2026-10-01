@@ -11,7 +11,7 @@ import { trackPaymentEvent } from '../../../utils/analytics';
 import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
 import { getCardPaymentDescription } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
-import Accordion from '../../../components/Accordion';
+import Details from '../../../components/Details';
 
 const logger = createLogger('PaymentMethodPage');
 
@@ -210,35 +210,26 @@ const handlePayByCard = async () => {
 
             <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardBenefits}</p>
 
-            <div className="govuk-!-margin-top-6">
-              <Accordion
-                initialOpen={false}
-                sections={[
-                  {
-                    id: 'bank-transfer-details',
-                    heading: PAYMENT_PAGE_TEXT.detailsSummary,
-                    children: (
-                      <>
-                        <p className="govuk-body">
-                          {PAYMENT_PAGE_TEXT.detailsParagraphs[0]}
-                        </p>
-                        <p className="govuk-body">
-                          Your application&apos;s status will show as &apos;{PAYMENT_PAGE_TEXT.detailsStatus}&apos; until we have reconciled your payment.
-                        </p>
-                        <button
-                          type="button"
-                          className="govuk-button govuk-button--secondary"
-                          data-module="govuk-button"
-                          onClick={handleBankTransfer}
-                        >
-                          {PAYMENT_PAGE_TEXT.bankTransferButton}
-                        </button>
-                      </>
-                    ),
-                  },
-                ]}
-              />
-            </div>
+            <Details
+              id="bank-transfer-details"
+              summary={PAYMENT_PAGE_TEXT.detailsSummary}
+              className="govuk-!-margin-top-6"
+            >
+              <p className="govuk-body">
+                {PAYMENT_PAGE_TEXT.detailsParagraphs[0]}
+              </p>
+              <p className="govuk-body">
+                Your application&apos;s status will show as &apos;{PAYMENT_PAGE_TEXT.detailsStatus}&apos; until we have reconciled your payment.
+              </p>
+              <button
+                type="button"
+                className="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+                onClick={handleBankTransfer}
+              >
+                {PAYMENT_PAGE_TEXT.bankTransferButton}
+              </button>
+            </Details>
 
             <div className="govuk-button-group govuk-!-margin-top-6">
               <button
