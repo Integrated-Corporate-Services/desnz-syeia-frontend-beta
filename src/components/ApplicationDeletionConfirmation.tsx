@@ -162,7 +162,7 @@ export const ApplicationDeletionConfirmation: React.FC<ApplicationDeletionConfir
         {step === 'success' && (
           <>
             <div className="govuk-panel govuk-panel--confirmation">
-              <h1 className="govuk-panel__title">Application deleted</h1>
+              <h2 className="govuk-panel__title">Application deleted</h2>
               <div className="govuk-panel__body">
                 Your application has been deleted.
               </div>
