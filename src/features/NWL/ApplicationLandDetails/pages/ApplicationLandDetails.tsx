@@ -194,7 +194,7 @@ const ApplicationLandDetails: React.FC = () => {
 						<div className={`govuk-form-group${errors.landRegistry ? ' govuk-form-group--error' : ''}`}>  
 							<fieldset className="govuk-fieldset" aria-describedby="contact-hint">
 								<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-									<h1 className="govuk-fieldset__heading">Is the land registered with the Land Registry?</h1>
+									<h2 className="govuk-fieldset__heading">Is the land registered with the Land Registry?</h2>
 								</legend>
 								<div id="contact-hint" className="govuk-hint"></div>
 								{errors.landRegistry && (

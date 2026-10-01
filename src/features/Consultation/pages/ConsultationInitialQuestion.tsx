@@ -132,9 +132,9 @@ const ConsultationInitialQuestion: React.FC = () => {
               <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
                 <fieldset className="govuk-fieldset" >
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h3 className="govuk-fieldset__heading">
+                    <h2 className="govuk-fieldset__heading">
                       Have you already sent a consultation request to this organisation?
-                    </h3>
+                    </h2>
                   </legend>
                   {error && (
                     <p id="already-sent-error" className="govuk-error-message">

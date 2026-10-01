@@ -873,9 +873,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
       {/* File Upload Section - Upload controls appear after uploaded files */}
       {showTitle && (
-        <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
+        <h2 className="govuk-heading-s govuk-!-margin-bottom-2">
           {title}
-        </h3>
+        </h2>
       )}
       <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and

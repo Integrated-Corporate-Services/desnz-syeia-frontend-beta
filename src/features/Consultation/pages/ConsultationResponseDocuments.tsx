@@ -415,7 +415,7 @@ const ConsultationResponse2: React.FC = () => {
                                     
                                     {applicationDocuments && applicationDocuments.length > 0 && (
                                         <div className="govuk-!-margin-top-2">
-                                            <h3 className="govuk-heading-s">Documents uploaded</h3>
+                                            <h2 className="govuk-heading-s">Documents uploaded</h2>
                                         </div>
                                     )}
                                     
