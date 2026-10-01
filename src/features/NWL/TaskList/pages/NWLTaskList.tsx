@@ -105,12 +105,21 @@ const NWLTaskList: React.FC = () => {
 
 	const renderTask = (subsectionName: string, content: React.ReactNode) => {
 		const statusId = `nwl-task-status-${subsectionName.toLowerCase().replace(/\s+/g, '-')}`;
-		const describedContent = React.isValidElement<{ 'aria-describedby'?: string }>(content)
-			? React.cloneElement(content, { 'aria-describedby': statusId })
+		const contentElement = React.isValidElement<{ 'aria-describedby'?: string; className?: string }>(content)
+			? content
+			: null;
+		const isTaskLink = contentElement?.type === Link;
+		const describedContent = contentElement
+			? React.cloneElement(contentElement, {
+				'aria-describedby': statusId,
+				className: isTaskLink
+					? `${contentElement.props.className ?? ''} govuk-task-list__link`.trim()
+					: contentElement.props.className,
+			})
 			: content;
 
 		return (
-			<li className="govuk-task-list__item" key={subsectionName}>
+			<li className={`govuk-task-list__item${isTaskLink ? ' govuk-task-list__item--with-link' : ''}`} key={subsectionName}>
 				<span className="govuk-task-list__name-and-hint">{describedContent}</span>
 				<span className="govuk-task-list__status" id={statusId}>{renderStatusTag(subsectionName)}</span>
 			</li>
