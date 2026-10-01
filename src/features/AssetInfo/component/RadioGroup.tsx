@@ -24,6 +24,7 @@ const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error,
                 checked={value === opt.value}
                 onChange={onChange}
                 disabled={disabled}
+                data-aria-controls={opt.value === 'transmission' && children ? `${id}-${opt.value}-hidden` : undefined}
                 aria-controls={opt.value === 'transmission' && children ? `${id}-${opt.value}-hidden` : undefined}
                 aria-expanded={opt.value === 'transmission' && children ? value === 'transmission' : undefined}
               />
@@ -31,11 +32,16 @@ const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error,
                 {opt.label}
               </label>
             </div>
-            {opt.value === 'transmission' && children && <RevealAnnouncement shown={value === 'transmission'} message="More information is needed. A new question is shown below." />}
-            {opt.value === 'transmission' && value === 'transmission' && children && (
-              <div className="govuk-radios__conditional govuk-!-padding-left-4" id={`${id}-${opt.value}-hidden`}>
-                {children}
-              </div>
+            {opt.value === 'transmission' && children && (
+              <>
+                <RevealAnnouncement shown={value === 'transmission'} message="More information is needed. A new question is shown below." />
+                <div
+                  className={`govuk-radios__conditional govuk-!-padding-left-4${value === 'transmission' ? '' : ' govuk-radios__conditional--hidden'}`}
+                  id={`${id}-${opt.value}-hidden`}
+                >
+                  {children}
+                </div>
+              </>
             )}
           </React.Fragment>
         ))}

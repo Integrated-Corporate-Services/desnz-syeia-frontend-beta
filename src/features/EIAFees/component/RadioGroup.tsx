@@ -126,7 +126,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							</p>
 							<ul className="govuk-list govuk-list--bullet">
 								<li>The application contains an asset with a line voltage of 132kV or higher</li>
-								<li>The route passes through sensitive areas that requires a screening decision</li>
+								<li>The route passes through sensitive areas that require a screening decision</li>
 							</ul>
 							<p className="govuk-body">
 								No further action is required.
@@ -134,7 +134,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 						</div>
 					)}
 				</div>
-				<RevealAnnouncement shown={isEiaDevelopment === "false"} message="Please note, a mandatory EIA screening will be carried out for this application due to at least one of the following reasons: The application contains an asset with a line voltage of 132kV or higher. The route passes through sensitive areas that requires a screening decision. No further action is required." />
+				<RevealAnnouncement shown={isEiaDevelopment === "false"} message="Please note, a mandatory EIA screening will be carried out for this application due to at least one of the following reasons: The application contains an asset with a line voltage of 132kV or higher. The route passes through sensitive areas that require a screening decision. No further action is required." />
 			</fieldset>
 		</div>
 	);

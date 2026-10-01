@@ -191,6 +191,7 @@ const SensitiveAreaPage: React.FC = () => {
                                                         checked={toleranceRequired === 'yes'}
                                                         onChange={() => setToleranceRequired('yes')}
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
+                                                        data-aria-controls="routeToleranceRequired-hidden"
                                                         aria-controls="routeToleranceRequired-hidden"
                                                         aria-expanded={toleranceRequired === 'yes'}
                                                     />
@@ -199,8 +200,10 @@ const SensitiveAreaPage: React.FC = () => {
                                                     </label>
                                                 </div>
                                                 <RevealAnnouncement shown={toleranceRequired === 'yes'} message="A new question is shown below: Tolerance required in metres" />
-                                                {toleranceRequired === 'yes' && (
-                                                    <div className="govuk-radios__conditional" id="routeToleranceRequired-hidden">
+                                                <div
+                                                    className={`govuk-radios__conditional${toleranceRequired === 'yes' ? '' : ' govuk-radios__conditional--hidden'}`}
+                                                    id="routeToleranceRequired-hidden"
+                                                >
                                                         <div className={`govuk-form-group${formError ? ' govuk-form-group--error' : ''}`}>
                                                             <label className="govuk-label" htmlFor="routeTolerance-inputValue">
                                                                 Tolerance required
@@ -228,7 +231,6 @@ const SensitiveAreaPage: React.FC = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                )}
                                                 <div className="govuk-radios__item">
                                                     <input
                                                         className="govuk-radios__input"

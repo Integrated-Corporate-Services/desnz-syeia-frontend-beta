@@ -9,7 +9,7 @@ import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import PageTitle from '../../../components/PageTitle';
-import Accordion from '../../../components/Accordion';
+import Details from '../../../components/Details';
 
 const logger = createLogger('ReviewDocumentsPage');
 
@@ -334,7 +334,7 @@ const ReviewDocumentsPage: React.FC = () => {
 
                 {applicationDocuments && applicationDocuments.length > 0 && (
                   <div className="govuk-!-margin-top-2">
-                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                    <h2 className="govuk-heading-s">Documents uploaded</h2>
                   </div>
                 )}
 
@@ -357,48 +357,35 @@ const ReviewDocumentsPage: React.FC = () => {
             </div>
 
             {/* Details Component */}
-            <div style={{ marginTop: '30px' }}>
-              <Accordion
-                initialOpen={false}
-                sections={[
-                  {
-                    id: 'documents-info',
-                    heading: 'What information should be included in the documents?',
-                    children: (
-                      <>
-                        <p className="govuk-body">Your documents should include:</p>
-                        <ul className="govuk-list govuk-list--bullet">
-                          <li>
-                            Evidence of ecological surveys conducted within sensitive areas, including species presence and habitat
-                            assessments
-                          </li>
-                          <li>
-                            Archaeological reports detailing any heritage assets or sites of historical significance affected by the
-                            route
-                          </li>
-                          <li>
-                            Consultation records with relevant statutory bodies such as Natural England, Natural Resources Wales, or
-                            Historic England
-                          </li>
-                          <li>
-                            Mitigation measures proposed to minimize environmental or archaeological impacts during construction and
-                            operation
-                          </li>
-                        </ul>
-                        <p className="govuk-body">
-                          <strong>File requirements:</strong>
-                        </p>
-                        <ul className="govuk-list govuk-list--bullet">
-                          <li>Accepted formats: .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, .xlsx</li>
-                          <li>Maximum file size: 25MB per file</li>
-                          <li>Files cannot be password protected</li>
-                        </ul>
-                      </>
-                    ),
-                  },
-                ]}
-              />
-            </div>
+            <Details id="document-information-details" summary="What information should be included in the documents?" style={{ marginTop: '30px' }}>
+              <p className="govuk-body">Your documents should include:</p>
+              <ul className="govuk-list govuk-list--bullet">
+                <li>
+                  Evidence of ecological surveys conducted within sensitive areas, including species presence and habitat
+                  assessments
+                </li>
+                <li>
+                  Archaeological reports detailing any heritage assets or sites of historical significance affected by the
+                  route
+                </li>
+                <li>
+                  Consultation records with relevant statutory bodies such as Natural England, Natural Resources Wales, or
+                  Historic England
+                </li>
+                <li>
+                  Mitigation measures proposed to minimize environmental or archaeological impacts during construction and
+                  operation
+                </li>
+              </ul>
+              <p className="govuk-body">
+                <strong>File requirements:</strong>
+              </p>
+              <ul className="govuk-list govuk-list--bullet">
+                <li>Accepted formats: .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, .xlsx</li>
+                <li>Maximum file size: 25MB per file</li>
+                <li>Files cannot be password protected</li>
+              </ul>
+            </Details>
 
             {/* Buttons */}
             <div className="govuk-button-group" style={{ marginTop: '40px' }}>

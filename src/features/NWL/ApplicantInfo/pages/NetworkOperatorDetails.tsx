@@ -15,7 +15,7 @@ import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
 import { createLogger } from "../../../../utils/logger";
 import PageTitle from "../../../../components/PageTitle";
-import Accordion from "../../../../components/Accordion";
+import Details from "../../../../components/Details";
 
 const logger = createLogger('NetworkOperatorDetails');
 
@@ -451,34 +451,23 @@ const NetworkOperatorDetails: React.FC = () => {
                 />
               </div>
 
-              <Accordion
-                initialOpen={false}
-                sections={[
-                  {
-                    id: 'applicant-not-listed',
-                    heading: 'What to do when an applicant is not listed',
-                    children: (
-                      <>
-                        <p>
-                          You must contact the team coordinator in your organisation
-                          that you want to create an application for to provide you
-                          with access to their organisation.
-                        </p>
-                        <p>
-                          If you do not know who the team coordinator is then contact
-                          the service desk for advice at{" "}
-                          <a
-                            className="govuk-link"
-                            href="mailto:xxx@desnz.com"
-                          >
-                            xxx@desnz.com
-                          </a>
-                        </p>
-                      </>
-                    ),
-                  },
-                ]}
-              />
+              <Details id="applicant-not-listed" summary="What to do when an applicant is not listed">
+                <p>
+                  You must contact the team coordinator in your organisation
+                  that you want to create an application for to provide you
+                  with access to their organisation.
+                </p>
+                <p>
+                  If you do not know who the team coordinator is then contact
+                  the service desk for advice at{" "}
+                  <a
+                    className="govuk-link"
+                    href="mailto:xxx@desnz.com"
+                  >
+                    xxx@desnz.com
+                  </a>
+                </p>
+              </Details>
 
               {/* Call to action buttons */}
               <div className="govuk-!-static-margin-top-6">
