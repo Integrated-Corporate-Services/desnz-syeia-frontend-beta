@@ -54,8 +54,13 @@ const UserManagementDashboard: React.FC = () => {
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
-            {dnoTeamCoordinatorsOrganisationsEnabled && activeTab === "organisations" && (
-              <div id="organisations" role="tabpanel" aria-labelledby="organisations-tab">
+            {dnoTeamCoordinatorsOrganisationsEnabled && (
+              <div
+                id="organisations"
+                role="tabpanel"
+                aria-labelledby="organisations-tab"
+                hidden={activeTab !== "organisations"}
+              >
                 <OrganisationsTab
                   organisations={organisations}
                   loading={organisationsLoading}
@@ -64,35 +69,41 @@ const UserManagementDashboard: React.FC = () => {
               </div>
             )}
 
-            {activeTab === "active-users" && (
-              <div id="active-users" role="tabpanel" aria-labelledby="active-users-tab">
-                <ActiveUsersTab
-                  totalResults={totalResults}
-                  usersError={usersError}
-                  usersLoading={usersLoading}
-                  paginatedUsers={paginatedUsers}
-                  navigateToRevokeUser={navigateToRevokeUser}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  handlePageChange={handlePageChange}
-                />
-              </div>
-            )}
+            <div
+              id="active-users"
+              role="tabpanel"
+              aria-labelledby="active-users-tab"
+              hidden={activeTab !== "active-users"}
+            >
+              <ActiveUsersTab
+                totalResults={totalResults}
+                usersError={usersError}
+                usersLoading={usersLoading}
+                paginatedUsers={paginatedUsers}
+                navigateToRevokeUser={navigateToRevokeUser}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                handlePageChange={handlePageChange}
+              />
+            </div>
 
-            {activeTab === "pending-requests" && (
-              <div id="pending-requests" role="tabpanel" aria-labelledby="pending-requests-tab">
-                <PendingRequestsTab
-                  pendingRequests={pendingRequests}
-                  requestsError={requestsError}
-                  requestsLoading={requestsLoading}
-                  paginatedRequests={paginatedRequests}
-                  navigateToReviewRequest={navigateToReviewRequest}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  handlePageChange={handlePageChange}
-                />
-              </div>
-            )}
+            <div
+              id="pending-requests"
+              role="tabpanel"
+              aria-labelledby="pending-requests-tab"
+              hidden={activeTab !== "pending-requests"}
+            >
+              <PendingRequestsTab
+                pendingRequests={pendingRequests}
+                requestsError={requestsError}
+                requestsLoading={requestsLoading}
+                paginatedRequests={paginatedRequests}
+                navigateToReviewRequest={navigateToReviewRequest}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                handlePageChange={handlePageChange}
+              />
+            </div>
           </div>
         </div>
           </div>

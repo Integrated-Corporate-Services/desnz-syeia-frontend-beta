@@ -23,7 +23,7 @@ export const OrganisationsTab: React.FC<OrganisationsTabProps> = ({
   ].filter((part): part is string => Boolean(part)).join(', ');
 
   return (
-    <div className="govuk-tabs__panel" id="organisations">
+    <div className="govuk-tabs__panel">
       <h2 className="govuk-heading-m">Organisations</h2>
       <p className="govuk-body">{organisations.length} {organisations.length === 1 ? 'result' : 'results'}</p>
 

@@ -43,7 +43,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
   handlePageChange
 }) => {
   return (
-    <div className="govuk-tabs__panel" id="pending-requests">
+    <div className="govuk-tabs__panel">
       <h2 className="govuk-heading-m">Pending access requests</h2>
       
       <div className="govuk-grid-row govuk-!-margin-bottom-4">
