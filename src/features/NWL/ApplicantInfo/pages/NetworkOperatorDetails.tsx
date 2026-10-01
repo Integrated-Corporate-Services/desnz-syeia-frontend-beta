@@ -16,6 +16,7 @@ import { useNWLProgress } from "../../hooks/useNWLProgress";
 import { createLogger } from "../../../../utils/logger";
 import PageTitle from "../../../../components/PageTitle";
 import Details from "../../../../components/Details";
+import CoordinatorCombobox from "../components/CoordinatorCombobox";
 
 const logger = createLogger('NetworkOperatorDetails');
 
@@ -125,8 +126,8 @@ const NetworkOperatorDetails: React.FC = () => {
   });
 
   const handleOperatorChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      handleOperatorChangeBase(e, filteredOptions);
+    (selectedName: string) => {
+      handleOperatorChangeBase(selectedName, filteredOptions);
     },
     [handleOperatorChangeBase, filteredOptions]
   );
@@ -262,6 +263,7 @@ const NetworkOperatorDetails: React.FC = () => {
                 <label
                   className="govuk-label govuk-label--s"
                   htmlFor="location"
+                  id="location-label"
                 >
                   Applicant contact name
                 </label>
@@ -274,36 +276,26 @@ const NetworkOperatorDetails: React.FC = () => {
                     {FORM_ERRORS.MISSING_OPERATOR}
                   </p>
                 )}
-                <select
-                  className={`govuk-select${
-                    errors.includes(FORM_ERRORS.MISSING_OPERATOR)
-                      ? " govuk-select--error"
-                      : ""
-                  }`}
+                <CoordinatorCombobox
                   id="location"
-                  name="location"
-                  value={selectedOrgName}
-                  onChange={handleOperatorChange}
-                  aria-describedby={`location-hint${
+                  labelId="location-label"
+                  describedBy={`location-hint${
                     errors.includes(FORM_ERRORS.MISSING_OPERATOR)
                       ? " location-error"
-                      : ""
-                  }`}
-                  aria-required="true"
-                  aria-invalid={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
-                >
-                  <option value="">Select option...</option>
-                  {filteredOptions.map((op: ApplicationParty, index: number) => (
-                    <option
-                      key={`${op.organisation_id || "no-org"}-${
-                        op.person_name
-                      }-${index}`}
-                      value={op.person_name}
-                    >
-                      {op.person_name}
-                    </option>
-                  ))}
-                </select>
+                      : ""}`}
+                  value={selectedOrgName}
+                  options={filteredOptions.flatMap((option, index) =>
+                    option.person_name
+                      ? [{
+                          id: `${option.organisation_id || "no-org"}-${option.person_name}-${index}`,
+                          label: option.person_name,
+                          value: option.person_name,
+                        }]
+                      : [],
+                  )}
+                  onChange={handleOperatorChange}
+                  error={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
+                />
               </div>
               {additionalContacts.length > 0 && (
                 <ul className="govuk-list">
