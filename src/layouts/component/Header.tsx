@@ -30,7 +30,6 @@ const Header = () => {
                                 className="app-top-header__logotype"
                                 aria-label="GOV.UK"
                             >
-                                <title>GOV.UK</title>
                                 <g>
                                     <circle cx="20" cy="17.6" r="3.7" />
                                     <circle cx="10.2" cy="23.5" r="3.7" />
@@ -51,7 +50,7 @@ const Header = () => {
                     <div className="app-top-header__auth">
                         <div className="app-header-auth" aria-label="User menu">
                                 <span className="app-header-auth__identity">
-                                    <span className="app-header-auth__user" title={fullName || 'User'}>{fullName || 'User'}</span>
+                                    <span className="app-header-auth__user">{fullName || 'User'}</span>
                                     <span className="app-header-auth__profile-icon" aria-hidden="true">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
