@@ -85,6 +85,7 @@ const NetworkOperatorContactDetails: React.FC = () => {
         <form onSubmit={handleSubmit} noValidate>
           <ContactDetailsSummary contactDetails={contactDetails} />
           <RevealAnnouncement
+            announceOnLoad
             shown={Boolean(contactDetails.contactName || contactDetails.applicantName)}
             message={[
               "Applicant contact details are shown.",

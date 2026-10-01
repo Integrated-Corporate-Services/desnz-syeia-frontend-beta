@@ -284,6 +284,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   ))}
                 </select>
                 <RevealAnnouncement
+                  announceOnLoad
                   shown={filteredOptions.length > 0}
                   message={`${filteredOptions.length} applicant contact${filteredOptions.length === 1 ? "" : "s"} available in Applicant contact name.`}
                 />
