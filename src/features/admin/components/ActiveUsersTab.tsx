@@ -58,11 +58,11 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
       {usersError && (
         <div
           className="govuk-error-summary"
-          aria-labelledby="error-summary-title"
+          aria-labelledby="active-users-error-summary-title"
           role="alert"
           tabIndex={-1}
         >
-          <h2 className="govuk-error-summary__title" id="error-summary-title">
+          <h2 className="govuk-error-summary__title" id="active-users-error-summary-title">
             There is a problem
           </h2>
           <div className="govuk-error-summary__body">

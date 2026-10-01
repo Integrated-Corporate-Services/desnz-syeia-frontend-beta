@@ -28,8 +28,8 @@ export const OrganisationsTab: React.FC<OrganisationsTabProps> = ({
       <p className="govuk-body">{organisations.length} {organisations.length === 1 ? 'result' : 'results'}</p>
 
       {error && (
-        <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
-          <h2 className="govuk-error-summary__title" id="error-summary-title">
+        <div className="govuk-error-summary" aria-labelledby="organisations-error-summary-title" role="alert" tabIndex={-1}>
+          <h2 className="govuk-error-summary__title" id="organisations-error-summary-title">
             There is a problem
           </h2>
           <div className="govuk-error-summary__body">

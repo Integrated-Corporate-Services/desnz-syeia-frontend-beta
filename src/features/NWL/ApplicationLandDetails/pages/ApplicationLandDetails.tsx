@@ -144,13 +144,14 @@ const ApplicationLandDetails: React.FC = () => {
 							</select>
 						</div>
 						<div className={`govuk-form-group${errors.fileUpload1 ? ' govuk-form-group--error' : ''}`}>
-							<label className="govuk-label govuk-label--s" htmlFor="fileUpload1">
+							<label className="govuk-label govuk-label--s" htmlFor="file-upload-input">
 								Upload any documents to support your application
 							</label>
 							<FileUpload
 								ref={fileUploadRef}
 								title=""
 								showTitle={false}
+								hasExternalLabel
 																  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_APPLICATION_LAND_DETAILS}`}
 								uploadedFiles={uploadedFiles}									uploadImmediately={true}									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {
 									setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));
