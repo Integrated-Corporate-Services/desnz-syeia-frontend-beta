@@ -21,6 +21,7 @@ import {
 import PageTitle from "../../../components/PageTitle";
 import Details from "../../../components/Details";
 import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
+import AccessibleSelect from "../../../components/commonFormFields/AccessibleSelect";
 
 /**
  * Network Operator Details Page
@@ -253,36 +254,27 @@ const NetworkOperatorDetails: React.FC = () => {
                     {FORM_ERRORS.MISSING_CONTACT_NAME}
                   </p>
                 )}
-                <select
-                  className={`govuk-select${
-                    errors.includes(FORM_ERRORS.MISSING_OPERATOR)
-                      ? " govuk-select--error"
-                      : ""
-                  }`}
+                <AccessibleSelect
                   id="location"
-                  name="location"
                   value={selectedOrgName}
-                  onChange={handleOperatorChange}
+                  error={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
+                  required
                   aria-describedby={`location-hint${
                     errors.includes(FORM_ERRORS.MISSING_OPERATOR)
                       ? " location-error"
                       : ""
                   }`}
-                  aria-required="true"
-                  aria-invalid={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
-                >
-                  <option value="">Select option...</option>
-                  {filteredOptions.map((op: ApplicationParty, index: number) => (
-                    <option
-                      key={`${op.organisation_id || "no-org"}-${
-                        op.person_name
-                      }-${index}`}
-                      value={op.person_name}
-                    >
-                      {op.person_name}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { value: "", text: "Select option..." },
+                    ...filteredOptions.map((op: ApplicationParty) => ({
+                      value: op.person_name,
+                      text: op.person_name,
+                    })),
+                  ]}
+                  onChange={(value) =>
+                    handleOperatorChange({ target: { value } } as React.ChangeEvent<HTMLSelectElement>)
+                  }
+                />
                 <RevealAnnouncement
                   announceOnLoad
                   shown={filteredOptions.length > 0}

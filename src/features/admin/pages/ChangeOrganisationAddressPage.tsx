@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
+import AccessibleSelect from '../../../components/commonFormFields/AccessibleSelect';
 import { useOrganisation } from '../../../hooks';
 import organisationService from '../../../services/organisationService';
 
@@ -123,9 +124,12 @@ const ChangeOrganisationAddressPage: React.FC = () => {
                   ))}
                   <div className="govuk-form-group">
                     <label className="govuk-label govuk-label--m" htmlFor="country">Country</label>
-                    <select className="govuk-select" id="country" name="country" defaultValue="United Kingdom">
-                      <option value="United Kingdom">United Kingdom</option>
-                    </select>
+                    <AccessibleSelect
+                      id="country"
+                      value="United Kingdom"
+                      options={[{ value: 'United Kingdom', text: 'United Kingdom' }]}
+                      onChange={() => {}}
+                    />
                   </div>
                   <button className="govuk-button" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Use this address'}</button>
                 </form>

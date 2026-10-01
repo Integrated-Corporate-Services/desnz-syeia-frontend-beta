@@ -6,6 +6,7 @@ import { BREADCRUMBS, LABELS, FORM_LABELS, TITLE_OPTIONS, VALIDATION_LIMITS } fr
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { saveRepresentativeDetails } from "../services/objectorDetailsService";
+import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
 
 const RepresentativeDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -147,12 +148,10 @@ const RepresentativeDetails: React.FC = () => {
             <form onSubmit={handleSubmit} noValidate>
               <div className="govuk-form-group">
                 <label className="govuk-label" htmlFor="title">{FORM_LABELS.TITLE}</label>
-                <select className="govuk-select" id="title" name="title" value={title} onChange={(e) => {
-                  setTitle(e.target.value);
+                <AccessibleSelect id="title" value={title} options={TITLE_OPTIONS} onChange={(value) => {
+                  setTitle(value);
                   handleClearFieldError('title');
-                }}>
-                  {TITLE_OPTIONS.map((option) => (<option key={option.value} value={option.value}>{option.text}</option>))}
-                </select>
+                }} />
               </div>
               <div className={`govuk-form-group ${(formErrors.fullName || clientErrors.fullName) ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="fullName">{FORM_LABELS.FULL_NAME}</label>
