@@ -55,27 +55,32 @@ const UserManagementDashboard: React.FC = () => {
             />
 
             {dnoTeamCoordinatorsOrganisationsEnabled && activeTab === "organisations" && (
-              <OrganisationsTab
-                organisations={organisations}
-                loading={organisationsLoading}
-                error={organisationsError}
-              />
+              <div id="organisations" role="tabpanel" aria-labelledby="organisations-tab">
+                <OrganisationsTab
+                  organisations={organisations}
+                  loading={organisationsLoading}
+                  error={organisationsError}
+                />
+              </div>
             )}
 
             {activeTab === "active-users" && (
-              <ActiveUsersTab
-                totalResults={totalResults}
-                usersError={usersError}
-                usersLoading={usersLoading}
-                paginatedUsers={paginatedUsers}
-                navigateToRevokeUser={navigateToRevokeUser}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                handlePageChange={handlePageChange}
-              />
+              <div id="active-users" role="tabpanel" aria-labelledby="active-users-tab">
+                <ActiveUsersTab
+                  totalResults={totalResults}
+                  usersError={usersError}
+                  usersLoading={usersLoading}
+                  paginatedUsers={paginatedUsers}
+                  navigateToRevokeUser={navigateToRevokeUser}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  handlePageChange={handlePageChange}
+                />
+              </div>
             )}
 
             {activeTab === "pending-requests" && (
+              <div id="pending-requests" role="tabpanel" aria-labelledby="pending-requests-tab">
                 <PendingRequestsTab
                   pendingRequests={pendingRequests}
                   requestsError={requestsError}
@@ -86,6 +91,7 @@ const UserManagementDashboard: React.FC = () => {
                   totalPages={totalPages}
                   handlePageChange={handlePageChange}
                 />
+              </div>
             )}
           </div>
         </div>
