@@ -89,7 +89,7 @@ const ChangeOrganisationAddressPage: React.FC = () => {
       <PageTitle title="Enter address manually" />
       <div className="govuk-width-container">
         <Link className="govuk-back-link" to={`/admin/organisation/${organisationId}/settings`}>Back</Link>
-        <main className="govuk-main-wrapper govuk-grid-row">
+        <div className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Enter address manually</h1>
             {(errorEntries.length > 0 || loadError) && (
@@ -135,7 +135,7 @@ const ChangeOrganisationAddressPage: React.FC = () => {
               </>
             )}
           </div>
-        </main>
+        </div>
       </div>
     </>
   );

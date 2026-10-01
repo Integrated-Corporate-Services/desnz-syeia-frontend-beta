@@ -277,8 +277,10 @@ useEffect(() => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
 
-            <h2 className="govuk-caption-l">{consultationName || "Consultation name"}</h2>
-            <h2 className="govuk-heading-xl">Share application details</h2>
+            <h1 className="govuk-heading-xl">
+              <span className="govuk-caption-l">{consultationName || "Consultation name"}</span>
+              Share application details
+            </h1>
             <p className="govuk-body">
               Select and review the details you want to share with the consultant.
             </p>
@@ -466,7 +468,7 @@ useEffect(() => {
               
               {consultationPack?.applicationDocuments && consultationPack.applicationDocuments.length > 0 && (
                 <div className="govuk-!-margin-top-2">
-                  <h3 className="govuk-heading-s">Documents uploaded</h3>
+                  <h2 className="govuk-heading-s">Documents uploaded</h2>
                 </div>
               )}
               
