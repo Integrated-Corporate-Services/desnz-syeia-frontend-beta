@@ -1,0 +1,27 @@
+/*
+ * src/components/Details.tsx builds a GOV.UK-styled disclosure from a real
+ * <button> instead of <summary>, to avoid Chromium's native "disclosure
+ * triangle" accessibility role. .govuk-details__summary only ever had to
+ * style a <summary> (no default browser chrome), so a real button still
+ * needs its native border/background/font/alignment reset here.
+ *
+ * `background` is reset only via :not(:focus) - not unconditionally - so
+ * GOV.UK's own .govuk-details__summary:focus{background-color:#fd0} still
+ * applies on keyboard focus. Since an element can never match :focus and
+ * :not(:focus) at the same time, this is correct regardless of CSS load
+ * order or specificity, no JS-tracked focus state required.
+ */
+.govuk-details__summary {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0 0 0 25px;
+  font: inherit;
+  text-align: left;
+}
+
+.govuk-details__summary:not(:focus) {
+  background: none;
+}

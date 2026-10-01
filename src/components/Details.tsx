@@ -1,4 +1,5 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
+import '../styles/Details.css';
 
 interface DetailsProps {
   summary: string;
@@ -20,6 +21,10 @@ interface DetailsProps {
  * (`.govuk-details[open] > .govuk-details__summary:before` draws the rotated
  * triangle) - but React's typing only allows it on <details>/<dialog>, not
  * <div>, so it's set imperatively via a ref rather than as a JSX prop.
+ *
+ * Native button chrome (border/background/font) is reset in ../styles/Details.css,
+ * not inline - GOV.UK has no utility class for this (its own Details component
+ * never needs it, since a native <summary> has no default button styling).
  */
 const Details: React.FC<DetailsProps> = ({ summary, children, id, initialOpen = false, className, style }) => {
   const [isOpen, setIsOpen] = useState(initialOpen);
@@ -42,20 +47,6 @@ const Details: React.FC<DetailsProps> = ({ summary, children, id, initialOpen = 
         aria-expanded={isOpen}
         aria-controls={contentId}
         onClick={() => setIsOpen(prev => !prev)}
-        style={{
-          // .govuk-details__summary only ever had to style a native <summary>,
-          // which has no default button chrome - reset what a real <button>
-          // adds (border/background/margin/font/alignment) the same way GOV.UK's
-          // own .govuk-accordion__section-button resets its own real button.
-          appearance: 'none',
-          WebkitAppearance: 'none',
-          background: 'none',
-          border: 0,
-          margin: 0,
-          padding: '0 0 0 25px',
-          font: 'inherit',
-          textAlign: 'left',
-        }}
       >
         <span className="govuk-details__summary-text">{summary}</span>
       </button>
