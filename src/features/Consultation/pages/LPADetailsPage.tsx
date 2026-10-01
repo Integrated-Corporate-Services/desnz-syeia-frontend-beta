@@ -194,9 +194,9 @@ const LPADetailsPage: React.FC = () => {
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {/* Organization Name */}
-                        <h2 className="govuk-caption-xl">
+                        <span className="govuk-caption-xl">
                             <strong>{lpaName}</strong>
-                        </h2>
+                        </span>
 
                         {/* Page Heading */}
                         <h1 className="govuk-heading-l">Local Planning Authority (LPA) details</h1>

@@ -186,8 +186,8 @@ const ConsultationResponse: React.FC = () => {
                             </div>
                         )}
 
-                        {consultationType === ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">Public notices</h2>}
-                        {consultationType !== ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</h2>}
+                        {consultationType === ConsultationType.PUBLIC && <span className="govuk-caption-xl govuk-!-margin-top-0">Public notices</span>}
+                        {consultationType !== ConsultationType.PUBLIC && <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>}
                         <h1 className="govuk-heading-l">{consultationType === ConsultationType.PUBLIC ? 'Are there any objections to the application?' : 'Provide consultation response'}</h1>
 
                         <form noValidate>

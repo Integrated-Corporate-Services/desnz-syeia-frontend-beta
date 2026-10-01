@@ -277,7 +277,7 @@ const ConsultationRequestPage: React.FC = () => {
               </div>
             )}
             
-            <h2 className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</h2>
+            <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>
             <h1 className="govuk-heading-l">Provide evidence of consultation request</h1>
             
             <p className="govuk-body">

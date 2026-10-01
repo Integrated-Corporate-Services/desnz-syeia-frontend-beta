@@ -160,9 +160,9 @@ const handleSaveAndContinue = async () => {
         </ol>
       </nav>
 
-              <h2 className="govuk-caption-xl govuk-!-margin-top-0">
+              <span className="govuk-caption-xl govuk-!-margin-top-0">
         {lpaName}
-        </h2>
+        </span>
         <h1 className="govuk-heading-l">
           Consultation form for electric overhead lines - Part 1
         </h1>

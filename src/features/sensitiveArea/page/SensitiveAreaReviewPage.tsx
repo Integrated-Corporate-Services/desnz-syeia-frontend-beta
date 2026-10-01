@@ -376,6 +376,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
             <FileUpload
               ref={fileUploadRef}
               title="Environmental and archaeological documents"
+              showTitle={false}
               prefix={`${effectiveApplicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
               applicationId={effectiveApplicationId}
               category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
