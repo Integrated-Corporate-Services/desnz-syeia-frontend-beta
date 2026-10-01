@@ -326,7 +326,7 @@ const AddOtherAreasPage: React.FC = () => {
           </div>
 
         {/* Divider */}
-        <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
+        <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" aria-hidden="true" />
 
         {/* ============================================================================ */}
         {/* SECTION 2: Selected Areas */}
