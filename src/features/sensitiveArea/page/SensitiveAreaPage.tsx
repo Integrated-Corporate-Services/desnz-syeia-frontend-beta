@@ -190,13 +190,18 @@ const SensitiveAreaPage: React.FC = () => {
                                                         checked={toleranceRequired === 'yes'}
                                                         onChange={() => setToleranceRequired('yes')}
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
+                                                        data-aria-controls="routeToleranceRequired-hidden"
+                                                        aria-controls="routeToleranceRequired-hidden"
+                                                        aria-expanded={toleranceRequired === 'yes'}
                                                     />
                                                     <label className="govuk-label govuk-radios__label" htmlFor="routeToleranceRequired">
                                                         Yes
                                                     </label>
                                                 </div>
-                                                {toleranceRequired === 'yes' && (
-                                                    <div className="govuk-radios__conditional" id="routeToleranceRequired-hidden">
+                                                <div
+                                                    className={`govuk-radios__conditional${toleranceRequired === 'yes' ? '' : ' govuk-radios__conditional--hidden'}`}
+                                                    id="routeToleranceRequired-hidden"
+                                                >
                                                         <div className={`govuk-form-group${formError ? ' govuk-form-group--error' : ''}`}>
                                                             <label className="govuk-label" htmlFor="routeTolerance-inputValue">
                                                                 Tolerance required
@@ -224,7 +229,6 @@ const SensitiveAreaPage: React.FC = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                )}
                                                 <div className="govuk-radios__item">
                                                     <input
                                                         className="govuk-radios__input"
