@@ -180,3 +180,18 @@ button:focus,
     padding: 6px 4px !important;
   }
 }
+
+.leaflet-container:focus-visible {
+  outline: 4px solid #0b0c0c !important;
+  outline-offset: -4px;
+}
+
+.leaflet-container:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 4px solid #0b0c0c;
+  box-shadow: inset 0 0 0 4px #ffdd00;
+  pointer-events: none;
+  z-index: 1001;
+}

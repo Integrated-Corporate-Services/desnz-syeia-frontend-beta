@@ -26,8 +26,10 @@ import SkipLink from "../../../components/SkipLink";
 import PageTitle from "../../../components/PageTitle";
 import { trackButtonClick } from "../../../utils/analytics";
 import "../../../styles/ApplicationDashboard.css";
+import { useVisibleLinkFocus } from '../../../hooks/useVisibleLinkFocus';
 
 const ApplicationDashboard: React.FC = () => {
+  useVisibleLinkFocus();
   const { user } = useAuthUserContext();
   const created_by = (user as AuthUser)?.user_id || "";
   const { applications, fetchApplications, setApplication } = useApplication();
