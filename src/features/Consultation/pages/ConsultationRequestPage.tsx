@@ -277,8 +277,10 @@ const ConsultationRequestPage: React.FC = () => {
               </div>
             )}
             
-            <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>
-            <h1 className="govuk-heading-l">Provide evidence of consultation request</h1>
+            <h1 className="govuk-heading-l">
+              <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>
+              Provide evidence of consultation request
+            </h1>
             
             <p className="govuk-body">
               You need to record the date you sent the request and attach copies of everything you sent to the consultee, such as email correspondence, an application summary and any supporting documents and images.

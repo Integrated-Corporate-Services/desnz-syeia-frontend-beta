@@ -316,8 +316,10 @@ const PublicNoticesEvidence: React.FC = () => {
               </div>
             )}
             
-            <span className="govuk-caption-l">Public notices</span>
-            <h1 className="govuk-heading-l">Provide evidence of published public notices</h1>
+            <h1 className="govuk-heading-l">
+              <span className="govuk-caption-l">Public notices</span>
+              Provide evidence of published public notices
+            </h1>
 
             <p className="govuk-body">
               For overhead lines with a line voltage of 132kV or higher, you must publish at least 2 public notices in one or more local newspapers for two consecutive weeks as per{' '}

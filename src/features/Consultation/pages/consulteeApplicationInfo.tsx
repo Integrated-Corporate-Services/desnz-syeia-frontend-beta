@@ -277,8 +277,10 @@ useEffect(() => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
 
-            <span className="govuk-caption-l">{consultationName || "Consultation name"}</span>
-            <h1 className="govuk-heading-xl">Share application details</h1>
+            <h1 className="govuk-heading-xl">
+              <span className="govuk-caption-l">{consultationName || "Consultation name"}</span>
+              Share application details
+            </h1>
             <p className="govuk-body">
               Select and review the details you want to share with the consultant.
             </p>
