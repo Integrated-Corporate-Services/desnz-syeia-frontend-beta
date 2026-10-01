@@ -11,9 +11,12 @@ export function useVisibleLinkFocus() {
       requestAnimationFrame(() => {
         if (document.activeElement !== target) return;
         const bottom = target.getBoundingClientRect().bottom;
-        const availableHeight = window.visualViewport?.height ?? window.innerHeight;
-        if (bottom > availableHeight - BOTTOM_CLEARANCE) {
-          window.scrollBy({ top: bottom - availableHeight + BOTTOM_CLEARANCE, behavior: 'instant' });
+        const visualViewport = window.visualViewport;
+        const viewportBottom = visualViewport
+          ? visualViewport.offsetTop + visualViewport.height
+          : window.innerHeight;
+        if (bottom > viewportBottom - BOTTOM_CLEARANCE) {
+          window.scrollBy({ top: bottom - viewportBottom + BOTTOM_CLEARANCE, behavior: 'instant' });
         }
       });
     };
