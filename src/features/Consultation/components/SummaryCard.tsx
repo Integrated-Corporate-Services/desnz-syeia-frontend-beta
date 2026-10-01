@@ -193,13 +193,13 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                                         onRemove();
                                     }}
                                 >
-                                    Remove
+                                    Remove<span className="govuk-visually-hidden"> {displayName}</span>
                                 </a>
                             </li>
                         )}
                         <li className="govuk-summary-card__action">
                             <Link to={requestUrlWithParams} className="govuk-link">
-                                Start consultation
+                                Start consultation<span className="govuk-visually-hidden"> {displayName}</span>
                             </Link>
                         </li>
                     </ul>
@@ -254,7 +254,7 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     <ul className="govuk-summary-card__actions">
                         <li className="govuk-summary-card__action">
                             <Link to={responseUrlWithParams} className="govuk-link govuk-!-display-inline-block">
-                                Record public responses
+                                Record public responses<span className="govuk-visually-hidden"> {displayName}</span>
                             </Link>
                         </li>
                     </ul>
@@ -289,13 +289,13 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                     <ul className="govuk-summary-card__actions">
                         <li className="govuk-summary-card__action">
                             <Link to={responseUrlWithParams} className="govuk-link">
-                                Provide response
+                                Provide response<span className="govuk-visually-hidden"> {orgName}</span>
                             </Link>
                         </li>
                         {consultationType === ConsultationType.OTHER_LPA && (
                             <li className="govuk-summary-card__action">
                                 <Link to={withdrawUrl} className="govuk-link">
-                                    Withdraw
+                                    Withdraw<span className="govuk-visually-hidden"> {orgName}</span>
                                 </Link>
                             </li>
                         )}
@@ -340,19 +340,19 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         {orgName && orgName.trim().toLowerCase() === 'natural england' && (
                             <li className="govuk-summary-card__action">
                                 <Link to={notRequiredPageUrl} className="govuk-link">
-                                    Not required
+                                    Not required<span className="govuk-visually-hidden"> {orgName}</span>
                                 </Link>
                             </li>
                         )}
                         <li className="govuk-summary-card__action">
                             <Link to={responseUrlWithParams} className="govuk-link">
-                                Provide response
+                                Provide response<span className="govuk-visually-hidden"> {orgName}</span>
                             </Link>
                         </li>
                         {consultationType === ConsultationType.OTHER && (
                             <li className="govuk-summary-card__action">
                                 <Link to={withdrawUrl} className="govuk-link">
-                                    Withdraw
+                                    Withdraw<span className="govuk-visually-hidden"> {orgName}</span>
                                 </Link>
                             </li>
                         )}
@@ -675,19 +675,19 @@ const ConsultationSummaryCard: React.FC<ConsultationSummaryCardProps> = ({
                         {orgName && orgName.trim().toLowerCase() === 'natural england' && (
                             <li className="govuk-summary-card__action">
                                 <Link to={notRequiredPageUrl} className="govuk-link">
-                                    Not required
+                                    Not required<span className="govuk-visually-hidden"> {orgName}</span>
                                 </Link>
                             </li>
                         )}
                         <li className="govuk-summary-card__action">
                             <Link to={requestUrlWithParams} className="govuk-link">
-                                {statusDisplay === ConsultationStatus.DRAFT ? 'Continue consultation' : 'Start consultation'}
+                                {statusDisplay === ConsultationStatus.DRAFT ? 'Continue consultation' : 'Start consultation'}<span className="govuk-visually-hidden"> {orgName}</span>
                             </Link>
                         </li>
                         {statusDisplay === ConsultationStatus.DRAFT && consultationType === ConsultationType.OTHER && (
                             <li className="govuk-summary-card__action">
                                 <Link to={withdrawUrl} className="govuk-link">
-                                    Withdraw
+                                    Withdraw<span className="govuk-visually-hidden"> {orgName}</span>
                                 </Link>
                             </li>
                         )}
