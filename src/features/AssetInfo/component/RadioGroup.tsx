@@ -1,5 +1,6 @@
 import React from 'react';
 import { CommonInputProps } from '../../../types/form';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error, onChange, options = [], children, disabled }) => (
   <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
@@ -23,15 +24,24 @@ const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error,
                 checked={value === opt.value}
                 onChange={onChange}
                 disabled={disabled}
+                data-aria-controls={opt.value === 'transmission' && children ? `${id}-${opt.value}-hidden` : undefined}
+                aria-controls={opt.value === 'transmission' && children ? `${id}-${opt.value}-hidden` : undefined}
+                aria-expanded={opt.value === 'transmission' && children ? value === 'transmission' : undefined}
               />
               <label className="govuk-label govuk-radios__label" htmlFor={`${id}-${opt.value}`}>
                 {opt.label}
               </label>
             </div>
-            {opt.value === 'transmission' && value === 'transmission' && children && (
-              <div className="govuk-radios__conditional govuk-!-padding-left-4">
-                {children}
-              </div>
+            {opt.value === 'transmission' && children && (
+              <>
+                <RevealAnnouncement shown={value === 'transmission'} message="More information is needed. A new question is shown below." />
+                <div
+                  className={`govuk-radios__conditional govuk-!-padding-left-4${value === 'transmission' ? '' : ' govuk-radios__conditional--hidden'}`}
+                  id={`${id}-${opt.value}-hidden`}
+                >
+                  {children}
+                </div>
+              </>
             )}
           </React.Fragment>
         ))}
