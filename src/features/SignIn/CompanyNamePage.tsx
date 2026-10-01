@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
+import PageTitle from "../../components/PageTitle";
 
 const CompanyNamePage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ const CompanyNamePage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Enter your agency name" />
             <div className="govuk-width-container">
         <Link
           to="/request-access/agent-question"

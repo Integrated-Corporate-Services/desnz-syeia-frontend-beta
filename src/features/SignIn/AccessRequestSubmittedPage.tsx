@@ -5,6 +5,7 @@ import { useAccessRequestContext } from "../../context/AccessRequestContext";
 import { logout } from "../../services/authService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
+import PageTitle from "../../components/PageTitle";
 
 const logger = createLogger('AccessRequestSubmittedPage');
 
@@ -42,8 +43,9 @@ const AccessRequestSubmittedPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Your request has been submitted" />
             <div className="govuk-width-container">
-      
+
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel govuk-panel--confirmation">

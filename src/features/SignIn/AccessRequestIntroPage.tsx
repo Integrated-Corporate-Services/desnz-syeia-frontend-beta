@@ -4,6 +4,7 @@ import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
+import PageTitle from "../../components/PageTitle";
 
 const logger = createLogger('AccessRequestIntroPage');
 
@@ -58,6 +59,7 @@ const AccessRequestIntroPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Submit a request to activate your SYEIA account" />
             <div className="govuk-width-container">
         <Link to="/landingPage" className="govuk-back-link">
         Back
