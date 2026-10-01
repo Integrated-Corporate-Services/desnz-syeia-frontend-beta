@@ -294,8 +294,8 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
       ref={mapRef} 
       id="map"
       role="application"
-      aria-label="Interactive map for viewing and selecting route points. Click on the map to set coordinates for the selected point."
-      tabIndex={-1}
+      aria-label={mode === 'overview' ? 'Route map' : 'Interactive route map. Select a point to set its coordinates.'}
+      tabIndex={0}
     />
   );
 };

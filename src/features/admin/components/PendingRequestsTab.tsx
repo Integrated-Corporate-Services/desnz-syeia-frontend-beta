@@ -48,7 +48,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
       
       <div className="govuk-grid-row govuk-!-margin-bottom-4">
         <div className="govuk-grid-column-two-thirds">
-          <p className="govuk-body">{pendingRequests.length} results</p>
+          <p className="govuk-body" role="status">{pendingRequests.length} results</p>
         </div>
       </div>
 

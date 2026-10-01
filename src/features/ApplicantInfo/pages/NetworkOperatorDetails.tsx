@@ -20,6 +20,7 @@ import {
 } from "../constants/networkOperatorDetails";
 import PageTitle from "../../../components/PageTitle";
 import Details from "../../../components/Details";
+import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
 
 /**
  * Network Operator Details Page
@@ -247,7 +248,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   This person will be the designated contact for this application and all official correspondence will be addressed to them.
                 </div>
                 {errors.includes(FORM_ERRORS.MISSING_OPERATOR) && (
-                  <p id="location-error" className="govuk-error-message">
+                  <p id="location-error" className="govuk-error-message" role="alert">
                     <span className="govuk-visually-hidden">Error:</span>
                     {FORM_ERRORS.MISSING_CONTACT_NAME}
                   </p>
@@ -282,6 +283,15 @@ const NetworkOperatorDetails: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                <RevealAnnouncement
+                  announceOnLoad
+                  shown={filteredOptions.length > 0}
+                  message={`${filteredOptions.length} applicant contact${filteredOptions.length === 1 ? "" : "s"} available in Applicant contact name.`}
+                />
+                <RevealAnnouncement
+                  shown={Boolean(selectedOrgName)}
+                  message={`Selected applicant contact ${selectedOrgName}. You can add additional contacts below.`}
+                />
               </div>
               {additionalContacts.length > 0 && (
                 <ul className="govuk-list">
@@ -297,18 +307,14 @@ const NetworkOperatorDetails: React.FC = () => {
                       }}
                     >
                       <span>{email}</span>
-                      <a
-                        className="govuk-link"
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDeleteContact(email);
-                        }}
-                        role="button"
+                      <button
+                        type="button"
+                        className="govuk-button govuk-button--warning govuk-!-margin-bottom-0"
+                        onClick={() => handleDeleteContact(email)}
                         aria-label={`Delete contact ${email}`}
                       >
                         Delete contact
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ul>

@@ -5,6 +5,7 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Link, useParams } from "react-router-dom";
+import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
@@ -201,7 +202,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 								<div className="govuk-radios" data-module="govuk-radios">
 									<div className="govuk-radios__item">
-										<input className="govuk-radios__input" id="landRegistry-yes" name="landRegistry" type="radio" value="yes" checked={landRegistry === "yes"} onChange={e => setLandRegistry(e.target.value)} />
+										<input className="govuk-radios__input" id="landRegistry-yes" name="landRegistry" type="radio" value="yes" checked={landRegistry === "yes"} onChange={e => setLandRegistry(e.target.value)} aria-controls="landRegistry-yes-hidden" aria-expanded={landRegistry === "yes"} />
 										<label className="govuk-label govuk-radios__label" htmlFor="landRegistry-yes">Yes</label>
 									</div>
 									<div className="govuk-radios__item">
@@ -209,8 +210,9 @@ const ApplicationLandDetails: React.FC = () => {
 										<label className="govuk-label govuk-radios__label" htmlFor="landRegistry-no">No</label>
 									</div>
 								</div>
+								<RevealAnnouncement shown={landRegistry === "yes"} message="A new question is shown below: Reference number" />
 								{landRegistry === "yes" && (
-									<div className={`govuk-form-group${errors.landRegistryRef ? ' govuk-form-group--error' : ''}`}>  
+									<div className={`govuk-form-group${errors.landRegistryRef ? ' govuk-form-group--error' : ''}`} id="landRegistry-yes-hidden">  
 										<label className="govuk-label" htmlFor="landRegistryRef">Reference number</label>
 										<div className="govuk-hint">Usually found on the land title or deeds</div>
 										{errors.landRegistryRef && (

@@ -1,4 +1,5 @@
 import { S37_BASE_URL } from '../../../constants/s37';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
@@ -734,6 +735,7 @@ const ProjectOverview = () => {
 										}} />
 										<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown">Yes</label>
 									</div>
+									<RevealAnnouncement shown={formState.areWorkStartDatesKnown === "true"} message="New questions are shown below: earliest and latest expected start dates for the development" />
 									<div className={`govuk-radios__conditional ${formState.areWorkStartDatesKnown === "true" ? "" : "govuk-radios__conditional--hidden"}`} id="areWorkStartDatesKnown-hidden">
 											{/* Earliest Start Date */}
 											<div className={`govuk-form-group${(fieldErrors?.['earliestWorkStartDate-month'] || fieldErrors?.['earliestWorkStartDate-year']) ? " govuk-form-group--error" : ""}`}>
@@ -957,6 +959,7 @@ const ProjectOverview = () => {
 										/>
 										<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 									</div>
+									<RevealAnnouncement shown={formState.hasRelatedApplications === "true"} message={`A new question is shown below: ${projectOverview.relatedApplicationsDetails}`} />
 									<div className={`govuk-radios__conditional ${formState.hasRelatedApplications === "true" ? "" : "govuk-radios__conditional--hidden"}`} id="hasRelatedApplications-hidden">
 											<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 												<label className="govuk-label govuk-!-width-two-thirds" htmlFor="relatedApplicationsDetails-inputValue">

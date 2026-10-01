@@ -10,6 +10,7 @@ import { ContactDetailsSummary } from "../components/ContactDetailsSummary";
 import { ContactConfirmationRadios } from "../components/ContactConfirmationRadios";
 import { BREADCRUMBS, LABELS } from "../constants/contactDetailsConstants";
 import PageTitle from "../../../components/PageTitle";
+import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
 
 const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>("");
@@ -83,6 +84,17 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
         <form onSubmit={handleSubmit} noValidate>
           <ContactDetailsSummary contactDetails={contactDetails} />
+          <RevealAnnouncement
+            announceOnLoad
+            shown={Boolean(contactDetails.contactName || contactDetails.applicantName)}
+            message={[
+              "Applicant contact details are shown.",
+              contactDetails.applicantName && `Applicant name ${contactDetails.applicantName}.`,
+              contactDetails.contactName && `Applicant contact name ${contactDetails.contactName}.`,
+              contactDetails.email && `Email address ${contactDetails.email}.`,
+              contactDetails.phone && `Phone number ${contactDetails.phone}.`,
+            ].filter(Boolean).join(" ")}
+          />
 
           <ContactConfirmationRadios
             contactIsConfirmed={contactIsConfirmed}
