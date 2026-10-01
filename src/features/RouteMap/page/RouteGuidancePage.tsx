@@ -56,7 +56,7 @@ const RouteGuidancePage: React.FC = () => {
           aria-label="Example showing a simple route with 5 coordinate points marked on a map. Points are numbered 1 through 5, showing where the overhead line changes direction."
         >
           <div className="govuk-visually-hidden">
-            <h3>Route A Example</h3>
+            <h3 className="govuk-heading-m">Route A Example</h3>
             <p>This example shows how to enter coordinates for points where the route changes direction. You only need to enter coordinates at direction changes, not at every pole location.</p>
             <p>The example shows 5 points with their Easting and Northing coordinates displayed in a form on the left, with the corresponding route visualized on a map on the right.</p>
           </div>
@@ -96,7 +96,7 @@ const RouteGuidancePage: React.FC = () => {
           aria-label="Example showing how to create route spurs. Route B connects to Route A at a shared coordinate point. The image demonstrates that you join routes by using the same coordinate in both route lines."
         >
           <div className="govuk-visually-hidden">
-            <h3>Route B with Spur Example</h3>
+            <h3 className="govuk-heading-m">Route B with Spur Example</h3>
             <p>This example shows Route B (the spur) highlighted on the map, indicating it is currently being edited. Route B starts at a coordinate that already exists in Route A, creating a connection point.</p>
             <p>The form shows 3 points for Route B with their Easting and Northing coordinates. On the map, you can see how Route B branches off from Route A at a shared coordinate point.</p>
           </div>
@@ -122,7 +122,7 @@ const RouteGuidancePage: React.FC = () => {
           aria-label="Route overview page showing both Route A and Route B with all coordinate points listed in tables. The map displays how both routes connect at a shared coordinate."
         >
           <div className="govuk-visually-hidden">
-            <h3>Route Overview Example</h3>
+            <h3 className="govuk-heading-m">Route Overview Example</h3>
             <p>Important: Any changes made to the route will require you to:</p>
             <ol>
               <li>Run the sensitive area checks again</li>

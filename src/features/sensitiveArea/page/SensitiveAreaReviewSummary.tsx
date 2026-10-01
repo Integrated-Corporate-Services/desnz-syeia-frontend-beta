@@ -59,6 +59,7 @@ const SensitiveAreaReviewSummary: React.FC = () => {
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {/* Warning banner */}
+                        <h1 className="govuk-heading-l">Sensitive area review</h1>
                         <div className="govuk-warning-text">
                             <span className="govuk-warning-text__icon" aria-hidden="true">
                                 !

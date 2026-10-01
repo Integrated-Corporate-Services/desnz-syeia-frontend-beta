@@ -58,7 +58,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
       <PageTitle title="Change organisation name" />
       <div className="govuk-width-container">
         <Link className="govuk-back-link" to={backPath}>Back</Link>
-        <main className="govuk-main-wrapper govuk-grid-row">
+        <div className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {errorMessage && (
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} ref={errorSummaryRef}>
@@ -89,7 +89,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
               </>
             )}
           </div>
-        </main>
+        </div>
       </div>
     </>
   );

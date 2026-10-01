@@ -232,8 +232,10 @@ const ConsultationNotRequiredPage: React.FC = () => {
 							</div>
 						</div>
 					)}
-					<h2 className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</h2>
-						<h1 className="govuk-heading-l govuk-!-margin-bottom-6">Consultation not required</h1>
+						<h1 className="govuk-heading-l govuk-!-margin-bottom-6">
+						  <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>
+						  Consultation not required
+						</h1>
 						<div className="govuk-!-margin-bottom-6">
 							<h2 className="govuk-heading-m govuk-!-margin-bottom-2">Sites of Special Scientific Interest (SSSI) assent</h2>
 							<p className="govuk-body">You do not need to request Natural England assent for activities you believe would not disturb or damage the special features of an SSSI.</p>
@@ -294,6 +296,7 @@ const ConsultationNotRequiredPage: React.FC = () => {
 							<FileUpload
 								ref={fileUploadRef}
 								title="Upload any supporting documents"
+								titleHeadingLevel="h3"
 								prefix={`${applicationId}/${FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}/${consultationId}`}
 								applicationId={applicationId}
 								category={FILE_CATEGORIES.CONSULTATION_NOT_REQUIRED}

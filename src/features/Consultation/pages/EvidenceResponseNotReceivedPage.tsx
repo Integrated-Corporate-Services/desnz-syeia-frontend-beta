@@ -283,7 +283,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
     return (
         <>
             
-            <main className="govuk-main-wrapper govuk-!-padding-top-2" id="main-content" role="main">
+            <div className="govuk-main-wrapper govuk-!-padding-top-2">
             <PageTitle title="Evidence response not received" />
             <div className="govuk-width-container">
                 <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -344,8 +344,10 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
-                        <h2 className="govuk-caption-xl">{consultationName}</h2>
-                        <h1 className="govuk-heading-l">Provide evidence of response not received</h1>
+                        <h1 className="govuk-heading-l">
+                          <span className="govuk-caption-xl">{consultationName}</span>
+                          Provide evidence of response not received
+                        </h1>
 
                         <p className="govuk-body">If the consultee has not responded within 2 months after you sent the request, you may be able to complete your application without uploading their response.</p>
                         <p className="govuk-body">You must provide copies of any follow-up or emails you sent to the consultee. You will be able to complete your application after you have uploaded this evidence.</p>
@@ -369,7 +371,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
 
                                 {applicationDocuments && applicationDocuments.length > 0 && (
                                     <div className="govuk-!-margin-top-2">
-                                        <h3 className="govuk-heading-s">Documents uploaded</h3>
+                                        <h2 className="govuk-heading-s">Documents uploaded</h2>
                                     </div>
                                 )}
 
@@ -428,7 +430,7 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
         </>
     );
 };

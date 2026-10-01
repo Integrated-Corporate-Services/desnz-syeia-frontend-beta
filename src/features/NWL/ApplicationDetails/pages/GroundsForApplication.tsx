@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
-import Accordion from "../../../../components/Accordion";
+import Details from "../../../../components/Details";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { 
   useApplicationNavigation, 
@@ -208,16 +208,9 @@ const GroundsForApplication: React.FC = () => {
                 </fieldset>
               </div>
 
-              <Accordion
-                initialOpen={false}
-                sections={[
-                  {
-                    id: 'objector-details',
-                    heading: LABELS.OBJECTOR_TITLE,
-                    children: <>{LABELS.OBJECTOR_CONTENT}</>,
-                  },
-                ]}
-              />
+              <Details id="objector-details" summary={LABELS.OBJECTOR_TITLE}>
+                {LABELS.OBJECTOR_CONTENT}
+              </Details>
 
               <p className="govuk-body">
                 <a

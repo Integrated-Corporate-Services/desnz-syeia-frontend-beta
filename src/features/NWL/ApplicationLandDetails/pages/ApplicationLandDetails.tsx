@@ -150,6 +150,7 @@ const ApplicationLandDetails: React.FC = () => {
 								<FileUpload
 									ref={fileUploadRef}
 									title=""
+									showTitle={false}
 																	  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_APPLICATION_LAND_DETAILS}`}
 									uploadedFiles={uploadedFiles}									uploadImmediately={true}									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {
 										setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));
@@ -172,7 +173,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 							</fieldset>
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<hr className="govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h2 className="govuk-heading-m">Land details</h2>
 						<div className={`govuk-form-group${errors.landLocation ? ' govuk-form-group--error' : ''}`}>  
 							<label className="govuk-label govuk-label--s" htmlFor="landLocation">Land location</label>
@@ -194,7 +195,7 @@ const ApplicationLandDetails: React.FC = () => {
 						<div className={`govuk-form-group${errors.landRegistry ? ' govuk-form-group--error' : ''}`}>  
 							<fieldset className="govuk-fieldset" aria-describedby="contact-hint">
 								<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-									<h1 className="govuk-fieldset__heading">Is the land registered with the Land Registry?</h1>
+									<h2 className="govuk-fieldset__heading">Is the land registered with the Land Registry?</h2>
 								</legend>
 								<div id="contact-hint" className="govuk-hint"></div>
 								{errors.landRegistry && (
@@ -222,7 +223,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 							</fieldset>
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<hr className="govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h3 className="govuk-heading-m">OS Grid Reference <span className="govuk-hint">(optional)</span></h3>
 						<div id="OSGrid" className="govuk-hint">Enter the Ordinance Survey Grid reference number for this location.</div>
 						<div className="govuk-grid-row">
@@ -245,7 +246,7 @@ const ApplicationLandDetails: React.FC = () => {
 								</div>
 							</div>
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<hr className="govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h2 className="govuk-heading-m" id="location">Other identifying information</h2>
 						<div className="govuk-form-group" id="What3Words-group">
 							<label className="govuk-label govuk-label--s" htmlFor="What3Words">What3Words location for the site <span className="govuk-hint">(optional)</span></label>

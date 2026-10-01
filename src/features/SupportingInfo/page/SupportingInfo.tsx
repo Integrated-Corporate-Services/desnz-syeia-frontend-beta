@@ -585,6 +585,7 @@ const SupportingInfo: React.FC = () => {
           <FileUpload
             ref={fileUploadRef}
             title="Upload a file"
+            titleHeadingLevel="h3"
             prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}`}
             applicationId={applicationId}
             category={FILE_CATEGORIES.SUPPORT_INFO}
