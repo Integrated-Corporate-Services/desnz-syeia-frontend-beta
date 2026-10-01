@@ -110,7 +110,7 @@ export function CookiesSettingsPage() {
   return (
     <div className="govuk-width-container">
       <PageTitle title="Cookies on the Submit your Energy Infrastructure Application service" />
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <div className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{PAGE_HEADINGS.SETTINGS}</h1>
@@ -319,7 +319,7 @@ export function CookiesSettingsPage() {
             )}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
