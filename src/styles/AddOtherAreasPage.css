@@ -1,0 +1,14 @@
+.add-other-areas__list > li {
+  padding: 10px 20px 10px 0;
+  border-bottom: 1px solid #b1b4b6;
+}
+
+.add-other-areas__empty-item {
+  padding-top: 10px;
+}
+
+.add-other-areas__manual-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
