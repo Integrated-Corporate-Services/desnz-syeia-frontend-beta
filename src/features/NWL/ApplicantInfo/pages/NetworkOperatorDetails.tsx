@@ -66,6 +66,7 @@ const NetworkOperatorDetails: React.FC = () => {
     handleDeleteContact,
     setAdditionalContacts,
     clearEmailInputError,
+    contactStatus,
   } = useAdditionalContacts();
 
   const organisationId =
@@ -308,6 +309,14 @@ const NetworkOperatorDetails: React.FC = () => {
                   onChange={handleOperatorChange}
                   error={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
                 />
+              </div>
+              <div
+                className="govuk-visually-hidden"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {contactStatus}
               </div>
               {additionalContacts.length > 0 && (
                 <ul className="govuk-list">
