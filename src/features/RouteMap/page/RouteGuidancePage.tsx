@@ -35,7 +35,11 @@ const ExamplePointCards: React.FC<{ routeName: string; points: ExamplePoint[] }>
         <div className="govuk-summary-card__title-wrapper">
           <div className="app-route-example__point-heading">
             <h5 className="govuk-summary-card__title">Point {index + 1}</h5>
-            <span className="app-route-example__point-actions" aria-hidden="true">Add before&nbsp; | &nbsp;Add after&nbsp; | &nbsp;Remove</span>
+            <span className="app-route-example__point-actions" aria-hidden="true">
+              <span>Add before</span>
+              <span>Add after</span>
+              <span>Remove</span>
+            </span>
           </div>
         </div>
         <div className="govuk-summary-card__content">

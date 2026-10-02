@@ -20,17 +20,17 @@
 }
 
 .app-route-example__point-card .govuk-summary-card__title-wrapper {
-  padding: 4px 8px;
+  padding: 8px 10px;
 }
 
 .app-route-example__point-card .govuk-summary-card__content {
-  padding: 6px 8px;
+  padding: 8px 10px;
 }
 
 .app-route-example__point-card .govuk-summary-card__title {
   margin: 0;
   font-size: 14px;
-  line-height: 17px;
+  line-height: 1.25;
 }
 
 .app-route-example__point-card:last-child {
@@ -41,39 +41,59 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
+  gap: 6px;
+}
+
+.app-route-example__point-heading .govuk-summary-card__title {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .app-route-example__point-actions {
+  display: flex;
+  align-items: center;
   color: #1d70b8;
   font-size: 10px;
-  text-decoration: underline;
+  line-height: 1.25;
   white-space: nowrap;
+}
+
+.app-route-example__point-actions > span {
+  text-decoration: underline;
+}
+
+.app-route-example__point-actions > span + span {
+  margin-left: 4px;
+  padding-left: 4px;
+  border-left: 1px solid #b1b4b6;
 }
 
 .app-route-example__coordinates {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin: 0;
 }
 
 .app-route-example__coordinates > div {
+  flex: 0 1 88px;
   min-width: 0;
 }
 
 .app-route-example__coordinates dt {
-  margin: 0 0 2px;
-  font-size: 12px;
-  line-height: 14px;
+  margin: 0 0 4px;
+  font-size: 16px;
+  line-height: 1.25;
 }
 
 .app-route-example__coordinates dd {
-  min-width: 62px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   margin: 0;
-  padding: 1px 3px;
-  border: 1px solid #0b0c0c;
-  font-size: 12px;
-  line-height: 16px;
+  padding: 3px 5px;
+  border: 2px solid #0b0c0c;
+  font-size: 16px;
+  line-height: 1.25;
 }
 
 .app-route-example__route-card {
@@ -94,11 +114,13 @@
 
 .app-route-example__overview-heading {
   margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 1.25;
 }
 
 .app-route-example__content--overview {
   grid-template-areas:
-    "notice ."
+    "notice notice"
     "routes map";
   grid-template-rows: auto auto;
 }
@@ -107,6 +129,12 @@
   grid-area: notice;
   margin-top: 0;
   margin-bottom: 12px;
+}
+
+.app-route-example__overview-notice .govuk-body,
+.app-route-example__overview-notice .govuk-list {
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .app-route-example__content--overview .app-route-example__tables {

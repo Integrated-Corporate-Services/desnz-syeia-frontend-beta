@@ -81,10 +81,10 @@ const RouteGuidanceExampleMap: React.FC<RouteGuidanceExampleMapProps> = ({ route
       }
       if (points.length >= 2) {
         if (route.routeName === highlightedRouteName) {
-          L.polyline(points, { color: ROUTE_COLOR, weight: 7, opacity: 1 }).addTo(map);
-          L.polyline(points, { color: '#ffdd00', weight: 3, opacity: 1 }).addTo(map);
-        } else {
           L.polyline(points, { color: ROUTE_COLOR, weight: 5, opacity: 1 }).addTo(map);
+          L.polyline(points, { color: '#ffdd00', weight: 2, opacity: 1 }).addTo(map);
+        } else {
+          L.polyline(points, { color: ROUTE_COLOR, weight: 3, opacity: 1 }).addTo(map);
         }
       }
     });
