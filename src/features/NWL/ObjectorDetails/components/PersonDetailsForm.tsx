@@ -32,15 +32,23 @@ export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
 }) => {
   return (
     <>
-      <div className="govuk-form-group">
+      <div className={`govuk-form-group ${errors.title ? 'govuk-form-group--error' : ''}`}>
         <label className="govuk-label" htmlFor="title">
           {FORM_LABELS.TITLE}
         </label>
+        {errors.title && (
+          <p id="title-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            {errors.title}
+          </p>
+        )}
         <AccessibleSelect
           id="title"
           value={title}
           options={TITLE_OPTIONS}
           onChange={onTitleChange}
+          error={Boolean(errors.title)}
+          aria-describedby={errors.title ? 'title-error' : undefined}
         />
       </div>
 

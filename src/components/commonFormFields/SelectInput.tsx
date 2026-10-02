@@ -64,13 +64,14 @@ const SelectInput: React.FC<SelectInputProps> = ({
 
       <AccessibleSelect
         id={id}
+        name={name}
         className={className}
         value={value}
         error={hasError}
         options={options}
         aria-describedby={ariaDescribedBy}
         onChange={(newValue) =>
-          onChange({ target: { name, value: newValue } } as React.ChangeEvent<HTMLSelectElement>)
+          onChange({ target: { name, value: newValue, type: 'select-one' } } as React.ChangeEvent<HTMLSelectElement>)
         }
       />
     </div>

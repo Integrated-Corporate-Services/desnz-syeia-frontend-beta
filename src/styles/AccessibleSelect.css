@@ -8,6 +8,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  max-width: 100%;
   box-sizing: border-box;
   padding: 5px 30px 5px 5px;
   background-image: none;

@@ -9,6 +9,7 @@ export interface AccessibleSelectOption {
 
 interface AccessibleSelectProps {
   id: string;
+  name?: string;
   value: string;
   options: readonly AccessibleSelectOption[];
   onChange: (value: string) => void;
@@ -29,6 +30,7 @@ interface AccessibleSelectProps {
  */
 const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
   id,
+  name,
   value,
   options,
   onChange,
@@ -111,7 +113,7 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
 
     if (event.key === 'Home' || event.key === 'End') {
       event.preventDefault();
-      openAt(event.key === 'Home' ? 0 : options.length - 1);
+      openAt(event.key === 'Home' ? 0 : findEnabledIndex(options.length - 1, -1));
       return;
     }
 
@@ -147,10 +149,10 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
       const startIndex = isOpen && activeIndex >= 0 ? activeIndex + 1 : 0;
       const matchingIndex = Array.from({ length: options.length }, (_, offset) =>
         (startIndex + offset) % options.length,
-      ).find((index) =>
-        !options[index].disabled &&
-        String(options[index].text).toLocaleLowerCase().startsWith(prefix.toLocaleLowerCase()),
-      );
+      ).find((index) => {
+        const { text, disabled } = options[index];
+        return !disabled && typeof text === 'string' && text.toLocaleLowerCase().startsWith(prefix.toLocaleLowerCase());
+      });
       if (matchingIndex !== undefined) openAt(matchingIndex);
       event.preventDefault();
     }
@@ -158,9 +160,11 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
 
   return (
     <div className={`accessible-select ${className}`.trim()} ref={containerRef}>
+      {name && <input type="hidden" name={name} value={value} />}
       <button
         id={id}
         type="button"
+        value={value}
         className={`govuk-select accessible-select__control ${className} ${
           error ? 'govuk-select--error' : ''
         }`.trim()}
@@ -194,12 +198,13 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
         id={listboxId}
         className="accessible-select__listbox"
         role="listbox"
+        aria-labelledby={ariaLabelledBy ?? id}
         hidden={!isOpen}
       >
         {options.map((option, index) => (
           <li
             id={`${listboxId}-option-${index}`}
-            key={option.value}
+            key={`${option.value}-${index}`}
             className={`accessible-select__option${
               activeIndex === index ? ' accessible-select__option--active' : ''
             }${option.disabled ? ' accessible-select__option--disabled' : ''}`}

@@ -56,12 +56,13 @@ const Select: React.FC<SelectProps> = ({
 
             <AccessibleSelect
                 id={id}
+                name={name}
                 value={value}
                 error={hasError}
                 options={[{ value: '', text: defaultOption }, ...options.map((option) => ({ value: option.value, text: option.label }))]}
                 aria-describedby={ariaDescribedBy}
                 onChange={(newValue) =>
-                    onChange({ target: { name, value: newValue } } as React.ChangeEvent<HTMLSelectElement>)
+                    onChange({ target: { name, value: newValue, type: 'select-one' } } as React.ChangeEvent<HTMLSelectElement>)
                 }
             />
 
