@@ -14,6 +14,7 @@ import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnou
 
 const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setError] = useState<string>("");
+  const errorSummaryRef = React.useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   const { application, fetchApplication } = useApplication();
@@ -43,6 +44,12 @@ const NetworkOperatorContactDetails: React.FC = () => {
   // Format contact details for display
   const contactDetails = formatContactDetails(party);
 
+  useEffect(() => {
+    if (error) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [error]);
+
   return (
     <>
       <PageTitle title="Check applicant contact details" />
@@ -68,15 +75,16 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
         {error && (
           <div
+            ref={errorSummaryRef}
             className="govuk-error-summary govuk-!-width-two-thirds"
             data-module="govuk-error-summary"
             tabIndex={-1}
-            role="alert"
+            aria-labelledby="s37-contact-details-error-summary-title"
           >
-            <h2 className="govuk-error-summary__title">There is a problem</h2>
+            <h2 className="govuk-error-summary__title" id="s37-contact-details-error-summary-title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">
-                <li>{error}</li>
+                <li><a href="#contactIsConfirmed-yes">{error}</a></li>
               </ul>
             </div>
           </div>

@@ -33,6 +33,7 @@ const NetworkOperatorDetails: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const appId = useGetApplicationId();
+  const errorSummaryRef = React.useRef<HTMLDivElement>(null);
 
   const stateOrgId = location.state?.organisationId;
   const stateOrgName = location.state?.organisationName;
@@ -88,6 +89,12 @@ const NetworkOperatorDetails: React.FC = () => {
     additionalContacts,
     setAdditionalContacts,
   });
+
+  useEffect(() => {
+    if (showErrorSummary || emailInputError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [showErrorSummary, emailInputError, errors]);
 
   useEffect(() => {
     if (appId) {
@@ -228,12 +235,14 @@ const NetworkOperatorDetails: React.FC = () => {
             <h1 className="govuk-heading-l">Applicant details</h1>
             {(showErrorSummary || emailInputError) && (
               <div
+                ref={errorSummaryRef}
                 className="govuk-error-summary"
                 data-module="govuk-error-summary"
                 tabIndex={-1}
                 role="alert"
+                aria-labelledby="applicant-details-error-summary-title"
               >
-                <h2 className="govuk-error-summary__title">
+                <h2 className="govuk-error-summary__title" id="applicant-details-error-summary-title">
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">

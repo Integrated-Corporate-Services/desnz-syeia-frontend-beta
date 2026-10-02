@@ -329,7 +329,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   Email address (optional)
                 </label>
                 {emailInputError && (
-                  <p id="emailAddress-error" className="govuk-error-message">
+                  <p id="emailAddress-error" className="govuk-error-message" role="alert">
                     <span className="govuk-visually-hidden">Error:</span>
                     {emailInputError}
                   </p>
@@ -377,7 +377,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   Applicant's reference (optional)
                 </label>
                 {errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) && (
-                  <p id="networkOperatorRef-error" className="govuk-error-message">
+                  <p id="networkOperatorRef-error" className="govuk-error-message" role="alert">
                     <span className="govuk-visually-hidden">Error:</span>
                     {FORM_ERRORS.REFERENCE_TOO_LONG}
                   </p>
