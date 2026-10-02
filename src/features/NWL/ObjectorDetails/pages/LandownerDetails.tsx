@@ -12,6 +12,7 @@ import {
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { saveLandownerDetails } from "../services/objectorDetailsService";
+import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
 
 const LandownerDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -160,16 +161,20 @@ const LandownerDetails: React.FC = () => {
             )}
             
             <form onSubmit={handleSubmit} noValidate>
-              <div className="govuk-form-group">
+              <div className={`govuk-form-group ${(formErrors.title || clientErrors.title) ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="title">{FORM_LABELS.TITLE}</label>
-                <select className="govuk-select" id="title" name="title" value={title} onChange={(e) => {
-                  setTitle(e.target.value);
-                  handleClearFieldError('title');
-                }}>
-                  {TITLE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>{option.text}</option>
-                  ))}
-                </select>
+                {(formErrors.title || clientErrors.title) && <p id="title-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {formErrors.title || clientErrors.title}</p>}
+                <AccessibleSelect
+                  id="title"
+                  value={title}
+                  options={TITLE_OPTIONS}
+                  error={Boolean(formErrors.title || clientErrors.title)}
+                  aria-describedby={(formErrors.title || clientErrors.title) ? 'title-error' : undefined}
+                  onChange={(value) => {
+                    setTitle(value);
+                    handleClearFieldError('title');
+                  }}
+                />
               </div>
               
               <div className={`govuk-form-group ${(formErrors.fullName || clientErrors.fullName) ? "govuk-form-group--error" : ""}`}>

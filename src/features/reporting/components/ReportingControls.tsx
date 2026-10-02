@@ -1,6 +1,7 @@
 import React from "react";
 import { DATE_RANGE_OPTIONS, REPORT_SECTION_LINKS } from "../constants";
 import type { DateRangePreset } from "../types";
+import AccessibleSelect from "../../../components/commonFormFields/AccessibleSelect";
 
 interface ReportingFiltersProps {
   preset: DateRangePreset;
@@ -41,9 +42,16 @@ export const ReportingFilters: React.FC<ReportingFiltersProps> = ({
       <div className="reporting-filter-row">
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="report-range">Date filters</label>
-          <select className="govuk-select" id="report-range" value={preset} onChange={(event) => onPresetChange(event.target.value as DateRangePreset)}>
-            {DATE_RANGE_OPTIONS.map((option) => <option key={option.value} value={option.value} disabled={option.value === "available-data" ? !availabilityLoaded || !availableDateRange : availabilityLoaded && !isPresetAvailable(option.value)}>{option.label}</option>)}
-          </select>
+          <AccessibleSelect
+            id="report-range"
+            value={preset}
+            onChange={(value) => onPresetChange(value as DateRangePreset)}
+            options={DATE_RANGE_OPTIONS.map((option) => ({
+              value: option.value,
+              text: option.label,
+              disabled: option.value === "available-data" ? !availabilityLoaded || !availableDateRange : availabilityLoaded && !isPresetAvailable(option.value),
+            }))}
+          />
         </div>
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="report-start-date">Start date</label>

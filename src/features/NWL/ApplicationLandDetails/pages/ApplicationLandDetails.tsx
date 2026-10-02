@@ -6,6 +6,7 @@ import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Link, useParams } from "react-router-dom";
 import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
+import AccessibleSelect from '../../../../components/commonFormFields/AccessibleSelect';
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
@@ -137,11 +138,17 @@ const ApplicationLandDetails: React.FC = () => {
 							{errors.applicationType && (
 								<p className="govuk-error-message" id="application-type-error">{errors.applicationType}</p>
 							)}
-							<select className="govuk-select" id="application-type" name="ApplicationType" value={applicationType} onChange={e => setApplicationType(e.target.value)} aria-describedby={errors.applicationType ? "application-type-error" : undefined}>
-								<option value="select">Select an option</option>
-								<option value="newLine">New line</option>
-								<option value="existingLine">Existing line</option>
-							</select>
+							<AccessibleSelect
+								id="application-type"
+								value={applicationType}
+								onChange={setApplicationType}
+								aria-describedby={errors.applicationType ? "application-type-error" : undefined}
+								options={[
+									{ value: "select", text: "Select an option" },
+									{ value: "newLine", text: "New line" },
+									{ value: "existingLine", text: "Existing line" },
+								]}
+							/>
 						</div>
 						<div className={`govuk-form-group${errors.fileUpload1 ? ' govuk-form-group--error' : ''}`}>
 							<label className="govuk-label govuk-label--s" htmlFor="file-upload-input">
@@ -181,11 +188,17 @@ const ApplicationLandDetails: React.FC = () => {
 							{errors.landLocation && (
 								<p className="govuk-error-message" id="landLocation-error">{errors.landLocation}</p>
 							)}
-							<select className="govuk-select" id="landLocation" name="landLocation" value={landLocation} onChange={e => setLandLocation(e.target.value)} aria-describedby={errors.landLocation ? "landLocation-error" : "landLocation-hint"}>
-								<option value="updated">Select an option</option>
-								<option value="views">England</option>
-								<option value="comments">Wales</option>
-							</select>
+							<AccessibleSelect
+								id="landLocation"
+								value={landLocation}
+								onChange={setLandLocation}
+								aria-describedby={errors.landLocation ? "landLocation-error" : "landLocation-hint"}
+								options={[
+									{ value: "updated", text: "Select an option" },
+									{ value: "views", text: "England" },
+									{ value: "comments", text: "Wales" },
+								]}
+							/>
 						</div>
 						<div className="govuk-form-group">
 							<label className="govuk-label govuk-label--s" htmlFor="landRef">Land reference <span className="govuk-hint">(optional)</span></label>
