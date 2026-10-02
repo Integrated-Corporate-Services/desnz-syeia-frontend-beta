@@ -27,6 +27,7 @@ import {
 } from '../../CheckYourAnswers/components';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CYA_CONSTANTS } from '../../CheckYourAnswers/constants';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../ApplicationSummary/constants';
+import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -128,6 +129,14 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 desnzRef={data.desnzRef}
                 status={data.status}
                 withdrawalRequest={withdrawalRequest}
+            />
+
+            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
+                so it must not be gated on the *current* status (a completed FIR should still
+                be reachable via "View all information requests" after status moves on). */}
+            <FirSummaryCard
+                applicationId={applicationId}
+                basePath={`${NWL_BASE_URL}/${applicationId}/further-information-requests`}
             />
 
             <ReviewPaymentDetailsCard 
