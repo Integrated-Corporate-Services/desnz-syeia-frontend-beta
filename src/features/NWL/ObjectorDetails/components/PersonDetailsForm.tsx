@@ -1,7 +1,6 @@
 import React from 'react';
 import { FORM_LABELS, TITLE_OPTIONS, VALIDATION_LIMITS } from '../constants/objectorDetailsConstants';
 import type { FormErrors } from '../types';
-import AccessibleSelect from '../../../../components/commonFormFields/AccessibleSelect';
 
 interface PersonDetailsFormProps {
   title: string;
@@ -36,12 +35,19 @@ export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
         <label className="govuk-label" htmlFor="title">
           {FORM_LABELS.TITLE}
         </label>
-        <AccessibleSelect
+        <select
+          className="govuk-select"
           id="title"
+          name="title"
           value={title}
-          options={TITLE_OPTIONS}
-          onChange={onTitleChange}
-        />
+          onChange={(e) => onTitleChange(e.target.value)}
+        >
+          {TITLE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.text}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div

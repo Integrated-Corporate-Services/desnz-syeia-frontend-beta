@@ -10,7 +10,6 @@ import {
   FormActions 
 } from '../components';
 import { useApplicationId, useAssetForm } from '../hooks';
-import AccessibleSelect from '../../../../components/commonFormFields/AccessibleSelect';
 import { 
   LABELS, 
   HINTS, 
@@ -310,18 +309,20 @@ const Asset: React.FC = () => {
                   <span className="govuk-visually-hidden">Error:</span> {errors.voltage}
                 </p>
               )}
-              <AccessibleSelect
-                id="line-voltage"
-                value={voltage}
-                error={Boolean(errors.voltage)}
-                disabled={saving}
-                onChange={handleVoltageChange}
+              <select 
+                className={`govuk-select ${errors.voltage ? 'govuk-select--error' : ''}`}
+                id="line-voltage" 
+                name="line-voltage" 
+                value={voltage} 
+                onChange={e => handleVoltageChange(e.target.value)}
                 aria-describedby={`line-voltage-hint ${errors.voltage ? 'line-voltage-error' : ''}`}
-                options={[
-                  { value: "select", text: "Select an option" },
-                  ...voltageOptions.map(opt => ({ value: opt, text: opt })),
-                ]}
-              />
+                disabled={saving}
+              >
+                <option value="select">Select an option</option>
+                {voltageOptions.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
 
             {/* Line Type Checkboxes */}

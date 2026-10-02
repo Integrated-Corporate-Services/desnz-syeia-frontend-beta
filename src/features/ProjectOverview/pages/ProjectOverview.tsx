@@ -13,7 +13,6 @@ import TextArea from "../component/TextArea";
 import NumberInput from "../component/NumberInput";
 import RadioGroup from "../component/RadioGroup";
 import FileUpload, { FileUploadHandle } from "../../../components/FileUpload";
-import AccessibleSelect from "../../../components/commonFormFields/AccessibleSelect";
 
 
 import { getRelatedFieldAnchorIds, filterErrorLinksByAnchors } from '../validations';
@@ -758,20 +757,22 @@ const ProjectOverview = () => {
 														<div className="govuk-date-input__item">
 															<div className={`govuk-form-group${fieldErrors?.['earliestWorkStartDate-month'] ? " govuk-form-group--error" : ""}`}>
 																<label className="govuk-label" htmlFor="earliestWorkStartDate-month">Month</label>
-																<AccessibleSelect
-																	error={Boolean(fieldErrors?.['earliestWorkStartDate-month'])}
+																<select
+																	className={`govuk-select${fieldErrors?.['earliestWorkStartDate-month'] ? " govuk-select--error" : ""}`}
 																	id="earliestWorkStartDate-month"
+																	name="earliestWorkStartDate.month"
 																	aria-describedby={fieldErrors?.['earliestWorkStartDate-month'] ? "earliestWorkStartDate-month-error" : undefined}
 																	value={formState.earliestWorkStartDateMonth || ""}
-																	onChange={(value) => {
-																		setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: value }));
+																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+																		setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }));
 																		clearFieldError('earliestWorkStartDate-month');
 																	}}
-																	options={[
-																		{ value: "", text: "Select one..." },
-																		...months.map((m) => ({ value: m, text: m })),
-																	]}
-																/>
+																>
+																	<option value="" disabled>Select one...</option>
+																	{months.map((m) => (
+																		<option key={m} value={m}>{m}</option>
+																	))}
+																</select>
 															</div>
 														</div>
 														<div className="govuk-date-input__item">
@@ -814,20 +815,22 @@ const ProjectOverview = () => {
 														<div className="govuk-date-input__item">
 															<div className={`govuk-form-group${fieldErrors?.['latestWorkStartDate-month'] ? " govuk-form-group--error" : ""}`}>
 																<label className="govuk-label" htmlFor="latestWorkStartDate-month">Month</label>
-																<AccessibleSelect
-																	error={Boolean(fieldErrors?.['latestWorkStartDate-month'])}
+																<select
+																	className={`govuk-select${fieldErrors?.['latestWorkStartDate-month'] ? " govuk-select--error" : ""}`}
 																	id="latestWorkStartDate-month"
+																	name="latestWorkStartDate.month"
 																	aria-describedby={fieldErrors?.['latestWorkStartDate-month'] ? "latestWorkStartDate-month-error" : undefined}
 																	value={formState.latestWorkStartDateMonth || ""}
-																	onChange={(value) => {
-																		setFormState(prev => ({ ...prev, latestWorkStartDateMonth: value }));
+																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+																		setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }));
 																		clearFieldError('latestWorkStartDate-month');
 																	}}
-																	options={[
-																		{ value: "", text: "Select one..." },
-																		...months.map((m) => ({ value: m, text: m })),
-																	]}
-																/>
+																>
+																	<option value="" disabled>Select one...</option>
+																	{months.map((m) => (
+																		<option key={m} value={m}>{m}</option>
+																	))}
+																</select>
 															</div>
 														</div>
 														<div className="govuk-date-input__item">

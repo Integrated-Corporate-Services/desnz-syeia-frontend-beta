@@ -59,7 +59,7 @@ describe('ChangeOrganisationAddressPage', () => {
     expect(screen.getByLabelText('Town or city')).toHaveValue('Worcester');
     expect(screen.getByLabelText('County (optional)')).toHaveValue('Worcestershire');
     expect(screen.getByLabelText('Postcode')).toHaveValue('WR1 1NL');
-    expect(screen.getByLabelText('Country')).toHaveTextContent('United Kingdom');
+    expect(screen.getByLabelText('Country')).toHaveValue('United Kingdom');
     expect(screen.getByRole('link', { name: 'Return to dashboard' })).toHaveAttribute(
       'href',
       '/admin/user-management'

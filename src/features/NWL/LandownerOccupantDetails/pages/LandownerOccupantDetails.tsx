@@ -4,7 +4,6 @@ import PageTitle from "../../../../components/PageTitle";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import logger from "../../../../logger";
 import RevealAnnouncement from "../../../../components/commonFormFields/RevealAnnouncement";
-import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -290,18 +289,12 @@ const LandownerOccupantDetails: React.FC = () => {
               {errors.classification && (
                 <p className="govuk-error-message" id="classification-error">{errors.classification}</p>
               )}
-              <AccessibleSelect
-                id="classification"
-                value={classification}
-                onChange={setClassification}
-                aria-describedby={errors.classification ? "classification-error" : undefined}
-                options={[
-                  { value: "", text: "Select one" },
-                  { value: "Owner", text: "Owner" },
-                  { value: "Occupier", text: "Occupier" },
-                  { value: "Owner/Occupier", text: "Owner/Occupier" },
-                ]}
-              />
+              <select className="govuk-select" id="classification" name="classification" value={classification} onChange={e => setClassification(e.target.value)} aria-describedby={errors.classification ? "classification-error" : undefined}>
+                <option value="">Select one</option>
+                <option value="Owner">Owner</option>
+                <option value="Occupier">Occupier</option>
+                <option value="Owner/Occupier">Owner/Occupier</option>
+              </select>
             </div>
             <div className={`govuk-form-group${errors.name ? ' govuk-form-group--error' : ''}`}>  
               <label className="govuk-label govuk-label--s" htmlFor="description">Name</label>
