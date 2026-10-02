@@ -1,0 +1,81 @@
+.accessible-select {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.accessible-select .accessible-select__control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 5px 30px 5px 5px;
+  background-image: none;
+  text-align: left;
+  white-space: normal;
+}
+
+.accessible-select__value {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.accessible-select__arrow {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border-top: 6px solid #0b0c0c;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  pointer-events: none;
+  transform: translateY(-25%);
+}
+
+.accessible-select__listbox {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 2px);
+  left: 0;
+  width: 100%;
+  max-height: min(240px, 40vh);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 2px solid #0b0c0c;
+  background: #ffffff;
+  list-style: none;
+  font-family: "GDS Transport", arial, sans-serif;
+  font-weight: 400;
+  font-size: 1.1875rem;
+  line-height: 1.25;
+  color: #0b0c0c;
+}
+
+.accessible-select__option {
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 10px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.accessible-select__option--active {
+  background: #1d70b8;
+  color: #ffffff;
+}
+
+.accessible-select__option--disabled {
+  color: #b1b4b6;
+  cursor: not-allowed;
+}
+
+.accessible-select__option--disabled.accessible-select__option--active {
+  background: none;
+  color: #b1b4b6;
+}
