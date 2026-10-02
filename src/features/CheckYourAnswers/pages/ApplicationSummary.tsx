@@ -51,6 +51,7 @@ import {
 import PageTitle from '../../../components/PageTitle';
 import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
 import { ApplicationReassignmentLinks, ReassignmentSuccessBanner } from '../../ApplicationSummary/components/ApplicationReassignment';
+import { useAssignmentHistory } from '../../ApplicationSummary/hooks/useAssignmentHistory';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -163,11 +164,8 @@ const ApplicationSummary: React.FC = () => {
   const [parishes, setParishes] = useState<Parish[]>([]);
 
   const [applicationMetadata, setApplicationMetadata] = useState<ApplicationMetadata | null>(null);
-  const [assigneeName, setAssigneeName] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (applicationId) applicationApiService.getAssignmentHistory(applicationId).then((details) => setAssigneeName(details.current_assignee_name)).catch(() => setAssigneeName(null));
-  }, [applicationId]);
+  const assignment = useAssignmentHistory(applicationId);
+  const assigneeName = assignment.loading ? 'Loading...' : assignment.error ? 'Unavailable' : assignment.details?.current_assignee_name;
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const invoiceStatus = useInvoiceStatus(applicationId);

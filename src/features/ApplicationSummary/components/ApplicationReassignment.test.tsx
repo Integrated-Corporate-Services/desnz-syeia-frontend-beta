@@ -2,116 +2,259 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { applicationApiService } from '../../../services/applicationApiService';
-import { ApplicationReassignment, ApplicationReassignmentLinks, ReassignmentHistoryPage, ReassignmentSuccessBanner } from './ApplicationReassignment';
+import {
+    ApplicationReassignment,
+    ApplicationReassignmentLinks,
+    ReassignmentHistoryPage,
+    ReassignmentSuccessBanner,
+} from './ApplicationReassignment';
 
 const { mockUseAuthUserContext } = vi.hoisted(() => ({ mockUseAuthUserContext: vi.fn() }));
 
 vi.mock('../../../context/AuthUserContext', () => ({
-  useAuthUserContext: mockUseAuthUserContext,
+    useAuthUserContext: mockUseAuthUserContext,
 }));
 
 vi.mock('../../../services/applicationApiService', () => ({
-  applicationApiService: {
-    getEligibleAssignees: vi.fn(),
-    getAssignmentHistory: vi.fn(),
-    reassignApplication: vi.fn(),
-  },
+    applicationApiService: {
+        getEligibleAssignees: vi.fn(),
+        getAssignmentHistory: vi.fn(),
+        reassignApplication: vi.fn(),
+    },
 }));
 
 const applicationId = '11111111-1111-1111-1111-111111111111';
 const assigneeId = '22222222-2222-2222-2222-222222222222';
 
 function renderFlow(status: string) {
-  render(<MemoryRouter initialEntries={[`/s37/${applicationId}/reassign`]}><Routes>
-    <Route path="/s37/:applicationId/reassign" element={<ApplicationReassignment applicationId={applicationId} status={status} />} />
-    <Route path="/s37/:applicationId/application-summary" element={<ReassignmentSuccessBanner />} />
-  </Routes></MemoryRouter>);
+    render(
+        <MemoryRouter initialEntries={[`/s37/${applicationId}/reassign`]}>
+            <Routes>
+                <Route
+                    path="/s37/:applicationId/reassign"
+                    element={
+                        <ApplicationReassignment applicationId={applicationId} status={status} />
+                    }
+                />
+                <Route
+                    path="/s37/:applicationId/application-summary"
+                    element={<ReassignmentSuccessBanner />}
+                />
+            </Routes>
+        </MemoryRouter>
+    );
 }
 
 describe('application reassignment confirmation', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockUseAuthUserContext.mockReturnValue({ user: { role: 'APPLICANT_TEAM_COORDINATOR' } });
-    vi.mocked(applicationApiService.getEligibleAssignees).mockResolvedValue([{ user_id: assigneeId, first_name: 'Sam', last_name: 'Okoro', email: 'sam@example.com', is_agent: false }]);
-    vi.mocked(applicationApiService.getAssignmentHistory).mockResolvedValue({ application_reference: 'S3700004', current_assignee_name: 'Priya Nair', history: [] });
-    vi.mocked(applicationApiService.reassignApplication).mockResolvedValue({});
-  });
-
-  it.each([
-    ['FURTHER_INFORMATION_REQUESTED', true],
-    ['DECISION_ISSUED', false],
-  ])('shows the outstanding request only for FIR (%s)', async (status, showRequest) => {
-    renderFlow(status);
-    fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), { target: { value: 'Sam' } });
-    fireEvent.click(await screen.findByText('Sam Okoro - sam@example.com'));
-    fireEvent.click(screen.getByText('Continue'));
-
-    expect(screen.getByText('Check before you reassign')).toBeInTheDocument();
-    expect(screen.getByText('S3700004')).toBeInTheDocument();
-    expect(screen.getByText('Priya Nair')).toBeInTheDocument();
-    if (showRequest) expect(screen.getByText(/A further information request is still outstanding/)).toBeInTheDocument();
-    else expect(screen.queryByText(/A further information request is still outstanding/)).not.toBeInTheDocument();
-
-    const reassignButton = screen.getByRole('button', { name: 'Reassign now' });
-    expect(reassignButton).toBeDisabled();
-    fireEvent.change(screen.getByLabelText('Reason for reassignment'), { target: { value: 'Covering the current assignee’s absence' } });
-    expect(reassignButton).toBeEnabled();
-    fireEvent.click(reassignButton);
-    await waitFor(() => expect(applicationApiService.reassignApplication).toHaveBeenCalledWith(applicationId, assigneeId, 'Covering the current assignee’s absence'));
-    expect(await screen.findByText('Application reassigned')).toBeInTheDocument();
-    expect(screen.getByText('S3700004 is now assigned to Sam Okoro.')).toBeInTheDocument();
-  });
-
-  it('shows the public reassignment history with the required date and actor label', async () => {
-    vi.mocked(applicationApiService.getAssignmentHistory).mockResolvedValue({
-      application_reference: 'S3700004', current_assignee_name: 'Sam Okoro', history: [{
-        previous_assignee_name: 'Priya Nair', new_assignee_name: 'Sam Okoro', assigned_by_name: 'DESNZ Coordinator',
-        assigned_at: '2026-06-03T11:34:00', justification: 'Private internal note',
-      }],
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockUseAuthUserContext.mockReturnValue({ user: { role: 'APPLICANT_TEAM_COORDINATOR' } });
+        vi.mocked(applicationApiService.getEligibleAssignees).mockResolvedValue([
+            {
+                user_id: assigneeId,
+                first_name: 'Sam',
+                last_name: 'Okoro',
+                email: 'sam@example.com',
+                is_agent: false,
+            },
+        ]);
+        vi.mocked(applicationApiService.getAssignmentHistory).mockResolvedValue({
+            application_reference: 'S3700004',
+            current_assignee_name: 'Priya Nair',
+            history: [],
+        });
+        vi.mocked(applicationApiService.reassignApplication).mockResolvedValue({});
     });
-    render(<MemoryRouter initialEntries={[`/s37/${applicationId}/reassignment-history`]}><Routes>
-      <Route path="/s37/:applicationId/reassignment-history" element={<ReassignmentHistoryPage />} />
-    </Routes></MemoryRouter>);
 
-    expect(await screen.findByText('03.06.2026, 11:34')).toBeInTheDocument();
-    expect(screen.getByText('Reassigned from Priya Nair to Sam Okoro by DESNZ Coordinator.')).toBeInTheDocument();
-    expect(screen.queryByText('Private internal note')).not.toBeInTheDocument();
-  });
+    it.each([
+        ['FURTHER_INFORMATION_REQUESTED', true],
+        ['DECISION_ISSUED', false],
+    ])('shows the outstanding request only for FIR (%s)', async (status, showRequest) => {
+        renderFlow(status);
+        fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), {
+            target: { value: 'Sam' },
+        });
+        fireEvent.click(await screen.findByText('Sam Okoro - sam@example.com'));
+        fireEvent.click(screen.getByText('Continue'));
 
-  it('shows the CTA only after the backend authorizes this coordinator for the application', async () => {
-    vi.mocked(applicationApiService.getEligibleAssignees).mockRejectedValueOnce(new Error('Forbidden'));
-    const view = render(<MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
-      <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
-    </MemoryRouter>);
-    await waitFor(() => expect(applicationApiService.getEligibleAssignees).toHaveBeenCalled());
-    expect(screen.queryByRole('link', { name: 'Reassign application' })).not.toBeInTheDocument();
+        expect(screen.getByText('Check before you reassign')).toBeInTheDocument();
+        expect(screen.getByText('S3700004')).toBeInTheDocument();
+        expect(screen.getByText('Priya Nair')).toBeInTheDocument();
+        if (showRequest)
+            expect(
+                screen.getByText(/A further information request is still outstanding/)
+            ).toBeInTheDocument();
+        else
+            expect(
+                screen.queryByText(/A further information request is still outstanding/)
+            ).not.toBeInTheDocument();
 
-    view.unmount();
-    vi.mocked(applicationApiService.getEligibleAssignees).mockResolvedValueOnce([]);
-    render(<MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
-      <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
-    </MemoryRouter>);
-    expect(await screen.findByRole('link', { name: 'Reassign application' })).toBeInTheDocument();
-  });
+        const reassignButton = screen.getByRole('button', { name: 'Reassign now' });
+        expect(reassignButton).toBeDisabled();
+        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
+            target: { value: 'Covering the current assignee’s absence' },
+        });
+        expect(reassignButton).toBeEnabled();
+        fireEvent.click(reassignButton);
+        await waitFor(() =>
+            expect(applicationApiService.reassignApplication).toHaveBeenCalledWith(
+                applicationId,
+                assigneeId,
+                'Covering the current assignee’s absence'
+            )
+        );
+        expect(await screen.findByText('Application reassigned')).toBeInTheDocument();
+        expect(screen.getByText('S3700004 is now assigned to Sam Okoro.')).toBeInTheDocument();
+    });
 
-  it.each(['APPLICANT_USER', 'APPLICANT_AGENT'])('does not show reassignment CTA to %s', async (role) => {
-    mockUseAuthUserContext.mockReturnValue({ user: { role } });
-    render(<MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
-      <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
-    </MemoryRouter>);
+    it('shows the public reassignment history with the required date and actor label', async () => {
+        vi.mocked(applicationApiService.getAssignmentHistory).mockResolvedValue({
+            application_reference: 'S3700004',
+            current_assignee_name: 'Sam Okoro',
+            history: [
+                Object.assign(
+                    {
+                        previous_assignee_name: 'Priya Nair',
+                        new_assignee_name: 'Sam Okoro',
+                        assigned_by_name: 'DESNZ Coordinator',
+                        assigned_at: '2026-06-03T11:34:00',
+                    },
+                    { justification: 'Private internal note' }
+                ),
+            ],
+        });
+        render(
+            <MemoryRouter initialEntries={[`/s37/${applicationId}/reassignment-history`]}>
+                <Routes>
+                    <Route
+                        path="/s37/:applicationId/reassignment-history"
+                        element={<ReassignmentHistoryPage />}
+                    />
+                </Routes>
+            </MemoryRouter>
+        );
 
-    await waitFor(() => expect(applicationApiService.getAssignmentHistory).toHaveBeenCalled());
-    expect(applicationApiService.getEligibleAssignees).not.toHaveBeenCalled();
-    expect(screen.queryByRole('link', { name: 'Reassign application' })).not.toBeInTheDocument();
-  });
+        expect(await screen.findByText('03.06.2026, 11:34')).toBeInTheDocument();
+        expect(
+            screen.getByText('Reassigned from Priya Nair to Sam Okoro by DESNZ Coordinator.')
+        ).toBeInTheDocument();
+        expect(screen.queryByText('Private internal note')).not.toBeInTheDocument();
+    });
 
-  it.each(['WITHDRAWN', 'INVALID', 'ARCHIVED', 'COMPLETED', 'CLOSED', 'REJECTED'])('does not request reassignment eligibility for %s applications', async (status) => {
-    render(<MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
-      <ApplicationReassignmentLinks applicationId={applicationId} status={status} />
-    </MemoryRouter>);
+    it('prevents duplicate submissions while a reassignment is pending', async () => {
+        vi.mocked(applicationApiService.reassignApplication).mockImplementationOnce(
+            () => new Promise(() => {})
+        );
+        renderFlow('DRAFT');
+        fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), {
+            target: { value: 'Sam' },
+        });
+        fireEvent.click(await screen.findByText('Sam Okoro - sam@example.com'));
+        expect(screen.getByRole('radio', { name: 'Sam Okoro - sam@example.com' })).toBeChecked();
+        fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+        expect(screen.getByRole('heading', { name: 'Check before you reassign' })).toHaveFocus();
+        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
+            target: { value: 'Covering absence' },
+        });
+        const button = screen.getByRole('button', { name: 'Reassign now' });
+        fireEvent.click(button);
+        fireEvent.click(button);
+        expect(applicationApiService.reassignApplication).toHaveBeenCalledOnce();
+        expect(button).toBeDisabled();
+        expect(screen.getByText('Reassigning application...')).toHaveAttribute('role', 'status');
+    });
 
-    await waitFor(() => expect(applicationApiService.getAssignmentHistory).toHaveBeenCalled());
-    expect(applicationApiService.getEligibleAssignees).not.toHaveBeenCalled();
-    expect(screen.queryByRole('link', { name: 'Reassign application' })).not.toBeInTheDocument();
-  });
+    it('focuses the error summary after a failed mutation and allows retry', async () => {
+        vi.mocked(applicationApiService.reassignApplication).mockRejectedValueOnce(
+            new Error('Selected user is no longer eligible')
+        );
+        renderFlow('DRAFT');
+        fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), {
+            target: { value: 'Sam' },
+        });
+        fireEvent.click(await screen.findByText('Sam Okoro - sam@example.com'));
+        fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
+            target: { value: 'Covering absence' },
+        });
+        fireEvent.click(screen.getByRole('button', { name: 'Reassign now' }));
+        expect(await screen.findByRole('alert')).toHaveFocus();
+        expect(screen.getByText('Selected user is no longer eligible')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Reassign now' })).toBeEnabled();
+    });
+
+    it('announces an empty contact search and keeps continue disabled', async () => {
+        renderFlow('DRAFT');
+        fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), {
+            target: { value: 'Nobody matches' },
+        });
+        expect(screen.getByText('No matching contacts found.')).toBeInTheDocument();
+        expect(screen.getByText('0 matching contacts')).toHaveAttribute('role', 'status');
+        expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+    });
+
+    it('shows the CTA only after the backend authorizes this coordinator for the application', async () => {
+        vi.mocked(applicationApiService.getEligibleAssignees).mockRejectedValueOnce(
+            new Error('Forbidden')
+        );
+        const view = render(
+            <MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
+                <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
+            </MemoryRouter>
+        );
+        await waitFor(() => expect(applicationApiService.getEligibleAssignees).toHaveBeenCalled());
+        expect(
+            screen.queryByRole('link', { name: 'Reassign application' })
+        ).not.toBeInTheDocument();
+
+        view.unmount();
+        vi.mocked(applicationApiService.getEligibleAssignees).mockResolvedValueOnce([]);
+        render(
+            <MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
+                <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
+            </MemoryRouter>
+        );
+        expect(
+            await screen.findByRole('link', { name: 'Reassign application' })
+        ).toBeInTheDocument();
+    });
+
+    it.each(['APPLICANT_USER', 'APPLICANT_AGENT'])(
+        'does not show reassignment CTA to %s',
+        async (role) => {
+            mockUseAuthUserContext.mockReturnValue({ user: { role } });
+            render(
+                <MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
+                    <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
+                </MemoryRouter>
+            );
+
+            await waitFor(() =>
+                expect(applicationApiService.getAssignmentHistory).toHaveBeenCalled()
+            );
+            expect(applicationApiService.getEligibleAssignees).not.toHaveBeenCalled();
+            expect(
+                screen.queryByRole('link', { name: 'Reassign application' })
+            ).not.toBeInTheDocument();
+        }
+    );
+
+    it.each(['WITHDRAWN', 'INVALID', 'ARCHIVED', 'COMPLETED', 'CLOSED', 'REJECTED'])(
+        'does not request reassignment eligibility for %s applications',
+        async (status) => {
+            render(
+                <MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
+                    <ApplicationReassignmentLinks applicationId={applicationId} status={status} />
+                </MemoryRouter>
+            );
+
+            await waitFor(() =>
+                expect(applicationApiService.getAssignmentHistory).toHaveBeenCalled()
+            );
+            expect(applicationApiService.getEligibleAssignees).not.toHaveBeenCalled();
+            expect(
+                screen.queryByRole('link', { name: 'Reassign application' })
+            ).not.toBeInTheDocument();
+        }
+    );
 });
