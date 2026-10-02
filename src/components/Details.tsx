@@ -21,11 +21,19 @@ const Details: React.FC<DetailsProps> = ({ summary, children, id, initialOpen = 
   useLayoutEffect(() => {
     if (isOpen) {
       wrapperRef.current?.setAttribute('open', '');
-      setAnnounceText(contentRef.current?.textContent?.trim() || '');
     } else {
       wrapperRef.current?.removeAttribute('open');
     }
   }, [isOpen]);
+
+  // The text must be set in the same update that expands the section. If it is set afterwards,
+  // RevealAnnouncement has already consumed the click and the text is never announced.
+  const toggle = () => {
+    if (!isOpen) {
+      setAnnounceText(contentRef.current?.textContent?.trim() || '');
+    }
+    setIsOpen(prev => !prev);
+  };
 
   return (
     <div ref={wrapperRef} className={`govuk-details${className ? ` ${className}` : ''}`} style={style}>
@@ -34,7 +42,7 @@ const Details: React.FC<DetailsProps> = ({ summary, children, id, initialOpen = 
         className="govuk-details__summary"
         aria-expanded={isOpen}
         aria-controls={contentId}
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={toggle}
       >
         <span className="govuk-details__summary-text">{summary}</span>
       </button>
