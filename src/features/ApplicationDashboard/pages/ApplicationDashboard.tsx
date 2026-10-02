@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import ApplicationTable from "../components/ApplicationTable";
 import { useAuthUserContext } from "../../../context/AuthUserContext";
 import type { AuthUser } from "../../../types/auth";
+import { ROLES } from "../../../constants/roles";
 import { useApplicationDashboardFilters } from "../hooks/useApplicationDashboardFilters";
 import { ApplicationDashboardFilters } from "../components/ApplicationDashboardFilters";
 import { ApplicationDashboardHeader } from "../components/ApplicationDashboardHeader";
@@ -127,6 +128,7 @@ const ApplicationDashboard: React.FC = () => {
               onToggleFilters={() => setShowFilters(!showFilters)}
               showFilters={showFilters}
               onStartNewApplication={handleStart}
+              canStartNewApplication={(user as AuthUser)?.role !== ROLES.SUPERUSER}
             />
           </div>
         </div>
