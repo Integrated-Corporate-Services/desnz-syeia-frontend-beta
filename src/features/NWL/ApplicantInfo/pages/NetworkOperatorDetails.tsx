@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApplication } from "../../../../hooks/useApplication";
 import { applicationApiService } from "../../../../services/applicationApiService";
@@ -33,6 +33,8 @@ const NetworkOperatorDetails: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const appId = useGetApplicationId();
+  const errorSummaryRef = React.useRef<HTMLDivElement>(null);
+  const [submitFailTick, setSubmitFailTick] = useState(0);
 
   const stateOrgId = location.state?.organisationId;
   const stateOrgName = location.state?.organisationName;
@@ -90,6 +92,13 @@ const NetworkOperatorDetails: React.FC = () => {
   });
 
   useEffect(() => {
+    if (showErrorSummary || emailInputError) {
+      errorSummaryRef.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitFailTick, emailInputError]);
+
+  useEffect(() => {
     if (appId) {
       fetchApplication(appId).then(() => {
         if (stateOrgId && stateOrgName && application?.application_id) {
@@ -136,6 +145,7 @@ const NetworkOperatorDetails: React.FC = () => {
     e.preventDefault();
 
     if (!validateForm()) {
+      setSubmitFailTick((t) => t + 1);
       return;
     }
 
@@ -228,12 +238,14 @@ const NetworkOperatorDetails: React.FC = () => {
             <h1 className="govuk-heading-l">Applicant details</h1>
             {(showErrorSummary || emailInputError) && (
               <div
+                ref={errorSummaryRef}
                 className="govuk-error-summary"
                 data-module="govuk-error-summary"
                 tabIndex={-1}
                 role="alert"
+                aria-labelledby="applicant-details-error-summary-title"
               >
-                <h2 className="govuk-error-summary__title">
+                <h2 className="govuk-error-summary__title" id="applicant-details-error-summary-title">
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">

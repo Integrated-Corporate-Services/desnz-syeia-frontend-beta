@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplication } from "../../../../hooks/useApplication";
@@ -13,7 +13,13 @@ import PageTitle from "../../../../components/PageTitle";
 const NWL_BASE_URL = "/nwl";
 
 const NetworkOperatorContactDetails: React.FC = () => {
-  const [error, setError] = useState<string>("");
+  const [error, setErrorState] = useState<string>("");
+  const [errorTick, setErrorTick] = useState(0);
+  const setError = useCallback((message: string) => {
+    setErrorState(message);
+    if (message) setErrorTick((t) => t + 1);
+  }, []);
+  const errorSummaryRef = React.useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   const { application, fetchApplication } = useApplication();
@@ -40,6 +46,14 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
   // Format contact details for display
   const contactDetails = formatContactDetails(party);
+
+  useEffect(() => {
+    if (error) {
+      errorSummaryRef.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorTick]);
+
 return (
     <>
       <PageTitle title="Check applicant contact details" />
@@ -65,15 +79,16 @@ return (
 
         {error && (
           <div
+            ref={errorSummaryRef}
             className="govuk-error-summary"
             data-module="govuk-error-summary"
             tabIndex={-1}
-            role="alert"
+            aria-labelledby="contact-details-error-summary-title"
           >
-            <h2 className="govuk-error-summary__title">There is a problem</h2>
+            <h2 className="govuk-error-summary__title" id="contact-details-error-summary-title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">
-                <li>{error}</li>
+                <li><a href="#contactIsConfirmed-yes">{error}</a></li>
               </ul>
             </div>
           </div>

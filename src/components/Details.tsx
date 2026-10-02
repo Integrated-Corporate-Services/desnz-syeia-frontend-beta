@@ -26,8 +26,6 @@ const Details: React.FC<DetailsProps> = ({ summary, children, id, initialOpen = 
     }
   }, [isOpen]);
 
-  // The text must be set in the same update that expands the section. If it is set afterwards,
-  // RevealAnnouncement has already consumed the click and the text is never announced.
   const toggle = () => {
     if (!isOpen) {
       setAnnounceText(contentRef.current?.textContent?.trim() || '');
