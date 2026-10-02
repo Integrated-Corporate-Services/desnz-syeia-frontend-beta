@@ -12,12 +12,15 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import RouteSummary from './RouteSummary';
 import PageTitle from '../../../components/PageTitle';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
+import '../../../styles/RouteOverview.css';
 export const RouteOverviewPage: React.FC = () => {
     const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
     const [details, setDetails] = React.useState('');
     const [formError, setFormError] = React.useState<string | null>(null);
     const detailsRef = React.useRef<HTMLTextAreaElement>(null);
     const remainingChars = Math.max(0, DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH - details.length);
+    const hasJustificationError = formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong;
     const applicationId = useGetApplicationId();
     const navigate = useNavigate();
     const location = useLocation();
@@ -198,7 +201,7 @@ export const RouteOverviewPage: React.FC = () => {
                         </div>
                         <div className="govuk-grid-column-one-half">
                             {/* Show map for the first route with gridPoints */}
-                            <div style={{ width: 466, height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff', margin: '0 auto' }}>
+                            <div style={{ maxWidth: 466, width: '100%', height: 500, border: '1px solid #b1b4b6', borderRadius: 4, overflow: 'hidden', background: '#fff', margin: '0 auto' }}>
                                 <SensitiveAreaCheckMap
                                     routes={routes
                                         .filter((r) => Array.isArray(r.gridPoints) && r.gridPoints.length > 0)
@@ -269,7 +272,7 @@ export const RouteOverviewPage: React.FC = () => {
                                         If you have a line off the main route, you will need to add a route spur. If your routes do not connect, you need to provide justification for including it in this application.
                                     </div>
                                     {formError === ROUTE_ERROR_MESSAGES.addAnotherRoute && (
-                                        <span className="govuk-error-message" id="addRouteRadioGroup-error">
+                                        <span className="govuk-error-message" id="addRouteRadioGroup-error" role="alert">
                                             <span className="govuk-visually-hidden">Error:</span> {formError}
                                         </span>
                                     )}
@@ -289,27 +292,28 @@ export const RouteOverviewPage: React.FC = () => {
                                                 value="notconnected"
                                                 checked={spurChoice === 'notconnected'}
                                                 onChange={() => setSpurChoice('notconnected')}
+                                                aria-controls="addRouteRadioOption-2-hidden"
                                             />
                                             <label className="govuk-label govuk-radios__label" htmlFor="addRouteRadioOption-2">
                                                 Yes, I want to add another route not connected to the main route
                                             </label>
                                         </div>
+                                        <RevealAnnouncement shown={spurChoice === 'notconnected'} message="A new question is shown below: Explain why this additional route should be included with the main route of this application" />
                                         {/* Justification error only for textarea */}
                                         {spurChoice === 'notconnected' && (
-                                            <div className="govuk-inset-text" style={{ marginLeft: 0, marginTop: 8, borderLeft: formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? '4px solid #d4351c' : undefined }}>
-                                                <div className={`govuk-form-group govuk-character-count${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? ' govuk-form-group--error' : ''}`} data-module="govuk-character-count" data-maxlength={DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH}>
+                                            <div className={`govuk-inset-text route-overview__justification${hasJustificationError ? ' route-overview__justification--error' : ''}`} id="addRouteRadioOption-2-hidden">
+                                                <div className={`govuk-form-group govuk-character-count${hasJustificationError ? ' govuk-form-group--error' : ''}`} data-module="govuk-character-count" data-maxlength={DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH}>
                                                     <label htmlFor="routeDetails" className="govuk-label">
                                                         Explain why this additional route should be included with the main route of this application
                                                     </label>
-                                                    {(formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong) && (
+                                                    {hasJustificationError && (
                                                         <span className="govuk-error-message" id="routeDetails-error">
                                                             <span className="govuk-visually-hidden">Error:</span> {formError}
                                                         </span>
                                                     )}
                                                     <textarea
                                                         id="routeDetails"
-                                                        className={`govuk-textarea govuk-js-character-count${formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong ? ' govuk-textarea--error' : ''}`}
-                                                        style={{ minHeight: 100 }}
+                                                        className={`govuk-textarea govuk-js-character-count route-overview__justification-input${hasJustificationError ? ' govuk-textarea--error' : ''}`}
                                                         rows={5}
                                                         ref={detailsRef}
                                                         value={details}
@@ -322,8 +326,8 @@ export const RouteOverviewPage: React.FC = () => {
                                                                 setDetails(val.slice(0, DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH));
                                                             }
                                                         }}
-                                                        aria-describedby={(formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong) ? 'routeDetails-error routeDetails-info' : 'routeDetails-info'}
-                                                        aria-invalid={formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustification || formError === ROUTE_ERROR_MESSAGES.disconnectedRouteJustificationTooLong}
+                                                        aria-describedby={hasJustificationError ? 'routeDetails-error routeDetails-info' : 'routeDetails-info'}
+                                                        aria-invalid={hasJustificationError}
                                                     />
                                                     <div id="routeDetails-info" className="govuk-hint govuk-character-count__message govuk-visually-hidden">You can enter up to {DISCONNECTED_ROUTE_JUSTIFICATION_MAX_LENGTH} characters</div>
                                                     <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">You have {remainingChars} characters remaining</div>

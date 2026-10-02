@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PageTitle from '../../../../components/PageTitle';
+import Details from '../../../../components/Details';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { 
   LandDetailsBreadcrumbs, 
@@ -228,49 +229,42 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
 
               {/* Display Objector Address - Always visible */}
               {objectorAddress && (
-                <details className="govuk-details" data-module="govuk-details">
-                  <summary className="govuk-details__summary">
-                    <span className="govuk-details__summary-text">
-                      Objector's address
-                    </span>
-                  </summary>
-                  <div className="govuk-details__text">
-                    <dl className="govuk-summary-list">
-                      {objectorAddress.objector_address_line1 && (
-                        <>
-                          <dt className="govuk-summary-list__key">Objector address</dt>
-                          <dd className="govuk-summary-list__value">
-                            {objectorAddress.objector_address_line1}
-                            {objectorAddress.objector_address_line2 && (
-                              <>
-                                <br />
-                                {objectorAddress.objector_address_line2}
-                              </>
-                            )}
-                            {objectorAddress.objector_town && (
-                              <>
-                                <br />
-                                {objectorAddress.objector_town}
-                              </>
-                            )}
-                            {objectorAddress.objector_county && (
-                              <>
-                                <br />
-                                {objectorAddress.objector_county}
-                              </>
-                            )}
-                            {objectorAddress.objector_postcode && (
-                              <>
-                                <br />
-                                {objectorAddress.objector_postcode}
-                              </>
-                            )}
-                          </dd>
-                        </>
-                      )}
-                    </dl>
-                  </div>
-                </details>
+                <Details id="objector-address" summary="Objector's address">
+                  <dl className="govuk-summary-list">
+                    {objectorAddress.objector_address_line1 && (
+                      <>
+                        <dt className="govuk-summary-list__key">Objector address</dt>
+                        <dd className="govuk-summary-list__value">
+                          {objectorAddress.objector_address_line1}
+                          {objectorAddress.objector_address_line2 && (
+                            <>
+                              <br />
+                              {objectorAddress.objector_address_line2}
+                            </>
+                          )}
+                          {objectorAddress.objector_town && (
+                            <>
+                              <br />
+                              {objectorAddress.objector_town}
+                            </>
+                          )}
+                          {objectorAddress.objector_county && (
+                            <>
+                              <br />
+                              {objectorAddress.objector_county}
+                            </>
+                          )}
+                          {objectorAddress.objector_postcode && (
+                            <>
+                              <br />
+                              {objectorAddress.objector_postcode}
+                            </>
+                          )}
+                        </dd>
+                      </>
+                    )}
+                  </dl>
+                </Details>
               )}
 
               <FormActions

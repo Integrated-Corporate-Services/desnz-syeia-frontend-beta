@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../../styles/SignInPage.css';
 
 const SignInPage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const SignInPage: React.FC = () => {
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <hr style={{ margin: '2rem 0' }} />
+          <div className="sign-in-page__divider" aria-hidden="true" />
           <h2 className="govuk-heading-l">Apply for a Necessary Wayleave</h2>
           <button
             onClick={handleNWLSignIn}
@@ -43,7 +44,7 @@ const SignInPage: React.FC = () => {
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <hr style={{ margin: '2rem 0' }} />
+          <div className="sign-in-page__divider" aria-hidden="true" />
           <h2 className="govuk-heading-l">Section 37 applications</h2>
           <label className="govuk-label">
             Apply for consent under Section 37 of the Electricity Act 1989 to install or change overhead electric lines. This includes applications for new lines or alterations to existing lines.

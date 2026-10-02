@@ -7,6 +7,7 @@ import {
   UpdateFullNamePayload,
 } from '../services/yourDetailsService';
 import PageTitle from '../../../components/PageTitle';
+import AccessibleSelect from '../../../components/commonFormFields/AccessibleSelect';
 
 type FormErrors = {
   title?: string;
@@ -175,20 +176,14 @@ const ChangeFullNamePage: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {errors.title}
                   </p>
                 )}
-                <select
-                  className={`govuk-select${errors.title ? ' govuk-input--error' : ''}`}
+                <AccessibleSelect
                   id="title"
-                  name="title"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  error={Boolean(errors.title)}
+                  options={TITLE_OPTIONS}
+                  onChange={setTitle}
                   aria-describedby={errors.title ? 'title-error' : undefined}
-                >
-                  {TITLE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.text}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div className={`govuk-form-group${errors.firstName ? ' govuk-form-group--error' : ''}`}>

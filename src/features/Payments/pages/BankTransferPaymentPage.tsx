@@ -176,32 +176,30 @@ const BankTransferPaymentPage: React.FC = () => {
             </div>
 
             <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
-              <fieldset className="govuk-fieldset">
-                {error && (
-                  <p id="confirm-bank-transfer-error" className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span> {error}
-                  </p>
-                )}
-                <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                  <div className="govuk-checkboxes__item">
-                    <input
-                      className="govuk-checkboxes__input"
-                      id="confirm-bank-transfer"
-                      name="confirm-bank-transfer"
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => {
-                        setIsChecked(e.target.checked);
-                        setError('');
-                      }}
-                      aria-describedby={error ? 'confirm-bank-transfer-error' : undefined}
-                    />
-                    <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-bank-transfer">
-                      I confirm I want to pay by bank transfer
-                    </label>
-                  </div>
+              {error && (
+                <p id="confirm-bank-transfer-error" className="govuk-error-message">
+                  <span className="govuk-visually-hidden">Error:</span> {error}
+                </p>
+              )}
+              <div className="govuk-checkboxes" data-module="govuk-checkboxes">
+                <div className="govuk-checkboxes__item">
+                  <input
+                    className="govuk-checkboxes__input"
+                    id="confirm-bank-transfer"
+                    name="confirm-bank-transfer"
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => {
+                      setIsChecked(e.target.checked);
+                      setError('');
+                    }}
+                    aria-describedby={error ? 'confirm-bank-transfer-error' : undefined}
+                  />
+                  <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-bank-transfer">
+                    I confirm I want to pay by bank transfer
+                  </label>
                 </div>
-              </fieldset>
+              </div>
             </div>
 
             <div className="govuk-button-group">

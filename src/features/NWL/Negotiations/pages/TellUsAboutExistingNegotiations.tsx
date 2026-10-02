@@ -20,6 +20,7 @@ import {
 import { updateNegotiationsData } from '../services';
 import { NegotiationsData } from '../types/negotiations';
 import { createLogger } from '../../../../utils/logger';
+import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
 
 const logger = createLogger('TellUsAboutExistingNegotiations');
 
@@ -210,6 +211,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                         checked={hasNegotiations === 'yes'}
                         onChange={(e) => setHasNegotiations(e.target.value)}
                         data-aria-controls="conditional-date"
+                        aria-controls="conditional-date"
                       />
                       <label
                         className="govuk-label govuk-radios__label"
@@ -218,6 +220,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                         {FORM_LABELS.YES}
                       </label>
                     </div>
+                    <RevealAnnouncement shown={hasNegotiations === 'yes'} message={`A new question is shown below: ${HINTS.START_DATE}`} />
                     <div
                       className="govuk-radios__conditional"
                       id="conditional-date"

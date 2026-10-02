@@ -19,6 +19,9 @@ import {
   FORM_ERRORS,
 } from "../constants/networkOperatorDetails";
 import PageTitle from "../../../components/PageTitle";
+import Details from "../../../components/Details";
+import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
+import AccessibleSelect from "../../../components/commonFormFields/AccessibleSelect";
 
 /**
  * Network Operator Details Page
@@ -246,41 +249,41 @@ const NetworkOperatorDetails: React.FC = () => {
                   This person will be the designated contact for this application and all official correspondence will be addressed to them.
                 </div>
                 {errors.includes(FORM_ERRORS.MISSING_OPERATOR) && (
-                  <p id="location-error" className="govuk-error-message">
+                  <p id="location-error" className="govuk-error-message" role="alert">
                     <span className="govuk-visually-hidden">Error:</span>
                     {FORM_ERRORS.MISSING_CONTACT_NAME}
                   </p>
                 )}
-                <select
-                  className={`govuk-select${
-                    errors.includes(FORM_ERRORS.MISSING_OPERATOR)
-                      ? " govuk-select--error"
-                      : ""
-                  }`}
+                <AccessibleSelect
+                  error={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
                   id="location"
-                  name="location"
                   value={selectedOrgName}
-                  onChange={handleOperatorChange}
+                  onChange={(value) =>
+                    handleOperatorChange({ target: { value } } as React.ChangeEvent<HTMLSelectElement>)
+                  }
                   aria-describedby={`location-hint${
                     errors.includes(FORM_ERRORS.MISSING_OPERATOR)
                       ? " location-error"
                       : ""
                   }`}
-                  aria-required="true"
-                  aria-invalid={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
-                >
-                  <option value="">Select option...</option>
-                  {filteredOptions.map((op: ApplicationParty, index: number) => (
-                    <option
-                      key={`${op.organisation_id || "no-org"}-${
-                        op.person_name
-                      }-${index}`}
-                      value={op.person_name}
-                    >
-                      {op.person_name}
-                    </option>
-                  ))}
-                </select>
+                  required
+                  options={[
+                    { value: "", text: "Select option..." },
+                    ...filteredOptions.map((op: ApplicationParty) => ({
+                      value: op.person_name || "",
+                      text: op.person_name || "",
+                    })),
+                  ]}
+                />
+                <RevealAnnouncement
+                  announceOnLoad
+                  shown={filteredOptions.length > 0}
+                  message={`${filteredOptions.length} applicant contact${filteredOptions.length === 1 ? "" : "s"} available in Applicant contact name.`}
+                />
+                <RevealAnnouncement
+                  shown={Boolean(selectedOrgName)}
+                  message={`Selected applicant contact ${selectedOrgName}. You can add additional contacts below.`}
+                />
               </div>
               {additionalContacts.length > 0 && (
                 <ul className="govuk-list">
@@ -296,18 +299,14 @@ const NetworkOperatorDetails: React.FC = () => {
                       }}
                     >
                       <span>{email}</span>
-                      <a
-                        className="govuk-link"
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDeleteContact(email);
-                        }}
-                        role="button"
+                      <button
+                        type="button"
+                        className="govuk-button govuk-button--warning govuk-!-margin-bottom-0"
+                        onClick={() => handleDeleteContact(email)}
                         aria-label={`Delete contact ${email}`}
                       >
                         Delete contact
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -330,7 +329,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   Email address (optional)
                 </label>
                 {emailInputError && (
-                  <p id="emailAddress-error" className="govuk-error-message">
+                  <p id="emailAddress-error" className="govuk-error-message" role="alert">
                     <span className="govuk-visually-hidden">Error:</span>
                     {emailInputError}
                   </p>
@@ -378,7 +377,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   Applicant's reference (optional)
                 </label>
                 {errors.includes(FORM_ERRORS.REFERENCE_TOO_LONG) && (
-                  <p id="networkOperatorRef-error" className="govuk-error-message">
+                  <p id="networkOperatorRef-error" className="govuk-error-message" role="alert">
                     <span className="govuk-visually-hidden">Error:</span>
                     {FORM_ERRORS.REFERENCE_TOO_LONG}
                   </p>
@@ -416,30 +415,23 @@ const NetworkOperatorDetails: React.FC = () => {
                 />
               </div>
 
-              <details className="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    What to do when an applicant is not listed
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  <p>
-                    You must contact the team coordinator in your organisation
-                    that you want to create an application for to provide you
-                    with access to their organisation.
-                  </p>
-                  <p>
-                    If you do not know who the team coordinator is then contact
-                    the service desk for advice at{" "}
-                    <a
-                      className="govuk-link"
-                      href="mailto:xxx@desnz.com"
-                    >
-                      xxx@desnz.com
-                    </a>
-                  </p>
-                </div>
-              </details>
+              <Details id="applicant-not-listed" summary="What to do when an applicant is not listed">
+                <p>
+                  You must contact the team coordinator in your organisation
+                  that you want to create an application for to provide you
+                  with access to their organisation.
+                </p>
+                <p>
+                  If you do not know who the team coordinator is then contact
+                  the service desk for advice at{" "}
+                  <a
+                    className="govuk-link"
+                    href="mailto:xxx@desnz.com"
+                  >
+                    xxx@desnz.com
+                  </a>
+                </p>
+              </Details>
 
               {/* Call to action buttons */}
               <div className="govuk-!-static-margin-top-6">

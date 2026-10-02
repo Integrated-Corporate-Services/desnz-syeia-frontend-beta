@@ -405,14 +405,12 @@ const AssetInformationForm: React.FC = () => {
                                         { value: 'transmission', label: 'Transmission' },
                                     ]}
                                     disabled={isReadOnly}
-                                />
+                                >
+                                    <div className="govuk-!-margin-top-2 govuk-!-width-two-thirds">
+                                        <TextArea id="tori_noi" name="tori_noi" label="TORI/NOI code for this project (optional)" value={form.tori_noi} onChange={handleChange} maxLength={4000} showCount disabled={isReadOnly} />
+                                    </div>
+                                </RadioGroup>
                             </div>
-
-                            {form.lineType === 'transmission' && (
-                                <div className="govuk-!-margin-top-2 govuk-!-width-two-thirds">
-                                    <TextArea id="tori_noi" name="tori_noi" label="TORI/NOI code for this project (optional)" value={form.tori_noi} onChange={handleChange} maxLength={4000} showCount disabled={isReadOnly} />
-                                </div>
-                            )}
 
                             {/* Line voltage */}
                             <MultiSelectDropdown

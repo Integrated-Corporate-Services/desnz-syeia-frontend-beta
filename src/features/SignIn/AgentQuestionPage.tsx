@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
+import PageTitle from "../../components/PageTitle";
 
 const AgentQuestionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const AgentQuestionPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Are you an agent representing an organisation?" />
             <div className="govuk-width-container">
         <Link
           to="/request-access/work-address"
@@ -53,6 +55,7 @@ const AgentQuestionPage: React.FC = () => {
               >
                 <fieldset
                   className="govuk-fieldset"
+                  aria-describedby={error ? "agent-error" : undefined}
                 >
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
                     <h1 className="govuk-fieldset__heading">
@@ -61,7 +64,7 @@ const AgentQuestionPage: React.FC = () => {
                   </legend>
 
                   {error && (
-                    <p id="agent-error" className="govuk-error-message">
+                    <p id="agent-error" className="govuk-error-message" role="alert">
                       <span className="govuk-visually-hidden">Error:</span>{" "}
                       {error}
                     </p>

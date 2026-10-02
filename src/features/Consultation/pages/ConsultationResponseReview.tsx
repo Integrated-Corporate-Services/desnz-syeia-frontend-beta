@@ -150,9 +150,11 @@ const ConsultationResponse3: React.FC = () => {
                             </div>
                         )}
 
-                        {consultationType === ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">Public notices</h2>}
-                        {consultationType !== ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</h2>}
-                        <h1 className="govuk-heading-l">{consultationType === ConsultationType.PUBLIC ? 'Add additional comments about public responses (optional)' : 'Provide consultation response'}</h1>
+                        <h1 className="govuk-heading-l">
+                          {consultationType === ConsultationType.PUBLIC && <span className="govuk-caption-xl govuk-!-margin-top-0">Public notices</span>}
+                          {consultationType !== ConsultationType.PUBLIC && <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>}
+                          {consultationType === ConsultationType.PUBLIC ? 'Add additional comments about public responses (optional)' : 'Provide consultation response'}
+                        </h1>
 
                         <form noValidate>
                             <div className={`govuk-form-group ${errors.comments ? 'govuk-form-group--error' : ''}`}>

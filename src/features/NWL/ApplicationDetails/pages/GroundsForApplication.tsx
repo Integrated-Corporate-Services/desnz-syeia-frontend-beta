@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
+import Details from "../../../../components/Details";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { 
   useApplicationNavigation, 
@@ -207,16 +208,9 @@ const GroundsForApplication: React.FC = () => {
                 </fieldset>
               </div>
 
-              <details className="govuk-details" data-module="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    {LABELS.OBJECTOR_TITLE}
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  {LABELS.OBJECTOR_CONTENT}
-                </div>
-              </details>
+              <Details id="objector-details" summary={LABELS.OBJECTOR_TITLE}>
+                {LABELS.OBJECTOR_CONTENT}
+              </Details>
 
               <p className="govuk-body">
                 <a

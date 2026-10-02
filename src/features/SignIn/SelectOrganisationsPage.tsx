@@ -5,6 +5,7 @@ import { usePublicOrganisations } from "../../hooks/usePublicOrganisations";
 import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
+import PageTitle from "../../components/PageTitle";
 
 const SelectOrganisationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -99,6 +100,7 @@ const SelectOrganisationsPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title={isAgent ? "Select all the organisations you submit applications for" : "Select the organisation you work for"} />
             <div className="govuk-width-container">
         <Link
           to={isAgent ? "/request-access/company-name" : "/request-access/agent-question"}

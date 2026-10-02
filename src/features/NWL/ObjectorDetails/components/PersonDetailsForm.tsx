@@ -1,6 +1,7 @@
 import React from 'react';
 import { FORM_LABELS, TITLE_OPTIONS, VALIDATION_LIMITS } from '../constants/objectorDetailsConstants';
 import type { FormErrors } from '../types';
+import AccessibleSelect from '../../../../components/commonFormFields/AccessibleSelect';
 
 interface PersonDetailsFormProps {
   title: string;
@@ -31,23 +32,24 @@ export const PersonDetailsForm: React.FC<PersonDetailsFormProps> = ({
 }) => {
   return (
     <>
-      <div className="govuk-form-group">
+      <div className={`govuk-form-group ${errors.title ? 'govuk-form-group--error' : ''}`}>
         <label className="govuk-label" htmlFor="title">
           {FORM_LABELS.TITLE}
         </label>
-        <select
-          className="govuk-select"
+        {errors.title && (
+          <p id="title-error" className="govuk-error-message">
+            <span className="govuk-visually-hidden">Error:</span>{' '}
+            {errors.title}
+          </p>
+        )}
+        <AccessibleSelect
           id="title"
-          name="title"
           value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-        >
-          {TITLE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.text}
-            </option>
-          ))}
-        </select>
+          options={TITLE_OPTIONS}
+          onChange={onTitleChange}
+          error={Boolean(errors.title)}
+          aria-describedby={errors.title ? 'title-error' : undefined}
+        />
       </div>
 
       <div

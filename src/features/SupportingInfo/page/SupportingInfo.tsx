@@ -14,6 +14,7 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
 import { clearKeyedErrors } from '../validations';
 import PageTitle from '../../../components/PageTitle';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 const logger = createLogger('SupportingInfo');
 
@@ -431,6 +432,7 @@ const SupportingInfo: React.FC = () => {
                   clearError("wayleaves", "wayleavesReason");
                 }}
                 aria-describedby={hasError("wayleaves") ? "wayleaves-error" : undefined}
+                aria-controls="haveAllWayleavesBeenObtained-no-hidden"
               />
               <label className="govuk-label govuk-radios__label" htmlFor="wayleaves-no">
                 No
@@ -464,6 +466,7 @@ const SupportingInfo: React.FC = () => {
               </div>
             )}
           </div>
+          <RevealAnnouncement shown={wayleaves === "no"} message="A new question is shown below: Why have all wayleaves not been obtained?" />
         </fieldset>
       </div>
 
@@ -553,12 +556,14 @@ const SupportingInfo: React.FC = () => {
           setSupportingDocs("yes");
           clearError("supportingDocs");
         }}
+        aria-controls="hasSupportingDocuments-hidden"
       />
       <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments">
         Yes
       </label>
     </div>
 
+    <RevealAnnouncement shown={supportingDocs === "yes"} message="A new question is shown below: Upload a file" />
     {supportingDocs === "yes" && (
         <div
           className={`govuk-radios__conditional govuk-form-group${hasError("supportingDocsFiles") || fileValidationErrors.length > 0 ? " govuk-form-group--error" : ""}`}
@@ -585,6 +590,7 @@ const SupportingInfo: React.FC = () => {
           <FileUpload
             ref={fileUploadRef}
             title="Upload a file"
+            titleHeadingLevel="h3"
             prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}`}
             applicationId={applicationId}
             category={FILE_CATEGORIES.SUPPORT_INFO}

@@ -10,7 +10,7 @@ interface PageFeedbackProps {
 function PageFeedbackSection({ children }: { children: ReactNode }) {
   return (
     <div className="govuk-!-margin-top-8">
-      <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
+      <div className="govuk-section-break govuk-section-break--m govuk-section-break--visible" aria-hidden="true" />
       <div className="govuk-!-padding-top-6">{children}</div>
     </div>
   );

@@ -1,5 +1,6 @@
 // Components for reviewing access requests
 import React from 'react';
+import '../../styles/RelatedContent.css';
 
 interface RequestData {
   access_request_id: string;
@@ -182,8 +183,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
 
 export const RelatedContentSidebar: React.FC = () => (
   <aside className="app-related-items" role="complementary">
-    {/* TODO: Move inline styles to CSS file */}
-    <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: '0 0 16px 0' }} />
+    <div className="app-related-items__divider" aria-hidden="true" />
     <h2 className="govuk-heading-s" id="related-content-title">Related content</h2>
     <nav role="navigation" aria-labelledby="related-content-title">
       <ul className="govuk-list govuk-list--spaced">

@@ -49,20 +49,20 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
  
 
   return (
-    <div className="govuk-tabs__panel" id="active-users">
+    <div className="govuk-tabs__panel">
       <h2 className="govuk-heading-m">Active users</h2>
-      <p className="govuk-body-s govuk-!-margin-bottom-3">{totalResults} results</p>
+      <p className="govuk-body-s govuk-!-margin-bottom-3" role="status">{totalResults} results</p>
 
      
 
       {usersError && (
         <div
           className="govuk-error-summary"
-          aria-labelledby="error-summary-title"
+          aria-labelledby="active-users-error-summary-title"
           role="alert"
           tabIndex={-1}
         >
-          <h2 className="govuk-error-summary__title" id="error-summary-title">
+          <h2 className="govuk-error-summary__title" id="active-users-error-summary-title">
             There is a problem
           </h2>
           <div className="govuk-error-summary__body">

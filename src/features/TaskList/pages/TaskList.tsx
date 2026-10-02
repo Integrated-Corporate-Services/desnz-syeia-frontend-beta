@@ -10,10 +10,12 @@ import { ROLES } from '../../../constants/roles';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useVisibleLinkFocus } from '../../../hooks/useVisibleLinkFocus';
 
 const logger = createLogger('TaskList');
 
 const TaskList: React.FC = () => {
+  useVisibleLinkFocus();
   const { user } = useAuthUserContext();
   const navigate = useNavigate();
   const location = useLocation();

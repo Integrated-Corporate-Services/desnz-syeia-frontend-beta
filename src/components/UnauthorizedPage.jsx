@@ -6,7 +6,7 @@ const navigate = useNavigate();
 
 return (
 <div className="govuk-width-container">
-<main className="govuk-main-wrapper" id="main-content" role="main">
+<div className="govuk-main-wrapper">
 <div className="govuk-grid-row">
 <div className="govuk-grid-column-two-thirds">
 <button
@@ -56,7 +56,7 @@ support@example.gov.uk
 
 </div>
 </div>
-</main>
+</div>
 </div>
 );
 };

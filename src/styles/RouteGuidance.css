@@ -1,0 +1,196 @@
+.app-route-example {
+  border: 1px solid #b1b4b6;
+  padding: 10px;
+}
+
+.app-route-example__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.app-route-example__point-list,
+.app-route-example__tables {
+  min-width: 0;
+}
+
+.app-route-example__point-card {
+  margin-bottom: 8px;
+}
+
+.app-route-example__point-card .govuk-summary-card__title-wrapper {
+  padding: 8px 10px;
+}
+
+.app-route-example__point-card .govuk-summary-card__content {
+  padding: 8px 10px;
+}
+
+.app-route-example__point-card .govuk-summary-card__title {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.app-route-example__point-card:last-child {
+  margin-bottom: 0;
+}
+
+.app-route-example__point-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.app-route-example__point-heading .govuk-summary-card__title {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.app-route-example__point-actions {
+  display: flex;
+  align-items: center;
+  color: #1d70b8;
+  font-size: 10px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.app-route-example__point-actions > span {
+  text-decoration: underline;
+}
+
+.app-route-example__point-actions > span + span {
+  margin-left: 4px;
+  padding-left: 4px;
+  border-left: 1px solid #b1b4b6;
+}
+
+.app-route-example__coordinates {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+}
+
+.app-route-example__coordinates > div {
+  flex: 0 1 88px;
+  min-width: 0;
+}
+
+.app-route-example__coordinates dt {
+  margin: 0 0 4px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.app-route-example__coordinates dd {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 3px 5px;
+  border: 2px solid #0b0c0c;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.app-route-example__route-card {
+  margin-bottom: 12px;
+}
+
+.app-route-example__route-card:last-child {
+  margin-bottom: 0;
+}
+
+.app-route-example__table {
+  margin-bottom: 0;
+}
+
+.app-route-example__tables .app-route-example__table {
+  width: 100%;
+}
+
+.app-route-example__overview-heading {
+  margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.app-route-example__content--overview {
+  grid-template-areas:
+    "notice notice"
+    "routes map";
+  grid-template-rows: auto auto;
+}
+
+.app-route-example__overview-notice {
+  grid-area: notice;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.app-route-example__overview-notice .govuk-body,
+.app-route-example__overview-notice .govuk-list {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.app-route-example__content--overview .app-route-example__tables {
+  grid-area: routes;
+}
+
+.app-route-example__content--overview .app-route-example__map {
+  grid-area: map;
+  align-self: start;
+  margin-top: 0;
+}
+
+.app-route-example__map {
+  width: 100%;
+  min-width: 0;
+  min-height: 220px;
+  border: 1px solid #b1b4b6;
+  overflow: hidden;
+}
+
+.app-route-example__point-list + .app-route-example__map {
+  margin-top: 45px;
+}
+
+.route-guidance-example-map {
+  width: 100%;
+  height: 220px;
+}
+
+.route-guidance-example-map__label span {
+  color: #1d70b8;
+  font-size: 15px;
+  white-space: nowrap;
+  text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
+}
+
+.route-guidance-example-map__point-number span {
+  color: #0b0c0c;
+  font-size: 12px;
+  text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
+}
+
+@media (max-width: 40.0625em) {
+  .app-route-example__content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app-route-example__content--overview {
+    grid-template-areas:
+      "notice"
+      "routes"
+      "map";
+    grid-template-rows: auto auto auto;
+  }
+
+  .app-route-example__point-list + .app-route-example__map {
+    margin-top: 0;
+  }
+}

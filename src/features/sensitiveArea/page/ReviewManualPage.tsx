@@ -298,9 +298,9 @@ const ReviewManualPage: React.FC = () => {
               <div className="govuk-form-group" id="failed-areas">
                 <fieldset className="govuk-fieldset">
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h4 className="govuk-fieldset__heading">
+                    <h2 className="govuk-fieldset__heading">
                       Does your route pass through any of these areas?
-                    </h4>
+                    </h2>
                   </legend>
                   <div className="govuk-hint">
                     Select all areas that apply

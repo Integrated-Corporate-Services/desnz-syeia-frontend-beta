@@ -1,0 +1,7 @@
+.payment-callback__summary-list {
+  max-width: 500px;
+}
+
+.payment-callback__summary-value--right {
+  text-align: right;
+}

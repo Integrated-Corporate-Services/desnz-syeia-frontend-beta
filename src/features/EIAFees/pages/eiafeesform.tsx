@@ -13,7 +13,6 @@ import EIAFeesSummary from './EIAFeesSummary';
 import PageTitle from '../../../components/PageTitle';
 import {
     validateEiaFeesForm,
-    hasFieldError,
     getFieldErrorMessage,
     clearValidationErrors,
     type ValidationError,
@@ -247,25 +246,6 @@ const EIAFeesForm: React.FC = () => {
                                     screeningErrorMessage={getFieldErrorMessage('screeningOnly', errors)}
                                 />
                             </div>
-                            {form.screeningOnly === 'true' && (
-                                <div
-                                    className={`govuk-form-group${
-                                        hasFieldError('screeningOnly', errors) ? ' govuk-form-group--error' : ''
-                                    }`}
-                                >
-                                    <fieldset
-                                        className="govuk-fieldset"
-                                        aria-describedby={hasFieldError('screeningOnly', errors) ? 'screeningOnly-error' : undefined}
-                                    >
-                                        {hasFieldError('screeningOnly', errors) && (
-                                            <p id="screeningOnly-error" className="govuk-error-message">
-                                                <span className="govuk-visually-hidden">Error:</span>{' '}
-                                                {getFieldErrorMessage('screeningOnly', errors)}
-                                            </p>
-                                        )}
-                                    </fieldset>
-                                </div>
-                            )}
                             <button
                                 type="submit"
                                 data-module="govuk-button"

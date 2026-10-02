@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
+import Details from "../../../../components/Details";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -181,20 +182,13 @@ const NoticeToRemoveClear: React.FC = () => {
                 </fieldset>
               </div>
 
-              <details className="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    {LABELS.GUIDANCE_TITLE}
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  {LABELS.GUIDANCE_CONTENT.split('\n\n').map((para, idx) => (
-                    <p key={idx} className="govuk-body">
-                      {para}
-                    </p>
-                  ))}
-                </div>
-              </details>
+              <Details id="guidance-details" summary={LABELS.GUIDANCE_TITLE}>
+                {LABELS.GUIDANCE_CONTENT.split('\n\n').map((para, idx) => (
+                  <p key={idx} className="govuk-body">
+                    {para}
+                  </p>
+                ))}
+              </Details>
 
               <div className="govuk-button-group">
                 <button
