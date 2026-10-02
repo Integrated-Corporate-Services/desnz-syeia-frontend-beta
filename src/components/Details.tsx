@@ -1,5 +1,6 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import '../styles/Details.css';
+import RevealAnnouncement from './commonFormFields/RevealAnnouncement';
 
 interface DetailsProps {
   summary: string;
@@ -13,11 +14,14 @@ interface DetailsProps {
 const Details: React.FC<DetailsProps> = ({ summary, children, id, initialOpen = false, className, style }) => {
   const [isOpen, setIsOpen] = useState(initialOpen);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const contentId = `details-text-${id}`;
+  const [announceText, setAnnounceText] = useState('');
 
   useLayoutEffect(() => {
     if (isOpen) {
       wrapperRef.current?.setAttribute('open', '');
+      setAnnounceText(contentRef.current?.textContent?.trim() || '');
     } else {
       wrapperRef.current?.removeAttribute('open');
     }
@@ -34,7 +38,9 @@ const Details: React.FC<DetailsProps> = ({ summary, children, id, initialOpen = 
       >
         <span className="govuk-details__summary-text">{summary}</span>
       </button>
+      <RevealAnnouncement shown={isOpen} message={announceText} />
       <div
+        ref={contentRef}
         className="govuk-details__text"
         id={contentId}
         style={{ display: isOpen ? undefined : 'none' }}
