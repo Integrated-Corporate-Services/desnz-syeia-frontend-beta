@@ -157,7 +157,7 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
   };
 
   return (
-    <div className="accessible-select" ref={containerRef}>
+    <div className={`accessible-select ${className}`.trim()} ref={containerRef}>
       <button
         id={id}
         type="button"
