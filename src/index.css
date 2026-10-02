@@ -204,3 +204,9 @@ button:focus,
   pointer-events: none;
   z-index: 1001;
 }
+
+/* Route lines are focusable in overview maps; the focus halo is drawn by the map (SVG outline would be a bounding box) */
+.leaflet-container path.route-line:focus,
+.leaflet-container path.route-line:focus-visible {
+  outline: none;
+}

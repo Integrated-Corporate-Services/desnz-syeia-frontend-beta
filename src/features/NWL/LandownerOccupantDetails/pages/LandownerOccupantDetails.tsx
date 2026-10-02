@@ -337,7 +337,7 @@ const LandownerOccupantDetails: React.FC = () => {
               <div id="grantorRep-hint" className="govuk-hint"></div>
               <div className="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                 <div className="govuk-radios__item">
-                  <input className="govuk-radios__input" id="grantorRep" name="grantorRep" type="radio" value="Yes" checked={grantorRep === "Yes"} onChange={e => { setGrantorRep(e.target.value); setShowRepFields(e.target.value === "Yes"); }} aria-controls="grantorRep-hidden" aria-expanded={showRepFields} />
+                  <input className="govuk-radios__input" id="grantorRep" name="grantorRep" type="radio" value="Yes" checked={grantorRep === "Yes"} onChange={e => { setGrantorRep(e.target.value); setShowRepFields(e.target.value === "Yes"); }} aria-controls="grantorRep-hidden" />
                   <label className="govuk-label govuk-radios__label" htmlFor="grantorRep">Yes</label>
                 </div>
                 <div className="govuk-radios__item">

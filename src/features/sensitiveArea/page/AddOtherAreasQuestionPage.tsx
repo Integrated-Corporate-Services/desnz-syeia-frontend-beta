@@ -235,11 +235,9 @@ const AddOtherAreasQuestionPage: React.FC = () => {
           {/* Radio Button Group */}
           <div className={`govuk-form-group ${validationError ? 'govuk-form-group--error' : ''}`}>
             <fieldset className="govuk-fieldset">
-              {/* <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                <h2 className="govuk-fieldset__heading">
-                  Select an option
-                </h2>
-              </legend> */}
+              <legend className="govuk-fieldset__legend govuk-visually-hidden">
+                Do you want to add any other sensitive areas?
+              </legend>
 
               {/* Error Message (displayed above radio buttons) */}
               {validationError && (

@@ -2,10 +2,8 @@
 import React from 'react';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { Link, useNavigate } from 'react-router-dom';
-import eipSimpleRouteMap from '../../../assets/eip_simple_route-map.png';
-import eipMultipleRoutesMap from '../../../assets/eip_multiple_routes-map.png';
-import eipRouteOverviewMap from '../../../assets/eip_route_overview-map.png';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import RouteGuidanceExampleMap from '../component/RouteGuidanceExampleMap';
 import PageTitle from '../../../components/PageTitle';
 import '../../../styles/RouteGuidance.css';
 
@@ -28,26 +26,59 @@ const ROUTE_B: ExamplePoint[] = [
   { easting: '420748', northing: '103750' },
 ];
 
-const ExamplePointsTable: React.FC<{ caption: string; points: ExamplePoint[]; showPointNumbers?: boolean }> = ({ caption, points, showPointNumbers = false }) => (
-  <table className="govuk-table app-route-example__table">
-    <caption className="govuk-table__caption govuk-table__caption--s">{caption}</caption>
-    <thead className="govuk-table__head">
-      <tr className="govuk-table__row">
-        {showPointNumbers && <th scope="col" className="govuk-table__header">Point</th>}
-        <th scope="col" className="govuk-table__header">Easting</th>
-        <th scope="col" className="govuk-table__header">Northing</th>
-      </tr>
-    </thead>
-    <tbody className="govuk-table__body">
-      {points.map((point, index) => (
-        <tr className="govuk-table__row" key={`${point.easting}-${point.northing}`}>
-          {showPointNumbers && <th scope="row" className="govuk-table__header">Point {index + 1}</th>}
-          <td className="govuk-table__cell">{point.easting}</td>
-          <td className="govuk-table__cell">{point.northing}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+const ExamplePointCards: React.FC<{ routeName: string; points: ExamplePoint[] }> = ({ routeName, points }) => (
+  <div className="app-route-example__point-list">
+    <h4 className="govuk-heading-s">{routeName}</h4>
+    <p className="govuk-visually-hidden">The action labels shown on these example points are illustrative and are not interactive on this page.</p>
+    {points.map((point, index) => (
+      <section className="govuk-summary-card app-route-example__point-card" key={`${point.easting}-${point.northing}`}>
+        <div className="govuk-summary-card__title-wrapper">
+          <div className="app-route-example__point-heading">
+            <h5 className="govuk-summary-card__title">Point {index + 1}</h5>
+            <span className="app-route-example__point-actions" aria-hidden="true">Add before&nbsp; | &nbsp;Add after&nbsp; | &nbsp;Remove</span>
+          </div>
+        </div>
+        <div className="govuk-summary-card__content">
+          <dl className="app-route-example__coordinates">
+            <div>
+              <dt className="govuk-body">Easting</dt>
+              <dd>{point.easting}</dd>
+            </div>
+            <div>
+              <dt className="govuk-body">Northing</dt>
+              <dd>{point.northing}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+    ))}
+  </div>
+);
+
+const ExampleRouteSummary: React.FC<{ routeName: string; points: ExamplePoint[] }> = ({ routeName, points }) => (
+  <section className="govuk-summary-card app-route-example__route-card">
+    <div className="govuk-summary-card__title-wrapper">
+      <h4 className="govuk-summary-card__title">{routeName}</h4>
+    </div>
+    <div className="govuk-summary-card__content">
+      <table className="govuk-table app-route-example__table">
+        <thead className="govuk-table__head">
+          <tr className="govuk-table__row">
+            <th scope="col" className="govuk-table__header">Easting</th>
+            <th scope="col" className="govuk-table__header">Northing</th>
+          </tr>
+        </thead>
+        <tbody className="govuk-table__body">
+          {points.map((point) => (
+            <tr className="govuk-table__row" key={`${point.easting}-${point.northing}`}>
+              <td className="govuk-table__cell">{point.easting}</td>
+              <td className="govuk-table__cell">{point.northing}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
 );
 
 const RouteGuidancePage: React.FC = () => {
@@ -85,14 +116,14 @@ const RouteGuidancePage: React.FC = () => {
         <p className="govuk-body">
          If you are applying for multiple routes that do not connect, please create a separate application for each route unless you can provide justification to DESNZ, for example: they are connected underground. </p>
         <div className="app-route-example govuk-!-margin-bottom-4">
-          <h3 className="govuk-heading-m">Example: Route A</h3>
           <div className="app-route-example__content">
-            <ExamplePointsTable caption="Coordinates entered for Route A" points={ROUTE_A} showPointNumbers />
-            <img
-              src={eipSimpleRouteMap}
-              alt="Map of Route A: a line through points 1 to 5, running from the south to the north and changing direction at points 2, 3 and 4."
-              className="app-route-example__map"
-            />
+            <ExamplePointCards routeName="Route A" points={ROUTE_A} />
+            <div className="app-route-example__map">
+              <RouteGuidanceExampleMap
+                routes={[{ points: ROUTE_A, routeName: 'Route A' }]}
+                numberedRouteName="Route A"
+              />
+            </div>
           </div>
         </div>
 
@@ -110,36 +141,43 @@ const RouteGuidancePage: React.FC = () => {
           If you are applying for multiple routes that do not connect, please create a separate application for each route unless you can provide justification to DESNZ, for example: they are connected underground.
         </p>
         <div className="app-route-example govuk-!-margin-bottom-8">
-          <h3 className="govuk-heading-m">Example: Route B, a spur joined to Route A</h3>
           <div className="app-route-example__content">
-            <ExamplePointsTable caption="Coordinates entered for Route B" points={ROUTE_B} showPointNumbers />
-            <img
-              src={eipMultipleRoutesMap}
-              alt="Map of Route B, highlighted, joined to Route A. Point 1 of Route B is the same coordinate as point 4 of Route A, and Route B runs west from there to point 3."
-              className="app-route-example__map"
-            />
+            <ExamplePointCards routeName="Route B" points={ROUTE_B} />
+            <div className="app-route-example__map">
+              <RouteGuidanceExampleMap
+                routes={[
+                  { points: ROUTE_A, routeName: 'Route A' },
+                  { points: ROUTE_B, routeName: 'Route B' },
+                ]}
+                numberedRouteName="Route B"
+                highlightedRouteName="Route B"
+              />
+            </div>
           </div>
         </div>
         <div className="app-route-example govuk-!-margin-bottom-8">
-          <h3 className="govuk-heading-m">Example: route overview</h3>
-          <div className="govuk-inset-text">
-            <p className="govuk-body">Any changes made to the route will require you to:</p>
-            <ol className="govuk-list govuk-list--number">
-              <li>Run the sensitive area checks again</li>
-              <li>Upload new plan information</li>
-              <li>Reconsult or provide updated information to consultees if consultations are open</li>
-            </ol>
-          </div>
-          <div className="app-route-example__content">
-            <div className="app-route-example__tables">
-              <ExamplePointsTable caption="Route A" points={ROUTE_A} />
-              <ExamplePointsTable caption="Route B" points={ROUTE_B} />
+          <h3 className="govuk-heading-m app-route-example__overview-heading">Route overview</h3>
+          <div className="app-route-example__content app-route-example__content--overview">
+            <div className="govuk-inset-text app-route-example__overview-notice">
+              <p className="govuk-body">Any changes made to the route will require you to:</p>
+              <ol className="govuk-list govuk-list--number">
+                <li>Run the sensitive area checks again</li>
+                <li>Upload new plan information</li>
+                <li>Reconsult or provide updated information to consultees if consultations are open</li>
+              </ol>
             </div>
-            <img
-              src={eipRouteOverviewMap}
-              alt="Map of Route A and Route B together. Route B joins Route A at the coordinate 420879, 103736."
-              className="app-route-example__map"
-            />
+            <div className="app-route-example__tables">
+              <ExampleRouteSummary routeName="Route A" points={ROUTE_A} />
+              <ExampleRouteSummary routeName="Route B" points={ROUTE_B} />
+            </div>
+            <div className="app-route-example__map">
+              <RouteGuidanceExampleMap
+                routes={[
+                  { points: ROUTE_A, routeName: 'Route A' },
+                  { points: ROUTE_B, routeName: 'Route B' },
+                ]}
+              />
+            </div>
           </div>
         </div>
         <button

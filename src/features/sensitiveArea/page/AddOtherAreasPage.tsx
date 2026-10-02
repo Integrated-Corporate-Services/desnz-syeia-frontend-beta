@@ -340,7 +340,7 @@ const AddOtherAreasPage: React.FC = () => {
           </p>
 
           {/* GOV.UK list with single column - not tabular data, so a list rather than a table */}
-          <ul className="govuk-list govuk-!-margin-top-4">
+          <ul className="govuk-list govuk-!-margin-top-4 add-other-areas__list">
 
             {/* Pre-identified areas */}
             {getFilteredPreIdentifiedAreas().length === 0 ? (

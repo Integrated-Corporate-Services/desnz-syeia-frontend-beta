@@ -146,7 +146,6 @@ const RelatedApplications: React.FC = () => {
                         onChange={(e) => setHasRelatedApplications(e.target.value)}
                         data-aria-controls="conditional-details"
                         aria-controls="conditional-details"
-                        aria-expanded={hasRelatedApplications === 'yes'}
                       />
                       <label
                         className="govuk-label govuk-radios__label"
