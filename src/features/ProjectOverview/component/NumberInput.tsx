@@ -3,6 +3,7 @@ import React from 'react';
 
 interface NumberInputProps {
 	label: string;
+	labelHidden?: boolean;
 	hint?: string;
 	suffix?: string;
 	id: string;
@@ -15,6 +16,7 @@ interface NumberInputProps {
 
 const NumberInput: React.FC<NumberInputProps> = ({
 	label,
+	labelHidden = false,
 	hint,
 	suffix,
 	id,
@@ -32,7 +34,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
 	return (
 		<div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}> 
 			{label && (
-				<label className="govuk-label" htmlFor={id}>
+				<label className={`govuk-label${labelHidden ? ' govuk-visually-hidden' : ''}`} htmlFor={id}>
 					{label}
 					{suffix && <span className="govuk-visually-hidden">{suffix}</span>}
 				</label>
