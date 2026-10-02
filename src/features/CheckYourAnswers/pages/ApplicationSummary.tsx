@@ -50,6 +50,8 @@ import {
 } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
 import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
+import { ApplicationReassignmentLinks, ReassignmentSuccessBanner } from '../../ApplicationSummary/components/ApplicationReassignment';
+import { useAssignmentHistory } from '../../ApplicationSummary/hooks/useAssignmentHistory';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -162,6 +164,8 @@ const ApplicationSummary: React.FC = () => {
   const [parishes, setParishes] = useState<Parish[]>([]);
 
   const [applicationMetadata, setApplicationMetadata] = useState<ApplicationMetadata | null>(null);
+  const assignment = useAssignmentHistory(applicationId);
+  const assigneeName = assignment.loading ? 'Loading...' : assignment.error ? 'Unavailable' : assignment.details?.current_assignee_name;
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const invoiceStatus = useInvoiceStatus(applicationId);
@@ -469,6 +473,7 @@ const ApplicationSummary: React.FC = () => {
     <>
       <PageTitle title="Application summary" />
             <div className="govuk-width-container">
+      <ReassignmentSuccessBanner />
       {!permissions?.canEdit && (
         <Link to="/application-dashboard" className="govuk-back-link">
           Back
@@ -563,8 +568,9 @@ const ApplicationSummary: React.FC = () => {
                       {formatCaseType(applicationMetadata?.formType)}
                     </dd>
                   </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
+                    <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Assigned to</dt><dd className="govuk-summary-list__value">{assigneeName || 'Not assigned'}</dd></div>
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
                     <dd className="govuk-summary-list__value">
                       <StatusBadge 
                         status={applicationMetadata?.status || ''} 
@@ -639,6 +645,8 @@ const ApplicationSummary: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {applicationId && <ApplicationReassignmentLinks applicationId={applicationId} status={applicationMetadata?.status || null} />}
 
             {/* Withdraw application button - only show if user has withdraw permission and no pending withdrawal request */}
             {permissions?.canWithdraw && !permissions?.canEdit && !withdrawalRequest && (

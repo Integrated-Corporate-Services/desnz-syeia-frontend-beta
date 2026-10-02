@@ -2,10 +2,52 @@ import { generateCorrelationId } from "../utils/correlationId";
 import { buildBackendUrl } from "../utils/apiConfig";
 import { fetchCsrfToken, getCsrfHeaders } from "../utils/csrf";
 import { createLogger } from "../utils/logger";
+import type { AssignmentDetails, EligibleAssignee } from '../features/ApplicationSummary/types/applicationReassignment';
 
 const logger = createLogger('application-api');
 
 export const applicationApiService = {
+  getEligibleAssignees: async (applicationId: string): Promise<EligibleAssignee[]> => {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/eligible-assignees`), {
+      credentials: "include",
+      headers: { "X-Correlation-ID": generateCorrelationId() },
+    });
+    if (!response.ok) throw new Error("Unable to load eligible assignees");
+    return response.json();
+  },
+
+  reassignApplication: async (applicationId: string, newAssigneeId: string, justification: string) => {
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    if (!csrfHeaders['X-CSRF-Token']) {
+      throw new Error('Unable to obtain CSRF token');
+    }
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/assignment`), {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", "X-Correlation-ID": generateCorrelationId(), ...csrfHeaders },
+      body: JSON.stringify({ new_assignee_id: newAssigneeId, justification }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = typeof data.error === 'string' ? data.error : data.error?.message;
+      throw new Error(typeof message === 'string' ? message : 'Unable to reassign application. Try again later.');
+    }
+    return data;
+  },
+
+  getAssignmentHistory: async (applicationId: string): Promise<AssignmentDetails> => {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/assignment-history`), {
+      credentials: "include",
+      headers: { "X-Correlation-ID": generateCorrelationId() },
+    });
+    if (!response.ok) throw new Error("Unable to load assignment history");
+    return response.json();
+  },
+
   // Fetch applications for a user
   fetchApplicationsByUser: async (
     created_by: string,
