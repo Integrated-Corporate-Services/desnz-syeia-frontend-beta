@@ -4,6 +4,7 @@ import Details from "../../../../components/Details";
 import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import { useNetworkOperators } from "../hooks/useNetworkOperators";
 import { useWhoIsApplyingForm } from "../hooks/useWhoIsApplyingForm";
+import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
 
 const WhoIsApplying: React.FC = () => {
   const { user } = useAuthUserContext();
@@ -17,10 +18,10 @@ const WhoIsApplying: React.FC = () => {
     handleSubmit(e, selectedOrgName, selectedOrganisation, user);
   };
 
-  const handleOrgSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    handleOrgChange(e);
+  const handleOrgSelectChange = (value: string) => {
+    handleOrgChange({ target: { value } } as React.ChangeEvent<HTMLSelectElement>);
     // Clear any existing errors when user makes a selection
-    if (e.target.value && error) {
+    if (value && error) {
       clearError();
     }
   };
@@ -65,30 +66,28 @@ const WhoIsApplying: React.FC = () => {
                     {error}
                   </p>
                 )}
-                <select
-                  className="govuk-select govuk-!-width-full govuk-!-font-size-19"
+                <AccessibleSelect
+                  className="govuk-!-width-full govuk-!-font-size-19"
                   id="location"
-                  name="location"
                   aria-describedby={error ? "location-error" : undefined}
                   value={selectedOrgName}
                   onChange={handleOrgSelectChange}
                   disabled={options.length === 0}
                   required
-                >
-                  <option value="" disabled>
-                    {options.length === 0
-                      ? "No network operators found"
-                      : "Select option..."}
-                  </option>
-                  {options.map((opt) => (
-                    <option
-                      key={opt.organisation_name}
-                      value={opt.organisation_name}
-                    >
-                      {opt.organisation_name}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    {
+                      value: "",
+                      text:
+                        options.length === 0
+                          ? "No network operators found"
+                          : "Select option...",
+                    },
+                    ...options.map((opt) => ({
+                      value: opt.organisation_name,
+                      text: opt.organisation_name,
+                    })),
+                  ]}
+                />
               </div>
               <Details
                 id="network-operator-not-listed"

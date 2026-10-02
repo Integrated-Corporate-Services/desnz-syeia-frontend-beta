@@ -71,3 +71,13 @@
   background: #1d70b8;
   color: #ffffff;
 }
+
+.accessible-select__option--disabled {
+  color: #b1b4b6;
+  cursor: not-allowed;
+}
+
+.accessible-select__option--disabled.accessible-select__option--active {
+  background: none;
+  color: #b1b4b6;
+}

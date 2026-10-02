@@ -267,8 +267,8 @@ const NetworkOperatorDetails: React.FC = () => {
                   options={[
                     { value: "", text: "Select option..." },
                     ...filteredOptions.map((op: ApplicationParty) => ({
-                      value: op.person_name,
-                      text: op.person_name,
+                      value: op.person_name || "",
+                      text: op.person_name || "",
                     })),
                   ]}
                   onChange={(value) =>

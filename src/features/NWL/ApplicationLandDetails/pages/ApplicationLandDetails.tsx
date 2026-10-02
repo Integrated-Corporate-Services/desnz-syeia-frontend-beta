@@ -188,11 +188,17 @@ const ApplicationLandDetails: React.FC = () => {
 							{errors.landLocation && (
 								<p className="govuk-error-message" id="landLocation-error">{errors.landLocation}</p>
 							)}
-							<select className="govuk-select" id="landLocation" name="landLocation" value={landLocation} onChange={e => setLandLocation(e.target.value)} aria-describedby={errors.landLocation ? "landLocation-error" : "landLocation-hint"}>
-								<option value="updated">Select an option</option>
-								<option value="views">England</option>
-								<option value="comments">Wales</option>
-							</select>
+							<AccessibleSelect
+								id="landLocation"
+								value={landLocation}
+								onChange={setLandLocation}
+								aria-describedby={errors.landLocation ? "landLocation-error" : "landLocation-hint"}
+								options={[
+									{ value: "updated", text: "Select an option" },
+									{ value: "views", text: "England" },
+									{ value: "comments", text: "Wales" },
+								]}
+							/>
 						</div>
 						<div className="govuk-form-group">
 							<label className="govuk-label govuk-label--s" htmlFor="landRef">Land reference <span className="govuk-hint">(optional)</span></label>

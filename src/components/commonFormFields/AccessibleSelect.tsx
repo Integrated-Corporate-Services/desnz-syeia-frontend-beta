@@ -4,16 +4,18 @@ import '../../styles/AccessibleSelect.css';
 export interface AccessibleSelectOption {
   value: string;
   text: React.ReactNode;
+  disabled?: boolean;
 }
 
 interface AccessibleSelectProps {
   id: string;
   value: string;
-  options: AccessibleSelectOption[];
+  options: readonly AccessibleSelectOption[];
   onChange: (value: string) => void;
   error?: boolean;
   className?: string;
   required?: boolean;
+  disabled?: boolean;
   'aria-describedby'?: string;
   'aria-label'?: string;
   'aria-labelledby'?: string;
@@ -33,6 +35,7 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
   error = false,
   className = '',
   required = false,
+  disabled = false,
   'aria-describedby': ariaDescribedBy,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
@@ -45,9 +48,18 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
   const selectedIndex = options.findIndex((option) => option.value === value);
   const selectedOption = selectedIndex >= 0 ? options[selectedIndex] : undefined;
 
+  const findEnabledIndex = (start: number, direction: 1 | -1): number => {
+    for (let offset = 0; offset < options.length; offset += 1) {
+      const index = (start + offset * direction + options.length * options.length) % options.length;
+      if (!options[index]?.disabled) return index;
+    }
+    return start;
+  };
+
   const openAt = (index: number) => {
     if (options.length === 0) return;
-    setActiveIndex(Math.max(0, Math.min(index, options.length - 1)));
+    const clamped = Math.max(0, Math.min(index, options.length - 1));
+    setActiveIndex(options[clamped]?.disabled ? findEnabledIndex(clamped, 1) : clamped);
     setIsOpen(true);
   };
 
@@ -71,7 +83,7 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
 
   const selectOption = (index: number) => {
     const option = options[index];
-    if (!option) return;
+    if (!option || option.disabled) return;
     onChange(option.value);
     setIsOpen(false);
   };
@@ -79,25 +91,21 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      openAt(
-        isOpen
-          ? Math.min(activeIndex + 1, options.length - 1)
-          : selectedIndex >= 0
-            ? selectedIndex
-            : 0,
-      );
+      if (isOpen) {
+        openAt(findEnabledIndex(Math.min(activeIndex + 1, options.length - 1), 1));
+      } else {
+        openAt(selectedIndex >= 0 ? selectedIndex : 0);
+      }
       return;
     }
 
     if (event.key === 'ArrowUp') {
       event.preventDefault();
-      openAt(
-        isOpen
-          ? Math.max(activeIndex - 1, 0)
-          : selectedIndex >= 0
-            ? selectedIndex
-            : options.length - 1,
-      );
+      if (isOpen) {
+        openAt(findEnabledIndex(Math.max(activeIndex - 1, 0), -1));
+      } else {
+        openAt(selectedIndex >= 0 ? selectedIndex : options.length - 1);
+      }
       return;
     }
 
@@ -140,6 +148,7 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
       const matchingIndex = Array.from({ length: options.length }, (_, offset) =>
         (startIndex + offset) % options.length,
       ).find((index) =>
+        !options[index].disabled &&
         String(options[index].text).toLocaleLowerCase().startsWith(prefix.toLocaleLowerCase()),
       );
       if (matchingIndex !== undefined) openAt(matchingIndex);
@@ -167,6 +176,7 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
         }
         aria-required={required}
         aria-invalid={error}
+        disabled={disabled}
         onClick={() => {
           if (isOpen) {
             setIsOpen(false);
@@ -192,11 +202,12 @@ const AccessibleSelect: React.FC<AccessibleSelectProps> = ({
             key={option.value}
             className={`accessible-select__option${
               activeIndex === index ? ' accessible-select__option--active' : ''
-            }`}
+            }${option.disabled ? ' accessible-select__option--disabled' : ''}`}
             role="option"
             aria-selected={selectedIndex === index}
+            aria-disabled={option.disabled || undefined}
             onMouseDown={(event) => event.preventDefault()}
-            onMouseEnter={() => setActiveIndex(index)}
+            onMouseEnter={() => !option.disabled && setActiveIndex(index)}
             onClick={() => selectOption(index)}
           >
             {option.text}
