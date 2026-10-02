@@ -260,14 +260,36 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
         // Draw the route polyline if there are at least 2 valid points
         if (safeLatLngs.length >= 2) {
           try {
+            // Make each route line keyboard focusable with a visible focus halo
+            // (black outer + GOV.UK yellow inner, drawn beneath the blue line)
+            let focusHalos: L.Polyline[] = [];
+            {
+              const outer = L.polyline(safeLatLngs, { color: '#0b0c0c', weight: 15, opacity: 0, interactive: false, pane: 'overlayPane' }).addTo(map);
+              const inner = L.polyline(safeLatLngs, { color: '#ffdd00', weight: 10, opacity: 0, interactive: false, pane: 'overlayPane' }).addTo(map);
+              focusHalos = [outer, inner];
+              polylineRefs.current.push(outer, inner);
+            }
             // Always draw only the blue line, no yellow border
             const poly = L.polyline(safeLatLngs, {
               color: ROUTE_COLOR,
               weight: 5,
               opacity: 1,
               pane: 'overlayPane',
+              className: 'route-line',
             }).addTo(map);
             polylineRefs.current.push(poly);
+            {
+              const el = poly.getElement();
+              if (el) {
+                el.setAttribute('tabindex', '0');
+                el.setAttribute('role', 'img');
+                el.setAttribute('aria-label', `${label}, route with ${validPoints.length} points`);
+                el.addEventListener('focus', () => {
+                  if (el.matches(':focus-visible')) focusHalos.forEach(h => h.setStyle({ opacity: 1 }));
+                });
+                el.addEventListener('blur', () => focusHalos.forEach(h => h.setStyle({ opacity: 0 })));
+              }
+            }
           } catch {
             // Silently ignore fitBounds errors
           }
