@@ -216,7 +216,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 								<div className="govuk-radios" data-module="govuk-radios">
 									<div className="govuk-radios__item">
-										<input className="govuk-radios__input" id="landRegistry-yes" name="landRegistry" type="radio" value="yes" checked={landRegistry === "yes"} onChange={e => setLandRegistry(e.target.value)} aria-controls="landRegistry-yes-hidden" aria-expanded={landRegistry === "yes"} />
+										<input className="govuk-radios__input" id="landRegistry-yes" name="landRegistry" type="radio" value="yes" checked={landRegistry === "yes"} onChange={e => setLandRegistry(e.target.value)} aria-controls="landRegistry-yes-hidden" />
 										<label className="govuk-label govuk-radios__label" htmlFor="landRegistry-yes">Yes</label>
 									</div>
 									<div className="govuk-radios__item">

@@ -189,7 +189,6 @@ const StandardTerm: React.FC = () => {
                           }}
                           data-aria-controls={option.value === "no" ? "conditional-explanation" : undefined}
                           aria-controls={option.value === "no" ? "conditional-explanation" : undefined}
-                          aria-expanded={option.value === "no" ? isStandardTerm === "no" : undefined}
                         />
                         <label
                           className="govuk-label govuk-radios__label"

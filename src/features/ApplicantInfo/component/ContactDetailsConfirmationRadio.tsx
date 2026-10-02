@@ -41,7 +41,6 @@ const ContactDetailsConfirmationRadio: React.FC<Props> = ({ value, onChange }) =
             checked={value === 'false'}
             onChange={() => onChange('false')}
             aria-controls="contactDetailsConfirmed-no-hidden"
-            aria-expanded={value === 'false'}
           />
           <label className="govuk-label govuk-radios__label" htmlFor="contactDetailsConfirmed-no">
             {CONTENT.networkOperatorContact.confirmation.no}

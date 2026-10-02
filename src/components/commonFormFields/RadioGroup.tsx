@@ -69,7 +69,6 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
                     onChange={onChange}
                     disabled={disabled}
                     aria-controls={children ? `${inputId}-hidden` : undefined}
-                    aria-expanded={children ? isChecked : undefined}
                   />
                   <label className="govuk-label govuk-radios__label" htmlFor={inputId}>
                     {opt.label}

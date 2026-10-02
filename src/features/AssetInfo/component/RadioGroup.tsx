@@ -26,7 +26,6 @@ const RadioGroup: React.FC<CommonInputProps> = ({ id, name, label, value, error,
                 disabled={disabled}
                 data-aria-controls={opt.value === 'transmission' && children ? `${id}-${opt.value}-hidden` : undefined}
                 aria-controls={opt.value === 'transmission' && children ? `${id}-${opt.value}-hidden` : undefined}
-                aria-expanded={opt.value === 'transmission' && children ? value === 'transmission' : undefined}
               />
               <label className="govuk-label govuk-radios__label" htmlFor={`${id}-${opt.value}`}>
                 {opt.label}

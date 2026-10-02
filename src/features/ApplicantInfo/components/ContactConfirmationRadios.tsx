@@ -55,7 +55,6 @@ export function ContactConfirmationRadios({
                 setError("");
               }}
               aria-controls="contactIsConfirmed-no-hidden"
-              aria-expanded={contactIsConfirmed === false}
             />
             <label
               className="govuk-label govuk-radios__label"
