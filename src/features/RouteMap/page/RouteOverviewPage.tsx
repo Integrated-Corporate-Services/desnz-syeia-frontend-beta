@@ -293,7 +293,6 @@ export const RouteOverviewPage: React.FC = () => {
                                                 checked={spurChoice === 'notconnected'}
                                                 onChange={() => setSpurChoice('notconnected')}
                                                 aria-controls="addRouteRadioOption-2-hidden"
-                                                aria-expanded={spurChoice === 'notconnected'}
                                             />
                                             <label className="govuk-label govuk-radios__label" htmlFor="addRouteRadioOption-2">
                                                 Yes, I want to add another route not connected to the main route

@@ -433,7 +433,6 @@ const SupportingInfo: React.FC = () => {
                 }}
                 aria-describedby={hasError("wayleaves") ? "wayleaves-error" : undefined}
                 aria-controls="haveAllWayleavesBeenObtained-no-hidden"
-                aria-expanded={wayleaves === "no"}
               />
               <label className="govuk-label govuk-radios__label" htmlFor="wayleaves-no">
                 No
@@ -558,7 +557,6 @@ const SupportingInfo: React.FC = () => {
           clearError("supportingDocs");
         }}
         aria-controls="hasSupportingDocuments-hidden"
-        aria-expanded={supportingDocs === "yes"}
       />
       <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments">
         Yes

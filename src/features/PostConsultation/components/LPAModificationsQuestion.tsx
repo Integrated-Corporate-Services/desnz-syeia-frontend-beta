@@ -37,7 +37,6 @@ const LPAModificationsQuestion: React.FC<LPAModificationsQuestionProps> = ({ lpa
                             onChange={(e) => onLpaModificationsChange(e.target.value)}
                             data-aria-controls="conditional-lpa-modifications-yes"
                             aria-controls="conditional-lpa-modifications-yes"
-                            aria-expanded={lpaModifications === 'yes'}
                         />
                         <label className="govuk-label govuk-radios__label" htmlFor="lpa-modifications-yes">
                             Yes
@@ -76,7 +75,6 @@ const LPAModificationsQuestion: React.FC<LPAModificationsQuestionProps> = ({ lpa
                                             onChange={(e) => onAcceptConditionsChange(e.target.value)}
                                             data-aria-controls="conditional-accept-conditions-no"
                                             aria-controls="conditional-accept-conditions-no"
-                                            aria-expanded={acceptConditions === 'no'}
                                         />
                                         <label className="govuk-label govuk-radios__label" htmlFor="accept-conditions-no">
                                             No

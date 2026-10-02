@@ -193,7 +193,6 @@ const SensitiveAreaPage: React.FC = () => {
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
                                                         data-aria-controls="routeToleranceRequired-hidden"
                                                         aria-controls="routeToleranceRequired-hidden"
-                                                        aria-expanded={toleranceRequired === 'yes'}
                                                     />
                                                     <label className="govuk-label govuk-radios__label" htmlFor="routeToleranceRequired">
                                                         Yes

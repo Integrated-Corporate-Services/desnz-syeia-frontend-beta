@@ -65,7 +65,6 @@ const ConsulteesRecommendationsQuestion: React.FC<
               }
               data-aria-controls="conditional-consultees-recommendations-yes"
               aria-controls="conditional-consultees-recommendations-yes"
-              aria-expanded={consulteesRecommendations === "yes"}
             />
             <label
               className="govuk-label govuk-radios__label"
@@ -119,7 +118,6 @@ const ConsulteesRecommendationsQuestion: React.FC<
                       }
                       data-aria-controls="conditional-accept-consultees-recommendations-no"
                       aria-controls="conditional-accept-consultees-recommendations-no"
-                      aria-expanded={acceptConsulteesRecommendations === "no"}
                     />
                     <label
                       className="govuk-label govuk-radios__label"

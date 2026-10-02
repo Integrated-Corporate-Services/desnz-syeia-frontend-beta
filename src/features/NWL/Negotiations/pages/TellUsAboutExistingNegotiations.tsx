@@ -212,7 +212,6 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                         onChange={(e) => setHasNegotiations(e.target.value)}
                         data-aria-controls="conditional-date"
                         aria-controls="conditional-date"
-                        aria-expanded={hasNegotiations === 'yes'}
                       />
                       <label
                         className="govuk-label govuk-radios__label"
