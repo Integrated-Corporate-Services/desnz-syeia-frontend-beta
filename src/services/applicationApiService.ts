@@ -2,11 +2,12 @@ import { generateCorrelationId } from "../utils/correlationId";
 import { buildBackendUrl } from "../utils/apiConfig";
 import { fetchCsrfToken, getCsrfHeaders } from "../utils/csrf";
 import { createLogger } from "../utils/logger";
+import type { AssignmentDetails, EligibleAssignee } from '../features/ApplicationSummary/types/applicationReassignment';
 
 const logger = createLogger('application-api');
 
 export const applicationApiService = {
-  getEligibleAssignees: async (applicationId: string) => {
+  getEligibleAssignees: async (applicationId: string): Promise<EligibleAssignee[]> => {
     const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/eligible-assignees`), {
       credentials: "include",
       headers: { "X-Correlation-ID": generateCorrelationId() },
@@ -31,11 +32,14 @@ export const applicationApiService = {
       body: JSON.stringify({ new_assignee_id: newAssigneeId, justification }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || "Unable to reassign application");
+    if (!response.ok) {
+      const message = typeof data.error === 'string' ? data.error : data.error?.message;
+      throw new Error(typeof message === 'string' ? message : 'Unable to reassign application. Try again later.');
+    }
     return data;
   },
 
-  getAssignmentHistory: async (applicationId: string) => {
+  getAssignmentHistory: async (applicationId: string): Promise<AssignmentDetails> => {
     const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/assignment-history`), {
       credentials: "include",
       headers: { "X-Correlation-ID": generateCorrelationId() },
