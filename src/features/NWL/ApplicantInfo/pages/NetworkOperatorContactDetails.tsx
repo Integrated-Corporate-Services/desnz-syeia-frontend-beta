@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplication } from "../../../../hooks/useApplication";
@@ -13,7 +13,12 @@ import PageTitle from "../../../../components/PageTitle";
 const NWL_BASE_URL = "/nwl";
 
 const NetworkOperatorContactDetails: React.FC = () => {
-  const [error, setError] = useState<string>("");
+  const [error, setErrorState] = useState<string>("");
+  const [errorTick, setErrorTick] = useState(0);
+  const setError = useCallback((message: string) => {
+    setErrorState(message);
+    if (message) setErrorTick((t) => t + 1);
+  }, []);
   const errorSummaryRef = React.useRef<HTMLDivElement>(null);
   const location = useLocation();
 
@@ -46,7 +51,8 @@ const NetworkOperatorContactDetails: React.FC = () => {
     if (error) {
       errorSummaryRef.current?.focus();
     }
-  }, [error]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorTick]);
 
 return (
     <>

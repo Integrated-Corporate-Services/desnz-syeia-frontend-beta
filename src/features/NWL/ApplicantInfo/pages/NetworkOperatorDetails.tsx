@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApplication } from "../../../../hooks/useApplication";
 import { applicationApiService } from "../../../../services/applicationApiService";
@@ -34,6 +34,7 @@ const NetworkOperatorDetails: React.FC = () => {
   const location = useLocation();
   const appId = useGetApplicationId();
   const errorSummaryRef = React.useRef<HTMLDivElement>(null);
+  const [submitFailTick, setSubmitFailTick] = useState(0);
 
   const stateOrgId = location.state?.organisationId;
   const stateOrgName = location.state?.organisationName;
@@ -94,7 +95,8 @@ const NetworkOperatorDetails: React.FC = () => {
     if (showErrorSummary || emailInputError) {
       errorSummaryRef.current?.focus();
     }
-  }, [showErrorSummary, emailInputError, errors]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitFailTick, emailInputError]);
 
   useEffect(() => {
     if (appId) {
@@ -143,6 +145,7 @@ const NetworkOperatorDetails: React.FC = () => {
     e.preventDefault();
 
     if (!validateForm()) {
+      setSubmitFailTick((t) => t + 1);
       return;
     }
 
