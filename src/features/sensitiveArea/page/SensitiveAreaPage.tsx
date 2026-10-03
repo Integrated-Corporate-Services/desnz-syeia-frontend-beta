@@ -97,20 +97,6 @@ const SensitiveAreaPage: React.FC = () => {
 
     useBreadcrumb(
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            {error && (
-                <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
-                    <h2 className="govuk-error-summary__title" id="error-summary-title">
-                        There is a problem
-                    </h2>
-                    <div className="govuk-error-summary__body">
-                        <ul className="govuk-list govuk-error-summary__list">
-                            <li>
-                                <a href="#routeToleranceRequired">{error}</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            )}
             <ol className="govuk-breadcrumbs__list">
                 <li className="govuk-breadcrumbs__list-item">
                     <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
@@ -144,6 +130,20 @@ const SensitiveAreaPage: React.FC = () => {
                         <PageTitle title="Sensitive area check" />
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-full">
+                        {error && (
+                            <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+                                <h2 className="govuk-error-summary__title" id="error-summary-title">
+                                    There is a problem
+                                </h2>
+                                <div className="govuk-error-summary__body">
+                                    <ul className="govuk-list govuk-error-summary__list">
+                                        <li>
+                                            <a href="#routeToleranceRequired">{error}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
                         {formError && (
                             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
                                 <h2 className="govuk-error-summary__title" id="error-summary-title">
