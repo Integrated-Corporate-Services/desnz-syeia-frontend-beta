@@ -15,6 +15,7 @@ import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
 import { clearKeyedErrors } from '../validations';
 import PageTitle from '../../../components/PageTitle';
 import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('SupportingInfo');
 
@@ -324,21 +325,24 @@ const SupportingInfo: React.FC = () => {
     setApplicationDocuments(prev => [...prev, ...newApplicationDocuments]);
   };
 
+  useBreadcrumb(
+    <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
+    <ol className="govuk-breadcrumbs__list">
+      <li className="govuk-breadcrumbs__list-item">
+    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+          Task list
+        </Link>
+      </li>
+      <li className="govuk-breadcrumbs__list-item" aria-current="page">
+        Supporting information
+      </li>
+    </ol>
+  </nav>
+  );
+
   return (
   <div className="govuk-body" style={{ maxWidth: 700, fontSize: '19px', lineHeight: '1.31579' }}>
   <PageTitle title="Supporting information" />
-  <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
-  <ol className="govuk-breadcrumbs__list">
-    <li className="govuk-breadcrumbs__list-item">
-  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-        Task list
-      </Link>
-    </li>
-    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-      Supporting information
-    </li>
-  </ol>
-</nav>
 
       {(errors.length > 0 || fileValidationErrors.length > 0) && (
         <div

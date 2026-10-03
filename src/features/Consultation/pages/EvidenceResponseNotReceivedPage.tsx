@@ -13,6 +13,7 @@ import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('EvidenceResponseNotReceivedPage');
 
@@ -280,30 +281,32 @@ const EvidenceResponseNotReceivedPage: React.FC = () => {
         }
     };
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
+                        Manage consultation
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Provide evidence of response not received
+                </li>
+            </ol>
+        </nav>
+    );
+
     return (
         <>
-            
+
             <div className="govuk-main-wrapper govuk-!-padding-top-2">
             <PageTitle title="Evidence response not received" />
             <div className="govuk-width-container">
-                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                    <ol className="govuk-breadcrumbs__list">
-                        <li className="govuk-breadcrumbs__list-item">
-                            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                                Task list
-                            </Link>
-                        </li>
-                        <li className="govuk-breadcrumbs__list-item">
-                            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
-                                Manage consultation
-                            </Link>
-                        </li>
-                        <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                            Provide evidence of response not received
-                        </li>
-                    </ol>
-                </nav>
-
                 {/* Error Summary */}
                 {((submitted && Object.values(errors).some(Boolean)) || fileValidationErrors.length > 0) && (
                     <div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1} id="error-summary">

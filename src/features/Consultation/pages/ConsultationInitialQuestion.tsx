@@ -5,6 +5,7 @@ import { getConsultationDetailsById } from '../../../services/consultationServic
 import { ConsultationType, isLpaJourney } from '../../../constants/consultationType';
 import log from '../../../logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ConsultationInitialQuestion: React.FC = () => {
   const { applicationId, consultationId } = useParams();
@@ -82,30 +83,32 @@ const ConsultationInitialQuestion: React.FC = () => {
   //   navigate(`${S37_BASE_URL}/${applicationId}/consultation-details`);
   // };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
+            Manage consultation
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          Consultation request
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Consultation request" />
             <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            <ol className="govuk-breadcrumbs__list">
-              <li className="govuk-breadcrumbs__list-item">
-                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                  Task list
-                </Link>
-              </li>
-              <li className="govuk-breadcrumbs__list-item">
-                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
-                  Manage consultation
-                </Link>
-              </li>
-              <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                Consultation request
-              </li>
-            </ol>
-          </nav>
-
                       {isLoading ? (
               <div className="govuk-body">Loading...</div>
             ) : (

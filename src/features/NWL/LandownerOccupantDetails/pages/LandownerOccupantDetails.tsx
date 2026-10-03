@@ -5,6 +5,7 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 import logger from "../../../../logger";
 import RevealAnnouncement from "../../../../components/commonFormFields/RevealAnnouncement";
 import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -251,22 +252,25 @@ const LandownerOccupantDetails: React.FC = () => {
     }
   };
   // Extra null checks for robustness
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+          >
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">Landowner or occupant details</li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Landowner or occupant details" />
-                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-			<ol className="govuk-breadcrumbs__list">
-				<li className="govuk-breadcrumbs__list-item">
-					<Link
-						className="govuk-breadcrumbs__link"
-						to={`${NWL_BASE_URL}/${applicationId}/task-list`}
-					>
-						Task list
-					</Link>
-				</li>
-				<li className="govuk-breadcrumbs__list-item" aria-current="page">Landowner or occupant details</li>
-			</ol>
-		</nav>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Landowner or occupant details</h1>

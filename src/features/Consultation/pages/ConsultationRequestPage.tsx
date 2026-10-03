@@ -15,6 +15,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ConsultationRequestPage: React.FC = () => {
   // Get params from route and query string
@@ -229,25 +230,27 @@ const ConsultationRequestPage: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item">
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item">
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="page">Consultation request</li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
-      
+
       <PageTitle title="Provide evidence of consultation request" />
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-          <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            <ol className="govuk-breadcrumbs__list">
-                <li className="govuk-breadcrumbs__list-item">
-                  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
-                </li>
-                <li className="govuk-breadcrumbs__list-item">
-                  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
-                </li>
-                <li className="govuk-breadcrumbs__list-item" aria-current="page">Consultation request</li>
-            </ol>
-          </nav>
-          
                       {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
               <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                 <div role="alert">

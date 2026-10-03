@@ -11,6 +11,7 @@ import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
 import EIAFeesSummary from './EIAFeesSummary';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import {
     validateEiaFeesForm,
     getFieldErrorMessage,
@@ -24,6 +25,21 @@ const EIAFeesForm: React.FC = () => {
     const applicationId = useGetApplicationId();
     const { user } = useAuthUserContext();
     const userId = (user as AuthUser)?.user_id;
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item" aria-current="false">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="true">
+                    EIA fees
+                </li>
+            </ol>
+        </nav>
+    );
 
     // State for fetched EIA Fees
     const { eiaFees, fetchEiaFees, createEiaFees, updateEiaFees } = useEiaFees();
@@ -204,18 +220,6 @@ const EIAFeesForm: React.FC = () => {
                     <div className="govuk-error-summary__body">{apiError}</div>
                 </div>
             )}
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item" aria-current="false">
-                        <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="true">
-                        EIA fees
-                    </li>
-                </ol>
-            </nav>
             {errors.length > 0 && (
                 <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary" data-govuk-error-summary-init="">
                     <h2 className="govuk-error-summary__title" id="error-summary-title">

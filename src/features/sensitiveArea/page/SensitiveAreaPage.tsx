@@ -12,6 +12,7 @@ import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 import PageTitle from '../../../components/PageTitle';
 import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -94,6 +95,35 @@ const SensitiveAreaPage: React.FC = () => {
     // Check if consultations have started - if so, show read-only summary
     const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(effectiveApplicationId);
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            {error && (
+                <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+                    <h2 className="govuk-error-summary__title" id="error-summary-title">
+                        There is a problem
+                    </h2>
+                    <div className="govuk-error-summary__body">
+                        <ul className="govuk-list govuk-error-summary__list">
+                            <li>
+                                <a href="#routeToleranceRequired">{error}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            )}
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Sensitive area check
+                </li>
+            </ol>
+        </nav>
+    );
+
     // While checking consultation status, show loading to prevent flash
     if (consultationsLoading) {
         return (
@@ -112,32 +142,6 @@ const SensitiveAreaPage: React.FC = () => {
     return (
         <>
                         <PageTitle title="Sensitive area check" />
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                {error && (
-                    <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
-                        <h2 className="govuk-error-summary__title" id="error-summary-title">
-                            There is a problem
-                        </h2>
-                        <div className="govuk-error-summary__body">
-                            <ul className="govuk-list govuk-error-summary__list">
-                                <li>
-                                    <a href="#routeToleranceRequired">{error}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                )}
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        Sensitive area check
-                    </li>
-                </ol>
-            </nav>
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-full">
                         {formError && (

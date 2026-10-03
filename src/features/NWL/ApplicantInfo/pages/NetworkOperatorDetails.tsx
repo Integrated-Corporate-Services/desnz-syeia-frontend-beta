@@ -16,6 +16,7 @@ import { useNWLProgress } from "../../hooks/useNWLProgress";
 import { createLogger } from "../../../../utils/logger";
 import PageTitle from "../../../../components/PageTitle";
 import Details from "../../../../components/Details";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 import CoordinatorCombobox from "../components/CoordinatorCombobox";
 
 const logger = createLogger('NetworkOperatorDetails');
@@ -41,6 +42,26 @@ const NetworkOperatorDetails: React.FC = () => {
 
   const { application, setApplication, fetchApplication, createNewApplication } = useApplication();
   const applicationParty = application?.application_party;
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${NWL_BASE_URL}/${
+              application?.application_id || ""
+            }/task-list`}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.NETWORK_OPERATOR}
+        </li>
+      </ol>
+    </nav>
+  );
 
   const {
     networkOperatorRef,
@@ -217,23 +238,6 @@ const NetworkOperatorDetails: React.FC = () => {
     <>
       <PageTitle title="Applicant details" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
-              className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${
-                application?.application_id || ""
-              }/task-list`}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.NETWORK_OPERATOR}
-          </li>
-        </ol>
-      </nav>
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Applicant details</h1>

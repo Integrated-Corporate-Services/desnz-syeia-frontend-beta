@@ -9,6 +9,7 @@ import { getNotRequiredStatus, saveNotRequiredStatus } from '../../../services/c
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { isWithinCharacterLimit } from '../../../utils/validation';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ConsultationNotRequiredPage: React.FC = () => {
 	const { applicationId, consultationId } = useParams();
@@ -177,24 +178,27 @@ const ConsultationNotRequiredPage: React.FC = () => {
 			}
 		};
 
+	useBreadcrumb(
+		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<ol className="govuk-breadcrumbs__list">
+				<li className="govuk-breadcrumbs__list-item">
+					<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item">
+				<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item" aria-current="page">Consultation not required</li>
+			</ol>
+		</nav>
+	);
+
 	return (
 		<>
-			
+
 			<PageTitle title="Consultation not required" />
 						<div className="govuk-width-container">
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
-					<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-						<ol className="govuk-breadcrumbs__list">
-							<li className="govuk-breadcrumbs__list-item">
-								<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
-							</li>
-							<li className="govuk-breadcrumbs__list-item">
-							<Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
-							</li>
-							<li className="govuk-breadcrumbs__list-item" aria-current="page">Consultation not required</li>
-						</ol>
-					</nav>
 										{/* Error Summary */}
 					{(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
 						<div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">

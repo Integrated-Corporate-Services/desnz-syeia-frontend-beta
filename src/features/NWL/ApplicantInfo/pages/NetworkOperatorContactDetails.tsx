@@ -9,6 +9,7 @@ import { ContactDetailsSummary } from "../components/ContactDetailsSummary";
 import { ContactConfirmationRadios } from "../components/ContactConfirmationRadios";
 import { BREADCRUMBS, LABELS } from "../constants/contactDetailsConstants";
 import PageTitle from "../../../../components/PageTitle";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 const NWL_BASE_URL = "/nwl";
 
@@ -25,6 +26,24 @@ const NetworkOperatorContactDetails: React.FC = () => {
   const { application, fetchApplication } = useApplication();
   const appId = useGetApplicationId();
   const party = application?.application_party;
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${NWL_BASE_URL}/${appId}/task-list`}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.CHECK_CONTACT_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
 
   // Fetch application data on mount and when navigating to this page
   useEffect(() => {
@@ -59,22 +78,6 @@ return (
       <PageTitle title="Check applicant contact details" />
       <div className="govuk-grid-row">
       <div className="govuk-grid-column-two-thirds">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link
-                className="govuk-breadcrumbs__link"
-                to={`${NWL_BASE_URL}/${appId}/task-list`}
-              >
-                {BREADCRUMBS.TASK_LIST}
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              {BREADCRUMBS.CHECK_CONTACT_DETAILS}
-            </li>
-          </ol>
-        </nav>
-
         <h1 className="govuk-heading-xl">{LABELS.PAGE_TITLE}</h1>
 
         {error && (

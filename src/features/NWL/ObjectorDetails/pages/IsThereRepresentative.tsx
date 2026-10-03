@@ -6,6 +6,7 @@ import { BREADCRUMBS, LABELS, FORM_ERRORS, FORM_LABELS } from "../constants/obje
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { saveRepresentativeStatus } from "../services/objectorDetailsService";
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 const IsThereRepresentative: React.FC = () => {
   const navigate = useNavigate();
@@ -67,18 +68,21 @@ const IsThereRepresentative: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>{BREADCRUMBS.TASK_LIST}</Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Does the objector have a representative?" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>{BREADCRUMBS.TASK_LIST}</Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
-        </ol>
-      </nav>
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {saveError && (
