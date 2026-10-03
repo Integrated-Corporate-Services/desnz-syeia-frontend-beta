@@ -65,6 +65,7 @@ const NetworkOperatorDetails: React.FC = () => {
     handleDeleteContact,
     setAdditionalContacts,
     clearEmailInputError,
+    contactStatus,
   } = useAdditionalContacts();
 
   const organisationId =
@@ -284,6 +285,14 @@ const NetworkOperatorDetails: React.FC = () => {
                   shown={Boolean(selectedOrgName)}
                   message={`Selected applicant contact ${selectedOrgName}. You can add additional contacts below.`}
                 />
+              </div>
+              <div
+                className="govuk-visually-hidden"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {contactStatus}
               </div>
               {additionalContacts.length > 0 && (
                 <ul className="govuk-list">

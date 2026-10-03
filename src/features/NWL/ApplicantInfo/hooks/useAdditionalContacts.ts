@@ -11,6 +11,7 @@ interface UseAdditionalContactsReturn {
   handleDeleteContact: (email: string) => void;
   setAdditionalContacts: React.Dispatch<React.SetStateAction<string[]>>;
   clearEmailInputError: () => void;
+  contactStatus: string;
 }
 
 /**
@@ -20,6 +21,7 @@ export const useAdditionalContacts = (): UseAdditionalContactsReturn => {
   const [additionalContacts, setAdditionalContacts] = useState<string[]>([]);
   const [emailAddress, setEmailAddress] = useState("");
   const [emailInputError, setEmailInputError] = useState<string | null>(null);
+  const [contactStatus, setContactStatus] = useState("");
 
   const handleAddContact = useCallback(
     (e: React.FormEvent) => {
@@ -43,12 +45,17 @@ export const useAdditionalContacts = (): UseAdditionalContactsReturn => {
       setAdditionalContacts((prev) => [...prev, email]);
       setEmailAddress("");
       setEmailInputError(null);
+      const count = additionalContacts.length + 1;
+      setContactStatus(
+        `Added additional contact ${email}. ${count} additional contact${count === 1 ? "" : "s"} listed.`
+      );
     },
     [emailAddress, additionalContacts]
   );
 
   const handleDeleteContact = useCallback((email: string) => {
     setAdditionalContacts((prev) => prev.filter((e) => e !== email));
+    setContactStatus(`Removed additional contact ${email}.`);
   }, []);
 
   const clearEmailInputError = useCallback(() => {
@@ -64,5 +71,6 @@ export const useAdditionalContacts = (): UseAdditionalContactsReturn => {
     handleDeleteContact,
     setAdditionalContacts,
     clearEmailInputError,
+    contactStatus,
   };
 };
