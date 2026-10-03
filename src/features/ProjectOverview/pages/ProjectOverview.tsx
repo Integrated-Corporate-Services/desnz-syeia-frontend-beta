@@ -24,6 +24,7 @@ import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
 import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 // Exact set of anchor ids this page's createErrorLink() calls can produce - used to validate
 // the href extracted back out of an error string before it's rendered, since error text can
@@ -121,6 +122,25 @@ const ProjectOverview = () => {
 	const applicationId = useGetApplicationId();
 
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
+
+	useBreadcrumb(
+		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<ol className="govuk-breadcrumbs__list">
+				<li className="govuk-breadcrumbs__list-item">
+					<Link
+						className="govuk-breadcrumbs__link"
+						to={`${S37_BASE_URL}/${applicationId}/task-list`}
+					>
+						{projectOverview.breadcrumb.taskList}
+					</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item" aria-current="page">
+					{projectOverview.breadcrumb.current}
+				</li>
+			</ol>
+		</nav>
+	);
+
 	const { projectOverview: projectData, fetchProjectOverview, saveProject } = useProjectOverview();
 	const remainingChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.projectDescription.length);
 	const getRelatedCpoDetailsString = (val: typeof formState.relatedCpoDetails) =>
@@ -263,21 +283,6 @@ const ProjectOverview = () => {
 		<>
 						<PageTitle title="Project overview" />
 						<div className="govuk-width-container">
-				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-					<ol className="govuk-breadcrumbs__list">
-						<li className="govuk-breadcrumbs__list-item">
-							<Link
-								className="govuk-breadcrumbs__link"
-								to={`${S37_BASE_URL}/${applicationId}/task-list`}
-							>
-								{projectOverview.breadcrumb.taskList}
-							</Link>
-						</li>
-						<li className="govuk-breadcrumbs__list-item" aria-current="page">
-							{projectOverview.breadcrumb.current}
-						</li>
-					</ol>
-				</nav>
 									<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
 					{errors.length > 0 && (
 						<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
