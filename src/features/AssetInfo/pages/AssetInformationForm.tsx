@@ -23,6 +23,7 @@ import { useConsultationDetails } from '../../../hooks/useConsultationDetails';
 import { ConsultationStatus } from '../../../constants/consultationStatus';
 import AssetSummary from './AssetSummary';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 interface AssetFormState {
     assetId: string;
@@ -65,6 +66,21 @@ const AssetInformationForm: React.FC = () => {
 
     const applicationId = useGetApplicationId();
     const effectiveApplicationId = useGetApplicationId();
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Assets
+                </li>
+            </ol>
+        </nav>
+    );
 
     // Get consultation details for custom logic
     const { consultations, loading: consultationsLoading } = useConsultationDetails(effectiveApplicationId, user?.user_id);
@@ -329,18 +345,6 @@ const AssetInformationForm: React.FC = () => {
         <>
             <PageTitle title="Assets" />
                         <div className="govuk-width-container">
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        Assets
-                    </li>
-                </ol>
-            </nav>
             {isReadOnly && (
                 <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                     <div className="govuk-notification-banner__header">

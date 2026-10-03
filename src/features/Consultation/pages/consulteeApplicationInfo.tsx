@@ -10,6 +10,7 @@ import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 import log from '../../../logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
@@ -31,6 +32,32 @@ const consulteeApplicationInfo: React.FC = () => {
   const navigate = useNavigate();
   const tabsRef = useRef<HTMLDivElement>(null);
   const fileUploadRef = useRef<FileUploadHandle>(null);
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            to={`${S37_BASE_URL}/${applicationId}/task-list`}
+            className="govuk-breadcrumbs__link"
+          >
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
+            className="govuk-breadcrumbs__link"
+          >
+            Manage consultation
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          Application details
+        </li>
+      </ol>
+    </nav>
+  );
 
 // Scroll to top on mount
 useEffect(() => {
@@ -250,30 +277,7 @@ useEffect(() => {
     <>
       <PageTitle title="Share application details" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              to={`${S37_BASE_URL}/${applicationId}/task-list`}
-              className="govuk-breadcrumbs__link"
-            >
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
-              className="govuk-breadcrumbs__link"
-            >
-              Manage consultation
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            Application details
-          </li>
-        </ol>
-      </nav>
-              
+
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
 

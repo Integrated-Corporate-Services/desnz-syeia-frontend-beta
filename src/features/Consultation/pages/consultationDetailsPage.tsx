@@ -12,6 +12,7 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
 import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('ConsultationDetailsPage');
 
@@ -21,6 +22,21 @@ const ConsultationDetailsPage: React.FC = () => {
     const navigate = useNavigate();
     const [error, setError] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link to={`${S37_BASE_URL}/${applicationId}/task-list`} className="govuk-breadcrumbs__link">
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Consultation details
+                </li>
+            </ol>
+        </nav>
+    );
 
     // Scroll to top on mount
     useEffect(() => {
@@ -106,18 +122,6 @@ const ConsultationDetailsPage: React.FC = () => {
         <>
             <PageTitle title="Manage consultations" />
                         <div className="govuk-width-container">
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <Link to={`${S37_BASE_URL}/${applicationId}/task-list`} className="govuk-breadcrumbs__link">
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        Consultation details
-                    </li>
-                </ol>
-            </nav>
                         <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     {error && (

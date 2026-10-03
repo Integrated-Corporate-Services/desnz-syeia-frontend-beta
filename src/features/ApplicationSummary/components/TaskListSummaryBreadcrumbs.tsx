@@ -2,13 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 interface TaskListSummaryBreadcrumbsProps {
     applicationId: string;
 }
 
 export const TaskListSummaryBreadcrumbs: React.FC<TaskListSummaryBreadcrumbsProps> = ({ applicationId }) => {
-    return (
+    useBreadcrumb(
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
                 <li className="govuk-breadcrumbs__list-item">
@@ -22,4 +23,5 @@ export const TaskListSummaryBreadcrumbs: React.FC<TaskListSummaryBreadcrumbsProp
             </ol>
         </nav>
     );
+    return null;
 };

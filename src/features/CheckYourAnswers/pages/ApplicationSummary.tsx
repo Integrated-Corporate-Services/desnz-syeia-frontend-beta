@@ -50,6 +50,7 @@ import {
 } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
 import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -465,6 +466,26 @@ const ApplicationSummary: React.FC = () => {
     });
   }, [withdrawalRequest, logger]);
 
+  useBreadcrumb(
+    permissions?.canEdit ? (
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item" aria-current="false">
+            <Link
+              className="govuk-breadcrumbs__link"
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
+            >
+              Task list
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">
+            Submit Section 37 application
+          </li>
+        </ol>
+      </nav>
+    ) : null
+  );
+
   return (
     <>
       <PageTitle title="Application summary" />
@@ -473,23 +494,6 @@ const ApplicationSummary: React.FC = () => {
         <Link to="/application-dashboard" className="govuk-back-link">
           Back
         </Link>
-      )}
-      {permissions?.canEdit && (
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link
-                className="govuk-breadcrumbs__link"
-                to={`${S37_BASE_URL}/${applicationId}/task-list`}
-              >
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              Submit Section 37 application
-            </li>
-          </ol>
-        </nav>
       )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-three-quarters">

@@ -7,6 +7,7 @@ import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Link, useParams } from "react-router-dom";
 import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
 import AccessibleSelect from '../../../../components/commonFormFields/AccessibleSelect';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
@@ -92,22 +93,25 @@ const ApplicationLandDetails: React.FC = () => {
 		}
 	};
 
+	useBreadcrumb(
+		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<ol className="govuk-breadcrumbs__list">
+				<li className="govuk-breadcrumbs__list-item">
+					<Link
+						className="govuk-breadcrumbs__link"
+						to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+					>
+						Task list
+					</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item" aria-current="page">Application and Land details</li>
+			</ol>
+		</nav>
+	);
+
 	return (
 		<>
 			<PageTitle title="Application and land details" />
-										<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-						<ol className="govuk-breadcrumbs__list">
-							<li className="govuk-breadcrumbs__list-item">
-								<Link
-									className="govuk-breadcrumbs__link"
-									to={`${NWL_BASE_URL}/${applicationId}/task-list`}
-								>
-									Task list
-								</Link>
-							</li>
-							<li className="govuk-breadcrumbs__list-item" aria-current="page">Application and Land details</li>
-						</ol>
-					</nav>
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
 					<h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Application and Land details</h1>
