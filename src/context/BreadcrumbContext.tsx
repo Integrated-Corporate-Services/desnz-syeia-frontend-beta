@@ -2,8 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 type SetBreadcrumb = (node: ReactNode) => void;
 
-// Value and setter live in separate contexts so components that only set the
-// breadcrumb do not re-render when it changes (avoids an update loop).
+
 const BreadcrumbValueContext = createContext<ReactNode | undefined>(undefined);
 const BreadcrumbSetterContext = createContext<SetBreadcrumb | undefined>(undefined);
 
