@@ -1,32 +1,40 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-interface BreadcrumbContextType {
-  breadcrumb: ReactNode;
-  setBreadcrumb: (node: ReactNode) => void;
-}
+type SetBreadcrumb = (node: ReactNode) => void;
 
-const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
+// Value and setter live in separate contexts so components that only set the
+// breadcrumb do not re-render when it changes (avoids an update loop).
+const BreadcrumbValueContext = createContext<ReactNode | undefined>(undefined);
+const BreadcrumbSetterContext = createContext<SetBreadcrumb | undefined>(undefined);
 
 export const BreadcrumbProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [breadcrumb, setBreadcrumb] = useState<ReactNode>(null);
 
   return (
-    <BreadcrumbContext.Provider value={{ breadcrumb, setBreadcrumb }}>
-      {children}
-    </BreadcrumbContext.Provider>
+    <BreadcrumbSetterContext.Provider value={setBreadcrumb}>
+      <BreadcrumbValueContext.Provider value={breadcrumb}>
+        {children}
+      </BreadcrumbValueContext.Provider>
+    </BreadcrumbSetterContext.Provider>
   );
 };
 
-export const useBreadcrumbContext = () => {
-  const context = useContext(BreadcrumbContext);
-  if (!context) {
-    throw new Error('useBreadcrumbContext must be used within BreadcrumbProvider');
+const useSetBreadcrumb = (): SetBreadcrumb => {
+  const setBreadcrumb = useContext(BreadcrumbSetterContext);
+  if (!setBreadcrumb) {
+    throw new Error('useBreadcrumb must be used within BreadcrumbProvider');
   }
-  return context;
+  return setBreadcrumb;
+};
+
+export const useBreadcrumbContext = () => {
+  const breadcrumb = useContext(BreadcrumbValueContext);
+  const setBreadcrumb = useSetBreadcrumb();
+  return { breadcrumb, setBreadcrumb };
 };
 
 export const useBreadcrumb = (node: ReactNode) => {
-  const { setBreadcrumb } = useBreadcrumbContext();
+  const setBreadcrumb = useSetBreadcrumb();
 
   useEffect(() => {
     setBreadcrumb(node);
