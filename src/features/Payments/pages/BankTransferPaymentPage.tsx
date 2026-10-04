@@ -12,6 +12,7 @@ import {
 } from '../../../constants/payment';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const BankTransferPaymentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -114,24 +115,27 @@ const BankTransferPaymentPage: React.FC = () => {
     navigate(`${baseUrl}/${applicationId}/task-list`);
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
+            Pay and submit
+          </Link>
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Pay by bank transfer" />
             <div className="govuk-width-container">
-              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
-                Pay and submit
-              </Link>
-            </li>
-          </ol>
-        </nav>
 
         {error && (
           <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">

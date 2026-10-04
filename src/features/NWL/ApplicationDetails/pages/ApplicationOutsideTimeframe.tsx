@@ -7,6 +7,7 @@ import {
 } from "../constants/applicationOutsideTimeframeConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 import PageTitle from "../../../../components/PageTitle";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 /**
  * Application Outside Timeframe Page
@@ -16,6 +17,25 @@ const ApplicationOutsideTimeframe: React.FC = () => {
   const appId = useGetApplicationId();
   const { navigateToStandardTerm, navigateToTaskList } = useApplicationNavigation(appId || "");
   const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <a
+            className="govuk-breadcrumbs__link"
+            href="#"
+            onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </a>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.APPLICATION_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
 
   const [explanation, setExplanation] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -63,23 +83,6 @@ const ApplicationOutsideTimeframe: React.FC = () => {
     <>
       <PageTitle title="Application outside timeframe" />
           <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href="#"
-              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.APPLICATION_DETAILS}
-          </li>
-        </ol>
-      </nav>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (

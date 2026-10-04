@@ -13,6 +13,7 @@ import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted'
 import RouteSummary from './RouteSummary';
 import PageTitle from '../../../components/PageTitle';
 import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import '../../../styles/RouteOverview.css';
 export const RouteOverviewPage: React.FC = () => {
     const [spurChoice, setSpurChoice] = React.useState<string | null>(null);
@@ -83,6 +84,28 @@ export const RouteOverviewPage: React.FC = () => {
     // Check if consultations have started - if so, show read-only summary
     const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(applicationId);
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <a
+                        className="govuk-breadcrumbs__link"
+                        href={`${window.location.origin}${S37_BASE_URL}/${applicationId || ''}/task-list`}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`);
+                        }}
+                    >
+                        Task list
+                    </a>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Route overview
+                </li>
+            </ol>
+        </nav>
+    );
+
     // While checking consultation status, show loading to prevent flash
     if (consultationsLoading) {
         return (
@@ -103,25 +126,6 @@ export const RouteOverviewPage: React.FC = () => {
         <>
                         <PageTitle title="Route overview" />
                         <div className="govuk-width-container">
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <a
-                            className="govuk-breadcrumbs__link"
-                            href={`${window.location.origin}${S37_BASE_URL}/${applicationId || ''}/task-list`}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate(`${S37_BASE_URL}/${applicationId || ''}/task-list`);
-                            }}
-                        >
-                            Task list
-                        </a>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        Route overview
-                    </li>
-                </ol>
-            </nav>
                             {showBanner && <RouteDeletedBanner routeName={showBanner.routeName} />}
                 <h1 className="govuk-heading-l">Route overview</h1>
                 <p className="govuk-body" style={{ maxWidth: 700 }}>

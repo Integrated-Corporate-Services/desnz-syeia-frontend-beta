@@ -20,6 +20,7 @@ import {
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const initialState = {
   addingOrReplacingPoles: '',
@@ -290,19 +291,21 @@ const WorksOverview: React.FC = () => {
     </>
   );
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={taskListUrl}>Task list</Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">Works overview</li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
             <PageTitle title="Works overview" />
             <div className="govuk-width-container">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={taskListUrl}>Task list</Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="page">Works overview</li>
-          </ol>
-        </nav>
-
                   {(errors.length > 0 || fileValidationErrors.length > 0) && (
             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} data-module="govuk-error-summary">
               <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>

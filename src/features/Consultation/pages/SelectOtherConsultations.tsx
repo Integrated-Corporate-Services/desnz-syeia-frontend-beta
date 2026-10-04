@@ -10,6 +10,7 @@ import log from '../../../logger';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { isWithinCharacterLimit } from '../../../utils/validation';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const OTHER_NAME_MAX_LENGTH = 4000;
 
@@ -30,6 +31,21 @@ const SelectOtherConsultations: React.FC = () => {
     const  applicationId  = useGetApplicationId();
     const navigate = useNavigate();
     const { user } = useAuthUser();
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Select other consultations
+                </li>
+            </ol>
+        </nav>
+    );
 
     const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
     const [otherEntries, setOtherEntries] = useState<OtherConsulteeEntry[]>([]);
@@ -203,19 +219,6 @@ const SelectOtherConsultations: React.FC = () => {
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
-                    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                        <ol className="govuk-breadcrumbs__list">
-                            <li className="govuk-breadcrumbs__list-item">
-                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                                    Task list
-                                </Link>
-                            </li>
-                            <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                                Select other consultations
-                            </li>
-                        </ol>
-                    </nav>
-
                                             <h1 className="govuk-heading-l">Select other consultations</h1>
 
                         <p className="govuk-body">You can add other consultations that are relevant to your application.</p>

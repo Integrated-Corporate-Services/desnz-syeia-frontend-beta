@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useEiaFees } from '../../../hooks/useEiaFees';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 /**
  * Read-only EIA Fees Summary Page
@@ -12,6 +13,21 @@ import PageTitle from '../../../components/PageTitle';
 const EIAFeesSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
     const { eiaFees, fetchEiaFees, loading } = useEiaFees();
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    EIA
+                </li>
+            </ol>
+        </nav>
+    );
 
     useEffect(() => {
         if (!applicationId) return;
@@ -22,19 +38,6 @@ const EIAFeesSummary: React.FC = () => {
         <>
             <PageTitle title="EIA fees summary" />
                         <div className="govuk-width-container">
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        EIA
-                    </li>
-                </ol>
-            </nav>
-
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {/* Warning banner */}

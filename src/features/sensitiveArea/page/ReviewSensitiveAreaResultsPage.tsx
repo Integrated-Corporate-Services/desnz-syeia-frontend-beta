@@ -5,6 +5,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import SensitiveAreaReviewSummaryPage from './SensitiveAreaReviewSummary';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 /**
  * ReviewSensitiveAreaResultsPage Component
@@ -157,6 +158,21 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
     //   }
     // };
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Sensitive area review
+                </li>
+            </ol>
+        </nav>
+    );
+
     // ===========================
     // RENDER: CONSISTENT WRAPPER WITH CONDITIONAL CONTENT
     // ===========================
@@ -189,20 +205,6 @@ const ReviewSensitiveAreaResultsPage: React.FC = () => {
         <>
                         <PageTitle title="Sensitive area review" />
                         <div className="govuk-width-container">
-            {/* Breadcrumb Navigation - Always visible */}
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        Sensitive area review
-                    </li>
-                </ol>
-            </nav>
-
             {/* Main Content Area */}
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">

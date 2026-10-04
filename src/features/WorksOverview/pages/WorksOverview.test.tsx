@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import WorksOverview from './WorksOverview';
 import { WORKS_OVERVIEW_VALIDATION_MESSAGES } from '../validations';
 import * as worksOverviewApiService from '../../../services/worksOverviewApiService';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 
 vi.mock('../../../hooks/useGetApplicationId', () => ({
   useGetApplicationId: () => 'test-application-id',
@@ -30,11 +31,13 @@ vi.mock('../../../components/FileUpload', () => ({
 
 const renderPage = () =>
   render(
-    <MemoryRouter initialEntries={['/s-37/test-application-id/works-overview']}>
-      <Routes>
-        <Route path="/s-37/:applicationId/works-overview" element={<WorksOverview />} />
-      </Routes>
-    </MemoryRouter>
+    <BreadcrumbProvider>
+      <MemoryRouter initialEntries={['/s-37/test-application-id/works-overview']}>
+        <Routes>
+          <Route path="/s-37/:applicationId/works-overview" element={<WorksOverview />} />
+        </Routes>
+      </MemoryRouter>
+    </BreadcrumbProvider>
   );
 
 describe('WorksOverview validation clearing', () => {

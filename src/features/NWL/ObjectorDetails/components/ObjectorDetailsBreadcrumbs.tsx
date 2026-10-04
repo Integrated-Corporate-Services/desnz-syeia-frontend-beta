@@ -2,13 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { BREADCRUMBS } from '../constants/objectorDetailsConstants';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 
 interface ObjectorDetailsBreadcrumbsProps {
   appId: string | undefined;
 }
 
 export const ObjectorDetailsBreadcrumbs: React.FC<ObjectorDetailsBreadcrumbsProps> = ({ appId }) => {
-  return (
+  useBreadcrumb(
     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
       <ol className="govuk-breadcrumbs__list">
         <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -25,4 +26,5 @@ export const ObjectorDetailsBreadcrumbs: React.FC<ObjectorDetailsBreadcrumbsProp
       </ol>
     </nav>
   );
+  return null;
 };

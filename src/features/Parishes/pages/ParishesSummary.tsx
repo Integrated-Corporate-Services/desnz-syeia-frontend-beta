@@ -4,6 +4,7 @@ import PageTitle from '../../../components/PageTitle';
 import { S37_BASE_URL } from '../../../constants/s37';
 import { useParishes } from '../hooks/useParishes';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 /**
  * Read-only Parishes Summary Page
@@ -13,22 +14,25 @@ const ParishesSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
     const { parishes, isLoading } = useParishes(applicationId);
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Parishes
+                </li>
+            </ol>
+        </nav>
+    );
+
     return (
         <>
             <PageTitle title="Parishes summary" />
                         <div className="govuk-width-container">
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        Parishes
-                    </li>
-                </ol>
-            </nav>
 
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">

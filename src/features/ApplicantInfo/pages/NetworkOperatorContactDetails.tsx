@@ -11,6 +11,7 @@ import { ContactConfirmationRadios } from "../components/ContactConfirmationRadi
 import { BREADCRUMBS, LABELS, ERROR_MESSAGES } from "../constants/contactDetailsConstants";
 import PageTitle from "../../../components/PageTitle";
 import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
+import { useBreadcrumb } from "../../../context/BreadcrumbContext";
 
 const NetworkOperatorContactDetails: React.FC = () => {
   const [error, setErrorState] = useState<string>("");
@@ -56,25 +57,28 @@ const NetworkOperatorContactDetails: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorTick]);
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${S37_BASE_URL}/${appId}/task-list`}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.CHECK_CONTACT_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Check applicant contact details" />
             <div className="govuk-width-container">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link
-                className="govuk-breadcrumbs__link"
-                to={`${S37_BASE_URL}/${appId}/task-list`}
-              >
-                {BREADCRUMBS.TASK_LIST}
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              {BREADCRUMBS.CHECK_CONTACT_DETAILS}
-            </li>
-          </ol>
-        </nav>
                 <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
         <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>

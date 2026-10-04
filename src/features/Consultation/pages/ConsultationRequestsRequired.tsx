@@ -10,6 +10,7 @@ import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultatio
 import log from '../../../logger';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('ConsultationRequestsRequired');
 
@@ -121,25 +122,27 @@ const ConsultationRequestsRequired: React.FC = () => {
         }
     };
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Consultation requests required
+                </li>
+            </ol>
+        </nav>
+    );
+
     return (
         <>
             <PageTitle title="Consultation requests required" />
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
-                    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                        <ol className="govuk-breadcrumbs__list">
-                            <li className="govuk-breadcrumbs__list-item">
-                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                                    Task list
-                                </Link>
-                            </li>
-                            <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                                Consultation requests required
-                            </li>
-                        </ol>
-                    </nav>
-
                                             {Object.values(errors).some(Boolean) && (
                             <div className="govuk-error-summary govuk-!-width-two-thirds" data-module="govuk-error-summary" id="error-summary" tabIndex={-1}>
                                 <div role="alert">
