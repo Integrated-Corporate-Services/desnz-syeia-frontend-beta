@@ -18,6 +18,7 @@ import PageTitle from "../../../../components/PageTitle";
 import Details from "../../../../components/Details";
 import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 import CoordinatorCombobox from "../components/CoordinatorCombobox";
+import "../../../../styles/ApplicantDetails.css";
 
 const logger = createLogger('NetworkOperatorDetails');
 
@@ -338,8 +339,7 @@ const NetworkOperatorDetails: React.FC = () => {
                       <span>{email}</span>
                       <button
                         type="button"
-                        className="govuk-link govuk-link--no-visited-state"
-                        style={{ background: "none", border: 0, padding: 0, font: "inherit", cursor: "pointer" }}
+                        className="govuk-link govuk-link--no-visited-state additional-contact__delete-link"
                         onClick={() => handleDeleteContact(email)}
                         aria-label={`Delete contact ${email}`}
                       >
