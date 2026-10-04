@@ -338,7 +338,8 @@ const NetworkOperatorDetails: React.FC = () => {
                       <span>{email}</span>
                       <button
                         type="button"
-                        className="govuk-button govuk-button--warning govuk-!-margin-bottom-0"
+                        className="govuk-link govuk-link--no-visited-state"
+                        style={{ background: "none", border: 0, padding: 0, font: "inherit", cursor: "pointer" }}
                         onClick={() => handleDeleteContact(email)}
                         aria-label={`Delete contact ${email}`}
                       >
