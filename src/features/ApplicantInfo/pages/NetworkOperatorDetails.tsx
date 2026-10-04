@@ -13,6 +13,7 @@ import { useApplicationSync } from "../hooks/useApplicationSync";
 import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
 import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 import { S37_BASE_URL } from "../../../constants/s37";
+import "../../../styles/ApplicantDetails.css";
 import {
   MAX_REFERENCE_LENGTH,
   BREADCRUMBS,
@@ -314,7 +315,7 @@ const NetworkOperatorDetails: React.FC = () => {
                       <span>{email}</span>
                       <button
                         type="button"
-                        className="govuk-button govuk-button--warning govuk-!-margin-bottom-0"
+                        className="govuk-link govuk-link--no-visited-state additional-contact__delete-link"
                         onClick={() => handleDeleteContact(email)}
                         aria-label={`Delete contact ${email}`}
                       >
