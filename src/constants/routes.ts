@@ -106,6 +106,7 @@ import {
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
+import { isFirFeatureDisabled } from '../utils/disabledFormTypes';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
@@ -159,7 +160,7 @@ import { FeedbackPage } from '../modules/feedback';
 // import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
 // import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
 
-export const ROUTE_CONFIG: RouteConfig[] = [
+const FIR_ROUTES: RouteConfig[] = [
     {
         path: `${S37_BASE_URL}/:applicationId/further-information-requests`,
         component: FurtherInformationRequestsPage,
@@ -244,6 +245,10 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
+];
+
+export const ROUTE_CONFIG: RouteConfig[] = [
+    ...(isFirFeatureDisabled() ? [] : FIR_ROUTES),
     {
         path: '/admin/reporting',
         component: ReportingDashboard,
