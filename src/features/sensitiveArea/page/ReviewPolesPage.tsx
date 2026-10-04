@@ -4,10 +4,24 @@ import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption'
 import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { S37_BASE_URL } from '../../../constants/s37';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ReviewPolesPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
   const navigate = useNavigate();
+
+  useBreadcrumb(
+    <a
+      href="#"
+      onClick={(e) => {
+        e.preventDefault();
+        navigate(-1);
+      }}
+      className="govuk-back-link"
+    >
+      Back
+    </a>
+  );
 
   const [poleOption, setPoleOption] = useState<SensitiveAreaPoleOption | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
@@ -113,17 +127,6 @@ const ReviewPolesPage: React.FC = () => {
     <>
             <PageTitle title="Poles in sensitive areas" />
             <div className="govuk-width-container">
-
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          navigate(-1);
-        }}
-        className="govuk-back-link"
-      >
-        Back
-      </a>
 
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

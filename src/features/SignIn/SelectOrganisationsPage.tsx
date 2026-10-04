@@ -6,6 +6,7 @@ import { useSaveAccessRequest } from "../../hooks/useSaveAccessRequest";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import PageTitle from "../../components/PageTitle";
+import { useBreadcrumb } from "../../context/BreadcrumbContext";
 
 const SelectOrganisationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +22,15 @@ const SelectOrganisationsPage: React.FC = () => {
   const [error, setError] = useState<string>("");
 
   const isAgent = formData.isAgent;
+
+  useBreadcrumb(
+    <Link
+      to={isAgent ? "/request-access/company-name" : "/request-access/agent-question"}
+      className="govuk-back-link"
+    >
+      Back
+    </Link>
+  );
 
   const handleCheckboxChange = (orgId: string) => {
     if (isAgent) {
@@ -102,13 +112,6 @@ const SelectOrganisationsPage: React.FC = () => {
     <>
       <PageTitle title={isAgent ? "Select all the organisations you submit applications for" : "Select the organisation you work for"} />
             <div className="govuk-width-container">
-        <Link
-          to={isAgent ? "/request-access/company-name" : "/request-access/agent-question"}
-          className="govuk-back-link"
-        >
-        Back
-      </Link>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />

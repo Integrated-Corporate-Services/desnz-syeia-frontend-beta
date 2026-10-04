@@ -10,6 +10,7 @@ import {
   AddUserSidebar
 } from '../../../components/shared/AddUserComponents';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const AddUserPage: React.FC = () => {
   const {
@@ -25,6 +26,19 @@ const AddUserPage: React.FC = () => {
     navigateToManageUsers,
     navigateToUserCreated
   } = useAddUserNavigation();
+
+  useBreadcrumb(
+    <a
+      href="#"
+      className="govuk-back-link"
+      onClick={(e) => {
+        e.preventDefault();
+        navigateToManageUsers();
+      }}
+    >
+      Back
+    </a>
+  );
 
   // State for organisations fetched from API
   const [organisations, setOrganisations] = useState<Array<{ value: string; label: string }>>([]);
@@ -59,17 +73,6 @@ const AddUserPage: React.FC = () => {
     <>
       <PageTitle title="Add user manually" />
             <div className="govuk-width-container">
-
-        <a
-          href="#"
-          className="govuk-back-link"
-          onClick={(e) => {
-            e.preventDefault();
-            navigateToManageUsers();
-          }}
-        >
-          Back
-        </a>
 
         {errors.length > 0 && (
           <ErrorSummary errors={errors} />

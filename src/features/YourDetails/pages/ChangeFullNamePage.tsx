@@ -8,6 +8,7 @@ import {
 } from '../services/yourDetailsService';
 import PageTitle from '../../../components/PageTitle';
 import AccessibleSelect from '../../../components/commonFormFields/AccessibleSelect';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 type FormErrors = {
   title?: string;
@@ -28,6 +29,12 @@ const ChangeFullNamePage: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useBreadcrumb(
+    <Link className="govuk-back-link" to="/your-details">
+      Back
+    </Link>
+  );
 
   useEffect(() => {
     const loadDetails = async () => {
@@ -135,10 +142,6 @@ const ChangeFullNamePage: React.FC = () => {
     <>
             <PageTitle title="Change your full name" />
             <div className="govuk-width-container">
-      <Link className="govuk-back-link" to="/your-details">
-        Back
-      </Link>
-
               <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Change your full name</h1>
 
         {loading && <p className="govuk-body">Loading...</p>}

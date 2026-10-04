@@ -6,6 +6,7 @@ import { FIR_CATEGORY_LABELS, FIR_MESSAGES } from '../constants/fir.constants';
 import { useFirRoute } from '../hooks';
 import { getFurtherInformationRequest, getFurtherInformationRequests } from '../services';
 import type { FurtherInformationRequest } from '../types';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
@@ -79,6 +80,10 @@ export const FurtherInformationRequestsPage: React.FC = () => {
   const [requests, setRequests] = useState<FurtherInformationRequest[]>([]);
   const [error, setError] = useState('');
 
+  useBreadcrumb(
+    <Link className="govuk-back-link" to={`${requestPath.replace('/further-information-requests', '')}/application-summary`}>Back</Link>
+  );
+
   useEffect(() => {
     if (!applicationId) return;
     let active = true;
@@ -102,7 +107,6 @@ export const FurtherInformationRequestsPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <Link className="govuk-back-link" to={`${requestPath.replace('/further-information-requests', '')}/application-summary`}>Back</Link>
       {requests[0] && <span className="govuk-caption-l">{requests[0].desnzRef}</span>}
       <h1 className="govuk-heading-l">Further information requests</h1>
       <FirErrorSummary error={error} />

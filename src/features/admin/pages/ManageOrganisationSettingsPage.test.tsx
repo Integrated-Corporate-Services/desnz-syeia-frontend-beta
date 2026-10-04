@@ -3,6 +3,12 @@ import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import ManageOrganisationSettingsPage from './ManageOrganisationSettingsPage';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../context/BreadcrumbContext';
+
+const BreadcrumbOutlet = () => {
+  const { breadcrumb } = useBreadcrumbContext();
+  return <>{breadcrumb}</>;
+};
 
 vi.mock('../../../hooks', () => ({
   useOrganisation: () => ({
@@ -30,14 +36,17 @@ vi.mock('../../../hooks', () => ({
 describe('ManageOrganisationSettingsPage', () => {
   it('populates the selected organisation information', () => {
     render(
-      <MemoryRouter initialEntries={['/admin/organisation/organisation-123/settings']}>
-        <Routes>
-          <Route
-            path="/admin/organisation/:organisationId/settings"
-            element={<ManageOrganisationSettingsPage />}
-          />
-        </Routes>
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter initialEntries={['/admin/organisation/organisation-123/settings']}>
+          <BreadcrumbOutlet />
+          <Routes>
+            <Route
+              path="/admin/organisation/:organisationId/settings"
+              element={<ManageOrganisationSettingsPage />}
+            />
+          </Routes>
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     expect(screen.getByRole('heading', { name: 'Manage organisation' })).toBeInTheDocument();

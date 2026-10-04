@@ -2,10 +2,17 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
 import PageTitle from "../../components/PageTitle";
+import { useBreadcrumb } from "../../context/BreadcrumbContext";
 
 const AgentQuestionPage: React.FC = () => {
   const navigate = useNavigate();
   const { formData, updateFormData } = useAccessRequest();
+
+  useBreadcrumb(
+    <Link to="/request-access/work-address" className="govuk-back-link">
+      Back
+    </Link>
+  );
 
   const [isAgent, setIsAgent] = useState<boolean | null>(
     formData.isAgent !== undefined ? formData.isAgent : null
@@ -40,13 +47,6 @@ const AgentQuestionPage: React.FC = () => {
     <>
       <PageTitle title="Are you an agent representing an organisation?" />
             <div className="govuk-width-container">
-        <Link
-          to="/request-access/work-address"
-          className="govuk-back-link"
-        >
-        Back
-      </Link>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <form onSubmit={handleSubmit} noValidate>

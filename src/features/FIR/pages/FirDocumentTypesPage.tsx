@@ -3,12 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FirErrorSummary, FirRequestDetails } from '../components';
 import { NWL_FIR_CATEGORY_GROUPS, S37_FIR_CATEGORY_GROUPS, FIR_CATEGORY_LABELS, FIR_MESSAGES } from '../constants/fir.constants';
 import { useFirRequest, useFirRoute, useFirSelectedCategories } from '../hooks';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 export const FirDocumentTypesPage: React.FC = () => {
   const { applicationId, requestId, requestPath, location } = useFirRoute();
   const { request, error, setError } = useFirRequest(applicationId, requestId);
   const navigate = useNavigate();
   const { selectedCategories: selected, saveSelectedCategories } = useFirSelectedCategories(applicationId, requestId);
+
+  useBreadcrumb(
+    <Link className="govuk-back-link" to={`${requestPath}/${requestId}/upload-decision`}>Back</Link>
+  );
 
   if (!applicationId || !requestId) return null;
 
@@ -36,7 +41,6 @@ export const FirDocumentTypesPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <Link className="govuk-back-link" to={`${requestPath}/${requestId}/upload-decision`}>Back</Link>
       <FirErrorSummary error={error} />
       {request && (
         <form onSubmit={submit} noValidate>

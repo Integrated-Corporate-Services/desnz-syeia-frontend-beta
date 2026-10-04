@@ -7,6 +7,7 @@ import { useFirRequest, useFirRoute, useFirSelectedCategories } from '../hooks';
 import { firUploadEndpoints, submitFurtherInformationResponse } from '../services';
 import { FirErrorSummary } from './FirErrorSummary';
 import { FirRequestDetails } from './FirRequestDetails';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 interface FirResponseFormProps {
   acceptsDocuments: boolean;
@@ -23,6 +24,12 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
   const [comment, setComment] = useState('');
   const [documents, setDocuments] = useState<ApplicationDocument[]>([]);
   const [uploadedFilesByCategory, setUploadedFilesByCategory] = useState<Record<string, UploadedFile[]>>({});
+
+  const backPath = acceptsDocuments
+    ? `${requestPath}/${requestId}/document-types`
+    : `${requestPath}/${requestId}/upload-decision`;
+
+  useBreadcrumb(<Link className="govuk-back-link" to={backPath}>Back</Link>);
 
   if (!applicationId || !requestId) return null;
 
@@ -74,13 +81,8 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
     }
   };
 
-  const backPath = acceptsDocuments
-    ? `${requestPath}/${requestId}/document-types`
-    : `${requestPath}/${requestId}/upload-decision`;
-
   return (
     <div className="govuk-width-container">
-      <Link className="govuk-back-link" to={backPath}>Back</Link>
       {request && <span className="govuk-caption-l">{request.desnzRef}</span>}
       <h1 className="govuk-heading-l">Provide the information requested</h1>
       <FirErrorSummary error={error} />

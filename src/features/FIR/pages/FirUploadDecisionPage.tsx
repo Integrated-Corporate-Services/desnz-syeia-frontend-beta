@@ -3,12 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FirErrorSummary, FirRequestDetails } from '../components';
 import { FIR_MESSAGES } from '../constants/fir.constants';
 import { useFirRequest, useFirRoute } from '../hooks';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 export const FirUploadDecisionPage: React.FC = () => {
   const { applicationId, requestId, requestPath } = useFirRoute();
   const { request, error, setError } = useFirRequest(applicationId, requestId);
   const navigate = useNavigate();
   const [choice, setChoice] = useState<'yes' | 'no' | ''>('');
+
+  useBreadcrumb(<Link className="govuk-back-link" to={requestPath}>Back</Link>);
 
   if (!applicationId || !requestId) return null;
 
@@ -25,7 +28,6 @@ export const FirUploadDecisionPage: React.FC = () => {
 
   return (
     <div className="govuk-width-container">
-      <Link className="govuk-back-link" to={requestPath}>Back</Link>
       <FirErrorSummary error={error} />
       <form onSubmit={submit} noValidate>
         <fieldset className="govuk-fieldset">

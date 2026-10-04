@@ -8,6 +8,7 @@ import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
 import PageTitle from "../../components/PageTitle";
+import { useBreadcrumb } from "../../context/BreadcrumbContext";
 
 const logger = createLogger('ContactDetailsPage');
 
@@ -16,7 +17,13 @@ const ContactDetailsPage: React.FC = () => {
   const { user } = useAuthUserContext();
   const { formData, updateFormData } = useAccessRequest();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
-  
+
+  useBreadcrumb(
+    <Link to="/request-access" className="govuk-back-link">
+      Back
+    </Link>
+  );
+
   const [localData, setLocalData] = useState({
     title: formData.title || "",
     firstName: formData.firstName || "",
@@ -161,13 +168,6 @@ const ContactDetailsPage: React.FC = () => {
     <>
       <PageTitle title="Enter your contact details" />
             <div className="govuk-width-container">
-        <Link
-          to="/request-access"
-          className="govuk-back-link"
-        >
-        Back
-      </Link>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />

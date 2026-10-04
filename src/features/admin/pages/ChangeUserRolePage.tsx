@@ -8,6 +8,7 @@ import { formatUserRoleLabel } from '../../../utils/roleUtils';
 import { isManageUserRoleChangeEnabled } from '../../../config/appConfig';
 import userService from '../../../services/userService';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 interface RoleOption {
   value: string;
@@ -53,14 +54,20 @@ const ChangeUserRolePage: React.FC = () => {
 
   const effectiveRole = selectedRole ?? user?.role;
 
-  if (!isManageUserRoleChangeEnabled()) {
-    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
-  }
-
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     navigate(`/admin/manage-user/${userId}`);
   };
+
+  useBreadcrumb(
+    <a href="#" className="govuk-back-link" onClick={handleBackClick}>
+      Back
+    </a>
+  );
+
+  if (!isManageUserRoleChangeEnabled()) {
+    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
+  }
 
   const handleSaveChanges = async () => {
     const allowedRoles = new Set(ROLE_OPTIONS.map(o => o.value));
@@ -119,10 +126,6 @@ const ChangeUserRolePage: React.FC = () => {
     <>
       <PageTitle title="Which role applies to this user?" />
       <div className="govuk-width-container">
-        <a href="#" className="govuk-back-link" onClick={handleBackClick}>
-          Back
-        </a>
-
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (

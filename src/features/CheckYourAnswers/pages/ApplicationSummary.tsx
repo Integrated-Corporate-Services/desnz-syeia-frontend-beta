@@ -484,18 +484,17 @@ const ApplicationSummary: React.FC = () => {
           </li>
         </ol>
       </nav>
-    ) : null
+    ) : (
+      <Link to="/application-dashboard" className="govuk-back-link">
+        Back
+      </Link>
+    )
   );
 
   return (
     <>
       <PageTitle title="Application summary" />
             <div className="govuk-width-container">
-      {!permissions?.canEdit && (
-        <Link to="/application-dashboard" className="govuk-back-link">
-          Back
-        </Link>
-      )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-three-quarters">
             

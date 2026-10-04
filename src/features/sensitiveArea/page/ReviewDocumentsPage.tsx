@@ -10,12 +10,26 @@ import { createLogger } from '../../../utils/logger';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import PageTitle from '../../../components/PageTitle';
 import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('ReviewDocumentsPage');
 
 const ReviewDocumentsPage: React.FC = () => {
   const { applicationId } = useParams<{ applicationId: string }>();
   const navigate = useNavigate();
+
+  useBreadcrumb(
+    <a
+      href="#"
+      onClick={(e) => {
+        e.preventDefault();
+        navigate(-1);
+      }}
+      className="govuk-back-link"
+    >
+      Back
+    </a>
+  );
 
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
@@ -227,17 +241,6 @@ const ReviewDocumentsPage: React.FC = () => {
     <>
                  <PageTitle title="Upload sensitive area documents" />
                  {/* <div className="govuk-width-container"> */}
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          navigate(-1);
-        }}
-        className="govuk-back-link"
-      >
-        Back
-      </a>
-
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds govuk-!-margin-top-4">
             {/* Error Summary */}
