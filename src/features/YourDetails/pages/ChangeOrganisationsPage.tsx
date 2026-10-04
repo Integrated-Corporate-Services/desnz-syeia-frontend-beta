@@ -7,6 +7,7 @@ import {
 } from '../services/yourDetailsService';
 import PageTitle from '../../../components/PageTitle';
 import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 type FormErrors = {
   organisationIds?: string;
@@ -24,6 +25,12 @@ const ChangeOrganisationsPage: React.FC = () => {
   const [availableOrganisations, setAvailableOrganisations] = useState<OrganisationOption[]>([]);
   const [selectedOrganisationIds, setSelectedOrganisationIds] = useState<string[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useBreadcrumb(
+    <Link className="govuk-back-link" to="/your-details">
+      Back
+    </Link>
+  );
 
   useEffect(() => {
     const loadOrganisations = async () => {
@@ -129,10 +136,6 @@ const ChangeOrganisationsPage: React.FC = () => {
     <>
             <PageTitle title="Change organisations" />
             <div className="govuk-width-container">
-              <Link className="govuk-back-link" to="/your-details">
-          Back
-        </Link>
-
         {loading && <p className="govuk-body">Loading...</p>}
 
         {!loading && (

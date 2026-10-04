@@ -1,18 +1,21 @@
 
 import { buildBackendUrl } from '../../utils/apiConfig';
+import { useBreadcrumb } from '../../context/BreadcrumbContext';
 import '../../styles/RelatedContent.css';
 
 const NWLGuidancePage = () => {
+  useBreadcrumb(
+    <a
+      href="/landingPage"
+      className="govuk-back-link"
+    >
+      Submit your Energy Infrastructure Application
+    </a>
+  );
 
   return (
     <>
             <div className="govuk-width-container">
-        <a
-          href="/landingPage"
-          className="govuk-back-link"
-        >
-          Submit your Energy Infrastructure Application
-        </a>
       <style>{`
         .govuk-link,
         .govuk-link:visited,

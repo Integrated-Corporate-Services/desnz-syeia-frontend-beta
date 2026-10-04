@@ -31,17 +31,12 @@ export const CheckYourAnswersBreadcrumbs: React.FC<CheckYourAnswersBreadcrumbsPr
                     </li>
                 </ol>
             </nav>
-        ) : null
-    );
-
-    // Read-only mode: Show back link to Application Dashboard
-    if (!canEdit) {
-        return (
+        ) : (
             <Link to="/application-dashboard" className="govuk-back-link">
                 Application Dashboard
             </Link>
-        );
-    }
+        )
+    );
 
     return null;
 };

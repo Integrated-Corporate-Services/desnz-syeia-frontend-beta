@@ -395,18 +395,17 @@ const CheckYourAnswers: React.FC = () => {
           </li>
         </ol>
       </nav>
-    ) : null
+    ) : (
+      <Link to="/application-dashboard" className="govuk-back-link">
+        Application Dashboard
+      </Link>
+    )
   );
 
   return (
     <>
       <PageTitle title="Check your answers" />
             <div className="govuk-width-container">
-      {!permissions?.canEdit && (
-        <Link to="/application-dashboard" className="govuk-back-link">
-          Application Dashboard
-        </Link>
-      )}
               {validationError && (
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"

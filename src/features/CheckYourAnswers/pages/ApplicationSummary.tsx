@@ -50,6 +50,7 @@ import {
 } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
 import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
+import { isFirFeatureDisabled } from '../../../utils/disabledFormTypes';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ApplicationSummary: React.FC = () => {
@@ -483,18 +484,17 @@ const ApplicationSummary: React.FC = () => {
           </li>
         </ol>
       </nav>
-    ) : null
+    ) : (
+      <Link to="/application-dashboard" className="govuk-back-link">
+        Back
+      </Link>
+    )
   );
 
   return (
     <>
       <PageTitle title="Application summary" />
             <div className="govuk-width-container">
-      {!permissions?.canEdit && (
-        <Link to="/application-dashboard" className="govuk-back-link">
-          Back
-        </Link>
-      )}
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-three-quarters">
             
@@ -543,10 +543,12 @@ const ApplicationSummary: React.FC = () => {
             {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
                 so it must not be gated on the *current* status (a completed FIR should still
                 be reachable via "View all information requests" after status moves on). */}
-            <FirSummaryCard
-              applicationId={applicationId}
-              basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
-            />
+            {!isFirFeatureDisabled() && (
+              <FirSummaryCard
+                applicationId={applicationId}
+                basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+              />
+            )}
 
             {/* ===== Summary Section ===== */}
             <div className="govuk-summary-card">

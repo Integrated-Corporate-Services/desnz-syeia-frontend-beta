@@ -3,11 +3,18 @@ import { useNavigate, Link } from "react-router-dom";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
 import PageTitle from "../../components/PageTitle";
+import { useBreadcrumb } from "../../context/BreadcrumbContext";
 
 const CompanyNamePage: React.FC = () => {
   const navigate = useNavigate();
   const { formData, updateFormData } = useAccessRequest();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+  useBreadcrumb(
+    <Link to="/request-access/agent-question" className="govuk-back-link">
+      Back
+    </Link>
+  );
 
   const [agencyName, setAgencyName] = useState(formData.agencyName || "");
   const [error, setError] = useState<string>("");
@@ -59,13 +66,6 @@ const CompanyNamePage: React.FC = () => {
     <>
       <PageTitle title="Enter your agency name" />
             <div className="govuk-width-container">
-        <Link
-          to="/request-access/agent-question"
-          className="govuk-back-link"
-        >
-        Back
-      </Link>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />

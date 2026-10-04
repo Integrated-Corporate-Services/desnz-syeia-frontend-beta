@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -22,6 +23,15 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const queryId = queryParams.get('id');
   const effectiveApplicationId = applicationId || queryId || '';
+
+  useBreadcrumb(
+    <Link
+      to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`}
+      className="govuk-back-link"
+    >
+      Back
+    </Link>
+  );
 
   // Form State
   const [selectedOption, setSelectedOption] = useState<'yes' | 'no' | null>(null);
@@ -192,14 +202,6 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   return (
     <>
             <PageTitle title="Add other sensitive areas?" />
-      {/* Back Link - Always visible */}
-      <Link
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`}
-        className="govuk-back-link"
-      >
-        Back
-      </Link>
-
       {/* Page Heading - Three-quarters width */}
       <div className='govuk-grid-row'>
         <div className="govuk-grid-column-three-quarters">

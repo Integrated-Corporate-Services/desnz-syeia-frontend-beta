@@ -9,6 +9,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { applicationApiService } from '../services/applicationApiService';
 import { createLogger } from '../utils/logger';
 import PageTitle from '../components/PageTitle';
+import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 const logger = createLogger('ApplicationDeleteConfirmationPage');
 
@@ -64,6 +65,19 @@ export const ApplicationDeleteConfirmationPage: React.FC = () => {
     navigate(-1);
   };
 
+  useBreadcrumb(
+    <a
+      href="#"
+      className="govuk-back-link"
+      onClick={(e) => {
+        e.preventDefault();
+        goBack();
+      }}
+    >
+      Back
+    </a>
+  );
+
   if (!applicationId) {
     return <div>Invalid application ID</div>;
   }
@@ -74,17 +88,6 @@ export const ApplicationDeleteConfirmationPage: React.FC = () => {
       <div className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <a
-              href="#" 
-              className="govuk-back-link" 
-              onClick={(e) => {
-                e.preventDefault();
-                goBack();
-              }}
-            >
-              Back
-            </a>
-
             <h1 className="govuk-heading-l">Are you sure you want to delete this application?</h1>
             
             <div className="govuk-body">

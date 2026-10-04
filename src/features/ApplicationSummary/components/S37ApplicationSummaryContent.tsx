@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { StatusBadge } from '../../../components/shared/StatusBadge';
 import { useInvoiceStatus, buildInvoiceDownloadUrl } from '../../../hooks';
 import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
+import { isFirFeatureDisabled } from '../../../utils/disabledFormTypes';
 import { SummaryCard } from '../../NWL/CheckYourAnswers/components';
 import { SummaryRow } from '../../NWL/CheckYourAnswers/types';
 import { ApplicationReviewSummaryData } from '../types/reviewSummary';
@@ -79,10 +80,12 @@ export const S37ApplicationSummaryContent: React.FC<S37ApplicationSummaryContent
             {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
                 so it must not be gated on the *current* status (a completed FIR should still
                 be reachable via "View all information requests" after status moves on). */}
-            <FirSummaryCard
-                applicationId={applicationId}
-                basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
-            />
+            {!isFirFeatureDisabled() && (
+                <FirSummaryCard
+                    applicationId={applicationId}
+                    basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+                />
+            )}
 
             <SummaryCard title="Summary" rows={summaryRows} />
 

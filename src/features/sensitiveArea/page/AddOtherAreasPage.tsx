@@ -11,6 +11,7 @@ import {
 import { S37_BASE_URL } from '../../../constants/s37';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import '../../../styles/AddOtherAreasPage.css';
 
 const logger = createLogger('AddOtherAreasPage');
@@ -32,6 +33,15 @@ const AddOtherAreasPage: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const queryId = queryParams.get('id');
   const effectiveApplicationId = applicationId || queryId || '';
+
+  useBreadcrumb(
+    <Link
+      to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`}
+      className="govuk-back-link"
+    >
+      Back
+    </Link>
+  );
 
   // API Data State
   const [preIdentifiedAreas, setPreIdentifiedAreas] = useState<PreIdentifiedArea[]>([]);
@@ -235,12 +245,6 @@ const AddOtherAreasPage: React.FC = () => {
     return (
       <div className="govuk-width-container">
         <PageTitle title="Add other sensitive areas" />
-        <Link
-          to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`}
-          className="govuk-back-link"
-        >
-          Back
-        </Link>
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Add other sensitive areas</h1>
@@ -255,14 +259,6 @@ const AddOtherAreasPage: React.FC = () => {
     <>
             <PageTitle title="Add other sensitive areas" />
             <div className="govuk-width-container">
-      {/* Back Link - Always visible */}
-      <Link
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`}
-        className="govuk-back-link"
-      >
-        Back
-      </Link>
-
       {/* Page Heading - Two-thirds width */}
       <div className='govuk-grid-row'>
         <div className="govuk-grid-column-two-thirds ">
