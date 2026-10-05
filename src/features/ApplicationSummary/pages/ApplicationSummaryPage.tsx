@@ -9,8 +9,6 @@ import {
     TaskListSummaryBreadcrumbs,
     ApplicationSummaryBreadcrumbs,
     ApplicationSummaryContent,
-    ApplicationReassignmentLinks,
-    ReassignmentSuccessBanner,
 } from '../components';
 import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
