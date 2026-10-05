@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAssignmentHistory } from '../../../ApplicationSummary/hooks/useAssignmentHistory';
+import { useAssignmentHistory } from '../../../ApplicationReassignment/hooks/useAssignmentHistory';
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { ApplicationReviewSummaryData } from '../../../ApplicationSummary/types/reviewSummary';

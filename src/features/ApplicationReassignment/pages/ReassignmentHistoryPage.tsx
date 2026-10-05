@@ -1,5 +1,6 @@
 import { Link, useLocation, useParams } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { useAssignmentHistory } from '../hooks/useAssignmentHistory';
 import { formatReassignmentDate, getAssignmentBasePath } from '../utils/reassignment';
 import { ReassignmentError } from '../components/ReassignmentError';
@@ -9,12 +10,23 @@ export function ReassignmentHistoryPage() {
     const { pathname } = useLocation();
     const base = getAssignmentBasePath(pathname);
     const { details, error, loading } = useAssignmentHistory(applicationId);
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${base}/application-summary`}>
+                        Application summary
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Reassignment history
+                </li>
+            </ol>
+        </nav>,
+    );
     return (
         <div className="govuk-width-container">
             <PageTitle title="Reassignment history" />
-            <Link className="govuk-back-link" to={`${base}/application-summary`}>
-                Back
-            </Link>
             <div className="govuk-main-wrapper">
                 <span className="govuk-caption-l">
                     {details?.application_reference || applicationId}
@@ -56,9 +68,6 @@ export function ReassignmentHistoryPage() {
                     ) : (
                         <p className="govuk-body">No reassignments recorded.</p>
                     ))}
-                <Link className="govuk-link" to={`${base}/application-summary`}>
-                    Back to application summary
-                </Link>
             </div>
         </div>
     );

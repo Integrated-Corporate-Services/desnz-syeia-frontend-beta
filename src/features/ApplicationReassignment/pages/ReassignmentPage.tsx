@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { getUserRole } from '../../../utils/roleUtils';
 import PageTitle from '../../../components/PageTitle';
 import { hasReassignmentRole, isReassignmentTerminal } from '../constants/reassignment';
@@ -56,12 +57,23 @@ export function ReassignmentPage() {
         hasReassignmentRole(getUserRole(user)) &&
         Boolean(state.status) &&
         !isReassignmentTerminal(state.status);
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${base}/application-summary`}>
+                        Application summary
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Reassign application
+                </li>
+            </ol>
+        </nav>,
+    );
     return (
         <div className="govuk-width-container">
             <PageTitle title="Reassign application" />
-            <Link className="govuk-back-link" to={`${base}/application-summary`}>
-                Back
-            </Link>
             <div className="govuk-main-wrapper">
                 <ReassignmentError message={current ? state.error : null} />
                 {(!current || state.loading) && (

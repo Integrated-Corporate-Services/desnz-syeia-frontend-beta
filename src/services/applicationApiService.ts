@@ -2,7 +2,7 @@ import { generateCorrelationId } from "../utils/correlationId";
 import { buildBackendUrl } from "../utils/apiConfig";
 import { fetchCsrfToken, getCsrfHeaders } from "../utils/csrf";
 import { createLogger } from "../utils/logger";
-import type { AssignmentDetails, EligibleAssignee } from '../features/ApplicationSummary/types/applicationReassignment';
+import type { AssignmentDetails, EligibleAssignee } from '../features/ApplicationReassignment/types/applicationReassignment';
 
 const logger = createLogger('application-api');
 

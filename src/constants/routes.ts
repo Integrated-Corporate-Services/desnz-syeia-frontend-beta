@@ -119,7 +119,8 @@ import S37WithdrawApplicationPage from '../features/CheckYourAnswers/pages/Withd
 import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
 // New modular ApplicationSummary - for NWL and future types
 import ApplicationSummaryPage from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
-import { ReassignmentPage, ReassignmentHistoryPage } from '../features/ApplicationSummary/components/ApplicationReassignment';
+import { ReassignmentPage } from '../features/ApplicationReassignment/pages/ReassignmentPage';
+import { ReassignmentHistoryPage } from '../features/ApplicationReassignment/pages/ReassignmentHistoryPage';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';

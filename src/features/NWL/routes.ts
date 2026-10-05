@@ -53,7 +53,8 @@ import BankTransferSuccessPage from '../Payments/pages/BankTransferSuccessPage';
 import PaymentSuccessPage from '../Payments/pages/PaymentSuccessPage';
 import PaymentFailurePage from '../Payments/pages/PaymentFailurePage';
 import ApplicationSummaryPage from '../ApplicationSummary/pages/ApplicationSummaryPage';
-import { ReassignmentPage, ReassignmentHistoryPage } from '../ApplicationSummary/components/ApplicationReassignment';
+import { ReassignmentPage } from '../ApplicationReassignment/pages/ReassignmentPage';
+import { ReassignmentHistoryPage } from '../ApplicationReassignment/pages/ReassignmentHistoryPage';
 // Shared withdraw pages (multi-type: reads application type from API/URL; NWL paths below)
 import WithdrawApplicationPage from '../CheckYourAnswers/pages/WithdrawApplicationPage';
 import WithdrawalConfirmationPage from '../CheckYourAnswers/pages/WithdrawalConfirmationPage';

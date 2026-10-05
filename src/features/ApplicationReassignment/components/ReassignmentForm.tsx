@@ -8,7 +8,6 @@ import {
 import { getAssignmentBasePath } from '../utils/reassignment';
 import { AssigneeSearch } from './AssigneeSearch';
 import { ReassignmentError } from './ReassignmentError';
-import './Reassignment.css';
 
 export function ApplicationReassignment({
     applicationId,
@@ -44,7 +43,7 @@ export function ApplicationReassignment({
 
     return (
         <section
-            className="application-reassignment govuk-!-margin-top-6"
+            className="govuk-!-margin-top-6"
             aria-labelledby="reassignment-heading"
             aria-busy={form.submitting}
         >

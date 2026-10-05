@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { applicationApiService } from '../../../services/applicationApiService';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../context/BreadcrumbContext';
 import {
     ApplicationReassignment,
     ApplicationReassignmentLinks,
@@ -25,6 +26,11 @@ vi.mock('../../../services/applicationApiService', () => ({
 
 const applicationId = '11111111-1111-1111-1111-111111111111';
 const assigneeId = '22222222-2222-2222-2222-222222222222';
+
+function BreadcrumbOutlet() {
+    const { breadcrumb } = useBreadcrumbContext();
+    return <>{breadcrumb}</>;
+}
 
 function renderFlow(status: string) {
     render(
@@ -124,17 +130,29 @@ describe('application reassignment confirmation', () => {
             ],
         });
         render(
-            <MemoryRouter initialEntries={[`/s37/${applicationId}/reassignment-history`]}>
-                <Routes>
-                    <Route
-                        path="/s37/:applicationId/reassignment-history"
-                        element={<ReassignmentHistoryPage />}
-                    />
-                </Routes>
-            </MemoryRouter>
+            <BreadcrumbProvider>
+                <MemoryRouter initialEntries={[`/s37/${applicationId}/reassignment-history`]}>
+                    <BreadcrumbOutlet />
+                    <Routes>
+                        <Route
+                            path="/s37/:applicationId/reassignment-history"
+                            element={<ReassignmentHistoryPage />}
+                        />
+                    </Routes>
+                </MemoryRouter>
+            </BreadcrumbProvider>,
         );
 
         expect(await screen.findByText('03.06.2026, 11:34')).toBeInTheDocument();
+        const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+        expect(within(breadcrumb).getByRole('link', { name: 'Application summary' })).toHaveAttribute(
+            'href',
+            `/s37/${applicationId}/application-summary`,
+        );
+        expect(within(breadcrumb).getByText('Reassignment history')).toHaveAttribute(
+            'aria-current',
+            'page',
+        );
         expect(
             screen.getByText('Reassigned from Priya Nair to Sam Okoro by DESNZ Coordinator.')
         ).toBeInTheDocument();

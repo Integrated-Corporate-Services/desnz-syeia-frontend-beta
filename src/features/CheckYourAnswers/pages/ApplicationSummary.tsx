@@ -52,8 +52,9 @@ import PageTitle from '../../../components/PageTitle';
 import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
 import { isFirFeatureDisabled } from '../../../utils/disabledFormTypes';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
-import { ApplicationReassignmentLinks, ReassignmentSuccessBanner } from '../../ApplicationSummary/components/ApplicationReassignment';
-import { useAssignmentHistory } from '../../ApplicationSummary/hooks/useAssignmentHistory';
+import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
+import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
+import { useAssignmentHistory } from '../../ApplicationReassignment/hooks/useAssignmentHistory';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
