@@ -175,7 +175,9 @@ const ApplicationSummary: React.FC = () => {
     voluntary_agreement: boolean;
     withdrawal_reason?: string;
     requested_at: string;
+    banner_acknowledged_at?: string | null;
   } | null>(null);
+  const [showWithdrawalBanner, setShowWithdrawalBanner] = useState(false);
 
   // Memoize transformed routes to avoid recalculating on every render
   const transformedRoutes = useMemo(() => {
@@ -455,8 +457,25 @@ const ApplicationSummary: React.FC = () => {
     if (applicationId) {
       logger.debug('Triggering withdrawal request fetch for application', { applicationId });
       fetchWithdrawalRequest();
-    } 
+    }
   }, [applicationId, logger]);
+
+  useEffect(() => {
+    if (
+      !applicationId ||
+      !withdrawalRequest ||
+      (withdrawalRequest.request_status !== 'Requested' && withdrawalRequest.request_status !== 'Rejected') ||
+      withdrawalRequest.banner_acknowledged_at
+    ) {
+      setShowWithdrawalBanner(false);
+      return;
+    }
+
+    setShowWithdrawalBanner(true);
+    applicationApiService
+      .acknowledgeWithdrawalRequestBanner(applicationId)
+      .catch((err) => logger.error('Failed to acknowledge withdrawal request banner', err));
+  }, [applicationId, withdrawalRequest, logger]);
 
   // Debug effect to monitor withdrawal request state changes
   useEffect(() => {
@@ -499,7 +518,7 @@ const ApplicationSummary: React.FC = () => {
         <div className="govuk-grid-column-three-quarters">
             
             {/* Withdrawal request notification banner */}
-            {withdrawalRequest && (withdrawalRequest.request_status === 'Requested' || withdrawalRequest.request_status === 'Rejected') && (
+            {showWithdrawalBanner && withdrawalRequest && (
               <div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
                 <div className="govuk-notification-banner__header" style={{ backgroundColor: '#1d70b8' }}>
                   <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title" style={{ color: 'white' }}>
@@ -577,20 +596,6 @@ const ApplicationSummary: React.FC = () => {
                       />
                     </dd>
                   </div>
-                  {/* Show withdrawal status if withdrawal request exists */}
-                  {withdrawalRequest && (
-                    <div className="govuk-summary-list__row">
-                      <dt className="govuk-summary-list__key">{FIELD_LABELS.WITHDRAWAL_REQUEST_STATUS}</dt>
-                      <dd className="govuk-summary-list__value">
-                        <strong
-                          className={`govuk-tag ${withdrawalRequest.request_status === 'Requested' ? 'govuk-tag--orange' : withdrawalRequest.request_status === 'Approved' ? 'govuk-tag--green' : 'govuk-tag--red'}`}
-                          style={{ fontSize: '16px' }}
-                        >
-                          {withdrawalRequest.request_status}
-                        </strong>
-                      </dd>
-                    </div>
-                  )}
                 </dl>
               </div>
             </div>
@@ -646,8 +651,8 @@ const ApplicationSummary: React.FC = () => {
               </div>
             )}
 
-            {/* Withdraw application button - only show if user has withdraw permission and no pending withdrawal request */}
-            {permissions?.canWithdraw && !permissions?.canEdit && !withdrawalRequest && (
+            {/* Withdraw application button - hidden only while a withdrawal request is pending; a rejected request lets the user try again */}
+            {permissions?.canWithdraw && !permissions?.canEdit && withdrawalRequest?.request_status !== 'Requested' && (
               <div className="govuk-button-group">
                 <button
                   type="button"

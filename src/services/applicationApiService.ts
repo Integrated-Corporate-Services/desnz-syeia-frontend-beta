@@ -368,4 +368,37 @@ getWithdrawalRequest: async (applicationId: string, correlationId?: string) => {
   return response.json();
 },
 
+acknowledgeWithdrawalRequestBanner: async (applicationId: string, correlationId?: string) => {
+  let csrfHeaders = getCsrfHeaders();
+  if (!csrfHeaders['X-CSRF-Token']) {
+    await fetchCsrfToken();
+    csrfHeaders = getCsrfHeaders();
+  }
+  if (!csrfHeaders['X-CSRF-Token']) {
+    throw new Error('Unable to obtain CSRF token');
+  }
+
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    "X-Correlation-ID": correlationId || generateCorrelationId(),
+    ...csrfHeaders,
+  };
+
+  const response = await fetch(
+    buildBackendUrl(`/api/applications/${applicationId}/withdrawal-request/acknowledge-banner`),
+    {
+      method: "PATCH",
+      headers,
+      credentials: "include",
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: "Failed to acknowledge withdrawal request banner" }));
+    throw new Error(errorData.error || errorData.message || "Failed to acknowledge withdrawal request banner");
+  }
+
+  return response.json();
+},
+
 };

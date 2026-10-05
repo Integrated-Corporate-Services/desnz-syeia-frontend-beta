@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { ApplicationReviewSummaryData } from '../../../ApplicationSummary/types/reviewSummary';
 import { WithdrawalRequest } from '../../../ApplicationSummary/types';
 import { usePdfDownload } from '../../../ApplicationSummary/hooks';
+import { applicationApiService } from '../../../../services/applicationApiService';
+import { createLogger } from '../../../../utils/logger';
 import {
     ReviewApplicationInfoCard,
     ReviewPaymentDetailsCard,
@@ -36,6 +38,8 @@ interface NWLApplicationSummaryContentProps {
     withdrawalRequest: WithdrawalRequest | null;
 }
 
+const logger = createLogger('NWLApplicationSummaryContent');
+
 export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContentProps> = ({
     data,
     applicationId,
@@ -53,7 +57,27 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     } = usePdfDownload();
 
     const showWithdraw =
-        data.permissions?.canWithdraw && !data.permissions?.canEdit && !withdrawalRequest;
+        data.permissions?.canWithdraw &&
+        !data.permissions?.canEdit &&
+        withdrawalRequest?.request_status !== 'Requested';
+
+    const [showWithdrawalBanner, setShowWithdrawalBanner] = useState(false);
+    useEffect(() => {
+        if (
+            !applicationId ||
+            !withdrawalRequest ||
+            (withdrawalRequest.request_status !== 'Requested' && withdrawalRequest.request_status !== 'Rejected') ||
+            withdrawalRequest.banner_acknowledged_at
+        ) {
+            setShowWithdrawalBanner(false);
+            return;
+        }
+
+        setShowWithdrawalBanner(true);
+        applicationApiService
+            .acknowledgeWithdrawalRequestBanner(applicationId)
+            .catch((err: unknown) => logger.error('Failed to acknowledge withdrawal request banner', err));
+    }, [applicationId, withdrawalRequest]);
 
     // Downloads should ALWAYS be available post-submission, regardless of payment status
     // Status check ensures downloads available for: SUBMITTED, PROCESSING_PAYMENT, UNDER_REVIEW, etc.
@@ -90,13 +114,13 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
 
     return (
         <>
-            {withdrawalRequest?.request_status === 'Requested' && (
+            {showWithdrawalBanner && withdrawalRequest?.request_status === 'Requested' && (
                 <WithdrawalNotificationBanner
                     message={CONSTANTS.REVIEW_LAYOUT.WITHDRAWAL.NOTIFICATION_BANNER}
                 />
             )}
 
-            {withdrawalRequest?.request_status === 'Rejected' && (
+            {showWithdrawalBanner && withdrawalRequest?.request_status === 'Rejected' && (
                 <WithdrawalNotificationBanner
                     message={CONSTANTS.REVIEW_LAYOUT.WITHDRAWAL.REJECTED_NOTIFICATION_BANNER}
                 />
@@ -129,7 +153,6 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
             <ReviewApplicationInfoCard
                 desnzRef={data.desnzRef}
                 status={data.status}
-                withdrawalRequest={withdrawalRequest}
             />
 
             {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
