@@ -8,7 +8,18 @@ export const CPO_SUBSECTIONS = {
   CHECK_AND_SUBMIT: 'Check and submit your application',
 } as const;
 
-export const CPO_TASK_SECTIONS = [
+type CpoTask = {
+  readonly subsection: (typeof CPO_SUBSECTIONS)[keyof typeof CPO_SUBSECTIONS];
+  readonly label: string;
+  readonly slug: string;
+};
+
+type CpoTaskSection = {
+  readonly title: string;
+  readonly tasks: readonly CpoTask[];
+};
+
+export const CPO_TASK_SECTIONS: readonly CpoTaskSection[] = [
   {
     title: 'Applicant details',
     tasks: [

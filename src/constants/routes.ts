@@ -76,6 +76,8 @@ import LandingPage from '../features/SignIn/LandingPage';
 import CPOWhoIsApplying from '../features/CPO/WhoIsApplying';
 import CpoTaskListPage from '../features/CPO/CpoTaskListPage';
 import CpoTaskUnavailablePage from '../features/CPO/CpoTaskUnavailablePage';
+import CpoPreSubmissionMeetingPage from '../features/CPO/CpoPreSubmissionMeetingPage';
+import CpoPreSubmissionMeetingConfirmationPage from '../features/CPO/CpoPreSubmissionMeetingConfirmationPage';
 // import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 // import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
@@ -690,6 +692,18 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/cpo/:applicationId/:taskSlug',
         component: CpoTaskUnavailablePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/pre-submission-meeting',
+        component: CpoPreSubmissionMeetingPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/pre-submission-meeting/confirmation',
+        component: CpoPreSubmissionMeetingConfirmationPage,
         auth: true,
         layout: true,
     },

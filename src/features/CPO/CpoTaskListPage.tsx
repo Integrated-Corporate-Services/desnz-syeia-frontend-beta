@@ -74,7 +74,7 @@ const CpoTaskListPage: React.FC = () => {
                   {sectionIndex + 1}. {section.title}
                 </h2>
                 <div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
-                <ul className="govuk-task-list">
+                <ul className="govuk-task-list govuk-!-margin-bottom-1">
                   {section.tasks.map((task) => {
                     const status = getTaskStatus(task.subsection);
                     const isBlocked = status === 'Cannot start yet';
@@ -85,18 +85,20 @@ const CpoTaskListPage: React.FC = () => {
                         <li className={`govuk-task-list__item${taskUrl && !isBlocked ? ' govuk-task-list__item--with-link' : ''}`}>
                           <span className="govuk-task-list__name-and-hint">
                             {taskUrl && !isBlocked ? (
-                              <>
-                                <Link className="govuk-link govuk-task-list__link" to={taskUrl}>
-                                  {task.label}
-                                </Link>
-                                {task.subsection === CPO_SUBSECTIONS.RECORD_NOTICES && (
-                                  <span className="govuk-task-list__hint">
-                                    Set the final day for objections before publishing or serving your notices. Record each step as you finish it. If the dates change, check whether your notices or the final day need to change.
-                                  </span>
-                                )}
-                              </>
+                              <Link
+                                className="govuk-link govuk-task-list__link"
+                                to={taskUrl}
+                                aria-describedby={task.subsection === CPO_SUBSECTIONS.RECORD_NOTICES ? 'record-notices-hint' : undefined}
+                              >
+                                {task.label}
+                              </Link>
                             ) : (
-                              <span className="govuk-task-list__description">{task.label}</span>
+                              <span
+                                className="govuk-task-list__description"
+                                aria-describedby={isBlocked ? 'check-and-submit-hint' : undefined}
+                              >
+                                {task.label}
+                              </span>
                             )}
                           </span>
                           <span className="govuk-task-list__status">{renderStatus(status)}</span>
@@ -105,6 +107,16 @@ const CpoTaskListPage: React.FC = () => {
                     );
                   })}
                 </ul>
+                {section.tasks.some((task) => task.subsection === CPO_SUBSECTIONS.RECORD_NOTICES) && (
+                  <p className="govuk-body-s govuk-!-margin-bottom-0" id="record-notices-hint">
+                    Set the final day for objections before publishing or serving your notices. Record each step as you finish it. If the dates change, check whether your notices or the final day need to change.
+                  </p>
+                )}
+                {section.tasks.some((task) => task.subsection === CPO_SUBSECTIONS.CHECK_AND_SUBMIT) && !allOtherTasksCompleted && (
+                  <p className="govuk-body-s govuk-!-margin-bottom-0" id="check-and-submit-hint">
+                    You can submit once every other task is completed.
+                  </p>
+                )}
               </section>
             ))}
           </div>

@@ -6,6 +6,40 @@ import { createLogger } from "../utils/logger";
 const logger = createLogger('application-api');
 
 export const applicationApiService = {
+  saveCpoPreSubmissionMeeting: async (
+    applicationId: string,
+    requested: boolean | null,
+    complete: boolean,
+  ) => {
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    if (!csrfHeaders['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token');
+    const response = await fetch(
+      buildBackendUrl(`/api/applications/${applicationId}/pre-submission-meeting`),
+      {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders },
+        body: JSON.stringify({ requested, complete }),
+      },
+    );
+    if (!response.ok) {
+      const messages: Record<number, string> = {
+        401: 'Your session has expired. Sign in again before saving your answer.',
+        403: 'You do not have permission to update this application. Refresh the page or contact support.',
+        404: 'The meeting service or application is unavailable. Refresh the page or contact support.',
+        409: 'This application can no longer be updated or its meeting request has already been submitted. Refresh the page.',
+      };
+      const error = new Error(messages[response.status] || 'Unable to save your pre-submission meeting answer. Try again.') as Error & { status?: number };
+      error.status = response.status;
+      throw error;
+    }
+    return response.json();
+  },
+
   // Fetch applications for a user
   fetchApplicationsByUser: async (
     created_by: string,

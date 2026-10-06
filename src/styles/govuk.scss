@@ -1,1 +1,6 @@
 @import "../../node_modules/govuk-frontend/dist/govuk/index";
+
+.cpo-meeting-confirmation {
+	background-color: govuk-colour("blue");
+	overflow-wrap: anywhere;
+}
