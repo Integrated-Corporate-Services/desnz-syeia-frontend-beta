@@ -51,7 +51,8 @@ const ServiceNavigation = () => {
         location.pathname.includes("/admin/") ||
         location.pathname.includes("/user-management");
     const isOnReportingPage = location.pathname === "/admin/reporting";
-    const isOnNotificationsPage = location.pathname === NOTIFICATIONS_PATH;
+    // "/notifications/" is the same page as "/notifications".
+    const isOnNotificationsPage = location.pathname.replace(/\/+$/, "") === NOTIFICATIONS_PATH;
 
     // Pending users are still requesting access, so they have no notifications.
     const showNotifications =

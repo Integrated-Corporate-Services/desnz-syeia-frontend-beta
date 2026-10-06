@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../constants/nwl';
 import { S37_BASE_URL } from '../constants/s37';
 import { APPLICATION_TYPES } from '../constants/applicationTypes';
-import { getBaseUrl } from '../constants/routes';
+import { getBaseUrl } from '../constants/baseUrl';
 
 export const useApplicationNavigation = () => {
   const navigate = useNavigate();

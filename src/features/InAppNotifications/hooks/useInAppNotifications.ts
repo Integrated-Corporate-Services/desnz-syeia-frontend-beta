@@ -21,10 +21,13 @@ export function useUnreadNotificationCount(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return undefined;
     let active = true;
+    // Refreshes can overlap and finish out of order: only the latest one may set the count.
+    let latest = 0;
     const refresh = async () => {
+      const request = ++latest;
       try {
         const count = await getUnreadNotificationCount();
-        if (active && count !== null) setUnreadCount(count);
+        if (active && request === latest && count !== null) setUnreadCount(count);
       } catch {
         // A transient refresh failure must not interfere with the page being used.
       }
@@ -46,8 +49,12 @@ export function useUnreadNotificationCount(enabled: boolean) {
   return enabled ? unreadCount : 0;
 }
 
-/** One page of the signed-in user's notifications, newest first, with the totals across all pages. */
-export function useNotifications(page: number) {
+/**
+ * One page of the signed-in user's notifications (unread first, then read, newest first within
+ * each), with the totals across all pages. Loads again when the page or `visitKey` changes (e.g.
+ * Notifications is selected again), and refreshes in the background every minute and on focus.
+ */
+export function useNotifications(page: number, visitKey?: string) {
   const [notifications, setNotifications] = useState<InAppNotification[]>([]);
   const [total, setTotal] = useState(0);
   const [unread, setUnread] = useState(0);
@@ -56,25 +63,43 @@ export function useNotifications(page: number) {
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setFailed(false);
-    getInAppNotifications(page, NOTIFICATIONS_PAGE_SIZE)
-      .then((result) => {
-        if (!active) return;
+    // Loads can overlap and finish out of order: only the latest one may update the page.
+    let latest = 0;
+    const load = async (background: boolean) => {
+      const request = ++latest;
+      if (!background) {
+        setLoading(true);
+        setFailed(false);
+      }
+      try {
+        const result = await getInAppNotifications(page, NOTIFICATIONS_PAGE_SIZE);
+        if (!active || request !== latest) return;
         if (result === null) {
-          setFailed(true);
+          // A failed background refresh keeps the list already shown.
+          if (!background) setFailed(true);
           return;
         }
         setNotifications(result.notifications);
         setTotal(result.total);
         setUnread(result.unread);
-      })
-      .catch(() => active && setFailed(true))
-      .finally(() => active && setLoading(false));
+        setFailed(false);
+      } catch {
+        if (active && request === latest && !background) setFailed(true);
+      } finally {
+        if (active && request === latest) setLoading(false);
+      }
+    };
+    const refresh = () => void load(true);
+
+    void load(false);
+    const intervalId = window.setInterval(refresh, NOTIFICATION_POLL_INTERVAL_MS);
+    window.addEventListener('focus', refresh);
     return () => {
       active = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refresh);
     };
-  }, [page]);
+  }, [page, visitKey]);
 
   async function markRead(notification: InAppNotification) {
     if (notification.read) return;

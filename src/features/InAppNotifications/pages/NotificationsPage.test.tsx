@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { Link, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NotificationsPage from './NotificationsPage';
 import { NOTIFICATIONS_CHANGED_EVENT } from '../constants/inAppNotifications';
@@ -73,12 +73,12 @@ describe('NotificationsPage', () => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined); // jsdom has no scrolling
   });
 
-  it('shows the summary line and groups the page into Unread and Read cards, newest first', async () => {
+  it('shows the summary line and groups the page into Unread and Read cards', async () => {
     vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([unreadNwl, readS37], { total: 34, unread: 2 }));
     renderPage();
 
     expect(screen.getByRole('heading', { level: 1, name: 'Notifications' })).toBeInTheDocument();
-    expect(await screen.findByText('34 notifications, newest first. 2 unread.')).toBeInTheDocument();
+    expect(await screen.findByText('34 notifications: 2 unread and 32 read.')).toBeInTheDocument();
     expect(getInAppNotifications).toHaveBeenCalledWith(1, 10);
 
     const unread = card('Unread');
@@ -111,7 +111,7 @@ describe('NotificationsPage', () => {
 
     expect(await screen.findByText('NWL application summary')).toBeInTheDocument();
     expect(markInAppNotificationRead).toHaveBeenCalledWith('notification-3');
-    expect(changed).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(changed).toHaveBeenCalledTimes(1));
     window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, changed);
   });
 
@@ -148,7 +148,7 @@ describe('NotificationsPage', () => {
     vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([readS37], { total: 34, unread: 0, page: 3 }));
     renderPage('/notifications?page=3');
 
-    await screen.findByText('34 notifications, newest first. 0 unread.');
+    await screen.findByText('34 notifications: 0 unread and 34 read.');
     expect(getInAppNotifications).toHaveBeenCalledWith(3, 10);
   });
 
@@ -156,7 +156,7 @@ describe('NotificationsPage', () => {
     vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([unreadNwl, readS37]));
     renderPage();
 
-    await screen.findByText('2 notifications, newest first. 1 unread.');
+    await screen.findByText('2 notifications: 1 unread and 1 read.');
     expect(screen.queryByRole('navigation', { name: 'Pagination' })).not.toBeInTheDocument();
   });
 
@@ -183,5 +183,85 @@ describe('NotificationsPage', () => {
 
     expect(await screen.findByText('Your notifications could not be loaded. Try again shortly.')).toBeInTheDocument();
     expect(screen.queryByText('You have no notifications.')).not.toBeInTheDocument();
+  });
+
+  it.each(['Infinity', 'abc', '-2', '1.5', '0'])('treats a malformed page number (%s) as the first page', async (value) => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([readS37]));
+    renderPage(`/notifications?page=${value}`);
+
+    await screen.findByText('1 notification: 0 unread and 1 read.');
+    expect(getInAppNotifications).toHaveBeenCalledWith(1, 10);
+  });
+
+  it('shows the last page when the address asks for a page past the end', async () => {
+    vi.mocked(getInAppNotifications).mockImplementation(async (page: number) => pageOf(page === 4 ? [readS37] : [], { total: 34, unread: 0, page }));
+    renderPage('/notifications?page=99');
+
+    await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('/notifications?page=4'));
+    expect(getInAppNotifications).toHaveBeenLastCalledWith(4, 10);
+    expect(await screen.findByRole('link', { name: 'S3700004' })).toBeInTheDocument();
+  });
+
+  it('leaves a Ctrl/Cmd-click to the browser (e.g. a new tab) and still records the notification as read', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([unreadNwl]));
+    vi.mocked(markInAppNotificationRead).mockResolvedValue(true);
+    renderPage();
+
+    const link = await screen.findByRole('link', { name: 'NWL00003' });
+    // Record whether the page cancelled the click, then stop jsdom (which cannot open tabs) following the link.
+    let cancelledByPage: boolean | undefined;
+    const afterPage = (event: Event) => {
+      cancelledByPage = event.defaultPrevented;
+      event.preventDefault();
+    };
+    document.addEventListener('click', afterPage);
+    fireEvent.click(link, { ctrlKey: true });
+    document.removeEventListener('click', afterPage);
+
+    expect(cancelledByPage).toBe(false);
+    expect(markInAppNotificationRead).toHaveBeenCalledWith('notification-3');
+    expect(screen.getByTestId('url')).toHaveTextContent('/notifications');
+  });
+
+  it('opens the application without waiting for the read update to finish', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([unreadNwl]));
+    vi.mocked(markInAppNotificationRead).mockReturnValue(new Promise(() => undefined)); // never settles
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('link', { name: 'NWL00003' }));
+
+    expect(await screen.findByText('NWL application summary')).toBeInTheDocument();
+  });
+
+  it('keeps keyboard focus in the page content when changing page', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([readS37], { total: 34, unread: 0 }));
+    render(
+      <MemoryRouter initialEntries={['/notifications']}>
+        <main id="main-content" tabIndex={-1}>
+          <NotificationsPage />
+        </main>
+      </MemoryRouter>
+    );
+
+    const pagination = await screen.findByRole('navigation', { name: 'Pagination' });
+    fireEvent.click(within(pagination).getByRole('link', { name: 'Go to page 2 of 4' }));
+
+    expect(document.activeElement).toBe(document.getElementById('main-content'));
+  });
+
+  it('loads the list again when Notifications is selected again', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([readS37]));
+    render(
+      <MemoryRouter initialEntries={['/notifications']}>
+        <Routes>
+          <Route path="/notifications" element={<><NotificationsPage /><Link to="/notifications">Open Notifications again</Link></>} />
+        </Routes>
+      </MemoryRouter>
+    );
+    await screen.findByRole('link', { name: 'S3700004' });
+
+    fireEvent.click(screen.getByRole('link', { name: 'Open Notifications again' }));
+
+    await waitFor(() => expect(getInAppNotifications).toHaveBeenCalledTimes(2));
   });
 });
