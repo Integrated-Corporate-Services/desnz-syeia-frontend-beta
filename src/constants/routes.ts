@@ -119,6 +119,8 @@ import S37WithdrawApplicationPage from '../features/CheckYourAnswers/pages/Withd
 import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
 // New modular ApplicationSummary - for NWL and future types
 import ApplicationSummaryPage from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
+import { ReassignmentPage } from '../features/ApplicationReassignment/pages/ReassignmentPage';
+import { ReassignmentHistoryPage } from '../features/ApplicationReassignment/pages/ReassignmentHistoryPage';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
@@ -1031,6 +1033,18 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: `${S37_BASE_URL}/:applicationId/application-summary`,
         component: S37ApplicationSummary,  // Use old proven S37 implementation
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/reassign`,
+        component: ReassignmentPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/reassignment-history`,
+        component: ReassignmentHistoryPage,
         auth: true,
         layout: true,
     },
