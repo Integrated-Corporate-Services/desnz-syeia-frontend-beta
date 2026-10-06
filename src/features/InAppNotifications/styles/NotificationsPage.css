@@ -1,0 +1,28 @@
+/* The date column is wide enough for "28 September 2026 at 10:30am" on one line, as in the design. */
+@media (min-width: 40.0625em) {
+  .notifications-page .govuk-summary-list__key {
+    width: 50%;
+  }
+}
+
+/* The shared pagination also prints a short "Prev"/"Next" label, which only the dashboard uses (on
+   very small screens). Here the full GOV.UK label is enough. Centred under the cards, as in the design. */
+.notifications-page .app-pagination-short-label {
+  display: none;
+}
+
+.notifications-page .govuk-pagination {
+  justify-content: center;
+}
+
+/* DashboardMobile.css gives every .govuk-link a 44px line height on small screens. The application
+   reference is a link inside a sentence, so it keeps normal text spacing. */
+@media (max-width: 640px) {
+  .notifications-page .govuk-summary-list__value .govuk-link {
+    display: inline;
+    min-height: 0;
+    line-height: inherit;
+    padding: 0;
+    margin: 0;
+  }
+}
