@@ -78,6 +78,7 @@ import CpoTaskListPage from '../features/CPO/CpoTaskListPage';
 import CpoTaskUnavailablePage from '../features/CPO/CpoTaskUnavailablePage';
 import CpoPreSubmissionMeetingPage from '../features/CPO/CpoPreSubmissionMeetingPage';
 import CpoPreSubmissionMeetingConfirmationPage from '../features/CPO/CpoPreSubmissionMeetingConfirmationPage';
+import CpoOrderDetailsPage from '../features/CPO/CpoOrderDetailsPage';
 // import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 // import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
@@ -692,6 +693,18 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/cpo/:applicationId/:taskSlug',
         component: CpoTaskUnavailablePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/order-details',
+        component: CpoOrderDetailsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/order-details/:orderStep',
+        component: CpoOrderDetailsPage,
         auth: true,
         layout: true,
     },

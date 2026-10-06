@@ -61,6 +61,8 @@ async function mapWithConcurrency<T, R>(
 
 export interface FileUploadProps {
   title?: string;
+  hint?: string;
+  acceptedTypes?: string;
   prefix?: string;
   uploadedFiles?: UploadedFile[];
   applicationDocuments?: ApplicationDocument[]; // Added: to filter files by category
@@ -98,6 +100,8 @@ export interface FileUploadHandle {
 
 const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   title = "Upload a file",
+  hint,
+  acceptedTypes,
   prefix = "",
   uploadedFiles,
   applicationDocuments,
@@ -859,8 +863,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         </TitleHeading>
       )}
       <p className="govuk-hint govuk-!-margin-bottom-4">
-        You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
-        .xlsx files of up to 25MB each. Files cannot be password protected.
+        {hint || <>You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
+        .xlsx files of up to 25MB each. Files cannot be password protected.</>}
       </p>
 
       {isScanning && (
@@ -916,7 +920,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           id="file-upload-input"
           className="govuk-visually-hidden"
           onChange={handleFileChange}
-          accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
+          accept={acceptedTypes || '.pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx'}
           disabled={isScanning}
         />
         <div className="gds-upload-dropzone-content">
