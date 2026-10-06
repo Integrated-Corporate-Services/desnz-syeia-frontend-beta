@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAssignmentHistory } from '../../../ApplicationReassignment/hooks/useAssignmentHistory';
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { ApplicationReviewSummaryData } from '../../../ApplicationSummary/types/reviewSummary';
@@ -42,6 +43,8 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     withdrawalRequest,
 }) => {
     const navigate = useNavigate();
+    const assignment = useAssignmentHistory(applicationId);
+    const assigneeName = assignment.loading ? 'Loading...' : assignment.error ? 'Unavailable' : assignment.details?.current_assignee_name;
     const {
         isDownloading,
         isDownloadingPackage,
@@ -129,6 +132,7 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
             <ReviewApplicationInfoCard
                 desnzRef={data.desnzRef}
                 status={data.status}
+                assigneeName={assigneeName}
                 withdrawalRequest={withdrawalRequest}
             />
 
