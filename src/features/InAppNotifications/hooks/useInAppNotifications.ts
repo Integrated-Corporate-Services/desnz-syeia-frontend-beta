@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   NOTIFICATION_POLL_INTERVAL_MS,
   NOTIFICATIONS_CHANGED_EVENT,
@@ -60,14 +60,21 @@ export function useNotifications(page: number, visitKey?: string) {
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  // Notifications this page has marked read, and those it is marking read right now. A list
+  // response requested before a read finished still shows that notification unread.
+  const confirmedRead = useRef(new Set<string>());
+  const marking = useRef(new Set<string>());
 
   useEffect(() => {
     let active = true;
     // Loads can overlap and finish out of order: only the latest one may update the page.
     let latest = 0;
+    // Until this page has loaded once, a background refresh counts as the first load.
+    let loaded = false;
     const load = async (background: boolean) => {
       const request = ++latest;
-      if (!background) {
+      const quiet = background && loaded;
+      if (!quiet) {
         setLoading(true);
         setFailed(false);
       }
@@ -76,15 +83,20 @@ export function useNotifications(page: number, visitKey?: string) {
         if (!active || request !== latest) return;
         if (result === null) {
           // A failed background refresh keeps the list already shown.
-          if (!background) setFailed(true);
+          if (!quiet) setFailed(true);
           return;
         }
-        setNotifications(result.notifications);
+        loaded = true;
+        const items = result.notifications.map((item) =>
+          !item.read && confirmedRead.current.has(item.id) ? { ...item, read: true } : item
+        );
+        const readMeanwhile = items.filter((item, index) => item.read !== result.notifications[index].read).length;
+        setNotifications(items);
         setTotal(result.total);
-        setUnread(result.unread);
+        setUnread(Math.max(result.unread - readMeanwhile, 0));
         setFailed(false);
       } catch {
-        if (active && request === latest && !background) setFailed(true);
+        if (active && request === latest && !quiet) setFailed(true);
       } finally {
         if (active && request === latest) setLoading(false);
       }
@@ -102,10 +114,19 @@ export function useNotifications(page: number, visitKey?: string) {
   }, [page, visitKey]);
 
   async function markRead(notification: InAppNotification) {
-    if (notification.read) return;
-    const updated = await markInAppNotificationRead(notification.id);
+    const { id } = notification;
+    // Already read, or already being marked read (e.g. opened twice in new tabs): count it once.
+    if (notification.read || confirmedRead.current.has(id) || marking.current.has(id)) return;
+    marking.current.add(id);
+    let updated = false;
+    try {
+      updated = await markInAppNotificationRead(id);
+    } finally {
+      marking.current.delete(id); // a failed update can be tried again
+    }
     if (!updated) return;
-    setNotifications((items) => items.map((item) => (item.id === notification.id ? { ...item, read: true } : item)));
+    confirmedRead.current.add(id);
+    setNotifications((items) => items.map((item) => (item.id === id ? { ...item, read: true } : item)));
     setUnread((count) => Math.max(count - 1, 0));
     window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT));
   }

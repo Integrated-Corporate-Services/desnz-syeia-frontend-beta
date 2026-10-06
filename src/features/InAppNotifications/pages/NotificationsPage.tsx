@@ -55,6 +55,11 @@ const NotificationsPage: React.FC = () => {
     markRead(notification).catch(() => undefined);
   };
 
+  // A middle-click opens the link in a new tab; a right-click only opens the browser's menu.
+  const handleAuxClick = (event: React.MouseEvent<HTMLAnchorElement>, notification: InAppNotification) => {
+    if (event.button === 1) markReadInBackground(notification);
+  };
+
   const handleOpen = (event: React.MouseEvent<HTMLAnchorElement>, notification: InAppNotification) => {
     markReadInBackground(notification);
     if (!isPlainClick(event)) return; // the browser follows the link itself
@@ -72,7 +77,7 @@ const NotificationsPage: React.FC = () => {
           className="govuk-link"
           to={reviewPath}
           onClick={() => markReadInBackground(notification)}
-          onAuxClick={() => markReadInBackground(notification)}
+          onAuxClick={(event) => handleAuxClick(event, notification)}
         >
           {message}
         </Link>
@@ -87,7 +92,7 @@ const NotificationsPage: React.FC = () => {
           className="govuk-link"
           href={getNavigationPath(notification.applicationType ?? '', applicationId, APPLICATION_SUMMARY_ROUTE)}
           onClick={(event) => handleOpen(event, notification)}
-          onAuxClick={() => markReadInBackground(notification)}
+          onAuxClick={(event) => handleAuxClick(event, notification)}
         >
           {desnzRef}
         </a>
