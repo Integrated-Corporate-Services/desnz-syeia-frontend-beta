@@ -16,6 +16,7 @@ export const NOTIFICATIONS_MESSAGES = {
   UNREAD: 'Unread',
   READ: 'Read',
   GO_TO_APPLICATIONS: 'Go to your applications',
+  // Unread notifications are listed first, then read ones, newest first within each.
   summary: (total: number, unread: number) =>
-    `${total} ${total === 1 ? 'notification' : 'notifications'}, newest first. ${unread} unread.`,
+    `${total} ${total === 1 ? 'notification' : 'notifications'}: ${unread} unread and ${total - unread} read.`,
 } as const;

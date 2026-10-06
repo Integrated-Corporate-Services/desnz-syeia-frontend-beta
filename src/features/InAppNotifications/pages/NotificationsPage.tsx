@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
 import { Pagination } from '../../ApplicationDashboard/components/Pagination';
@@ -12,6 +12,16 @@ import '../styles/NotificationsPage.css';
 const APPLICATION_SUMMARY_ROUTE = 'application-summary';
 const APPLICATIONS_PATH = '/application-dashboard';
 
+// The page number in the address: a positive whole number, otherwise the first page.
+const pageFrom = (value: string | null) => {
+  const page = Number(value);
+  return Number.isSafeInteger(page) && page > 0 ? page : 1;
+};
+
+// Ctrl/Cmd/Shift/Alt-click keeps its usual browser behaviour, e.g. opening the link in a new tab.
+const isPlainClick = (event: React.MouseEvent) =>
+  event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+
 // A new registration has no application: its whole message opens the request for review.
 const reviewPathFor = (notification: InAppNotification) =>
   notification.type === 'ACCESS_REQUEST_SUBMITTED' && notification.referenceId
@@ -22,9 +32,16 @@ const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = Math.max(Math.floor(Number(searchParams.get('page'))) || 1, 1);
-  const { notifications, total, unread, loading, failed, markRead } = useNotifications(page);
+  const page = pageFrom(searchParams.get('page'));
+  // Selecting Notifications again (a new location key) reloads the list.
+  const { notifications, total, unread, loading, failed, markRead } = useNotifications(page, location.key);
   const { getNavigationPath, navigateToApplication } = useApplicationNavigation();
+  const lastPage = Math.max(Math.ceil(total / NOTIFICATIONS_PAGE_SIZE), 1);
+
+  // A page past the end (e.g. an old link) shows the last page instead.
+  useEffect(() => {
+    if (!loading && !failed && page > lastPage) setSearchParams({ page: String(lastPage) }, { replace: true });
+  }, [loading, failed, page, lastPage, setSearchParams]);
 
   const handleBack = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -33,24 +50,16 @@ const NotificationsPage: React.FC = () => {
     else navigate(-1);
   };
 
-  const handleOpen = async (event: React.MouseEvent<HTMLAnchorElement>, notification: InAppNotification) => {
-    event.preventDefault();
-    try {
-      await markRead(notification);
-    } catch {
-      // Opening the application matters more than recording that the notification was read.
-    }
-    navigateToApplication(notification.applicationType ?? '', notification.applicationId ?? '', APPLICATION_SUMMARY_ROUTE);
+  // Recording the notification as read happens in the background, so it never holds the user here.
+  const markReadInBackground = (notification: InAppNotification) => {
+    markRead(notification).catch(() => undefined);
   };
 
-  const handleReview = async (event: React.MouseEvent<HTMLAnchorElement>, notification: InAppNotification, path: string) => {
+  const handleOpen = (event: React.MouseEvent<HTMLAnchorElement>, notification: InAppNotification) => {
+    markReadInBackground(notification);
+    if (!isPlainClick(event)) return; // the browser follows the link itself
     event.preventDefault();
-    try {
-      await markRead(notification);
-    } catch {
-      // Opening the request matters more than recording that the notification was read.
-    }
-    navigate(path);
+    navigateToApplication(notification.applicationType ?? '', notification.applicationId ?? '', APPLICATION_SUMMARY_ROUTE);
   };
 
   // Only the application reference is a link, as in the design. A registration opens the review page.
@@ -59,7 +68,12 @@ const NotificationsPage: React.FC = () => {
     const reviewPath = reviewPathFor(notification);
     if (reviewPath) {
       return (
-        <Link className="govuk-link" to={reviewPath} onClick={(event) => void handleReview(event, notification, reviewPath)}>
+        <Link
+          className="govuk-link"
+          to={reviewPath}
+          onClick={() => markReadInBackground(notification)}
+          onAuxClick={() => markReadInBackground(notification)}
+        >
           {message}
         </Link>
       );
@@ -72,7 +86,8 @@ const NotificationsPage: React.FC = () => {
         <a
           className="govuk-link"
           href={getNavigationPath(notification.applicationType ?? '', applicationId, APPLICATION_SUMMARY_ROUTE)}
-          onClick={(event) => void handleOpen(event, notification)}
+          onClick={(event) => handleOpen(event, notification)}
+          onAuxClick={() => markReadInBackground(notification)}
         >
           {desnzRef}
         </a>
@@ -103,6 +118,8 @@ const NotificationsPage: React.FC = () => {
   const changePage = (nextPage: number) => {
     setSearchParams({ page: String(nextPage) });
     window.scrollTo(0, 0);
+    // The page links disappear while the next page loads: keep keyboard focus in the page content.
+    document.getElementById('main-content')?.focus();
   };
 
   return (
@@ -129,7 +146,7 @@ const NotificationsPage: React.FC = () => {
             <p className="govuk-body">{NOTIFICATIONS_MESSAGES.summary(total, unread)}</p>
             {renderCard(NOTIFICATIONS_MESSAGES.UNREAD, notifications.filter((notification) => !notification.read))}
             {renderCard(NOTIFICATIONS_MESSAGES.READ, notifications.filter((notification) => notification.read))}
-            <Pagination currentPage={page} totalPages={Math.ceil(total / NOTIFICATIONS_PAGE_SIZE)} onPageChange={changePage} />
+            <Pagination currentPage={Math.min(page, lastPage)} totalPages={lastPage} onPageChange={changePage} />
           </>
         )}
 

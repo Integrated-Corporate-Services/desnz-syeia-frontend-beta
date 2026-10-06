@@ -56,6 +56,14 @@ describe('ServiceNavigation notifications link', () => {
     expect(link).toHaveAttribute('aria-current', 'page');
   });
 
+  it('marks the link current when the address has a trailing slash', async () => {
+    signInAs('APPLICANT_TEAM_COORDINATOR');
+    vi.mocked(getUnreadNotificationCount).mockResolvedValue(0);
+    renderNavigation('/notifications/');
+
+    expect(await screen.findByRole('link', { name: 'Notifications' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it('refreshes the count when a notification is marked read', async () => {
     signInAs('SUPERUSER');
     vi.mocked(getUnreadNotificationCount).mockResolvedValueOnce(1).mockResolvedValueOnce(0);
