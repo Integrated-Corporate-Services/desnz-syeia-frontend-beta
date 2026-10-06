@@ -3,6 +3,8 @@ import { useLocation, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
+import { NOTIFICATIONS_PATH } from "../../features/InAppNotifications/constants/inAppNotifications";
+import { useUnreadNotificationCount } from "../../features/InAppNotifications/hooks/useInAppNotifications";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
@@ -49,6 +51,15 @@ const ServiceNavigation = () => {
         location.pathname.includes("/admin/") ||
         location.pathname.includes("/user-management");
     const isOnReportingPage = location.pathname === "/admin/reporting";
+    const isOnNotificationsPage = location.pathname === NOTIFICATIONS_PATH;
+
+    // Pending users are still requesting access, so they have no notifications.
+    const showNotifications =
+        !!user &&
+        (user as AuthUser)?.role !== "pending" &&
+        !isInRegistrationFlow &&
+        !hideNavPaths.includes(location.pathname);
+    const unreadNotificationCount = useUnreadNotificationCount(showNotifications);
 
     if (!user || hideNavPaths.includes(location.pathname)) return null;
 
@@ -126,6 +137,29 @@ const ServiceNavigation = () => {
                                     Applications
                                 </Link>
                             </li>
+                            {showNotifications && (
+                                <li
+                                    className={`rcc-service-nav__item${
+                                        isOnNotificationsPage ? " rcc-service-nav__item--active" : ""
+                                    }`}
+                                >
+                                    <Link
+                                        className="rcc-service-nav__link"
+                                        to={NOTIFICATIONS_PATH}
+                                        aria-current={isOnNotificationsPage ? "page" : undefined}
+                                    >
+                                        Notifications
+                                        <span aria-live="polite">
+                                            {unreadNotificationCount > 0 && (
+                                                <>
+                                                    {" "}({unreadNotificationCount})
+                                                    <span className="govuk-visually-hidden"> unread</span>
+                                                </>
+                                            )}
+                                        </span>
+                                    </Link>
+                                </li>
+                            )}
                             {/* Your details navigation is temporarily hidden from the UI.
                             {!yourDetailsFeatureDisabled && (
                                 <li
