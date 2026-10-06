@@ -44,11 +44,16 @@ const NotificationsPage: React.FC = () => {
     );
     if (shown.length === 0) return;
     shown.forEach((notification) => recordedAsRead.current.add(notification.id));
-    void Promise.all(shown.map((notification) => markInAppNotificationRead(notification.id).catch(() => false))).then(
-      (results) => {
-        if (results.some(Boolean)) window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT));
-      }
-    );
+    void Promise.all(
+      shown.map(async (notification) => {
+        const updated = await markInAppNotificationRead(notification.id).catch(() => false);
+        // A failed update is tried again the next time the list loads.
+        if (!updated) recordedAsRead.current.delete(notification.id);
+        return updated;
+      })
+    ).then((results) => {
+      if (results.some(Boolean)) window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT));
+    });
   }, [notifications]);
 
   // A page past the end (e.g. an old link) shows the last page instead.
@@ -66,6 +71,11 @@ const NotificationsPage: React.FC = () => {
   // Recording the notification as read happens in the background, so it never holds the user here.
   const markReadInBackground = (notification: InAppNotification) => {
     markRead(notification).catch(() => undefined);
+  };
+
+  // A middle-click opens the link in a new tab; a right-click only opens the browser's menu.
+  const handleAuxClick = (event: React.MouseEvent<HTMLAnchorElement>, notification: InAppNotification) => {
+    if (event.button === 1) markReadInBackground(notification);
   };
 
   const handleOpen = (event: React.MouseEvent<HTMLAnchorElement>, notification: InAppNotification) => {
@@ -87,7 +97,7 @@ const NotificationsPage: React.FC = () => {
           className="govuk-link"
           href={getNavigationPath(notification.applicationType ?? '', applicationId, APPLICATION_SUMMARY_ROUTE)}
           onClick={(event) => handleOpen(event, notification)}
-          onAuxClick={() => markReadInBackground(notification)}
+          onAuxClick={(event) => handleAuxClick(event, notification)}
         >
           {desnzRef}
         </a>

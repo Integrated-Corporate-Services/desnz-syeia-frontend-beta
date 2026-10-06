@@ -223,6 +223,19 @@ describe('NotificationsPage', () => {
     expect(screen.getByTestId('url')).toHaveTextContent('/notifications');
   });
 
+  it('records a middle-click (new tab) as read, but not a right-click that only opens the menu', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([unreadNwl]));
+    vi.mocked(markInAppNotificationRead).mockResolvedValue(true);
+    renderPage();
+    const link = await screen.findByRole('link', { name: 'NWL00003' });
+
+    fireEvent(link, new MouseEvent('auxclick', { bubbles: true, button: 2 }));
+    expect(markInAppNotificationRead).not.toHaveBeenCalled();
+
+    fireEvent(link, new MouseEvent('auxclick', { bubbles: true, button: 1 }));
+    expect(markInAppNotificationRead).toHaveBeenCalledWith('notification-3');
+  });
+
   it('opens the application without waiting for the read update to finish', async () => {
     vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([unreadNwl]));
     vi.mocked(markInAppNotificationRead).mockReturnValue(new Promise(() => undefined)); // never settles

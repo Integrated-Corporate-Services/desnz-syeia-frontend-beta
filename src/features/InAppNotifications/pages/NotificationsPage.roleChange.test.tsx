@@ -48,4 +48,37 @@ describe('NotificationsPage: role change (SYEIA-2401)', () => {
     await waitFor(() => expect(changed).toHaveBeenCalled());
     window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, changed);
   });
+
+  it('tries again on the next load when marking it read failed', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue({
+      notifications: [
+        {
+          id: 'notification-role',
+          type: 'USER_ROLE_CHANGED',
+          applicationId: null,
+          applicationType: null,
+          desnzRef: null,
+          referenceId: 'role-change-1',
+          message: 'Your role has been changed to Applicant.',
+          createdAt: new Date(2026, 6, 2, 9, 0).toISOString(),
+          read: false,
+        },
+      ],
+      total: 1,
+      unread: 1,
+      page: 1,
+      limit: 10,
+    });
+    vi.mocked(markInAppNotificationRead).mockReset().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    render(
+      <MemoryRouter initialEntries={['/notifications']}>
+        <NotificationsPage />
+      </MemoryRouter>
+    );
+    await waitFor(() => expect(markInAppNotificationRead).toHaveBeenCalledTimes(1));
+
+    window.dispatchEvent(new Event('focus')); // the list refreshes
+
+    await waitFor(() => expect(markInAppNotificationRead).toHaveBeenCalledTimes(2));
+  });
 });
