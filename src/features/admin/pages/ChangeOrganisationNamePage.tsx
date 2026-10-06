@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
 import { useOrganisation } from '../../../hooks';
 import organisationService from '../../../services/organisationService';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ChangeOrganisationNamePage: React.FC = () => {
   const { organisationId = '' } = useParams<{ organisationId: string }>();
@@ -53,12 +54,13 @@ const ChangeOrganisationNamePage: React.FC = () => {
   const backPath = `/admin/organisation/${organisationId}/settings`;
   const errorMessage = fieldError || submitError || loadError;
 
+  useBreadcrumb(<Link className="govuk-back-link" to={backPath}>Back</Link>);
+
   return (
     <>
       <PageTitle title="Change organisation name" />
       <div className="govuk-width-container">
-        <Link className="govuk-back-link" to={backPath}>Back</Link>
-        <main className="govuk-main-wrapper govuk-grid-row">
+        <div className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {errorMessage && (
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} ref={errorSummaryRef}>
@@ -89,7 +91,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
               </>
             )}
           </div>
-        </main>
+        </div>
       </div>
     </>
   );

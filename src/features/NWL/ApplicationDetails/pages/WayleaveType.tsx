@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import PageTitle from "../../../../components/PageTitle";
+import Details from "../../../../components/Details";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -12,6 +13,7 @@ import {
   WAYLEAVE_TERMINATED_DETAILS,
 } from "../constants/wayleaveTypeConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 /**
  * Wayleave Type Page
@@ -107,26 +109,29 @@ const WayleaveType: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <a
+            className="govuk-breadcrumbs__link"
+            href="#"
+            onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </a>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.APPLICATION_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="What type of wayleave existed?" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href="#"
-              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.APPLICATION_DETAILS}
-          </li>
-        </ol>
-      </nav>
 
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -200,30 +205,23 @@ const WayleaveType: React.FC = () => {
 
                   {/* Only show details for wayleave_terminated flow (implied wayleave) */}
                   {groundsForApplication === 'wayleave_terminated' && (
-                    <details className="govuk-details">
-                      <summary className="govuk-details__summary">
-                        <span className="govuk-details__summary-text">
-                          {WAYLEAVE_TERMINATED_DETAILS.SUMMARY}
-                        </span>
-                      </summary>
-                      <div className="govuk-details__text">
-                        <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_1}</p>
-                        <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_2}</p>
-                        <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_3}</p>
-                        <p className="govuk-body">
-                          Read the{" "}
-                          <a
-                            href={WAYLEAVE_TERMINATED_DETAILS.LINK_URL}
-                            className="govuk-link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {WAYLEAVE_TERMINATED_DETAILS.LINK_TEXT}
-                          </a>{" "}
-                          for more information.
-                        </p>
-                      </div>
-                    </details>
+                    <Details id="wayleave-terminated-details" summary={WAYLEAVE_TERMINATED_DETAILS.SUMMARY}>
+                      <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_1}</p>
+                      <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_2}</p>
+                      <p className="govuk-body">{WAYLEAVE_TERMINATED_DETAILS.TEXT_3}</p>
+                      <p className="govuk-body">
+                        Read the{" "}
+                        <a
+                          href={WAYLEAVE_TERMINATED_DETAILS.LINK_URL}
+                          className="govuk-link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {WAYLEAVE_TERMINATED_DETAILS.LINK_TEXT}
+                        </a>{" "}
+                        for more information.
+                      </p>
+                    </Details>
                   )}
                 </fieldset>
               </div>

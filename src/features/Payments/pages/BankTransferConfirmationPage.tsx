@@ -16,6 +16,7 @@ import {
   PAYMENT_ERROR_MESSAGES,
 } from '../../../constants/payment';
 import { fetchFeeTotal, fetchInvoiceNumber, fetchPaymentProofDocuments } from '../services/paymentDetailsService';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('BankTransferConfirmationPage');
 
@@ -354,24 +355,27 @@ const BankTransferConfirmationPage: React.FC = () => {
     navigate(`${baseUrl}/${applicationId}/task-list`);
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
+            Pay and submit
+          </Link>
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Provide proof of payment" />
             <div className="govuk-width-container">
-              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
-                Pay and submit
-              </Link>
-            </li>
-          </ol>
-        </nav>
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -466,6 +470,7 @@ const BankTransferConfirmationPage: React.FC = () => {
               <FileUpload
                 ref={fileUploadRef}
                 showTitle={false}
+                hasExternalLabel
                 prefix={`${applicationId}/${FILE_CATEGORIES.PAYMENT_PROOF}`}
                 applicationId={applicationId}
                 category={FILE_CATEGORIES.PAYMENT_PROOF}

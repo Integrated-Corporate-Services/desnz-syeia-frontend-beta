@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApplication } from "../../../../hooks/useApplication";
 import { applicationApiService } from "../../../../services/applicationApiService";
@@ -15,6 +15,10 @@ import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
 import { createLogger } from "../../../../utils/logger";
 import PageTitle from "../../../../components/PageTitle";
+import Details from "../../../../components/Details";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
+import CoordinatorCombobox from "../components/CoordinatorCombobox";
+import "../../../../styles/ApplicantDetails.css";
 
 const logger = createLogger('NetworkOperatorDetails');
 
@@ -31,12 +35,34 @@ const NetworkOperatorDetails: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const appId = useGetApplicationId();
+  const errorSummaryRef = React.useRef<HTMLDivElement>(null);
+  const [submitFailTick, setSubmitFailTick] = useState(0);
 
   const stateOrgId = location.state?.organisationId;
   const stateOrgName = location.state?.organisationName;
 
   const { application, setApplication, fetchApplication, createNewApplication } = useApplication();
   const applicationParty = application?.application_party;
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${NWL_BASE_URL}/${
+              application?.application_id || ""
+            }/task-list`}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.NETWORK_OPERATOR}
+        </li>
+      </ol>
+    </nav>
+  );
 
   const {
     networkOperatorRef,
@@ -62,6 +88,7 @@ const NetworkOperatorDetails: React.FC = () => {
     handleDeleteContact,
     setAdditionalContacts,
     clearEmailInputError,
+    contactStatus,
   } = useAdditionalContacts();
 
   const organisationId =
@@ -86,6 +113,13 @@ const NetworkOperatorDetails: React.FC = () => {
     additionalContacts,
     setAdditionalContacts,
   });
+
+  useEffect(() => {
+    if (showErrorSummary || emailInputError) {
+      errorSummaryRef.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitFailTick, emailInputError]);
 
   useEffect(() => {
     if (appId) {
@@ -124,8 +158,8 @@ const NetworkOperatorDetails: React.FC = () => {
   });
 
   const handleOperatorChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      handleOperatorChangeBase(e, filteredOptions);
+    (selectedName: string) => {
+      handleOperatorChangeBase(selectedName, filteredOptions);
     },
     [handleOperatorChangeBase, filteredOptions]
   );
@@ -134,6 +168,7 @@ const NetworkOperatorDetails: React.FC = () => {
     e.preventDefault();
 
     if (!validateForm()) {
+      setSubmitFailTick((t) => t + 1);
       return;
     }
 
@@ -204,34 +239,19 @@ const NetworkOperatorDetails: React.FC = () => {
     <>
       <PageTitle title="Applicant details" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
-              className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${
-                application?.application_id || ""
-              }/task-list`}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.NETWORK_OPERATOR}
-          </li>
-        </ol>
-      </nav>
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Applicant details</h1>
             {(showErrorSummary || emailInputError) && (
               <div
+                ref={errorSummaryRef}
                 className="govuk-error-summary"
                 data-module="govuk-error-summary"
                 tabIndex={-1}
                 role="alert"
+                aria-labelledby="applicant-details-error-summary-title"
               >
-                <h2 className="govuk-error-summary__title">
+                <h2 className="govuk-error-summary__title" id="applicant-details-error-summary-title">
                   There is a problem
                 </h2>
                 <div className="govuk-error-summary__body">
@@ -261,6 +281,7 @@ const NetworkOperatorDetails: React.FC = () => {
                 <label
                   className="govuk-label govuk-label--s"
                   htmlFor="location"
+                  id="location-label"
                 >
                   Applicant contact name
                 </label>
@@ -273,36 +294,34 @@ const NetworkOperatorDetails: React.FC = () => {
                     {FORM_ERRORS.MISSING_OPERATOR}
                   </p>
                 )}
-                <select
-                  className={`govuk-select${
-                    errors.includes(FORM_ERRORS.MISSING_OPERATOR)
-                      ? " govuk-select--error"
-                      : ""
-                  }`}
+                <CoordinatorCombobox
                   id="location"
-                  name="location"
-                  value={selectedOrgName}
-                  onChange={handleOperatorChange}
-                  aria-describedby={`location-hint${
+                  labelId="location-label"
+                  describedBy={`location-hint${
                     errors.includes(FORM_ERRORS.MISSING_OPERATOR)
                       ? " location-error"
-                      : ""
-                  }`}
-                  aria-required="true"
-                  aria-invalid={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
-                >
-                  <option value="">Select option...</option>
-                  {filteredOptions.map((op: ApplicationParty, index: number) => (
-                    <option
-                      key={`${op.organisation_id || "no-org"}-${
-                        op.person_name
-                      }-${index}`}
-                      value={op.person_name}
-                    >
-                      {op.person_name}
-                    </option>
-                  ))}
-                </select>
+                      : ""}`}
+                  value={selectedOrgName}
+                  options={filteredOptions.flatMap((option, index) =>
+                    option.person_name
+                      ? [{
+                          id: `${option.organisation_id || "no-org"}-${option.person_name}-${index}`,
+                          label: option.person_name,
+                          value: option.person_name,
+                        }]
+                      : [],
+                  )}
+                  onChange={handleOperatorChange}
+                  error={errors.includes(FORM_ERRORS.MISSING_OPERATOR)}
+                />
+              </div>
+              <div
+                className="govuk-visually-hidden"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {contactStatus}
               </div>
               {additionalContacts.length > 0 && (
                 <ul className="govuk-list">
@@ -318,18 +337,14 @@ const NetworkOperatorDetails: React.FC = () => {
                       }}
                     >
                       <span>{email}</span>
-                      <a
-                        className="govuk-link"
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDeleteContact(email);
-                        }}
-                        role="button"
+                      <button
+                        type="button"
+                        className="govuk-link govuk-link--no-visited-state additional-contact__delete-link"
+                        onClick={() => handleDeleteContact(email)}
                         aria-label={`Delete contact ${email}`}
                       >
                         Delete contact
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -450,30 +465,23 @@ const NetworkOperatorDetails: React.FC = () => {
                 />
               </div>
 
-              <details className="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    What to do when an applicant is not listed
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  <p>
-                    You must contact the team coordinator in your organisation
-                    that you want to create an application for to provide you
-                    with access to their organisation.
-                  </p>
-                  <p>
-                    If you do not know who the team coordinator is then contact
-                    the service desk for advice at{" "}
-                    <a
-                      className="govuk-link"
-                      href="mailto:xxx@desnz.com"
-                    >
-                      xxx@desnz.com
-                    </a>
-                  </p>
-                </div>
-              </details>
+              <Details id="applicant-not-listed" summary="What to do when an applicant is not listed">
+                <p>
+                  You must contact the team coordinator in your organisation
+                  that you want to create an application for to provide you
+                  with access to their organisation.
+                </p>
+                <p>
+                  If you do not know who the team coordinator is then contact
+                  the service desk for advice at{" "}
+                  <a
+                    className="govuk-link"
+                    href="mailto:xxx@desnz.com"
+                  >
+                    xxx@desnz.com
+                  </a>
+                </p>
+              </Details>
 
               {/* Call to action buttons */}
               <div className="govuk-!-static-margin-top-6">

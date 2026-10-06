@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ChangeOrganisationNamePage from './ChangeOrganisationNamePage';
 import organisationService from '../../../services/organisationService';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../context/BreadcrumbContext';
 
 const { organisation } = vi.hoisted(() => ({
   organisation: { organisation_id: 'organisation-123', organisation_name: 'SSE Networks' },
@@ -25,19 +26,27 @@ const NavigationResult = () => {
   return <div>{`${location.pathname}:${location.state?.updatedSection}`}</div>;
 };
 
+const BreadcrumbOutlet = () => {
+  const { breadcrumb } = useBreadcrumbContext();
+  return <>{breadcrumb}</>;
+};
+
 const renderPage = () => render(
-  <MemoryRouter initialEntries={['/admin/organisations/organisation-123/change-name']}>
-    <Routes>
-      <Route
-        path="/admin/organisations/:organisationId/change-name"
-        element={<ChangeOrganisationNamePage />}
-      />
-      <Route
-        path="/admin/organisation/:organisationId/settings"
-        element={<NavigationResult />}
-      />
-    </Routes>
-  </MemoryRouter>
+  <BreadcrumbProvider>
+    <MemoryRouter initialEntries={['/admin/organisations/organisation-123/change-name']}>
+      <BreadcrumbOutlet />
+      <Routes>
+        <Route
+          path="/admin/organisations/:organisationId/change-name"
+          element={<ChangeOrganisationNamePage />}
+        />
+        <Route
+          path="/admin/organisation/:organisationId/settings"
+          element={<NavigationResult />}
+        />
+      </Routes>
+    </MemoryRouter>
+  </BreadcrumbProvider>
 );
 
 describe('ChangeOrganisationNamePage', () => {

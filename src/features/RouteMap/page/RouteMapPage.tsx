@@ -10,6 +10,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { getNextRouteName } from '../../../utils/routeNamingUtils';
 import { ROUTE_ERROR_MESSAGES } from '../../../constants/routeErrorMessages';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 // Validation function for a single point using centralized error messages
 function getPointError(easting: string, northing: string, routeName: string, idx: number) {
@@ -230,27 +231,30 @@ const RouteMapPage: React.FC = () => {
     // Optionally update store if you want to keep in sync
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        {routes.length > 0 && (
+          <li className="govuk-breadcrumbs__list-item">
+            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/route-overview`}>
+              Route overview
+            </Link>
+          </li>
+        )}
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">{routeName}</li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
             <PageTitle title="Add or edit route" />
             <div className="govuk-width-container">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
-                Task list
-              </Link>
-            </li>
-            {routes.length > 0 && (
-              <li className="govuk-breadcrumbs__list-item">
-                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/route-overview`}>
-                  Route overview
-                </Link>
-              </li>
-            )}
-            <li className="govuk-breadcrumbs__list-item" aria-current="page">{routeName}</li>
-          </ol>
-        </nav>
         {/* Validation error summary */}
         {validationError && (
           <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>

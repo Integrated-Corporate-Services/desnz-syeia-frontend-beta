@@ -10,12 +10,33 @@ import {
   OPTIONS,
 } from "../constants/standardTermConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import RevealAnnouncement from "../../../../components/commonFormFields/RevealAnnouncement";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 const StandardTerm: React.FC = () => {
   const appId = useGetApplicationId();
   const { navigateToTaskList } = useApplicationNavigation(appId || "");
   const { applicationDetails, updateFields, isLoading } = useApplicationDetailsData(appId);
   const { updateProgress } = useNWLProgress(appId || undefined);
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <a
+            className="govuk-breadcrumbs__link"
+            href="#"
+            onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </a>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.APPLICATION_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
 
   const [isStandardTerm, setIsStandardTerm] = useState<string>("");
   const [explanation, setExplanation] = useState<string>("");
@@ -106,23 +127,6 @@ const StandardTerm: React.FC = () => {
     <>
       <PageTitle title="Standard term of 15 years" />
           <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href="#"
-              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.APPLICATION_DETAILS}
-          </li>
-        </ol>
-      </nav>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(error || explanationError) && (
@@ -187,6 +191,7 @@ const StandardTerm: React.FC = () => {
                             handleTermChange(e.target.value);
                           }}
                           data-aria-controls={option.value === "no" ? "conditional-explanation" : undefined}
+                          aria-controls={option.value === "no" ? "conditional-explanation" : undefined}
                         />
                         <label
                           className="govuk-label govuk-radios__label"
@@ -198,6 +203,7 @@ const StandardTerm: React.FC = () => {
                     ))}
                   </div>
                   
+                  <RevealAnnouncement shown={isStandardTerm === "no"} message={`A new question is shown below: ${LABELS.TEXTAREA_LABEL}`} />
                   {isStandardTerm === "no" && (
                     <div className="govuk-radios__conditional" id="conditional-explanation">
                       <div className={`govuk-form-group ${explanationError ? "govuk-form-group--error" : ""}`}>

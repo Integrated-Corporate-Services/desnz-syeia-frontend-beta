@@ -1,4 +1,5 @@
 import { S37_BASE_URL } from '../../../constants/s37';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjectOverview } from '../../../hooks/useProjectOverview';
@@ -12,6 +13,7 @@ import TextArea from "../component/TextArea";
 import NumberInput from "../component/NumberInput";
 import RadioGroup from "../component/RadioGroup";
 import FileUpload, { FileUploadHandle } from "../../../components/FileUpload";
+import AccessibleSelect from "../../../components/commonFormFields/AccessibleSelect";
 
 
 import { getRelatedFieldAnchorIds, filterErrorLinksByAnchors } from '../validations';
@@ -21,6 +23,8 @@ import { useAuthUser } from '../../../hooks/useAuthUser';
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
+import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 // Exact set of anchor ids this page's createErrorLink() calls can produce - used to validate
 // the href extracted back out of an error string before it's rendered, since error text can
@@ -118,6 +122,25 @@ const ProjectOverview = () => {
 	const applicationId = useGetApplicationId();
 
 	const { projectOverview, months, MAX_DESCRIPTION_LENGTH } = CONTENT;
+
+	useBreadcrumb(
+		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<ol className="govuk-breadcrumbs__list">
+				<li className="govuk-breadcrumbs__list-item">
+					<Link
+						className="govuk-breadcrumbs__link"
+						to={`${S37_BASE_URL}/${applicationId}/task-list`}
+					>
+						{projectOverview.breadcrumb.taskList}
+					</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item" aria-current="page">
+					{projectOverview.breadcrumb.current}
+				</li>
+			</ol>
+		</nav>
+	);
+
 	const { projectOverview: projectData, fetchProjectOverview, saveProject } = useProjectOverview();
 	const remainingChars = Math.max(0, MAX_DESCRIPTION_LENGTH - formState.projectDescription.length);
 	const getRelatedCpoDetailsString = (val: typeof formState.relatedCpoDetails) =>
@@ -260,21 +283,6 @@ const ProjectOverview = () => {
 		<>
 						<PageTitle title="Project overview" />
 						<div className="govuk-width-container">
-				<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-					<ol className="govuk-breadcrumbs__list">
-						<li className="govuk-breadcrumbs__list-item">
-							<Link
-								className="govuk-breadcrumbs__link"
-								to={`${S37_BASE_URL}/${applicationId}/task-list`}
-							>
-								{projectOverview.breadcrumb.taskList}
-							</Link>
-						</li>
-						<li className="govuk-breadcrumbs__list-item" aria-current="page">
-							{projectOverview.breadcrumb.current}
-						</li>
-					</ol>
-				</nav>
 									<h1 className="govuk-heading-l">{projectOverview.heading}</h1>
 					{errors.length > 0 && (
 						<div ref={errorSummaryRef} className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
@@ -661,22 +669,18 @@ const ProjectOverview = () => {
 						</div>
 
 						{/* Details: What type of information should be provided */}
-						<details className="govuk-details govuk-!-margin-bottom-6" data-module="govuk-details">
-							<summary className="govuk-details__summary">
-								<span className="govuk-details__summary-text">{projectOverview.infoDetailsSummary}</span>
-							</summary>
-							<div className="govuk-details__text">
-								<p className="govuk-body">
-									{projectOverview.infoDetailsText}
-								</p>
-							</div>
-						</details>
+						<Details id="info-details" summary={projectOverview.infoDetailsSummary} className="govuk-!-margin-bottom-6">
+							<p className="govuk-body">
+								{projectOverview.infoDetailsText}
+							</p>
+						</Details>
 
 						{/* Tallest Pole Height Section */}
 						<h2 className="govuk-heading-s govuk-!-margin-bottom-2">{projectOverview.tallestPoleHeight}</h2>
 						<div className="govuk-!-margin-bottom-6 govuk-!-width-two-thirds">
 							<NumberInput
-								label=""
+								label={projectOverview.tallestPoleHeight}
+								labelHidden
 								hint={projectOverview.tallestPoleHeightHint}
 								suffix={projectOverview.tallestPoleHeightSuffix}
 								id="tallestPoleHeight-inputValue"
@@ -732,14 +736,14 @@ const ProjectOverview = () => {
 								)}
 								<div className="govuk-radios govuk-radios--conditional" data-module="govuk-radios">
 									<div className="govuk-radios__item">
-										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} onChange={() => {
+										<input className="govuk-radios__input" id="areWorkStartDatesKnown" name="areWorkStartDatesKnown" type="radio" value="true" checked={formState.areWorkStartDatesKnown === "true"} data-aria-controls="areWorkStartDatesKnown-hidden" aria-controls="areWorkStartDatesKnown-hidden" onChange={() => {
 											setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "true" }));
 											clearFieldError('areWorkStartDatesKnown');
 										}} />
 										<label className="govuk-label govuk-radios__label" htmlFor="areWorkStartDatesKnown">Yes</label>
 									</div>
-									{formState.areWorkStartDatesKnown === "true" && (
-										<div className="govuk-radios__conditional" id="areWorkStartDatesKnown-hidden">
+									<RevealAnnouncement shown={formState.areWorkStartDatesKnown === "true"} message="New questions are shown below: earliest and latest expected start dates for the development" />
+									<div className={`govuk-radios__conditional ${formState.areWorkStartDatesKnown === "true" ? "" : "govuk-radios__conditional--hidden"}`} id="areWorkStartDatesKnown-hidden">
 											{/* Earliest Start Date */}
 											<div className={`govuk-form-group${(fieldErrors?.['earliestWorkStartDate-month'] || fieldErrors?.['earliestWorkStartDate-year']) ? " govuk-form-group--error" : ""}`}>
 												<fieldset className="govuk-fieldset">
@@ -760,22 +764,20 @@ const ProjectOverview = () => {
 														<div className="govuk-date-input__item">
 															<div className={`govuk-form-group${fieldErrors?.['earliestWorkStartDate-month'] ? " govuk-form-group--error" : ""}`}>
 																<label className="govuk-label" htmlFor="earliestWorkStartDate-month">Month</label>
-																<select
-																	className={`govuk-select${fieldErrors?.['earliestWorkStartDate-month'] ? " govuk-select--error" : ""}`}
+																<AccessibleSelect
+																	error={Boolean(fieldErrors?.['earliestWorkStartDate-month'])}
 																	id="earliestWorkStartDate-month"
-																	name="earliestWorkStartDate.month"
 																	aria-describedby={fieldErrors?.['earliestWorkStartDate-month'] ? "earliestWorkStartDate-month-error" : undefined}
 																	value={formState.earliestWorkStartDateMonth || ""}
-																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-																		setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: e.target.value }));
+																	onChange={(value) => {
+																		setFormState(prev => ({ ...prev, earliestWorkStartDateMonth: value }));
 																		clearFieldError('earliestWorkStartDate-month');
 																	}}
-																>
-																	<option value="" disabled>Select one...</option>
-																	{months.map((m) => (
-																		<option key={m} value={m}>{m}</option>
-																	))}
-																</select>
+																	options={[
+																		{ value: "", text: "Select one..." },
+																		...months.map((m) => ({ value: m, text: m })),
+																	]}
+																/>
 															</div>
 														</div>
 														<div className="govuk-date-input__item">
@@ -818,22 +820,20 @@ const ProjectOverview = () => {
 														<div className="govuk-date-input__item">
 															<div className={`govuk-form-group${fieldErrors?.['latestWorkStartDate-month'] ? " govuk-form-group--error" : ""}`}>
 																<label className="govuk-label" htmlFor="latestWorkStartDate-month">Month</label>
-																<select
-																	className={`govuk-select${fieldErrors?.['latestWorkStartDate-month'] ? " govuk-select--error" : ""}`}
+																<AccessibleSelect
+																	error={Boolean(fieldErrors?.['latestWorkStartDate-month'])}
 																	id="latestWorkStartDate-month"
-																	name="latestWorkStartDate.month"
 																	aria-describedby={fieldErrors?.['latestWorkStartDate-month'] ? "latestWorkStartDate-month-error" : undefined}
 																	value={formState.latestWorkStartDateMonth || ""}
-																	onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-																		setFormState(prev => ({ ...prev, latestWorkStartDateMonth: e.target.value }));
+																	onChange={(value) => {
+																		setFormState(prev => ({ ...prev, latestWorkStartDateMonth: value }));
 																		clearFieldError('latestWorkStartDate-month');
 																	}}
-																>
-																	<option value="" disabled>Select one...</option>
-																	{months.map((m) => (
-																		<option key={m} value={m}>{m}</option>
-																	))}
-																</select>
+																	options={[
+																		{ value: "", text: "Select one..." },
+																		...months.map((m) => ({ value: m, text: m })),
+																	]}
+																/>
 															</div>
 														</div>
 														<div className="govuk-date-input__item">
@@ -857,7 +857,6 @@ const ProjectOverview = () => {
 												</fieldset>
 											</div>
 										</div>
-									)}
 									<div className="govuk-radios__item">
 										<input className="govuk-radios__input" id="areWorkStartDatesKnown-no" name="areWorkStartDatesKnown" type="radio" value="false" checked={formState.areWorkStartDatesKnown === "false"} onChange={() => {
 											setFormState(prev => ({ ...prev, areWorkStartDatesKnown: "false" }));
@@ -924,16 +923,11 @@ const ProjectOverview = () => {
 						</div>
 
 						{/* Details: What information should be included in the plan */}
-						<details className="govuk-details govuk-!-margin-bottom-6">
-							<summary className="govuk-details__summary">
-								<span className="govuk-details__summary-text">{projectOverview.planDetailsSummary}</span>
-							</summary>
-							<div className="govuk-details__text">
-								<p className="govuk-body">
-									{projectOverview.planDetailsText}
-								</p>
-							</div>
-						</details>
+						<Details id="plan-details" summary={projectOverview.planDetailsSummary} className="govuk-!-margin-bottom-6">
+							<p className="govuk-body">
+								{projectOverview.planDetailsText}
+							</p>
+						</Details>
 
 						{/* Related Applications */}
 						<div className={`govuk-form-group${fieldErrors['hasRelatedApplications-inputValue'] ? " govuk-form-group--error" : ""}`}>
@@ -958,6 +952,8 @@ const ProjectOverview = () => {
 											type="radio"
 											value="true"
 											checked={formState.hasRelatedApplications === "true"}
+											data-aria-controls="hasRelatedApplications-hidden"
+											aria-controls="hasRelatedApplications-hidden"
 											onChange={() => {
 												setFormState(prev => ({ ...prev, hasRelatedApplications: "true" }));
 												clearFieldError('hasRelatedApplications-inputValue');
@@ -965,8 +961,8 @@ const ProjectOverview = () => {
 										/>
 										<label className="govuk-label govuk-radios__label" htmlFor="hasRelatedApplications">Yes</label>
 									</div>
-									{formState.hasRelatedApplications === "true" && (
-										<div className="govuk-radios__conditional" id="hasRelatedApplications-hidden">
+									<RevealAnnouncement shown={formState.hasRelatedApplications === "true"} message={`A new question is shown below: ${projectOverview.relatedApplicationsDetails}`} />
+									<div className={`govuk-radios__conditional ${formState.hasRelatedApplications === "true" ? "" : "govuk-radios__conditional--hidden"}`} id="hasRelatedApplications-hidden">
 											<div className="govuk-form-group govuk-character-count" data-module="govuk-character-count" data-maxlength={MAX_DESCRIPTION_LENGTH}>
 												<label className="govuk-label govuk-!-width-two-thirds" htmlFor="relatedApplicationsDetails-inputValue">
 													{projectOverview.relatedApplicationsDetails}
@@ -1002,7 +998,6 @@ const ProjectOverview = () => {
 												<div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">You have {remainingRelatedAppsChars} characters remaining</div>
 											</div>
 										</div>
-									)}
 									<div className="govuk-radios__item">
 										<input
 											className="govuk-radios__input"

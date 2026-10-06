@@ -11,6 +11,8 @@ import {
 import { S37_BASE_URL } from '../../../constants/s37';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import '../../../styles/AddOtherAreasPage.css';
 
 const logger = createLogger('AddOtherAreasPage');
 
@@ -31,6 +33,15 @@ const AddOtherAreasPage: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const queryId = queryParams.get('id');
   const effectiveApplicationId = applicationId || queryId || '';
+
+  useBreadcrumb(
+    <Link
+      to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`}
+      className="govuk-back-link"
+    >
+      Back
+    </Link>
+  );
 
   // API Data State
   const [preIdentifiedAreas, setPreIdentifiedAreas] = useState<PreIdentifiedArea[]>([]);
@@ -234,12 +245,6 @@ const AddOtherAreasPage: React.FC = () => {
     return (
       <div className="govuk-width-container">
         <PageTitle title="Add other sensitive areas" />
-        <Link
-          to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`}
-          className="govuk-back-link"
-        >
-          Back
-        </Link>
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Add other sensitive areas</h1>
@@ -254,14 +259,6 @@ const AddOtherAreasPage: React.FC = () => {
     <>
             <PageTitle title="Add other sensitive areas" />
             <div className="govuk-width-container">
-      {/* Back Link - Always visible */}
-      <Link
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-add-question`}
-        className="govuk-back-link"
-      >
-        Back
-      </Link>
-
       {/* Page Heading - Two-thirds width */}
       <div className='govuk-grid-row'>
         <div className="govuk-grid-column-two-thirds ">
@@ -326,7 +323,7 @@ const AddOtherAreasPage: React.FC = () => {
           </div>
 
         {/* Divider */}
-        <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
+        <div className="govuk-section-break govuk-section-break--m govuk-section-break--visible" aria-hidden="true" />
 
         {/* ============================================================================ */}
         {/* SECTION 2: Selected Areas */}
@@ -338,55 +335,38 @@ const AddOtherAreasPage: React.FC = () => {
             sensitive areas check cannot be removed.
           </p>
 
-          {/* GOV.UK Table with single column */}
-          <table className="govuk-table govuk-!-margin-top-4">
-            <tbody className="govuk-table__body">
+          {/* GOV.UK list with single column - not tabular data, so a list rather than a table */}
+          <ul className="govuk-list govuk-!-margin-top-4 add-other-areas__list">
 
-              {/* Pre-identified areas rows */}
-              {getFilteredPreIdentifiedAreas().length === 0 ? (
-                <tr className="govuk-table__row">
-                  <td className="govuk-table__cell govuk-hint" style={{ paddingTop: '10px' }}>
-                    No pre-identified areas found.
-                  </td>
-                </tr>
-              ) : (
-                getFilteredPreIdentifiedAreas().map((area) => (
-                  <tr key={area.id} className="govuk-table__row">
-                    <td className="govuk-table__cell">{area.layerName}</td>
-                  </tr>
-                ))
-              )}
+            {/* Pre-identified areas */}
+            {getFilteredPreIdentifiedAreas().length === 0 ? (
+              <li className="govuk-hint add-other-areas__empty-item">
+                No pre-identified areas found.
+              </li>
+            ) : (
+              getFilteredPreIdentifiedAreas().map((area) => (
+                <li key={area.id}>{area.layerName}</li>
+              ))
+            )}
 
-
-              {/* Manually added areas rows */}
-              {manualAreas.length === 0 ? (
-                <tr className="govuk-table__row">
-                  {/* <td className="govuk-table__cell govuk-hint" style={{ paddingTop: '10px', borderBottom: 'none' }}>
-                    No manually added areas yet. Use the form above to add areas.
-                  </td> */}
-                </tr>
-              ) : (
-                manualAreas.map((area) => (
-                  <tr key={area.id} className="govuk-table__row">
-                    <td className="govuk-table__cell" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>{area.manualAreaName}</span>
-                      <a
-                        href="#"
-                        className="govuk-link govuk-link--destructive"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleRemoveArea(area.id);
-                        }}
-                        aria-label={`Remove ${area.manualAreaName}`}
-                      >
-                        {removingAreaId === area.id ? 'Removing...' : 'Remove'}
-                      </a>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+            {/* Manually added areas */}
+            {manualAreas.length > 0 && manualAreas.map((area) => (
+              <li key={area.id} className="add-other-areas__manual-item">
+                <span>{area.manualAreaName}</span>
+                <a
+                  href="#"
+                  className="govuk-link govuk-link--destructive"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleRemoveArea(area.id);
+                  }}
+                  aria-label={`Remove ${area.manualAreaName}`}
+                >
+                  {removingAreaId === area.id ? 'Removing...' : 'Remove'}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* ============================================================================ */}

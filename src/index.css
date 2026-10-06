@@ -95,6 +95,15 @@ body {
   box-shadow: none !important;
 }
 
+@media (max-width: 640px) {
+  .govuk-select {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
 a:focus,
 button:focus,
 [tabindex]:focus {
@@ -124,6 +133,18 @@ button:focus,
     max-width: 100% !important;
     padding-left: 10px;
     padding-right: 10px;
+  }
+
+
+  .govuk-grid-row {
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+  }
+
+
+  [class*="govuk-grid-column"] {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
   }
 
   .govuk-heading-xl {
@@ -167,4 +188,25 @@ button:focus,
   .govuk-table td {
     padding: 6px 4px !important;
   }
+}
+
+.leaflet-container:focus-visible {
+  outline: 4px solid #0b0c0c !important;
+  outline-offset: -4px;
+}
+
+.leaflet-container:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 4px solid #0b0c0c;
+  box-shadow: inset 0 0 0 4px #ffdd00;
+  pointer-events: none;
+  z-index: 1001;
+}
+
+/* Route lines are focusable in overview maps; the focus halo is drawn by the map (SVG outline would be a bounding box) */
+.leaflet-container path.route-line:focus,
+.leaflet-container path.route-line:focus-visible {
+  outline: none;
 }

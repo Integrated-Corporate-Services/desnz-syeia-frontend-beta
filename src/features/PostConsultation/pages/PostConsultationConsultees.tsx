@@ -5,6 +5,7 @@ import { usePostConsultationData, usePostConsultationNavigation } from '../hooks
 import { POST_CONSULTATION_CONSTANTS } from '../constants';
 import { SaveType } from '../types';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const PostConsultationConsultees: React.FC = () => {
     const { applicationId, getTaskListUrl, handleNavigationAfterSaveConsultees } = usePostConsultationNavigation();
@@ -30,6 +31,21 @@ const PostConsultationConsultees: React.FC = () => {
         handleNavigationAfterSaveConsultees(saveType, success);
     };
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item" aria-current="false">
+                    <Link className="govuk-breadcrumbs__link" to={getTaskListUrl()}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="true">
+                    {POST_CONSULTATION_CONSTANTS.BREADCRUMB_LABEL}
+                </li>
+            </ol>
+        </nav>
+    );
+
     if (loading) {
         return (
             <>
@@ -45,18 +61,6 @@ const PostConsultationConsultees: React.FC = () => {
         <>
                         <PageTitle title="Post consultation actions" />
                         <div className="govuk-width-container">
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item" aria-current="false">
-                        <Link className="govuk-breadcrumbs__link" to={getTaskListUrl()}>
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="true">
-                        {POST_CONSULTATION_CONSTANTS.BREADCRUMB_LABEL}
-                    </li>
-                </ol>
-            </nav>
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         <h1 className="govuk-heading-l">{POST_CONSULTATION_CONSTANTS.PAGE_TITLE}</h1>

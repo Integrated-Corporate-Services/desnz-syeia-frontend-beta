@@ -2,6 +2,7 @@ import React from "react";
 import PageTitle from "../../../../components/PageTitle";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation } from "../hooks";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 import {
   LABELS,
 } from "../constants/cannotContinueApplicationConstants";
@@ -14,6 +15,19 @@ const CannotContinueApplication: React.FC = () => {
   const appId = useGetApplicationId();
   const { navigateToTaskList } = useApplicationNavigation(appId || "");
 
+  useBreadcrumb(
+    <a
+      href="#"
+      className="govuk-back-link"
+      onClick={(e) => {
+        e.preventDefault();
+        window.history.back();
+      }}
+    >
+      Back
+    </a>
+  );
+
   const handleReturnToTaskList = () => {
     navigateToTaskList();
   };
@@ -22,16 +36,6 @@ const CannotContinueApplication: React.FC = () => {
     <>
       <PageTitle title="Cannot continue application" />
           <div className="govuk-width-container">
-      <a
-        href="#"
-        className="govuk-back-link"
-        onClick={(e) => {
-          e.preventDefault();
-          window.history.back();
-        }}
-      >
-        Back
-      </a>
 
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

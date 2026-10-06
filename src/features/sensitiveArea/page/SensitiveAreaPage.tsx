@@ -11,6 +11,8 @@ import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted'
 import SensitiveAreaCheckSummary from './SensitiveAreaCheckSummary';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 import PageTitle from '../../../components/PageTitle';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const SensitiveAreaPage: React.FC = () => {
     // Get applicationId from URL params or query string
@@ -93,15 +95,28 @@ const SensitiveAreaPage: React.FC = () => {
     // Check if consultations have started - if so, show read-only summary
     const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(effectiveApplicationId);
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Sensitive area check
+                </li>
+            </ol>
+        </nav>
+    );
+
     // While checking consultation status, show loading to prevent flash
     if (consultationsLoading) {
         return (
-            <div className="govuk-width-container">
+            <>
                 <PageTitle title="Sensitive area check" />
-                <div className="govuk-main-wrapper">
-                    <p className="govuk-body">Loading...</p>
-                </div>
-            </div>
+                <p className="govuk-body">Loading...</p>
+            </>
         );
     }
 
@@ -113,35 +128,22 @@ const SensitiveAreaPage: React.FC = () => {
     return (
         <>
                         <PageTitle title="Sensitive area check" />
-                        <div className="govuk-width-container">
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                {error && (
-                    <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
-                        <h2 className="govuk-error-summary__title" id="error-summary-title">
-                            There is a problem
-                        </h2>
-                        <div className="govuk-error-summary__body">
-                            <ul className="govuk-list govuk-error-summary__list">
-                                <li>
-                                    <a href="#routeToleranceRequired">{error}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                )}
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        Sensitive area check
-                    </li>
-                </ol>
-            </nav>
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-full">
+                        {error && (
+                            <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
+                                <h2 className="govuk-error-summary__title" id="error-summary-title">
+                                    There is a problem
+                                </h2>
+                                <div className="govuk-error-summary__body">
+                                    <ul className="govuk-list govuk-error-summary__list">
+                                        <li>
+                                            <a href="#routeToleranceRequired">{error}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
                         {formError && (
                             <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
                                 <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -193,13 +195,18 @@ const SensitiveAreaPage: React.FC = () => {
                                                         checked={toleranceRequired === 'yes'}
                                                         onChange={() => setToleranceRequired('yes')}
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
+                                                        data-aria-controls="routeToleranceRequired-hidden"
+                                                        aria-controls="routeToleranceRequired-hidden"
                                                     />
                                                     <label className="govuk-label govuk-radios__label" htmlFor="routeToleranceRequired">
                                                         Yes
                                                     </label>
                                                 </div>
-                                                {toleranceRequired === 'yes' && (
-                                                    <div className="govuk-radios__conditional" id="routeToleranceRequired-hidden">
+                                                <RevealAnnouncement shown={toleranceRequired === 'yes'} message="A new question is shown below: Tolerance required in metres" />
+                                                <div
+                                                    className={`govuk-radios__conditional${toleranceRequired === 'yes' ? '' : ' govuk-radios__conditional--hidden'}`}
+                                                    id="routeToleranceRequired-hidden"
+                                                >
                                                         <div className={`govuk-form-group${formError ? ' govuk-form-group--error' : ''}`}>
                                                             <label className="govuk-label" htmlFor="routeTolerance-inputValue">
                                                                 Tolerance required
@@ -227,7 +234,6 @@ const SensitiveAreaPage: React.FC = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                )}
                                                 <div className="govuk-radios__item">
                                                     <input
                                                         className="govuk-radios__input"
@@ -274,7 +280,6 @@ const SensitiveAreaPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                        </div>
         </>
     );
 };

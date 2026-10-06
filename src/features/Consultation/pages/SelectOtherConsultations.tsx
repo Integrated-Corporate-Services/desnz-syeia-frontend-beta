@@ -10,6 +10,7 @@ import log from '../../../logger';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { isWithinCharacterLimit } from '../../../utils/validation';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const OTHER_NAME_MAX_LENGTH = 4000;
 
@@ -30,6 +31,21 @@ const SelectOtherConsultations: React.FC = () => {
     const  applicationId  = useGetApplicationId();
     const navigate = useNavigate();
     const { user } = useAuthUser();
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Select other consultations
+                </li>
+            </ol>
+        </nav>
+    );
 
     const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
     const [otherEntries, setOtherEntries] = useState<OtherConsulteeEntry[]>([]);
@@ -203,19 +219,6 @@ const SelectOtherConsultations: React.FC = () => {
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
-                    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                        <ol className="govuk-breadcrumbs__list">
-                            <li className="govuk-breadcrumbs__list-item">
-                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                                    Task list
-                                </Link>
-                            </li>
-                            <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                                Select other consultations
-                            </li>
-                        </ol>
-                    </nav>
-
                                             <h1 className="govuk-heading-l">Select other consultations</h1>
 
                         <p className="govuk-body">You can add other consultations that are relevant to your application.</p>
@@ -229,6 +232,10 @@ const SelectOtherConsultations: React.FC = () => {
                                             onRemove={handleLpaRemove}
                                             showCheckbox={true}
                                         />
+                                <fieldset className="govuk-fieldset">
+                                    <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
+                                        Which other consultations do you want to add?
+                                    </legend>
                                 <div className="govuk-checkboxes" data-module="govuk-checkboxes">
 
                                     {/* Dynamic OTHER consultees from database */}
@@ -261,16 +268,22 @@ const SelectOtherConsultations: React.FC = () => {
                                             type="checkbox"
                                             checked={isOtherSelected}
                                             onChange={() => setIsOtherSelected(!isOtherSelected)}
+                                            data-aria-controls="other-checkbox-hidden"
+                                            aria-controls="other-checkbox-hidden"
+                                            aria-expanded={isOtherSelected}
                                         />
                                         <label className="govuk-label govuk-checkboxes__label" htmlFor="other-checkbox">
                                             Other
                                         </label>
                                     </div>
                                 </div>
+                                </fieldset>
 
                                 {/* Show text input if "Other" checkbox is selected */}
-                                {isOtherSelected && (
-                                    <div className="govuk-checkboxes__conditional">
+                                <div
+                                    className={`govuk-checkboxes__conditional${isOtherSelected ? '' : ' govuk-checkboxes__conditional--hidden'}`}
+                                    id="other-checkbox-hidden"
+                                >
                                         {otherEntries.length > 0 && (
                                             <div className="govuk-!-margin-bottom-4" style={{ width: '100%' }}>
                                                 {otherEntries.map((entry) => (
@@ -331,7 +344,6 @@ const SelectOtherConsultations: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                )}
                             </div>
 
                             <div className="govuk-button-group">

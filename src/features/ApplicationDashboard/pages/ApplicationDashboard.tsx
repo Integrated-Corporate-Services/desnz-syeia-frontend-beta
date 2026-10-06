@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import ApplicationTable from "../components/ApplicationTable";
 import { useAuthUserContext } from "../../../context/AuthUserContext";
 import type { AuthUser } from "../../../types/auth";
+import { ROLES } from "../../../constants/roles";
 import { useApplicationDashboardFilters } from "../hooks/useApplicationDashboardFilters";
 import { ApplicationDashboardFilters } from "../components/ApplicationDashboardFilters";
 import { ApplicationDashboardHeader } from "../components/ApplicationDashboardHeader";
@@ -26,8 +27,10 @@ import SkipLink from "../../../components/SkipLink";
 import PageTitle from "../../../components/PageTitle";
 import { trackButtonClick } from "../../../utils/analytics";
 import "../../../styles/ApplicationDashboard.css";
+import { useVisibleLinkFocus } from '../../../hooks/useVisibleLinkFocus';
 
 const ApplicationDashboard: React.FC = () => {
+  useVisibleLinkFocus();
   const { user } = useAuthUserContext();
   const created_by = (user as AuthUser)?.user_id || "";
   const { applications, fetchApplications, setApplication } = useApplication();
@@ -125,6 +128,7 @@ const ApplicationDashboard: React.FC = () => {
               onToggleFilters={() => setShowFilters(!showFilters)}
               showFilters={showFilters}
               onStartNewApplication={handleStart}
+              canStartNewApplication={(user as AuthUser)?.role !== ROLES.SUPERUSER}
             />
           </div>
         </div>
@@ -177,7 +181,13 @@ const ApplicationDashboard: React.FC = () => {
               counts={tabCounts}
             />
 
-            <div className="application-dashboard-table-wrapper">
+            <div
+              className="application-dashboard-table-wrapper"
+              id="dashboard-tabpanel"
+              role="tabpanel"
+              aria-labelledby={`${activeTab}-tab`}
+              tabIndex={0}
+            >
               <span
                 className="application-dashboard-items-count"
                 role="status"

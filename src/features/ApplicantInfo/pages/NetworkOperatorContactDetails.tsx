@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useGetApplicationId } from "../../../hooks/useGetApplicationId";
 import { S37_BASE_URL } from "../../../constants/s37";
@@ -8,11 +8,19 @@ import { useContactDetailsSubmit } from "../hooks/useContactDetailsSubmit";
 import { formatContactDetails } from "../utils/contactDetailsFormatter";
 import { ContactDetailsSummary } from "../components/ContactDetailsSummary";
 import { ContactConfirmationRadios } from "../components/ContactConfirmationRadios";
-import { BREADCRUMBS, LABELS } from "../constants/contactDetailsConstants";
+import { BREADCRUMBS, LABELS, ERROR_MESSAGES } from "../constants/contactDetailsConstants";
 import PageTitle from "../../../components/PageTitle";
+import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
+import { useBreadcrumb } from "../../../context/BreadcrumbContext";
 
 const NetworkOperatorContactDetails: React.FC = () => {
-  const [error, setError] = useState<string>("");
+  const [error, setErrorState] = useState<string>("");
+  const [errorTick, setErrorTick] = useState(0);
+  const setError = useCallback((message: string) => {
+    setErrorState(message);
+    if (message) setErrorTick((t) => t + 1);
+  }, []);
+  const errorSummaryRef = React.useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   const { application, fetchApplication } = useApplication();
@@ -42,40 +50,57 @@ const NetworkOperatorContactDetails: React.FC = () => {
   // Format contact details for display
   const contactDetails = formatContactDetails(party);
 
+  useEffect(() => {
+    if (error) {
+      errorSummaryRef.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorTick]);
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${S37_BASE_URL}/${appId}/task-list`}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.CHECK_CONTACT_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Check applicant contact details" />
             <div className="govuk-width-container">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link
-                className="govuk-breadcrumbs__link"
-                to={`${S37_BASE_URL}/${appId}/task-list`}
-              >
-                {BREADCRUMBS.TASK_LIST}
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              {BREADCRUMBS.CHECK_CONTACT_DETAILS}
-            </li>
-          </ol>
-        </nav>
                 <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
         <h1 className="govuk-heading-l">{LABELS.PAGE_TITLE}</h1>
 
         {error && (
           <div
+            ref={errorSummaryRef}
             className="govuk-error-summary govuk-!-width-two-thirds"
             data-module="govuk-error-summary"
             tabIndex={-1}
-            role="alert"
+            aria-labelledby="s37-contact-details-error-summary-title"
           >
-            <h2 className="govuk-error-summary__title">There is a problem</h2>
+            <h2 className="govuk-error-summary__title" id="s37-contact-details-error-summary-title">There is a problem</h2>
             <div className="govuk-error-summary__body">
               <ul className="govuk-list govuk-error-summary__list">
-                <li>{error}</li>
+                <li>
+                  {error === ERROR_MESSAGES.CONFIRMATION_REQUIRED ? (
+                    <a href="#contactIsConfirmed-yes">{error}</a>
+                  ) : (
+                    <span>{error}</span>
+                  )}
+                </li>
               </ul>
             </div>
           </div>
@@ -83,6 +108,17 @@ const NetworkOperatorContactDetails: React.FC = () => {
 
         <form onSubmit={handleSubmit} noValidate>
           <ContactDetailsSummary contactDetails={contactDetails} />
+          <RevealAnnouncement
+            announceOnLoad
+            shown={Boolean(contactDetails.contactName || contactDetails.applicantName)}
+            message={[
+              "Applicant contact details are shown.",
+              contactDetails.applicantName && `Applicant name ${contactDetails.applicantName}.`,
+              contactDetails.contactName && `Applicant contact name ${contactDetails.contactName}.`,
+              contactDetails.email && `Email address ${contactDetails.email}.`,
+              contactDetails.phone && `Phone number ${contactDetails.phone}.`,
+            ].filter(Boolean).join(" ")}
+          />
 
           <ContactConfirmationRadios
             contactIsConfirmed={contactIsConfirmed}

@@ -6,6 +6,7 @@ import {
   updateCurrentUserAgencyName,
 } from '../services/yourDetailsService';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 type FormErrors = {
   agencyName?: string;
@@ -20,6 +21,12 @@ const ChangeAgencyNamePage: React.FC = () => {
   const [agencyName, setAgencyName] = useState('');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useBreadcrumb(
+    <Link className="govuk-back-link" to="/your-details">
+      Back
+    </Link>
+  );
 
   useEffect(() => {
     const loadDetails = async () => {
@@ -108,10 +115,6 @@ const ChangeAgencyNamePage: React.FC = () => {
     <>
             <PageTitle title="Change your agency name" />
             <div className="govuk-width-container">
-      <Link className="govuk-back-link" to="/your-details">
-        Back
-      </Link>
-
               <h1 className="govuk-heading-l govuk-!-margin-bottom-4">Change your agency name</h1>
 
         <p className="govuk-body govuk-!-margin-bottom-6">e.g. Fisher German</p>

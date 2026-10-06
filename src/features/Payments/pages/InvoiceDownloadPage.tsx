@@ -5,6 +5,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const InvoiceDownloadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -161,24 +162,26 @@ const InvoiceDownloadPage: React.FC = () => {
     });
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          Download Invoice
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Your invoice" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            Download Invoice
-          </li>
-        </ol>
-      </nav>
 
-      
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (

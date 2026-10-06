@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ChangeOrganisationAddressPage from './ChangeOrganisationAddressPage';
 import organisationService from '../../../services/organisationService';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 
 const { organisation } = vi.hoisted(() => ({
   organisation: {
@@ -33,18 +34,20 @@ const NavigationResult = () => {
 };
 
 const renderPage = () => render(
-  <MemoryRouter initialEntries={['/admin/organisations/organisation-123/change-address']}>
-    <Routes>
-      <Route
-        path="/admin/organisations/:organisationId/change-address"
-        element={<ChangeOrganisationAddressPage />}
-      />
-      <Route
-        path="/admin/organisation/:organisationId/settings"
-        element={<NavigationResult />}
-      />
-    </Routes>
-  </MemoryRouter>
+  <BreadcrumbProvider>
+    <MemoryRouter initialEntries={['/admin/organisations/organisation-123/change-address']}>
+      <Routes>
+        <Route
+          path="/admin/organisations/:organisationId/change-address"
+          element={<ChangeOrganisationAddressPage />}
+        />
+        <Route
+          path="/admin/organisation/:organisationId/settings"
+          element={<NavigationResult />}
+        />
+      </Routes>
+    </MemoryRouter>
+  </BreadcrumbProvider>
 );
 
 describe('ChangeOrganisationAddressPage', () => {

@@ -1,4 +1,5 @@
 import React from "react";
+import AccessibleSelect from "./AccessibleSelect";
 
 interface SelectOption {
   value: string;
@@ -61,22 +62,18 @@ const SelectInput: React.FC<SelectInputProps> = ({
         </p>
       )}
 
-      <select
-        className={`govuk-select ${className} ${
-          hasError ? "govuk-select--error" : ""
-        }`.trim()}
+      <AccessibleSelect
         id={id}
         name={name}
+        className={className}
         value={value}
-        onChange={onChange}
+        error={hasError}
+        options={options}
         aria-describedby={ariaDescribedBy}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.text}
-          </option>
-        ))}
-      </select>
+        onChange={(newValue) =>
+          onChange({ target: { name, value: newValue, type: 'select-one' } } as React.ChangeEvent<HTMLSelectElement>)
+        }
+      />
     </div>
   );
 };

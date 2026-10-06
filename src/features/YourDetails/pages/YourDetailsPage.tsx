@@ -5,6 +5,7 @@ import { getCurrentUserDetails, UserDetailsResponse } from '../services/yourDeta
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import { ROLES } from '../../../constants/roles';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const YourDetailsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,14 +62,16 @@ const YourDetailsPage: React.FC = () => {
     navigate('/application-dashboard');
   };
 
+  useBreadcrumb(
+    <a href="#" className="govuk-back-link" onClick={handleBack}>
+      Back
+    </a>
+  );
+
   return (
     <>
             <PageTitle title="Your details" />
             <div className="govuk-width-container">
-      <a href="#" className="govuk-back-link" onClick={handleBack}>
-        Back
-      </a>
-
               {successFieldName && (
           <div className="govuk-notification-banner govuk-notification-banner--success govuk-!-margin-bottom-6" role="alert">
             <div className="govuk-notification-banner__header">

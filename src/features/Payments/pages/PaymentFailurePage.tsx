@@ -9,6 +9,7 @@ import { createLogger } from '../../../utils/logger';
 import { buildBackendUrl } from '../../../utils/apiConfig';
 import { getCardPaymentDescription } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('PaymentFailurePage');
 
@@ -151,28 +152,32 @@ const PaymentFailurePage: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          Pay and submit
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
             <PageTitle title="Payment unsuccessful" />
             <div className="govuk-width-container">
-              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="page">
-              Pay and submit
-            </li>
-          </ol>
-        </nav>
-
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-visually-hidden">
-              The payment was unsuccessful and your application has not been submitted.
-            </h1>
+            {showBanner && (
+              <h1 className="govuk-visually-hidden">
+                The payment was unsuccessful and your application has not been submitted.
+              </h1>
+            )}
 
             {showBanner && (
               <div

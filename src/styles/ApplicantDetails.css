@@ -1,0 +1,11 @@
+
+.additional-contact__delete-link {
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.additional-contact__delete-link:not(:focus) {
+  background: none;
+}

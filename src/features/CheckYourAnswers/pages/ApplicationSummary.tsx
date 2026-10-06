@@ -49,6 +49,12 @@ import {
   PAYMENT_METHOD,
 } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
+import { FirSummaryCard } from '../../FIR/components/FirSummaryCard';
+import { isFirFeatureDisabled } from '../../../utils/disabledFormTypes';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
+import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
+import { useAssignmentHistory } from '../../ApplicationReassignment/hooks/useAssignmentHistory';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -161,6 +167,8 @@ const ApplicationSummary: React.FC = () => {
   const [parishes, setParishes] = useState<Parish[]>([]);
 
   const [applicationMetadata, setApplicationMetadata] = useState<ApplicationMetadata | null>(null);
+  const assignment = useAssignmentHistory(applicationId);
+  const assigneeName = assignment.loading ? 'Loading...' : assignment.error ? 'Unavailable' : assignment.details?.current_assignee_name;
 
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const invoiceStatus = useInvoiceStatus(applicationId);
@@ -464,32 +472,35 @@ const ApplicationSummary: React.FC = () => {
     });
   }, [withdrawalRequest, logger]);
 
+  useBreadcrumb(
+    permissions?.canEdit ? (
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item" aria-current="false">
+            <Link
+              className="govuk-breadcrumbs__link"
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
+            >
+              Task list
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">
+            Submit Section 37 application
+          </li>
+        </ol>
+      </nav>
+    ) : (
+      <Link to="/application-dashboard" className="govuk-back-link">
+        Back
+      </Link>
+    )
+  );
+
   return (
     <>
       <PageTitle title="Application summary" />
             <div className="govuk-width-container">
-      {!permissions?.canEdit && (
-        <Link to="/application-dashboard" className="govuk-back-link">
-          Back
-        </Link>
-      )}
-      {permissions?.canEdit && (
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link
-                className="govuk-breadcrumbs__link"
-                to={`${S37_BASE_URL}/${applicationId}/task-list`}
-              >
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              Submit Section 37 application
-            </li>
-          </ol>
-        </nav>
-      )}
+      <ReassignmentSuccessBanner />
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-three-quarters">
             
@@ -535,6 +546,16 @@ const ApplicationSummary: React.FC = () => {
               {PAGE_LABELS.TITLE}
             </h1>
 
+            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
+                so it must not be gated on the *current* status (a completed FIR should still
+                be reachable via "View all information requests" after status moves on). */}
+            {!isFirFeatureDisabled() && (
+              <FirSummaryCard
+                applicationId={applicationId}
+                basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+              />
+            )}
+
             {/* ===== Summary Section ===== */}
             <div className="govuk-summary-card">
               <div className="govuk-summary-card__title-wrapper">
@@ -554,8 +575,9 @@ const ApplicationSummary: React.FC = () => {
                       {formatCaseType(applicationMetadata?.formType)}
                     </dd>
                   </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
+                    <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Assigned to</dt><dd className="govuk-summary-list__value">{assigneeName || 'Not assigned'}</dd></div>
+                    <div className="govuk-summary-list__row">
+                      <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
                     <dd className="govuk-summary-list__value">
                       <StatusBadge 
                         status={applicationMetadata?.status || ''} 
@@ -631,6 +653,8 @@ const ApplicationSummary: React.FC = () => {
               </div>
             )}
 
+            {applicationId && <ApplicationReassignmentLinks applicationId={applicationId} status={applicationMetadata?.status || null} />}
+
             {/* Withdraw application button - only show if user has withdraw permission and no pending withdrawal request */}
             {permissions?.canWithdraw && !permissions?.canEdit && !withdrawalRequest && (
               <div className="govuk-button-group">
@@ -648,7 +672,7 @@ const ApplicationSummary: React.FC = () => {
             )}
 
             {/* Horizontal separator */}
-            <hr className="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
+            <div className="govuk-section-break govuk-section-break--l govuk-section-break--visible" aria-hidden="true" />
             {/* Applicant details summary card */}
             <h2 className="govuk-heading-m">{SECTION_HEADINGS.APPLICANT_DETAILS}</h2>
             <div className="govuk-summary-card">

@@ -4,6 +4,7 @@ import { useAuthUser } from "../../../hooks/useAuthUser";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { getConsultationDetailsById, saveConsultationMessage } from "../../../services/consultationService";
 import PageTitle from "../../../components/PageTitle";
+import { useBreadcrumb } from "../../../context/BreadcrumbContext";
 
 const EmailTemplate: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -21,6 +22,20 @@ const EmailTemplate: React.FC = () => {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">Create email to consultee</li>
+      </ol>
+    </nav>
+  );
 
   // Scroll to top on mount
   useEffect(() => {
@@ -93,28 +108,17 @@ const EmailTemplate: React.FC = () => {
             <div className="govuk-width-container">
             <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            <ol className="govuk-breadcrumbs__list">
-              <li className="govuk-breadcrumbs__list-item">
-                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
-              </li>
-              <li className="govuk-breadcrumbs__list-item">
-                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
-              </li>
-              <li className="govuk-breadcrumbs__list-item" aria-current="page">Create email to consultee</li>
-            </ol>
-          </nav>
-          <h1 className="govuk-hint govuk-!-margin-top-6">{orgname}</h1>
+          <p className="govuk-hint govuk-!-margin-top-6">{orgname}</p>
           <h1 className="govuk-heading-l">Create email to consultee</h1>
           <p className="govuk-body">Review the details you're about to send.</p>
           {error && <div className="govuk-error-summary govuk-!-width-two-thirds">{error}</div>}
           <form>
             <div className="govuk-form-group">
-              <h1 className="govuk-heading-s" >Applicant email address</h1>
+              <label className="govuk-label govuk-label--s" htmlFor="applicant-email">Applicant email address</label>
               <input className="govuk-input" id="applicant-email" name="applicant-email" type="email" defaultValue={userId} />
             </div>
             <div className="govuk-form-group">
-              <h1 className="govuk-heading-s">Consultee email address</h1>
+              <label className="govuk-label govuk-label--s" htmlFor="consultee-email">Consultee email address</label>
               <span className="govuk-hint">For example: john.smith@example.com</span>
               <input
                 className="govuk-input"
@@ -126,7 +130,7 @@ const EmailTemplate: React.FC = () => {
               />
             </div>
             <div className="govuk-form-group">
-              <h1 className="govuk-heading-s" >Subject</h1>
+              <label className="govuk-label govuk-label--s" htmlFor="subject">Subject</label>
               <input className="govuk-input" id="subject" name="subject" readOnly type="text" defaultValue="Consultation request for overhead lines (Electricity Act 1989)" />
             </div>
             <div className="govuk-form-group">

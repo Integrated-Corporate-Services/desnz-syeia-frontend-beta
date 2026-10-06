@@ -8,6 +8,7 @@ import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultatio
 import { isWithinCharacterLimit } from '../../../utils/validation';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const log = createLogger('LPADetailsPage');
 
@@ -150,29 +151,30 @@ const LPADetailsPage: React.FC = () => {
     //     }
     // };
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
+                        Manage consultation
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    LPA details
+                </li>
+            </ol>
+        </nav>
+    );
+
     return (
         <>
             <PageTitle title="LPA details" />
                         <div className="govuk-width-container">
-                            {/* Breadcrumbs */}
-                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                    <ol className="govuk-breadcrumbs__list">
-                        <li className="govuk-breadcrumbs__list-item">
-                            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                                Task list
-                            </Link>
-                        </li>
-                        <li className="govuk-breadcrumbs__list-item">
-                            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
-                                Manage consultation
-                            </Link>
-                        </li>
-                        <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                            LPA details
-                        </li>
-                    </ol>
-                </nav>
-
                 {/* Error Summary */}
                 {submitted && Object.values(errors).some(Boolean) && (
                     <div className="govuk-error-summary govuk-!-width-two-thirds" role="alert" aria-labelledby="error-summary-title" tabIndex={-1}>
@@ -194,12 +196,10 @@ const LPADetailsPage: React.FC = () => {
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
                         {/* Organization Name */}
-                        <h2 className="govuk-caption-xl">
-                            <strong>{lpaName}</strong>
-                        </h2>
-
-                        {/* Page Heading */}
-                        <h1 className="govuk-heading-l">Local Planning Authority (LPA) details</h1>
+                        <h1 className="govuk-heading-l">
+                          <span className="govuk-caption-xl"><strong>{lpaName}</strong></span>
+                          Local Planning Authority (LPA) details
+                        </h1>
 
                         {/* Form */}
                         <form onSubmit={handleSaveAndContinue}>

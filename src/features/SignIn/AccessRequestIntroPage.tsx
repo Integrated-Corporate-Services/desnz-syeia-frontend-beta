@@ -4,6 +4,8 @@ import { useAuthUserContext } from "../../context/AuthUserContext";
 import requestAccessService from "../../services/accessRequestApplicationService";
 import { createLogger } from "../../utils/logger";
 import { ROLES } from "../../constants/roles";
+import PageTitle from "../../components/PageTitle";
+import { useBreadcrumb } from "../../context/BreadcrumbContext";
 
 const logger = createLogger('AccessRequestIntroPage');
 
@@ -22,6 +24,12 @@ const ACTIVE_ROLES = [
 const AccessRequestIntroPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, authenticated } = useAuthUserContext();
+
+  useBreadcrumb(
+    <Link to="/landingPage" className="govuk-back-link">
+      Back
+    </Link>
+  );
 
   useEffect(() => {
     const checkAccessAndRequest = async () => {
@@ -58,11 +66,8 @@ const AccessRequestIntroPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Submit a request to activate your SYEIA account" />
             <div className="govuk-width-container">
-        <Link to="/landingPage" className="govuk-back-link">
-        Back
-      </Link>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">

@@ -74,6 +74,8 @@ export interface FileUploadProps {
   consultationId?: string;
   showDocumentsHeading?: boolean;
   showTitle?: boolean;
+  titleHeadingLevel?: 'h2' | 'h3' | 'h4';
+  hasExternalLabel?: boolean;
   onValidationErrors?: (errors: string[]) => void;
   onUploaded?: (
     uploadedFiles: UploadedFile[],
@@ -81,6 +83,7 @@ export interface FileUploadProps {
   ) => void;
   uploadImmediately?: boolean; // New prop to control upload timing
   onPendingFilesChange?: (files: File[]) => void; // New prop to notify parent of pending files
+  uploadEndpoints?: { presignedUrl: string; confirm: string };
 }
 
 export interface FileUploadHandle {
@@ -108,10 +111,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   consultationId,
   showDocumentsHeading = true,
   showTitle = true,
+  titleHeadingLevel = 'h2',
+  hasExternalLabel = false,
   onValidationErrors,
   onUploaded,
   uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
   onPendingFilesChange,
+  uploadEndpoints,
 }, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
@@ -383,7 +389,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         contentType: getMimeType(f),
       }));
 
-      const data = await getPresignedUrls(fileMetas, applicationId);
+      const data = await getPresignedUrls(fileMetas, applicationId, uploadEndpoints?.presignedUrl);
 
       if (!data.urls || data.urls.length !== uploadFiles.length) {
         logger.error('[FileUpload.tsx][uploadFiles] Presigned URL response count mismatch', {
@@ -451,7 +457,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             addedBy: userId,
             subCategory: subCategory,
             consultationId: consultationId
-          });
+          }, uploadEndpoints?.confirm);
 
           logger.info('Upload confirmed by server', {
             documentId: confirmResponse.documentId,
@@ -707,23 +713,18 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
   };
 
+  const TitleHeading = titleHeadingLevel;
+
   return (
     <div className="gds-upload-container" tabIndex={-1}>
       {/* Documents Uploaded Section - Show uploaded files first */}
       {showDocumentsHeading && Array.isArray(uploadedFiles) && uploadedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
-          <table className="govuk-table">
-            <caption className="govuk-visually-hidden">Documents uploaded</caption>
-            <thead className="govuk-table__head">
-              <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
-              </tr>
-            </thead>
-            <tbody className="govuk-table__body">
+          <h3 className="govuk-visually-hidden">Documents uploaded</h3>
+          <ul className="govuk-task-list">
               {uploadedFiles.map((file: UploadedFile, idx: number) => (
-                <tr key={file.id} className="govuk-table__row">
-                  <td className="govuk-table__cell">
+                <li key={file.id} className="govuk-task-list__item">
+                  <span className="govuk-task-list__name-and-hint">
                     <a
                       href="#"
                       className="govuk-link"
@@ -745,8 +746,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                     >
                       {file.filename ? file.filename.split("/").pop() : ""}
                     </a>
-                  </td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                  </span>
+                  <span className="govuk-task-list__status">
                     <a
                       href="#"
                       className="govuk-link"
@@ -759,39 +760,28 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                         }
                       }}
                     >
-                      Delete
+                      Delete<span className="govuk-visually-hidden"> {file.filename ? file.filename.split('/').pop() : 'file'}</span>
                     </a>
-                  </td>
-                </tr>
+                  </span>
+                </li>
               ))}
-            </tbody>
-          </table>
+          </ul>
         </div>
       )}
 
       {rejectedFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6" role="status" aria-live="polite">
-          <table className="govuk-table">
-            <caption className="govuk-visually-hidden">Files that failed the virus scan</caption>
-            <thead className="govuk-table__head">
-              <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
-                <th scope="col" className="govuk-table__header govuk-visually-hidden">Status</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
-              </tr>
-            </thead>
-            <tbody className="govuk-table__body">
+          <h3 className="govuk-visually-hidden">Files that failed the virus scan</h3>
+          <ul className="govuk-task-list">
               {rejectedFiles.map((file) => (
-                <tr key={file.id} className="govuk-table__row">
-                  <td className="govuk-table__cell">
+                <li key={file.id} className="govuk-task-list__item">
+                  <span className="govuk-task-list__name-and-hint">
                     <span>{file.filename ? file.filename.split("/").pop() : ""}</span>
-                  </td>
-                  <td className="govuk-table__cell">
-                    <strong className="govuk-tag govuk-tag--red">
+                    <span className="govuk-task-list__hint">
                       {file.reason === 'INFECTED' ? 'Infected' : 'Scan failed'}
-                    </strong>
-                  </td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                    </span>
+                  </span>
+                  <span className="govuk-task-list__status">
                     <a
                       href="#"
                       className="govuk-link"
@@ -802,29 +792,21 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                     >
                       Delete<span className="govuk-visually-hidden"> {file.filename ? file.filename.split("/").pop() : "file"}</span>
                     </a>
-                  </td>
-                </tr>
+                  </span>
+                </li>
               ))}
-            </tbody>
-          </table>
+          </ul>
         </div>
       )}
 
       {/* Pending Files Section - Show files waiting to be uploaded */}
       {pendingFiles.length > 0 && (
         <div className="govuk-!-margin-bottom-6">
-          <table className="govuk-table">
-            <caption className="govuk-visually-hidden">Files to be uploaded</caption>
-            <thead className="govuk-table__head">
-              <tr className="govuk-table__row">
-                <th scope="col" className="govuk-table__header govuk-visually-hidden">File</th>
-                <th scope="col" className="govuk-table__header govuk-table__header--numeric govuk-visually-hidden">Action</th>
-              </tr>
-            </thead>
-            <tbody className="govuk-table__body">
+          <h3 className="govuk-visually-hidden">Files to be uploaded</h3>
+          <ul className="govuk-task-list">
               {pendingFiles.map((file: File, idx: number) => (
-                <tr key={`pending-${idx}`} className="govuk-table__row">
-                  <td className="govuk-table__cell">
+                <li key={`pending-${idx}`} className="govuk-task-list__item">
+                  <span className="govuk-task-list__name-and-hint">
                     <a
                       href="#"
                       className="govuk-link"
@@ -842,8 +824,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                     >
                       {file.name}
                     </a>
-                  </td>
-                  <td className="govuk-table__cell govuk-table__cell--numeric">
+                  </span>
+                  <span className="govuk-task-list__status">
                     <a
                       href="#"
                       className="govuk-link"
@@ -861,21 +843,20 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                         }
                       }}
                     >
-                      Remove
+                      Remove<span className="govuk-visually-hidden"> {file.name}</span>
                     </a>
-                  </td>
-                </tr>
+                  </span>
+                </li>
               ))}
-            </tbody>
-          </table>
+          </ul>
         </div>
       )}
 
       {/* File Upload Section - Upload controls appear after uploaded files */}
       {showTitle && (
-        <h3 className="govuk-heading-s govuk-!-margin-bottom-2">
+        <TitleHeading className="govuk-heading-s govuk-!-margin-bottom-2">
           {title}
-        </h3>
+        </TitleHeading>
       )}
       <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
@@ -923,9 +904,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           fileInputRef.current?.click();
         }}
       >
-        <label htmlFor="file-upload-input" className="govuk-visually-hidden">
-          {title}
-        </label>
+        {!hasExternalLabel && (
+          <label htmlFor="file-upload-input" className="govuk-visually-hidden">
+            {title}
+          </label>
+        )}
         <input
           type="file"
           multiple

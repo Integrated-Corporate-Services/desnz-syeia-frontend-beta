@@ -10,6 +10,7 @@ import FileUpload, { FileUploadHandle } from '../../../components/FileUpload';
 import { CONSULTATION_SECTIONS } from '../../../constants/consultationSections';
 import log from '../../../logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const consulteeApplicationInfo: React.FC = () => {
   const params = useParams();
@@ -31,6 +32,32 @@ const consulteeApplicationInfo: React.FC = () => {
   const navigate = useNavigate();
   const tabsRef = useRef<HTMLDivElement>(null);
   const fileUploadRef = useRef<FileUploadHandle>(null);
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            to={`${S37_BASE_URL}/${applicationId}/task-list`}
+            className="govuk-breadcrumbs__link"
+          >
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
+            className="govuk-breadcrumbs__link"
+          >
+            Manage consultation
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          Application details
+        </li>
+      </ol>
+    </nav>
+  );
 
 // Scroll to top on mount
 useEffect(() => {
@@ -250,35 +277,14 @@ useEffect(() => {
     <>
       <PageTitle title="Share application details" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              to={`${S37_BASE_URL}/${applicationId}/task-list`}
-              className="govuk-breadcrumbs__link"
-            >
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
-              className="govuk-breadcrumbs__link"
-            >
-              Manage consultation
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            Application details
-          </li>
-        </ol>
-      </nav>
-              
+
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-three-quarters">
 
-            <h2 className="govuk-caption-l">{consultationName || "Consultation name"}</h2>
-            <h2 className="govuk-heading-xl">Share application details</h2>
+            <h1 className="govuk-heading-xl">
+              <span className="govuk-caption-l">{consultationName || "Consultation name"}</span>
+              Share application details
+            </h1>
             <p className="govuk-body">
               Select and review the details you want to share with the consultant.
             </p>
@@ -338,7 +344,7 @@ useEffect(() => {
                 <h2 className="govuk-heading-l">Application detail overview</h2>
                 <div className="govuk-card">
                   <div className="govuk-card__content">
-                    <div className="govuk-fieldset">
+                    <fieldset className="govuk-fieldset">
                       <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
                         Field details only
                       </legend>
@@ -394,7 +400,7 @@ useEffect(() => {
                           ))}
                         </tbody>
                       </table>
-                    </div>
+                    </fieldset>
                   </div>
                 </div>
               </div>
@@ -404,13 +410,14 @@ useEffect(() => {
                 aria-labelledby="tab-documents"
               >
                 <h2 className="govuk-heading-l">Documents by section</h2>
-                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                        Field details only
-                      </legend>
-                <p className="govuk-body">
-                  Choose the information and documents you want to share with the consultant.
-                </p>
-                <table className="govuk-table">
+                <fieldset className="govuk-fieldset">
+                  <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    Field details only
+                  </legend>
+                  <p className="govuk-body">
+                    Choose the information and documents you want to share with the consultant.
+                  </p>
+                  <table className="govuk-table">
                   <thead>
                     <tr>
                     <th className="govuk-table__header" style={{ textAlign: 'center', padding: '2px 4px' }}>
@@ -458,6 +465,7 @@ useEffect(() => {
                     ))}
                   </tbody>
                 </table>
+                </fieldset>
               </div>
             </div>
 
@@ -466,7 +474,7 @@ useEffect(() => {
               
               {consultationPack?.applicationDocuments && consultationPack.applicationDocuments.length > 0 && (
                 <div className="govuk-!-margin-top-2">
-                  <h3 className="govuk-heading-s">Documents uploaded</h3>
+                  <h2 className="govuk-heading-s">Documents uploaded</h2>
                 </div>
               )}
               

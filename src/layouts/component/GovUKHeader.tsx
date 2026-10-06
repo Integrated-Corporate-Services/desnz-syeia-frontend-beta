@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { FEEDBACK_PATH } from '../../constants/routes';
+import '../../styles/GovUKHeader.css';
 
 const GovUKHeader: React.FC = () => (
   <>
@@ -21,7 +22,6 @@ const GovUKHeader: React.FC = () => (
         <a href="https://www.gov.uk" className="govuk-header__link govuk-header__link--homepage" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           {/* <img src={DESNZLogo} alt="Department for Energy Security and Net Zero" style={{ height: '32px', width: 'auto', marginRight: '16px', background: 'transparent' }} />*/}
           <svg focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 324 60" height="30" width="162" fill="currentColor" className="govuk-header__logotype" aria-label="GOV.UK">
-            <title>GOV.UK</title>
             <g>
               <circle cx="20" cy="17.6" r="3.7"></circle>
               <circle cx="10.2" cy="23.5" r="3.7"></circle>
@@ -56,7 +56,7 @@ const GovUKHeader: React.FC = () => (
           This is a new service – your <Link to={FEEDBACK_PATH} className="govuk-link">feedback</Link> will help us to improve it.
         </p>
       </div>
-      <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: 0 }} />
+      <div className="govuk-header-divider" aria-hidden="true" />
   </>
 );
 

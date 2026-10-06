@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
+import Details from "../../../../components/Details";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { useApplicationNavigation, useApplicationDetailsData } from "../hooks";
 import {
@@ -8,6 +9,7 @@ import {
   OPTIONS,
 } from "../constants/noticeToRemoveClearConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 /**
  * Notice to Remove Clear Page
@@ -21,6 +23,25 @@ const NoticeToRemoveClear: React.FC = () => {
     navigateToTaskList 
   } = useApplicationNavigation(appId || "");
   const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <a
+            className="govuk-breadcrumbs__link"
+            href="#"
+            onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </a>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.APPLICATION_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
 
   const [isNoticeClear, setIsNoticeClear] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -95,23 +116,6 @@ const NoticeToRemoveClear: React.FC = () => {
     <>
       <PageTitle title="Is the notice to remove clear?" />
           <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href="#"
-              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.APPLICATION_DETAILS}
-          </li>
-        </ol>
-      </nav>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
@@ -181,20 +185,13 @@ const NoticeToRemoveClear: React.FC = () => {
                 </fieldset>
               </div>
 
-              <details className="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    {LABELS.GUIDANCE_TITLE}
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  {LABELS.GUIDANCE_CONTENT.split('\n\n').map((para, idx) => (
-                    <p key={idx} className="govuk-body">
-                      {para}
-                    </p>
-                  ))}
-                </div>
-              </details>
+              <Details id="guidance-details" summary={LABELS.GUIDANCE_TITLE}>
+                {LABELS.GUIDANCE_CONTENT.split('\n\n').map((para, idx) => (
+                  <p key={idx} className="govuk-body">
+                    {para}
+                  </p>
+                ))}
+              </Details>
 
               <div className="govuk-button-group">
                 <button

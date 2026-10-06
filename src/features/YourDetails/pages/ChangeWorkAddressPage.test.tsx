@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ChangeWorkAddressPage from './ChangeWorkAddressPage';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import * as yourDetailsService from '../services/yourDetailsService';
 
@@ -50,9 +51,11 @@ describe('ChangeWorkAddressPage', () => {
 
   it('shows validation errors for required work address fields', async () => {
     render(
-      <MemoryRouter>
-        <ChangeWorkAddressPage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeWorkAddressPage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {
@@ -76,9 +79,11 @@ describe('ChangeWorkAddressPage', () => {
 
   it('saves and redirects to your details with one-time banner flag', async () => {
     render(
-      <MemoryRouter>
-        <ChangeWorkAddressPage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeWorkAddressPage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {

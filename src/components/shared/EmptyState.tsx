@@ -9,6 +9,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
+import Details from '../Details';
 
 /**
  * Enum for empty state variants following Type Safety principles
@@ -178,21 +179,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
         {/* Loading error shows additional guidance */}
         {variant === 'loading-error' && (
-          <details className="govuk-details govuk-!-margin-top-4">
-            <summary className="govuk-details__summary">
-              <span className="govuk-details__summary-text">
-                What you can do
-              </span>
-            </summary>
-            <div className="govuk-details__text">
-              <ul className="govuk-list govuk-list--bullet">
-                <li>Check your internet connection</li>
-                <li>Refresh the page</li>
-                <li>Try again in a few minutes</li>
-                <li>Contact support if the problem continues</li>
-              </ul>
-            </div>
-          </details>
+          <Details id="empty-state-what-you-can-do" summary="What you can do" className="govuk-!-margin-top-4">
+            <ul className="govuk-list govuk-list--bullet">
+              <li>Check your internet connection</li>
+              <li>Refresh the page</li>
+              <li>Try again in a few minutes</li>
+              <li>Contact support if the problem continues</li>
+            </ul>
+          </Details>
         )}
       </div>
 

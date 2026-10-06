@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 export interface ApplicationSummaryBreadcrumbsProps {
     applicationType: string;
@@ -10,9 +11,10 @@ export const ApplicationSummaryBreadcrumbs: React.FC<ApplicationSummaryBreadcrum
     applicationType,
     applicationId,
 }) => {
-    return (
+    useBreadcrumb(
         <Link to="/application-dashboard" className="govuk-back-link">
             Back
         </Link>
     );
+    return null;
 };

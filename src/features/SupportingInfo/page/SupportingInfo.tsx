@@ -14,6 +14,8 @@ import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { SUPPORTING_INFO_ERRORS } from '../../../constants/supportingInfoError';
 import { clearKeyedErrors } from '../validations';
 import PageTitle from '../../../components/PageTitle';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('SupportingInfo');
 
@@ -323,21 +325,24 @@ const SupportingInfo: React.FC = () => {
     setApplicationDocuments(prev => [...prev, ...newApplicationDocuments]);
   };
 
+  useBreadcrumb(
+    <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
+    <ol className="govuk-breadcrumbs__list">
+      <li className="govuk-breadcrumbs__list-item">
+    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+          Task list
+        </Link>
+      </li>
+      <li className="govuk-breadcrumbs__list-item" aria-current="page">
+        Supporting information
+      </li>
+    </ol>
+  </nav>
+  );
+
   return (
   <div className="govuk-body" style={{ maxWidth: 700, fontSize: '19px', lineHeight: '1.31579' }}>
   <PageTitle title="Supporting information" />
-  <nav aria-label="Breadcrumb" className="govuk-breadcrumbs" style={{ marginBottom: 24 }}>
-  <ol className="govuk-breadcrumbs__list">
-    <li className="govuk-breadcrumbs__list-item">
-  <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-        Task list
-      </Link>
-    </li>
-    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-      Supporting information
-    </li>
-  </ol>
-</nav>
 
       {(errors.length > 0 || fileValidationErrors.length > 0) && (
         <div
@@ -431,6 +436,7 @@ const SupportingInfo: React.FC = () => {
                   clearError("wayleaves", "wayleavesReason");
                 }}
                 aria-describedby={hasError("wayleaves") ? "wayleaves-error" : undefined}
+                aria-controls="haveAllWayleavesBeenObtained-no-hidden"
               />
               <label className="govuk-label govuk-radios__label" htmlFor="wayleaves-no">
                 No
@@ -464,6 +470,7 @@ const SupportingInfo: React.FC = () => {
               </div>
             )}
           </div>
+          <RevealAnnouncement shown={wayleaves === "no"} message="A new question is shown below: Why have all wayleaves not been obtained?" />
         </fieldset>
       </div>
 
@@ -553,12 +560,14 @@ const SupportingInfo: React.FC = () => {
           setSupportingDocs("yes");
           clearError("supportingDocs");
         }}
+        aria-controls="hasSupportingDocuments-hidden"
       />
       <label className="govuk-label govuk-radios__label" htmlFor="hasSupportingDocuments">
         Yes
       </label>
     </div>
 
+    <RevealAnnouncement shown={supportingDocs === "yes"} message="A new question is shown below: Upload a file" />
     {supportingDocs === "yes" && (
         <div
           className={`govuk-radios__conditional govuk-form-group${hasError("supportingDocsFiles") || fileValidationErrors.length > 0 ? " govuk-form-group--error" : ""}`}
@@ -585,6 +594,7 @@ const SupportingInfo: React.FC = () => {
           <FileUpload
             ref={fileUploadRef}
             title="Upload a file"
+            titleHeadingLevel="h3"
             prefix={`${applicationId}/${FILE_CATEGORIES.SUPPORT_INFO}`}
             applicationId={applicationId}
             category={FILE_CATEGORIES.SUPPORT_INFO}

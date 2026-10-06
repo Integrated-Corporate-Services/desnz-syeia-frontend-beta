@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ChangeOrganisationsPage from './ChangeOrganisationsPage';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 import * as yourDetailsService from '../services/yourDetailsService';
 
 const navigateMock = vi.fn();
@@ -49,9 +50,11 @@ describe('ChangeOrganisationsPage', () => {
 
   it('shows validation error when no organisations are selected', async () => {
     render(
-      <MemoryRouter>
-        <ChangeOrganisationsPage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeOrganisationsPage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {
@@ -70,9 +73,11 @@ describe('ChangeOrganisationsPage', () => {
 
   it('submits selected organisations and navigates to confirmation', async () => {
     render(
-      <MemoryRouter>
-        <ChangeOrganisationsPage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeOrganisationsPage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {

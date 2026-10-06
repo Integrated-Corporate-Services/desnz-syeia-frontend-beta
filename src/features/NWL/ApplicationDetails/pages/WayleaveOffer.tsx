@@ -20,6 +20,7 @@ import {
 } from "../constants/wayleaveOfferConstants";
 import { SHARED_UPLOAD_LABELS } from "../constants/sharedConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 /**
  * Wayleave Notice Page (New Lines)
@@ -241,26 +242,29 @@ const WayleaveOffer: React.FC = () => {
 
   const hasDateError = fieldErrors.day || fieldErrors.month || fieldErrors.year;
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <a
+            className="govuk-breadcrumbs__link"
+            href="#"
+            onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </a>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.APPLICATION_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Wayleave notice" />
             <div className="govuk-width-container">
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <a
-                className="govuk-breadcrumbs__link"
-                href="#"
-                onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
-              >
-                {BREADCRUMBS.TASK_LIST}
-              </a>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              {BREADCRUMBS.APPLICATION_DETAILS}
-            </li>
-          </ol>
-        </nav>
 
                   <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
@@ -424,7 +428,7 @@ const WayleaveOffer: React.FC = () => {
 
                   {uploadedFiles && uploadedFiles.length > 0 && (
                     <div className="govuk-!-margin-top-2">
-                      <h3 className="govuk-heading-s">{SHARED_UPLOAD_LABELS.DOCUMENTS_UPLOADED}</h3>
+                      <h2 className="govuk-heading-s">{SHARED_UPLOAD_LABELS.DOCUMENTS_UPLOADED}</h2>
                     </div>
                   )}
 

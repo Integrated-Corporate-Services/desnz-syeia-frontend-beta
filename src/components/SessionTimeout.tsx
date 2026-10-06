@@ -198,7 +198,7 @@ const SessionTimeoutModal: React.FC = () => {
         className="govuk-modal govuk-!-margin-auto" 
         tabIndex={-1}
       >
-        <h1 className="govuk-heading-m" id="timeout-title">You're about to be signed out</h1>
+        <h2 className="govuk-heading-m" id="timeout-title">You're about to be signed out</h2>
         <div id="timeout-description">
           <p className="govuk-body">
             For your security, we'll sign you out in{' '}

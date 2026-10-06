@@ -6,6 +6,7 @@ import { getConsultationPack } from "../../../services/consultationPackService";
 import { updateFormMetadata, getFormMetadata} from "../../../services/consultationFormMetadataService";
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('ConsultationRequestNotSent');
 
@@ -15,8 +16,28 @@ const ConsultationRequestNotSent: React.FC = () => {
   const applicationId = useGetApplicationId();
   const consultationId = params.consultationId || searchParams.get("consultationId") || "";
   const consultationName = searchParams.get("consultationName") || "Consultation";
-  
+
   const navigate = useNavigate();
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link to={`${S37_BASE_URL}/${applicationId}/task-list`} className="govuk-breadcrumbs__link">
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link to={`${S37_BASE_URL}/${applicationId}/consultation-details`} className="govuk-breadcrumbs__link">
+            Manage consultation
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          Consultation request
+        </li>
+      </ol>
+    </nav>
+  );
 
   const [consultationPack, setConsultationPack] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -142,28 +163,8 @@ const handleSaveAndContinue = async () => {
     <>
       <PageTitle title="Consultation form" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link to={`${S37_BASE_URL}/${applicationId}/task-list`} className="govuk-breadcrumbs__link">
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <Link to={`${S37_BASE_URL}/${applicationId}/consultation-details`} className="govuk-breadcrumbs__link">
-              Manage consultation
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            Consultation request
-          </li>
-        </ol>
-      </nav>
-
-              <h2 className="govuk-caption-xl govuk-!-margin-top-0">
-        {lpaName}
-        </h2>
         <h1 className="govuk-heading-l">
+          <span className="govuk-caption-xl govuk-!-margin-top-0">{lpaName}</span>
           Consultation form for electric overhead lines - Part 1
         </h1>
 

@@ -3,6 +3,8 @@ import { useAuthUserContext } from "../../../context/AuthUserContext";
 import { useNetworkOperators } from "../hooks/useNetworkOperators";
 import { useWhoIsApplyingForm } from "../hooks/useWhoIsApplyingForm";
 import PageTitle from "../../../components/PageTitle";
+import Details from "../../../components/Details";
+import AccessibleSelect from "../../../components/commonFormFields/AccessibleSelect";
 
 const WhoIsApplying: React.FC = () => {
   const { user } = useAuthUserContext();
@@ -16,10 +18,10 @@ const WhoIsApplying: React.FC = () => {
     handleSubmit(e, selectedOrgName, selectedOrganisation, user);
   };
 
-  const handleOrgSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    handleOrgChange(e);
+  const handleOrgSelectChange = (value: string) => {
+    handleOrgChange({ target: { value } } as React.ChangeEvent<HTMLSelectElement>);
     // Clear any existing errors when user makes a selection
-    if (e.target.value && error) {
+    if (value && error) {
       clearError();
     }
   };
@@ -66,58 +68,51 @@ const WhoIsApplying: React.FC = () => {
                     {error}
                   </p>
                 )}
-                <select
-                  className="govuk-select govuk-!-width-full govuk-!-font-size-19"
+                <AccessibleSelect
+                  className="govuk-!-width-full govuk-!-font-size-19"
                   id="location"
-                  name="location"
                   aria-describedby={error ? "location-error" : undefined}
                   value={selectedOrgName}
                   onChange={handleOrgSelectChange}
                   disabled={options.length === 0}
                   required
-                >
-                  <option value="" disabled>
-                    {options.length === 0
-                      ? "No network operators found"
-                      : "Select option..."}
-                  </option>
-                  {options.map((opt) => (
-                    <option
-                      key={opt.organisation_id}
-                      value={opt.organisation_name}
-                    >
-                      {opt.organisation_name}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    {
+                      value: "",
+                      text:
+                        options.length === 0
+                          ? "No network operators found"
+                          : "Select option...",
+                    },
+                    ...options.map((opt) => ({
+                      value: opt.organisation_name,
+                      text: opt.organisation_name,
+                    })),
+                  ]}
+                />
               </div>
-              <details
-                className="govuk-details govuk-!-margin-top-6"
-                open
+              <Details
+                id="network-operator-not-listed"
+                summary="The network operator is not listed"
+                className="govuk-!-margin-top-6"
+                initialOpen={true}
               >
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    The network operator is not listed
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  <p>
-                    You must contact the team coordinator in your organisation
-                    that you want to create an application for to provide you
-                    with access to their organisation.
-                  </p>
-                  <p>
-                    If you do not know who the team coordinator is then contact
-                    the service desk for advice at{" "}
-                    <a
-                      href="mailto:xxx@desnz.com"
-                      className="govuk-link"
-                    >
-                      xxx@desnz.com
-                    </a>
-                  </p>
-                </div>
-              </details>
+                <p>
+                  You must contact the team coordinator in your organisation
+                  that you want to create an application for to provide you
+                  with access to their organisation.
+                </p>
+                <p>
+                  If you do not know who the team coordinator is then contact
+                  the service desk for advice at{" "}
+                  <a
+                    href="mailto:xxx@desnz.com"
+                    className="govuk-link"
+                  >
+                    xxx@desnz.com
+                  </a>
+                </p>
+              </Details>
               <button
                 type="submit"
                 className="govuk-button govuk-!-margin-top-6"

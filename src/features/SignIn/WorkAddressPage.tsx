@@ -3,11 +3,19 @@ import { useNavigate, Link } from "react-router-dom";
 import TextInput from "../../components/commonFormFields/TextInput";
 import ErrorSummary from "../../components/commonFormFields/ErrorSummary";
 import { useAccessRequest } from "../../hooks/useAccessRequest";
+import PageTitle from "../../components/PageTitle";
+import { useBreadcrumb } from "../../context/BreadcrumbContext";
 
 const WorkAddressPage: React.FC = () => {
   const navigate = useNavigate();
   const { formData, updateFormData } = useAccessRequest();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+  useBreadcrumb(
+    <Link to="/request-access/contact-details" className="govuk-back-link">
+      Back
+    </Link>
+  );
 
   const [localData, setLocalData] = useState({
     line1: formData.line1 || "",
@@ -117,14 +125,8 @@ const WorkAddressPage: React.FC = () => {
 
   return (
     <>
+      <PageTitle title="Enter your work address" />
             <div className="govuk-width-container">
-        <Link
-          to="/request-access/contact-details"
-          className="govuk-back-link"
-        >
-        Back
-      </Link>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <ErrorSummary ref={errorSummaryRef} errors={errorSummaryItems} />

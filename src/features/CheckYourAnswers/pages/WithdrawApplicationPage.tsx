@@ -7,6 +7,7 @@ import { CONTENT } from "../../../constants/content";
 import { applicationApiService } from "../../../services/applicationApiService";
 import { WITHDRAWAL_LABELS, BUTTON_LABELS } from "../constants/applicationSummaryLabels";
 import PageTitle from "../../../components/PageTitle";
+import { useBreadcrumb } from "../../../context/BreadcrumbContext";
 
 interface WithdrawalLocationState {
   desnzRef?: string;
@@ -156,13 +157,16 @@ const WithdrawApplicationPage: React.FC = () => {
 
   const baseUrl = getBaseUrl();
 
+  useBreadcrumb(
+    <Link to={`${baseUrl}/${applicationId}/application-summary`} className="govuk-back-link">
+      Back
+    </Link>
+  );
+
   return (
     <>
       <PageTitle title="Withdraw your application" />
             <div className="govuk-width-container">
-      <Link to={`${baseUrl}/${applicationId}/application-summary`} className="govuk-back-link">
-        Back
-      </Link>
               {error && (
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"

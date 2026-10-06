@@ -54,15 +54,27 @@ const UserManagementDashboard: React.FC = () => {
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
-            {dnoTeamCoordinatorsOrganisationsEnabled && activeTab === "organisations" && (
-              <OrganisationsTab
-                organisations={organisations}
-                loading={organisationsLoading}
-                error={organisationsError}
-              />
+            {dnoTeamCoordinatorsOrganisationsEnabled && (
+              <div
+                id="organisations"
+                role="tabpanel"
+                aria-labelledby="organisations-tab"
+                hidden={activeTab !== "organisations"}
+              >
+                <OrganisationsTab
+                  organisations={organisations}
+                  loading={organisationsLoading}
+                  error={organisationsError}
+                />
+              </div>
             )}
 
-            {activeTab === "active-users" && (
+            <div
+              id="active-users"
+              role="tabpanel"
+              aria-labelledby="active-users-tab"
+              hidden={activeTab !== "active-users"}
+            >
               <ActiveUsersTab
                 totalResults={totalResults}
                 usersError={usersError}
@@ -73,20 +85,25 @@ const UserManagementDashboard: React.FC = () => {
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
               />
-            )}
+            </div>
 
-            {activeTab === "pending-requests" && (
-                <PendingRequestsTab
-                  pendingRequests={pendingRequests}
-                  requestsError={requestsError}
-                  requestsLoading={requestsLoading}
-                  paginatedRequests={paginatedRequests}
-                  navigateToReviewRequest={navigateToReviewRequest}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  handlePageChange={handlePageChange}
-                />
-            )}
+            <div
+              id="pending-requests"
+              role="tabpanel"
+              aria-labelledby="pending-requests-tab"
+              hidden={activeTab !== "pending-requests"}
+            >
+              <PendingRequestsTab
+                pendingRequests={pendingRequests}
+                requestsError={requestsError}
+                requestsLoading={requestsLoading}
+                paginatedRequests={paginatedRequests}
+                navigateToReviewRequest={navigateToReviewRequest}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                handlePageChange={handlePageChange}
+              />
+            </div>
           </div>
         </div>
           </div>

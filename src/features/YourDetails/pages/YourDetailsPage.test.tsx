@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import YourDetailsPage from './YourDetailsPage';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import * as yourDetailsService from '../services/yourDetailsService';
 
@@ -53,9 +54,11 @@ describe('YourDetailsPage', () => {
 
   it('renders user details with all profile change links', async () => {
     render(
-      <MemoryRouter>
-        <YourDetailsPage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <YourDetailsPage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {
@@ -79,9 +82,11 @@ describe('YourDetailsPage', () => {
     sessionStorage.setItem(SUCCESS_BANNER_KEY, 'full name');
 
     render(
-      <MemoryRouter>
-        <YourDetailsPage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <YourDetailsPage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {

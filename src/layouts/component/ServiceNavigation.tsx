@@ -15,7 +15,10 @@ const ServiceNavigation = () => {
     // Handle all possible application dashboard paths
     const applicationDashboardPaths = ["/", "/application-dashboard"];
 
-    // Hide navigation on the sign-in, request-access, and sent-for-approval pages
+    // Hide navigation on the sign-in, request-access, and sent-for-approval pages.
+    // /cookies is deliberately NOT here - it's a normal footer-linked page reachable
+    // both signed in and signed out, so nav visibility should follow the `!user`
+    // check below like the other footer pages (/privacy, /terms, /contact, /accessibility).
     const hideNavPaths = [
         "/",
         "/request-access",
@@ -23,7 +26,6 @@ const ServiceNavigation = () => {
         "/landingPage",
         "/s37-guidance",
         "/nwl-guidance",
-        "/cookies",
         "/access-revoked",
         "/signed-out",
         "/service-unavailable",

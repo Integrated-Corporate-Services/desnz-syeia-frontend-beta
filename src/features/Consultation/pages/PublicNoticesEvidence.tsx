@@ -11,6 +11,7 @@ import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultatio
 import { validateDateComponents } from '../../../utils/validation';
 import log from '../../../logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 interface FormErrors {
   firstDate?: string;
@@ -244,34 +245,36 @@ const PublicNoticesEvidence: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            to={`${S37_BASE_URL}/${applicationId}/task-list`}
+            className="govuk-breadcrumbs__link"
+          >
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
+            className="govuk-breadcrumbs__link"
+          >
+            Manage consultation
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          Consultation request
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Public notices evidence" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              to={`${S37_BASE_URL}/${applicationId}/task-list`}
-              className="govuk-breadcrumbs__link"
-            >
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              to={`${S37_BASE_URL}/${applicationId}/consultation-details`}
-              className="govuk-breadcrumbs__link"
-            >
-              Manage consultation
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            Consultation request
-          </li>
-        </ol>
-      </nav>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(Object.values(errors).some(Boolean) || fileValidationErrors.length > 0) && (
@@ -316,8 +319,10 @@ const PublicNoticesEvidence: React.FC = () => {
               </div>
             )}
             
-            <span className="govuk-caption-l">Public notices</span>
-            <h1 className="govuk-heading-l">Provide evidence of published public notices</h1>
+            <h1 className="govuk-heading-l">
+              <span className="govuk-caption-l">Public notices</span>
+              Provide evidence of published public notices
+            </h1>
 
             <p className="govuk-body">
               For overhead lines with a line voltage of 132kV or higher, you must publish at least 2 public notices in one or more local newspapers for two consecutive weeks as per{' '}
@@ -543,7 +548,7 @@ const PublicNoticesEvidence: React.FC = () => {
                 
                 {applicationDocuments && applicationDocuments.length > 0 && (
                   <div className="govuk-!-margin-top-2">
-                    <h3 className="govuk-heading-s">Documents uploaded</h3>
+                    <h2 className="govuk-heading-s">Documents uploaded</h2>
                   </div>
                 )}
                 
