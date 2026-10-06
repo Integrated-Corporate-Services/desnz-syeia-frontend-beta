@@ -17,7 +17,10 @@ export interface ProgressItem {
   updated_at?: string;
 }
 
-export const useNWLProgress = (applicationId?: string) => {
+export const useNWLProgress = (
+  applicationId?: string,
+  applicationType: 'NWL' | 'CPO' = 'NWL'
+) => {
   const [progress, setProgress] = useState<ProgressItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +59,7 @@ export const useNWLProgress = (applicationId?: string) => {
       setError(null);
 
       try {
-        await nwlProgressService.updateProgress(applicationId, subsectionName, status);
+        await nwlProgressService.updateProgress(applicationId, subsectionName, status, applicationType);
         // Refresh progress after update
         await fetchProgress();
       } catch (err) {
@@ -68,7 +71,7 @@ export const useNWLProgress = (applicationId?: string) => {
         setIsLoading(false);
       }
     },
-    [applicationId, fetchProgress]
+    [applicationId, applicationType, fetchProgress]
   );
 
 

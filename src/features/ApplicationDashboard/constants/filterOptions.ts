@@ -1,6 +1,7 @@
 export const CASE_TYPE_OPTIONS = [
   { value: "overhead-lines", label: "Overhead Lines (S37)" },
   { value: "necessary-wayleaves", label: "Necessary Wayleaves" },
+  { value: "compulsory-purchase-order", label: "Compulsory purchase order" },
 ];
 
 export const STATUS_OPTIONS = [

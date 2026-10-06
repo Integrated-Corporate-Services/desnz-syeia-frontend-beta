@@ -6,13 +6,17 @@ import { useNetworkOperators } from "../hooks/useNetworkOperators";
 import { useWhoIsApplyingForm } from "../hooks/useWhoIsApplyingForm";
 import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
 
-const WhoIsApplying: React.FC = () => {
+interface WhoIsApplyingProps {
+  applicationType?: "NWL" | "CPO";
+}
+
+const WhoIsApplying: React.FC<WhoIsApplyingProps> = ({ applicationType = "NWL" }) => {
   const { user } = useAuthUserContext();
 
   const { options, selectedOrganisation, selectedOrgName, handleOrgChange } =
     useNetworkOperators();
 
-  const { submitted, error, handleSubmit, clearError } = useWhoIsApplyingForm();
+  const { submitted, error, handleSubmit, clearError } = useWhoIsApplyingForm(applicationType);
 
   const handleContinue = (e: React.FormEvent) => {
     handleSubmit(e, selectedOrgName, selectedOrganisation, user);

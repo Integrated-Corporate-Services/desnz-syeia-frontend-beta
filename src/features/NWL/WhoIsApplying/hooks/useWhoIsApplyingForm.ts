@@ -8,7 +8,7 @@ import type { OrganizationOption } from "../hooks/useNetworkOperators";
 /**
  * Custom hook to handle form submission and navigation
  */
-export const useWhoIsApplyingForm = () => {
+export const useWhoIsApplyingForm = (applicationType: "NWL" | "CPO" = "NWL") => {
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -29,10 +29,10 @@ export const useWhoIsApplyingForm = () => {
     }
     setError("");
 
-    let app = application;
+    let app = application?.type === applicationType ? application : null;
     if (!app || !app.application_id) {
       const newAppData = {
-        type: "NWL",
+        type: applicationType,
         operator_ref: "",
         status: "DRAFT",
         created_by: (user as AuthUser)?.user_id || "",
@@ -73,7 +73,8 @@ export const useWhoIsApplyingForm = () => {
     // Update local store
     setApplication(updatedApp as any); // Type assertion needed due to partial Application type
 
-    navigate(`/nwl/${app.application_id}/applicant-details`, {
+    const applicationBasePath = applicationType === "CPO" ? "/cpo" : "/nwl";
+    navigate(`${applicationBasePath}/${app.application_id}/applicant-details`, {
       state: {
         organisationId: selectedOrganisation?.organisation_id,
         organisationName: selectedOrganisation?.organisation_name,

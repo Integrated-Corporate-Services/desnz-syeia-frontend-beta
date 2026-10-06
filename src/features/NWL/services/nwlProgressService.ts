@@ -19,12 +19,13 @@ export const nwlProgressService = {
   updateProgress: async (
     applicationId: string,
     subsectionName: string,
-    status: string
+    status: string,
+    applicationType: 'NWL' | 'CPO' = 'NWL'
   ) => {
     const response = await axios.post(`/api/applications/${applicationId}/progress`, { 
       subsection_name: subsectionName, 
       status,
-      application_type: 'NWL'
+      application_type: applicationType
     });
     return response.data;
   },

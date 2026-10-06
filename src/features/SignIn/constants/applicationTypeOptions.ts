@@ -15,9 +15,15 @@ export const APPLICATION_TYPE_OPTIONS: ApplicationTypeOption[] = [
     label: 'Necessary wayleaves',
     id: 'applicationType-2',
   },
+  {
+    value: 'cpo',
+    label: 'Compulsory purchase order',
+    id: 'applicationType-3',
+  },
 ];
 
 export const ROUTES = {
   section37: '/s-37/who-is-applying',
   wayleaves: '/nwl/who-is-applying',
+  cpo: '/cpo/who-is-applying',
 } as const;

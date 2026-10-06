@@ -73,6 +73,9 @@ import ConsultationWithdrawnPage from '../features/Consultation/pages/Consultati
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
+import CPOWhoIsApplying from '../features/CPO/WhoIsApplying';
+import CpoTaskListPage from '../features/CPO/CpoTaskListPage';
+import CpoTaskUnavailablePage from '../features/CPO/CpoTaskUnavailablePage';
 // import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 // import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
@@ -651,6 +654,42 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: `${NWL_BASE_URL}/who-is-applying`,
         component: NWLWhoIsApplying,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/who-is-applying',
+        component: CPOWhoIsApplying,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/applicant-details',
+        component: NWLNetworkOperatorDetails,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/task-list',
+        component: CpoTaskListPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/delete-confirmation',
+        component: ApplicationDeleteConfirmationPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/delete-success',
+        component: ApplicationDeleteSuccessPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/:taskSlug',
+        component: CpoTaskUnavailablePage,
         auth: true,
         layout: true,
     },
