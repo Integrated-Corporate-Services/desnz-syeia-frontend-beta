@@ -1,6 +1,7 @@
 ﻿import { S37_BASE_URL } from './s37';
 // import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
+import { getBaseUrl } from './baseUrl';
 import TaskList from '../features/TaskList/pages/TaskList';
 import {
   PrivacyNoticePage,
@@ -103,6 +104,7 @@ import {
     FurtherInformationRequestsPage,
     FurtherInformationSubmittedPage,
 } from '../features/FIR/pages';
+import { NotificationsPage, NOTIFICATIONS_PATH } from '../features/InAppNotifications';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
@@ -254,6 +256,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/admin/reporting',
         component: ReportingDashboard,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: NOTIFICATIONS_PATH,
+        component: NotificationsPage,
         auth: true,
         layout: true,
     },
@@ -1152,17 +1160,7 @@ export const ROUTES = {
     NETWORK_OPERATOR_CONTACT_DETAILS: `${S37_BASE_URL}/:applicationId/network-operator-contact-details`,
 };
 
-/**
- * Get the base URL for the application
- * This reads from runtime configuration to support sub-path deployments
- * @returns The base URL path (e.g., '/' or '/app')
- */
-export const getBaseUrl = (): string => {
-  if (typeof window !== 'undefined' && window._env_) {
-    return window._env_.VITE_ROUTER_BASENAME || '/';
-  }
-  return '/';
-};
+export { getBaseUrl };
 
 // For backwards compatibility - use getBaseUrl() for dynamic access
 export const BASE_URL = getBaseUrl();
