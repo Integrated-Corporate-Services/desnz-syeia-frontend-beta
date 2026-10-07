@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { Pagination } from '../../ApplicationDashboard/components/Pagination';
 import { useApplicationNavigation } from '../../../hooks/useApplicationNavigation';
 import { NOTIFICATIONS_MESSAGES, NOTIFICATIONS_PAGE_SIZE } from '../constants/inAppNotifications';
@@ -43,12 +44,27 @@ const NotificationsPage: React.FC = () => {
     if (!loading && !failed && page > lastPage) setSearchParams({ page: String(lastPage) }, { replace: true });
   }, [loading, failed, page, lastPage, setSearchParams]);
 
-  const handleBack = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    // Opened directly (no earlier page in this tab): go to the applications instead.
-    if (location.key === 'default') navigate(APPLICATIONS_PATH);
-    else navigate(-1);
-  };
+  const handleBack = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      // Opened directly (no earlier page in this tab): go to the applications instead.
+      if (location.key === 'default') navigate(APPLICATIONS_PATH);
+      else navigate(-1);
+    },
+    [location.key, navigate]
+  );
+
+  // The back link goes in the layout's breadcrumb area, above the page content and before <main>, as on
+  // the other pages. Made once per location, so the layout is not given a new link on every refresh.
+  const backLink = useMemo(
+    () => (
+      <a href="#" className="govuk-back-link" onClick={handleBack}>
+        {NOTIFICATIONS_MESSAGES.BACK}
+      </a>
+    ),
+    [handleBack]
+  );
+  useBreadcrumb(backLink);
 
   // Recording the notification as read happens in the background, so it never holds the user here.
   const markReadInBackground = (notification: InAppNotification) => {
@@ -139,9 +155,6 @@ const NotificationsPage: React.FC = () => {
     <div className="govuk-grid-row notifications-page">
       <div className="govuk-grid-column-two-thirds">
         <PageTitle title={NOTIFICATIONS_MESSAGES.PAGE_TITLE} />
-        <a href="#" className="govuk-back-link" onClick={handleBack}>
-          {NOTIFICATIONS_MESSAGES.BACK}
-        </a>
         <h1 className="govuk-heading-l">{NOTIFICATIONS_MESSAGES.PAGE_TITLE}</h1>
 
         {/* One status region that stays on the page, so screen readers hear "Loading notifications" and

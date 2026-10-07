@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import NotificationsPage from './NotificationsPage';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 import { getInAppNotifications, markInAppNotificationRead } from '../services/inAppNotificationsService';
 
 vi.mock('../services/inAppNotificationsService', () => ({
@@ -39,7 +40,8 @@ describe('NotificationsPage: completed registration (SYEIA-2400)', () => {
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/admin/review-request/:requestId" element={<p>Review registration</p>} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
+      { wrapper: BreadcrumbProvider }
     );
 
     const link = await screen.findByRole('link', { name: 'Review a new account registration request for Jane Smith.' });

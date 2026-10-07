@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { Link, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NotificationsPage from './NotificationsPage';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../context/BreadcrumbContext';
 import { NOTIFICATIONS_CHANGED_EVENT } from '../constants/inAppNotifications';
 import { getInAppNotifications, markInAppNotificationRead } from '../services/inAppNotificationsService';
 import type { InAppNotification, InAppNotificationsResponse } from '../types/inAppNotifications';
@@ -53,15 +54,24 @@ const CurrentUrl = () => {
   return <p data-testid="url">{location.pathname + location.search}</p>;
 };
 
+// Stands in for the layout: shows what the page puts in the breadcrumb area above the page content.
+const BreadcrumbOutlet = () => {
+  const { breadcrumb } = useBreadcrumbContext();
+  return <div data-testid="breadcrumb-area">{breadcrumb}</div>;
+};
+
 const renderPage = (entry = '/notifications') =>
   render(
-    <MemoryRouter initialEntries={[entry]}>
-      <Routes>
-        <Route path="/notifications" element={<><NotificationsPage /><CurrentUrl /></>} />
-        <Route path="/nwl/:applicationId/application-summary" element={<p>NWL application summary</p>} />
-        <Route path="/application-dashboard" element={<p>Your applications</p>} />
-      </Routes>
-    </MemoryRouter>
+    <BreadcrumbProvider>
+      <MemoryRouter initialEntries={[entry]}>
+        <BreadcrumbOutlet />
+        <Routes>
+          <Route path="/notifications" element={<><NotificationsPage /><CurrentUrl /></>} />
+          <Route path="/nwl/:applicationId/application-summary" element={<p>NWL application summary</p>} />
+          <Route path="/application-dashboard" element={<p>Your applications</p>} />
+        </Routes>
+      </MemoryRouter>
+    </BreadcrumbProvider>
   );
 
 const card = (title: string) => screen.getByRole('heading', { level: 2, name: title }).closest('.govuk-summary-card') as HTMLElement;
@@ -123,7 +133,8 @@ describe('NotificationsPage', () => {
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/s-37/:applicationId/application-summary" element={<p>S37 application summary</p>} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
+      { wrapper: BreadcrumbProvider }
     );
 
     fireEvent.click(await screen.findByRole('link', { name: 'S3700004' }));
@@ -297,7 +308,8 @@ describe('NotificationsPage', () => {
         <main id="main-content" tabIndex={-1}>
           <NotificationsPage />
         </main>
-      </MemoryRouter>
+      </MemoryRouter>,
+      { wrapper: BreadcrumbProvider }
     );
 
     const pagination = await screen.findByRole('navigation', { name: 'Pagination' });
@@ -313,12 +325,38 @@ describe('NotificationsPage', () => {
         <Routes>
           <Route path="/notifications" element={<><NotificationsPage /><Link to="/notifications">Open Notifications again</Link></>} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
+      { wrapper: BreadcrumbProvider }
     );
     await screen.findByRole('link', { name: 'S3700004' });
 
     fireEvent.click(screen.getByRole('link', { name: 'Open Notifications again' }));
 
     await waitFor(() => expect(getInAppNotifications).toHaveBeenCalledTimes(2));
+  });
+
+  it('puts the Back link in the layout breadcrumb area, before the main content, and removes it on leaving', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([readS37]));
+    render(
+      <BreadcrumbProvider>
+        <MemoryRouter initialEntries={['/notifications']}>
+          <BreadcrumbOutlet />
+          <main id="main-content" tabIndex={-1}>
+            <Routes>
+              <Route path="/notifications" element={<><NotificationsPage /><Link to="/elsewhere">Leave</Link></>} />
+              <Route path="/elsewhere" element={<p>Another page</p>} />
+            </Routes>
+          </main>
+        </MemoryRouter>
+      </BreadcrumbProvider>
+    );
+
+    const back = await screen.findByRole('link', { name: 'Back' });
+    expect(screen.getByTestId('breadcrumb-area')).toContainElement(back);
+    expect(within(screen.getByRole('main')).queryByRole('link', { name: 'Back' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Leave' }));
+    await screen.findByText('Another page');
+    expect(screen.queryByRole('link', { name: 'Back' })).not.toBeInTheDocument();
   });
 });
