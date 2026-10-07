@@ -54,16 +54,18 @@ const CpoTaskListPage: React.FC = () => {
     );
   };
 
+  const applicationTitle = application?.cpo_order_details?.orderName || 'Compulsory purchase order application';
+
   return (
     <>
-      <PageTitle title="Compulsory purchase order application" />
+      <PageTitle title={applicationTitle} />
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <span className="govuk-caption-l">
               {application?.application_party?.organisation_name || application?.operator_name || ''}
             </span>
-            <h1 className="govuk-heading-l">Compulsory purchase order application</h1>
+            <h1 className="govuk-heading-l">{applicationTitle}</h1>
             <p className="govuk-body">
               Complete every section, then check and submit your application. You have completed {completedCount} of {CPO_TASK_COUNT} tasks.
             </p>

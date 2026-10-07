@@ -48,16 +48,12 @@ export async function getPresignedUrls(files: { filename: string; contentType: s
   });
 
   if (!res.ok) {
-    // Try to get detailed error message from response
-    try {
-      const errorData = await res.json();
-      if (errorData.code === 'CREDENTIALS_EXPIRED') {
-        throw new Error(errorData.userMessage || 'File upload service is temporarily unavailable. Please try again in a few minutes or contact support.');
-      }
-      throw new Error(errorData.error || errorData.userMessage || 'Failed to get presigned URLs');
-    } catch (parseError) {
-      throw new Error('Failed to get presigned URLs', { cause: parseError instanceof Error ? parseError : undefined });
+    const errorData = await res.json().catch(() => ({}));
+    if (res.status === 401) throw new Error('Your session has expired. Sign in again.');
+    if (errorData.code === 'CREDENTIALS_EXPIRED') {
+      throw new Error(errorData.userMessage || 'File upload service is temporarily unavailable. Please try again in a few minutes or contact support.');
     }
+    throw new Error(errorData.userMessage || errorData.message || errorData.error || 'Failed to get presigned URLs');
   }
 
   logger.debug('[s3ApiService.ts][getPresignedUrls] ENDs');
@@ -130,12 +126,8 @@ export async function confirmUpload(params: {
   });
 
   if (!res.ok) {
-    try {
-      const errorData = await res.json();
-      throw new Error(errorData.message || errorData.error || 'Failed to confirm file upload');
-    } catch (parseError) {
-      throw new Error('Failed to confirm file upload', { cause: parseError instanceof Error ? parseError : undefined });
-    }
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.userMessage || errorData.message || errorData.error || 'Failed to confirm file upload');
   }
 
   logger.debug('[s3ApiService.ts][confirmUpload] ENDs');

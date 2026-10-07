@@ -79,6 +79,8 @@ import CpoTaskUnavailablePage from '../features/CPO/CpoTaskUnavailablePage';
 import CpoPreSubmissionMeetingPage from '../features/CPO/CpoPreSubmissionMeetingPage';
 import CpoPreSubmissionMeetingConfirmationPage from '../features/CPO/CpoPreSubmissionMeetingConfirmationPage';
 import CpoOrderDetailsPage from '../features/CPO/CpoOrderDetailsPage';
+import CpoOrderDocumentsPage from '../features/CPO/CpoOrderDocumentsPage';
+import CpoNoticesPage from '../features/CPO/CpoNoticesPage';
 // import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 // import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
@@ -699,6 +701,36 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/cpo/:applicationId/order-details',
         component: CpoOrderDetailsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/notice-requirements',
+        component: CpoNoticesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/record-notices',
+        component: CpoNoticesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/record-notices/:noticeStep',
+        component: CpoNoticesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/order-documents',
+        component: CpoOrderDocumentsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/order-documents/:documentStep',
+        component: CpoOrderDocumentsPage,
         auth: true,
         layout: true,
     },
