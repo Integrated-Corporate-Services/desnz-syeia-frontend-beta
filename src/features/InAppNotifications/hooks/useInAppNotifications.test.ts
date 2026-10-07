@@ -48,6 +48,40 @@ describe('useUnreadNotificationCount', () => {
     await act(async () => slow.resolve(5)); // the first request comes back late
     expect(result.current).toBe(2);
   });
+
+  it("forgets the count when the user signs out, so the next user never sees the previous user's count", async () => {
+    vi.mocked(getUnreadNotificationCount).mockResolvedValueOnce(4);
+    const { result, rerender } = renderHook(
+      ({ enabled, userId }: { enabled: boolean; userId?: string }) => useUnreadNotificationCount(enabled, userId),
+      { initialProps: { enabled: true, userId: 'user-a' } as { enabled: boolean; userId?: string } }
+    );
+    await waitFor(() => expect(result.current).toBe(4));
+
+    rerender({ enabled: false, userId: undefined }); // user A signs out
+    const userBCount = deferred<number | null>();
+    vi.mocked(getUnreadNotificationCount).mockReturnValueOnce(userBCount.promise);
+    rerender({ enabled: true, userId: 'user-b' }); // user B signs in
+    expect(result.current).toBe(0); // not A's 4 while B's own count is on its way
+
+    await act(async () => userBCount.resolve(1));
+    expect(result.current).toBe(1);
+  });
+
+  it('starts from zero when a different user is signed in without signing out first', async () => {
+    vi.mocked(getUnreadNotificationCount).mockResolvedValueOnce(4);
+    const { result, rerender } = renderHook(({ userId }: { userId: string }) => useUnreadNotificationCount(true, userId), {
+      initialProps: { userId: 'user-a' },
+    });
+    await waitFor(() => expect(result.current).toBe(4));
+
+    const userBCount = deferred<number | null>();
+    vi.mocked(getUnreadNotificationCount).mockReturnValueOnce(userBCount.promise);
+    rerender({ userId: 'user-b' });
+    expect(result.current).toBe(0);
+
+    await act(async () => userBCount.resolve(2));
+    expect(result.current).toBe(2);
+  });
 });
 
 describe('useNotifications', () => {
@@ -141,6 +175,45 @@ describe('useNotifications', () => {
     await waitFor(() => expect(result.current.unread).toBe(4));
 
     await act(async () => slow.resolve(pageOf(9)));
+    expect(result.current.unread).toBe(4);
+  });
+
+  it('loads the page again once a notification is marked read, so the next unread one moves up into its place', async () => {
+    const next = { ...unreadItem, id: 'n-2', desnzRef: 'S3700005', message: 'Application S3700005 has an update for you.' };
+    vi.mocked(getInAppNotifications).mockResolvedValueOnce(pageWith(unreadItem, 11)).mockResolvedValueOnce(pageWith(next, 10));
+    vi.mocked(markInAppNotificationRead).mockReset().mockResolvedValue(true);
+    const { result } = renderHook(() => useNotifications(1));
+    await waitFor(() => expect(result.current.unread).toBe(11));
+
+    await act(async () => result.current.markRead(unreadItem)); // e.g. opened in a new tab
+
+    await waitFor(() => expect(result.current.notifications.map((item) => item.id)).toEqual(['n-2']));
+    expect(getInAppNotifications).toHaveBeenCalledTimes(2);
+    expect(result.current.unread).toBe(10);
+  });
+
+  it('cannot bring back the old unread total from a page requested before the read finished', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValueOnce(pageWith(unreadItem, 5));
+    const update = deferred<boolean>();
+    vi.mocked(markInAppNotificationRead).mockReset().mockReturnValueOnce(update.promise);
+    const { result, rerender } = renderHook(({ page }: { page: number }) => useNotifications(page), { initialProps: { page: 1 } });
+    await waitFor(() => expect(result.current.unread).toBe(5));
+
+    let marking!: Promise<void>;
+    act(() => {
+      marking = result.current.markRead(unreadItem); // e.g. opened in a new tab...
+    });
+    const stalePage2 = deferred<ReturnType<typeof pageOf>>();
+    vi.mocked(getInAppNotifications).mockReturnValueOnce(stalePage2.promise).mockResolvedValueOnce(pageOf(4));
+    rerender({ page: 2 }); // ...then page 2 is opened while the update is still on its way
+
+    await act(async () => {
+      update.resolve(true);
+      await marking;
+    });
+    await waitFor(() => expect(result.current.unread).toBe(4));
+
+    await act(async () => stalePage2.resolve(pageOf(5))); // page 2, asked for before the read finished, arrives last
     expect(result.current.unread).toBe(4);
   });
 });

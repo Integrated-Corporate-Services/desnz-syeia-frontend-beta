@@ -60,7 +60,7 @@ const ServiceNavigation = () => {
         (user as AuthUser)?.role !== "pending" &&
         !isInRegistrationFlow &&
         !hideNavPaths.includes(location.pathname);
-    const unreadNotificationCount = useUnreadNotificationCount(showNotifications);
+    const unreadNotificationCount = useUnreadNotificationCount(showNotifications, (user as AuthUser | null)?.user_id);
 
     if (!user || hideNavPaths.includes(location.pathname)) return null;
 

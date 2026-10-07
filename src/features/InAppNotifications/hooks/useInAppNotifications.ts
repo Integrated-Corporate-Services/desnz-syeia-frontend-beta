@@ -13,12 +13,15 @@ import type { InAppNotification } from '../types/inAppNotifications';
 
 /**
  * The signed-in user's unread count, for the navigation link. Refreshed every minute, when the
- * window regains focus, and whenever a notification is marked read.
+ * window regains focus, and whenever a notification is marked read. `userId` is whose count it is.
  */
-export function useUnreadNotificationCount(enabled: boolean) {
+export function useUnreadNotificationCount(enabled: boolean, userId?: string) {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
+    // Signed out, or someone else signed in: forget the last count, so the next user never sees the
+    // previous user's count, not even until their own first refresh comes back.
+    setUnreadCount(0);
     if (!enabled) return undefined;
     let active = true;
     // Refreshes can overlap and finish out of order: only the latest one may set the count.
@@ -44,7 +47,7 @@ export function useUnreadNotificationCount(enabled: boolean) {
       window.removeEventListener('focus', handleChange);
       window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, handleChange);
     };
-  }, [enabled]);
+  }, [enabled, userId]);
 
   return enabled ? unreadCount : 0;
 }
@@ -106,10 +109,16 @@ export function useNotifications(page: number, visitKey?: string) {
     void load(false);
     const intervalId = window.setInterval(refresh, NOTIFICATION_POLL_INTERVAL_MS);
     window.addEventListener('focus', refresh);
+    // After a notification is marked read (e.g. opened in a new tab), load the page again: the next
+    // unread notification moves up into its place, keeping every unread one before any read one. This
+    // new request is also the latest, so a response requested before the read finished, for this or
+    // another page, can no longer bring back the old unread total.
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
     return () => {
       active = false;
       window.clearInterval(intervalId);
       window.removeEventListener('focus', refresh);
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
     };
   }, [page, visitKey]);
 
