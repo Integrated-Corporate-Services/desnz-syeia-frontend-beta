@@ -1,31 +1,6 @@
-import { buildBackendUrl } from '../../utils/apiConfig';
-import { fetchCsrfToken, getCsrfHeaders } from '../../utils/csrf';
-import type { CpoDocument } from './cpoOrderDocumentsService';
-
-export const NOTICE_STEPS = ['inspection', 'online', 'newspapers', 'website', 'site', 'people', 'check'] as const;
-export type NoticeStep = typeof NOTICE_STEPS[number] | 'requirements';
-export const NOTICE_CATEGORIES: Partial<Record<NoticeStep, string>> = {
-  newspapers: 'CPO_NEWSPAPER_NOTICES', site: 'CPO_SITE_NOTICES', people: 'CPO_QUALIFYING_PERSON_NOTICES',
-};
-export interface NoticeAnswer {
-  acknowledged?: boolean;
-  address?: string;
-  url?: string;
-  from?: string;
-  until?: string;
-  liveDate?: string;
-  completionDate?: string;
-  evidence?: { fileId: string; date: string }[];
-  confirmed?: boolean | null;
-}
-export interface NoticesResponse {
-  record: Partial<Record<NoticeStep, NoticeAnswer>>;
-  documents: CpoDocument[];
-  reference: string;
-  objectionsEmail: string;
-  finalObjectionDate: string | null;
-  canEdit?: boolean;
-}
+import { buildBackendUrl } from '../../../utils/apiConfig';
+import { fetchCsrfToken, getCsrfHeaders } from '../../../utils/csrf';
+import type { NoticeAnswer, NoticeStep, NoticesResponse } from '../types/notices';
 async function readResponse(response: Response): Promise<NoticesResponse> {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(response.status === 400 && typeof body.message === 'string' ? body.message

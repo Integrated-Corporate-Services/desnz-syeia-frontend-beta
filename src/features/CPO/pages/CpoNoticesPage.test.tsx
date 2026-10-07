@@ -2,18 +2,18 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BreadcrumbProvider } from '../../context/BreadcrumbContext';
-import { deleteDocument } from '../../services/s3ApiService';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
+import { deleteDocument } from '../../../services/s3ApiService';
 import CpoNoticesPage from './CpoNoticesPage';
-import { cpoNoticesService } from './cpoNoticesService';
-import type { NoticesResponse } from './cpoNoticesService';
+import { cpoNoticesService } from '../services/cpoNoticesService';
+import type { NoticesResponse } from '../types/notices';
 
 const navigate = vi.fn();
 const upload = vi.hoisted(() => ({ pending: false, busy: false, scanErrors: [] as string[] }));
-vi.mock('../../components/PageTitle', () => ({ default: () => null }));
-vi.mock('../../services/s3ApiService', () => ({ deleteDocument: vi.fn().mockResolvedValue({}) }));
+vi.mock('../../../components/PageTitle', () => ({ default: () => null }));
+vi.mock('../../../services/s3ApiService', () => ({ deleteDocument: vi.fn().mockResolvedValue({}) }));
 vi.mock('react-router-dom', async () => ({ ...await vi.importActual<typeof import('react-router-dom')>('react-router-dom'), useNavigate: () => navigate }));
-vi.mock('../../components/FileUpload', async () => {
+vi.mock('../../../components/FileUpload', async () => {
   const react = await import('react');
   return { default: react.forwardRef((props: { title: string }, ref) => {
     react.useImperativeHandle(ref, () => ({ getPendingFiles: () => upload.pending ? [{}] : [], isBusy: () => upload.busy, triggerUpload: async () => ({ scanErrors: upload.scanErrors, uploadedFiles: upload.scanErrors.length ? [] : [{ id: 'new-file' }], applicationDocuments: [] }) }));

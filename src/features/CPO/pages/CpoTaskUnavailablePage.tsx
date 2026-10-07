@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import PageTitle from '../../components/PageTitle';
-import { CPO_BASE_URL } from '../../constants/cpo';
-import { CPO_TASK_SECTIONS } from './constants/cpoTaskListConstants';
+import PageTitle from '../../../components/PageTitle';
+import { CPO_BASE_URL } from '../../../constants/cpo';
+import { CPO_TASK_SECTIONS } from '../constants/cpoTaskListConstants';
+import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 const CpoTaskUnavailablePage: React.FC = () => {
-  const { applicationId = '', taskSlug = '' } = useParams();
+  const { taskSlug = '' } = useParams();
+  const applicationId = useCpoApplicationId();
   const task = CPO_TASK_SECTIONS.flatMap((section) => section.tasks).find(
     (item) => item.slug === taskSlug
   );

@@ -1,18 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import PageTitle from '../../components/PageTitle';
-import { useBreadcrumb } from '../../context/BreadcrumbContext';
-import { CPO_BASE_URL } from '../../constants/cpo';
-import { applicationApiService } from '../../services/applicationApiService';
-import { progressApiService } from '../../services/progressApiService';
-import { downloadS3FileOnSameTab } from '../../utils/s3DownloadUtil';
-import { cpoOrderDetailsService, RELATED_TYPE_LABELS } from './cpoOrderDetailsService';
-import type { OrderDetailsResponse, OrderDocument } from './cpoOrderDetailsService';
-import { cpoOrderDocumentsService, DOCUMENT_CATEGORIES } from './cpoOrderDocumentsService';
-import type { OrderDocumentsResponse } from './cpoOrderDocumentsService';
-import { cpoNoticesService, NOTICE_CATEGORIES } from './cpoNoticesService';
-import type { NoticesResponse, NoticeStep } from './cpoNoticesService';
-import { CPO_SUBSECTIONS, CPO_TASK_SECTIONS } from './constants/cpoTaskListConstants';
+import { Link } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { CPO_BASE_URL } from '../../../constants/cpo';
+import { applicationApiService } from '../../../services/applicationApiService';
+import { progressApiService } from '../../../services/progressApiService';
+import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
+import { cpoOrderDetailsService } from '../services/cpoOrderDetailsService';
+import { RELATED_TYPE_LABELS } from '../constants/orderDetailsConstants';
+import type { OrderDetailsResponse, OrderDocument } from '../types/orderDetails';
+import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
+import { DOCUMENT_CATEGORIES } from '../constants/orderDocumentsConstants';
+import type { OrderDocumentsResponse } from '../types/orderDocuments';
+import { cpoNoticesService } from '../services/cpoNoticesService';
+import { NOTICE_CATEGORIES } from '../constants/noticesConstants';
+import type { NoticesResponse, NoticeStep } from '../types/notices';
+import { CPO_SUBSECTIONS, CPO_TASK_SECTIONS } from '../constants/cpoTaskListConstants';
+import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 interface ReviewApplication {
   type: string;
@@ -47,7 +51,7 @@ const dateText = (value?: string | null) => {
 const choiceText = (value?: boolean | null) => typeof value === 'boolean' ? value ? 'Yes' : 'No' : 'Not answered';
 
 const CpoCheckYourAnswersPage: React.FC = () => {
-  const { applicationId = '' } = useParams();
+  const applicationId = useCpoApplicationId();
   const [data, setData] = useState<ReviewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

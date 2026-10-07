@@ -73,15 +73,17 @@ import ConsultationWithdrawnPage from '../features/Consultation/pages/Consultati
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
-import CPOWhoIsApplying from '../features/CPO/WhoIsApplying';
-import CpoTaskListPage from '../features/CPO/CpoTaskListPage';
-import CpoTaskUnavailablePage from '../features/CPO/CpoTaskUnavailablePage';
-import CpoPreSubmissionMeetingPage from '../features/CPO/CpoPreSubmissionMeetingPage';
-import CpoPreSubmissionMeetingConfirmationPage from '../features/CPO/CpoPreSubmissionMeetingConfirmationPage';
-import CpoOrderDetailsPage from '../features/CPO/CpoOrderDetailsPage';
-import CpoOrderDocumentsPage from '../features/CPO/CpoOrderDocumentsPage';
-import CpoNoticesPage from '../features/CPO/CpoNoticesPage';
-import CpoCheckYourAnswersPage from '../features/CPO/CpoCheckYourAnswersPage';
+import {
+    CPOWhoIsApplying,
+    CpoCheckYourAnswersPage,
+    CpoNoticesPage,
+    CpoOrderDetailsPage,
+    CpoOrderDocumentsPage,
+    CpoPreSubmissionMeetingConfirmationPage,
+    CpoPreSubmissionMeetingPage,
+    CpoTaskListPage,
+    CpoTaskUnavailablePage,
+} from '../features/CPO';
 // import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 // import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';

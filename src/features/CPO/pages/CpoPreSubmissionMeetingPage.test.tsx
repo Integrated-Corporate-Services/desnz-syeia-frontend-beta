@@ -2,14 +2,14 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { applicationApiService } from '../../services/applicationApiService';
-import * as csrf from '../../utils/csrf';
+import { applicationApiService } from '../../../services/applicationApiService';
+import * as csrf from '../../../utils/csrf';
 import CpoPreSubmissionMeetingPage from './CpoPreSubmissionMeetingPage';
 import CpoPreSubmissionMeetingConfirmationPage from './CpoPreSubmissionMeetingConfirmationPage';
 
 const navigateMock = vi.fn();
 
-vi.mock('../../components/PageTitle', () => ({ default: () => null }));
+vi.mock('../../../components/PageTitle', () => ({ default: () => null }));
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return { ...actual, useNavigate: () => navigateMock };

@@ -1,59 +1,7 @@
-import { buildBackendUrl } from '../../utils/apiConfig';
-import { fetchCsrfToken, getCsrfHeaders } from '../../utils/csrf';
-import type { ScanResult, ScanStatus } from '../../types/fileUpload';
-
-export const EXECUTIVE_SUMMARY_CATEGORY = 'CPO_EXECUTIVE_SUMMARY';
-export const ORDER_STEPS = ['name', 'purpose', 'special-land', 'exchange-land', 'executive-summary', 'related-applications', 'add-related-application', 'related-applications-list', 'check'] as const;
-export type OrderStep = typeof ORDER_STEPS[number];
-export type RelatedType = 'DCO' | 'S37' | 'CPO' | 'OTHER' | '';
-export interface RelatedApplication {
-  id: string;
-  type: RelatedType;
-  otherType: string;
-  reference: string;
-  siteAddress: string;
-  relationship: string;
-}
-export interface OrderDetails {
-  orderName: string;
-  purpose: string;
-  includesSpecialLand: boolean | null;
-  exchangeLand: boolean | null;
-  hasRelatedApplications: boolean | null;
-  relatedApplications: RelatedApplication[];
-  completedAt?: string | null;
-}
-export interface OrderDocument {
-  id: string;
-  document_id: string;
-  application_id: string;
-  file_id: string;
-  filename: string;
-  s3_key: string;
-  bucket_name: string;
-  virtual_folder: string;
-  storage_provider: string;
-  file_content_type: string;
-  file_size_bytes: number;
-  uploaded_at_timestamp: string;
-  added_by: string;
-  added_at: string;
-  scan_status: ScanStatus | null;
-  scan_result: ScanResult | null;
-}
-export interface OrderDetailsResponse {
-  details: OrderDetails;
-  documents: OrderDocument[];
-  canEdit?: boolean;
-}
-export const EMPTY_ORDER_DETAILS: OrderDetails = {
-  orderName: '', purpose: '', includesSpecialLand: null, exchangeLand: null,
-  hasRelatedApplications: null, relatedApplications: [],
-};
-export const RELATED_TYPE_LABELS: Record<RelatedType, string> = {
-  DCO: 'Development consent order (DCO)', S37: 'Overhead line consent (Section 37)',
-  CPO: 'Another compulsory purchase order for this project', OTHER: 'Other', '': 'Not answered',
-};
+import { buildBackendUrl } from '../../../utils/apiConfig';
+import { fetchCsrfToken, getCsrfHeaders } from '../../../utils/csrf';
+import { EMPTY_ORDER_DETAILS } from '../constants/orderDetailsConstants';
+import type { OrderDetails, OrderDetailsResponse, OrderStep } from '../types/orderDetails';
 
 async function readResponse(response: Response): Promise<OrderDetailsResponse> {
   if (!response.ok) {

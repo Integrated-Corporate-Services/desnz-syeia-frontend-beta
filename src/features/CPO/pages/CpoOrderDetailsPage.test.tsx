@@ -2,19 +2,20 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BreadcrumbProvider } from '../../context/BreadcrumbContext';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 import CpoOrderDetailsPage from './CpoOrderDetailsPage';
-import { cpoOrderDetailsService, EMPTY_ORDER_DETAILS } from './cpoOrderDetailsService';
-import type { OrderDetails, RelatedApplication } from './cpoOrderDetailsService';
+import { cpoOrderDetailsService } from '../services/cpoOrderDetailsService';
+import { EMPTY_ORDER_DETAILS } from '../constants/orderDetailsConstants';
+import type { OrderDetails, RelatedApplication } from '../types/orderDetails';
 
 const navigateMock = vi.fn();
 const uploadState = vi.hoisted(() => ({ errors: [] as string[] }));
-vi.mock('../../components/PageTitle', () => ({ default: () => null }));
+vi.mock('../../../components/PageTitle', () => ({ default: () => null }));
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return { ...actual, useNavigate: () => navigateMock };
 });
-vi.mock('../../components/FileUpload', async () => {
+vi.mock('../../../components/FileUpload', async () => {
   const actual = await import('react');
   return { default: actual.forwardRef((_props, ref) => {
     actual.useImperativeHandle(ref, () => ({

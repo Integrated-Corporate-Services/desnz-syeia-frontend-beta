@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import PageTitle from '../../components/PageTitle';
-import { CPO_BASE_URL } from '../../constants/cpo';
-import { applicationApiService } from '../../services/applicationApiService';
-import { progressApiService } from '../../services/progressApiService';
-import { CPO_SUBSECTIONS, CPO_TASK_COUNT, CPO_TASK_SECTIONS } from './constants/cpoTaskListConstants';
+import { Link, useNavigate } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
+import { CPO_BASE_URL } from '../../../constants/cpo';
+import { applicationApiService } from '../../../services/applicationApiService';
+import { progressApiService } from '../../../services/progressApiService';
+import { CPO_SUBSECTIONS, CPO_TASK_COUNT, CPO_TASK_SECTIONS } from '../constants/cpoTaskListConstants';
+import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 type CpoProgressItem = {
   subsection_name: string;
@@ -12,7 +13,7 @@ type CpoProgressItem = {
 };
 
 const CpoTaskListPage: React.FC = () => {
-  const { applicationId = '' } = useParams();
+  const applicationId = useCpoApplicationId();
   const navigate = useNavigate();
   const [application, setApplication] = useState<any>(null);
   const [progress, setProgress] = useState<CpoProgressItem[]>([]);

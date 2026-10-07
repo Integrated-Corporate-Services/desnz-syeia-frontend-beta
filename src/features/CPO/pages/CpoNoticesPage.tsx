@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import PageTitle from '../../components/PageTitle';
-import FileUpload, { type FileUploadHandle } from '../../components/FileUpload';
-import { useBreadcrumb } from '../../context/BreadcrumbContext';
-import { CPO_BASE_URL } from '../../constants/cpo';
-import { downloadS3FileOnSameTab } from '../../utils/s3DownloadUtil';
-import { deleteDocument } from '../../services/s3ApiService';
-import { cpoNoticesService, NOTICE_CATEGORIES, NOTICE_STEPS } from './cpoNoticesService';
-import type { NoticeAnswer, NoticesResponse, NoticeStep } from './cpoNoticesService';
+import PageTitle from '../../../components/PageTitle';
+import FileUpload, { type FileUploadHandle } from '../../../components/FileUpload';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { CPO_BASE_URL } from '../../../constants/cpo';
+import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
+import { deleteDocument } from '../../../services/s3ApiService';
+import DateInput from '../components/DateInput';
+import { cpoNoticesService } from '../services/cpoNoticesService';
+import { NOTICE_CATEGORIES, NOTICE_STEPS } from '../constants/noticesConstants';
+import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../types/notices';
+import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 const HEADINGS: Record<NoticeStep, string> = {
   requirements: 'What your public notices must include', inspection: 'Where can people inspect the order?',
@@ -23,26 +26,9 @@ const formatDate = (value?: string) => value && /^\d{4}-\d{2}-\d{2}$/.test(value
 const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 type FormError = { id: string; message: string };
 
-function DateInput({ id, label, value = '', onChange, disabled, error }: { id: string; label: string; value?: string; onChange: (value: string) => void; disabled?: boolean; error?: string }) {
-  const parts = value.split('-');
-  return <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
-    <fieldset className="govuk-fieldset" aria-describedby={`${id}-hint${error ? ` ${id}-error` : ''}`} disabled={disabled}>
-      <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">{label}</legend>
-      <div className="govuk-hint" id={`${id}-hint`}>For example, 27 3 2026</div>
-      {error && <p className="govuk-error-message" id={`${id}-error`}><span className="govuk-visually-hidden">Error:</span> {error}</p>}
-      <div className="govuk-date-input" id={id}>{[{ name: 'Day', index: 2, width: 2 }, { name: 'Month', index: 1, width: 2 }, { name: 'Year', index: 0, width: 4 }].map((part) => <div className="govuk-date-input__item" key={part.name}>
-        <div className="govuk-form-group"><label className="govuk-label govuk-date-input__label" htmlFor={`${id}-${part.name.toLowerCase()}`}>{part.name}</label>
-          <input className={`govuk-input govuk-date-input__input govuk-input--width-${part.width}${error ? ' govuk-input--error' : ''}`} id={`${id}-${part.name.toLowerCase()}`} name={`${id}-${part.name.toLowerCase()}`} type="text" inputMode="numeric" maxLength={part.width} value={(parts[part.index] || '').replace(/^0(?=\d)/, '')} onChange={(event) => {
-            const next = [parts[0] || '', parts[1] || '', parts[2] || '']; next[part.index] = event.target.value.replace(/\D/g, '');
-            onChange(next.every((item) => !item) ? '' : `${next[0]}-${next[1] ? next[1].padStart(2, '0') : ''}-${next[2] ? next[2].padStart(2, '0') : ''}`);
-          }} />
-        </div></div>)}</div>
-    </fieldset>
-  </div>;
-}
-
 const CpoNoticesPage: React.FC = () => {
-  const { applicationId = '', noticeStep = 'inspection' } = useParams();
+  const { noticeStep = 'inspection' } = useParams();
+  const applicationId = useCpoApplicationId();
   const [searchParams] = useSearchParams();
   const fromApplicationReview = searchParams.get('from') === 'application-review';
   const navigate = useNavigate();

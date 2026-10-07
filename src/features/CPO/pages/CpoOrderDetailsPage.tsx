@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import PageTitle from '../../components/PageTitle';
-import FileUpload, { type FileUploadHandle } from '../../components/FileUpload';
-import { useBreadcrumb } from '../../context/BreadcrumbContext';
-import { CPO_BASE_URL } from '../../constants/cpo';
-import { cpoOrderDetailsService, EMPTY_ORDER_DETAILS, EXECUTIVE_SUMMARY_CATEGORY, ORDER_STEPS, RELATED_TYPE_LABELS, nextOrderStep } from './cpoOrderDetailsService';
-import type { OrderDetails, OrderDocument, OrderStep, RelatedApplication, RelatedType } from './cpoOrderDetailsService';
+import PageTitle from '../../../components/PageTitle';
+import FileUpload, { type FileUploadHandle } from '../../../components/FileUpload';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { CPO_BASE_URL } from '../../../constants/cpo';
+import { cpoOrderDetailsService, nextOrderStep } from '../services/cpoOrderDetailsService';
+import { EMPTY_ORDER_DETAILS, EXECUTIVE_SUMMARY_CATEGORY, ORDER_STEPS, RELATED_TYPE_LABELS } from '../constants/orderDetailsConstants';
+import type { OrderDetails, OrderDocument, OrderStep, RelatedApplication, RelatedType } from '../types/orderDetails';
+import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 type FormError = { id: string; message: string };
 const COPY: Record<OrderStep, { heading: string; hint?: string }> = {
@@ -22,7 +24,8 @@ const COPY: Record<OrderStep, { heading: string; hint?: string }> = {
 const emptyRelated = (): RelatedApplication => ({ id: crypto.randomUUID(), type: '', otherType: '', reference: '', siteAddress: '', relationship: '' });
 
 const CpoOrderDetailsPage: React.FC = () => {
-  const { applicationId = '', orderStep = 'name' } = useParams();
+  const { orderStep = 'name' } = useParams();
+  const applicationId = useCpoApplicationId();
   const step: OrderStep = ORDER_STEPS.includes(orderStep as OrderStep) ? orderStep as OrderStep : 'name';
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

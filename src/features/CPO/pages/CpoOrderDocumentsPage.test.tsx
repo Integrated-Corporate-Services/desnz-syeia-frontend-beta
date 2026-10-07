@@ -2,22 +2,23 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BreadcrumbProvider } from '../../context/BreadcrumbContext';
-import { applicationApiService } from '../../services/applicationApiService';
-import { progressApiService } from '../../services/progressApiService';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
+import { applicationApiService } from '../../../services/applicationApiService';
+import { progressApiService } from '../../../services/progressApiService';
 import CpoOrderDocumentsPage from './CpoOrderDocumentsPage';
 import CpoTaskListPage from './CpoTaskListPage';
-import { cpoOrderDocumentsService, DOCUMENT_CATEGORIES } from './cpoOrderDocumentsService';
-import type { CpoDocument, OrderDocumentsResponse } from './cpoOrderDocumentsService';
+import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
+import { DOCUMENT_CATEGORIES } from '../constants/orderDocumentsConstants';
+import type { CpoDocument, OrderDocumentsResponse } from '../types/orderDocuments';
 
 const navigateMock = vi.fn();
 const uploadState = vi.hoisted(() => ({ busy: false, errors: [] as string[] }));
-vi.mock('../../components/PageTitle', () => ({ default: () => null }));
+vi.mock('../../../components/PageTitle', () => ({ default: () => null }));
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return { ...actual, useNavigate: () => navigateMock };
 });
-vi.mock('../../components/FileUpload', async () => {
+vi.mock('../../../components/FileUpload', async () => {
   const actual = await import('react');
   return { default: actual.forwardRef((props: { title?: string; hint?: string; inputDescribedBy?: string; uploadedFiles?: { id: string; filename: string }[]; onDeleteFile?: (id: string) => void }, ref) => {
     actual.useImperativeHandle(ref, () => ({ isBusy: () => uploadState.busy, triggerUpload: async () => ({ scanErrors: uploadState.errors, uploadedFiles: [], applicationDocuments: [] }) }));

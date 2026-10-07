@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import PageTitle from '../../components/PageTitle';
-import { CPO_BASE_URL } from '../../constants/cpo';
-import { applicationApiService } from '../../services/applicationApiService';
+import { useNavigate } from 'react-router-dom';
+import PageTitle from '../../../components/PageTitle';
+import { CPO_BASE_URL } from '../../../constants/cpo';
+import { applicationApiService } from '../../../services/applicationApiService';
+import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 const CpoPreSubmissionMeetingPage: React.FC = () => {
-  const { applicationId = '' } = useParams();
+  const applicationId = useCpoApplicationId();
   const navigate = useNavigate();
   const [requested, setRequested] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);

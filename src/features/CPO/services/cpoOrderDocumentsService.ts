@@ -1,19 +1,6 @@
-import { buildBackendUrl } from '../../utils/apiConfig';
-import { fetchCsrfToken, getCsrfHeaders } from '../../utils/csrf';
-import type { OrderDetails, OrderDocument } from './cpoOrderDetailsService';
-
-export const DOCUMENT_STEPS = ['order', 'maps', 'reasons', 'additional', 'check'] as const;
-export type DocumentStep = typeof DOCUMENT_STEPS[number];
-export type UploadStep = Exclude<DocumentStep, 'check'>;
-export const DOCUMENT_CATEGORIES: Record<UploadStep, string> = {
-  order: 'CPO_ORDER', maps: 'CPO_ORDER_MAPS', reasons: 'CPO_STATEMENT_OF_REASONS', additional: 'CPO_ADDITIONAL_DOCUMENTS',
-};
-export interface CpoDocument extends OrderDocument { category: string }
-export interface OrderDocumentsResponse {
-  orderDetails: Partial<OrderDetails>;
-  documents: CpoDocument[];
-  canEdit?: boolean;
-}
+import { buildBackendUrl } from '../../../utils/apiConfig';
+import { fetchCsrfToken, getCsrfHeaders } from '../../../utils/csrf';
+import type { DocumentStep, OrderDocumentsResponse } from '../types/orderDocuments';
 
 async function readResponse(response: Response): Promise<OrderDocumentsResponse> {
   if (!response.ok) {

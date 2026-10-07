@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import PageTitle from '../../components/PageTitle';
-import FileUpload, { type FileUploadHandle } from '../../components/FileUpload';
-import { useBreadcrumb } from '../../context/BreadcrumbContext';
-import { CPO_BASE_URL } from '../../constants/cpo';
-import { downloadS3FileOnSameTab } from '../../utils/s3DownloadUtil';
-import { DOCUMENT_CATEGORIES, DOCUMENT_STEPS, cpoOrderDocumentsService } from './cpoOrderDocumentsService';
-import type { CpoDocument, DocumentStep, OrderDocumentsResponse, UploadStep } from './cpoOrderDocumentsService';
+import PageTitle from '../../../components/PageTitle';
+import FileUpload, { type FileUploadHandle } from '../../../components/FileUpload';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { CPO_BASE_URL } from '../../../constants/cpo';
+import { downloadS3FileOnSameTab } from '../../../utils/s3DownloadUtil';
+import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
+import { DOCUMENT_CATEGORIES, DOCUMENT_STEPS } from '../constants/orderDocumentsConstants';
+import type { CpoDocument, DocumentStep, OrderDocumentsResponse, UploadStep } from '../types/orderDocuments';
+import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 const COPY: Record<UploadStep, { heading: string; description: string; uploadTitle: string; hint: string; guidanceTitle: string; points: string[] }> = {
   order: {
@@ -34,7 +36,8 @@ const SUMMARY_LABELS: Record<UploadStep, string> = { order: 'The order', maps: '
 type DocumentError = { id: string; message: string };
 
 const CpoOrderDocumentsPage: React.FC = () => {
-  const { applicationId = '', documentStep = 'order' } = useParams();
+  const { documentStep = 'order' } = useParams();
+  const applicationId = useCpoApplicationId();
   const step: DocumentStep = DOCUMENT_STEPS.includes(documentStep as DocumentStep) ? documentStep as DocumentStep : 'order';
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
