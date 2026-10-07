@@ -47,6 +47,16 @@ describe('ServiceNavigation notifications link', () => {
     expect(link).not.toHaveAttribute('aria-current');
   });
 
+  it('keeps the count out of a live region, so it is not announced again after every page change', async () => {
+    signInAs('APPLICANT_USER');
+    vi.mocked(getUnreadNotificationCount).mockResolvedValue(2);
+    renderNavigation();
+
+    const link = await screen.findByRole('link', { name: 'Notifications (2) unread' });
+    expect(link.closest('[aria-live], [role=status], [role=alert]')).toBeNull();
+    expect(link.querySelector('[aria-live], [role=status], [role=alert]')).toBeNull();
+  });
+
   it('shows the link without a count when nothing is unread, and marks it current on the page', async () => {
     signInAs('APPLICANT_TEAM_COORDINATOR');
     vi.mocked(getUnreadNotificationCount).mockResolvedValue(0);

@@ -120,6 +120,14 @@ const NotificationsPage: React.FC = () => {
       </div>
     );
 
+  const statusText = loading
+    ? NOTIFICATIONS_MESSAGES.LOADING
+    : failed
+      ? ''
+      : total === 0
+        ? NOTIFICATIONS_MESSAGES.NONE
+        : NOTIFICATIONS_MESSAGES.summary(total, unread);
+
   const changePage = (nextPage: number) => {
     setSearchParams({ page: String(nextPage) });
     window.scrollTo(0, 0);
@@ -136,22 +144,28 @@ const NotificationsPage: React.FC = () => {
         </a>
         <h1 className="govuk-heading-l">{NOTIFICATIONS_MESSAGES.PAGE_TITLE}</h1>
 
-        {loading && (
-          <p className="govuk-body" role="status">
-            {NOTIFICATIONS_MESSAGES.LOADING}
+        {/* One status region that stays on the page, so screen readers hear "Loading notifications" and
+            then the result, e.g. "13 notifications: 10 unread and 3 read." (WCAG 4.1.3). */}
+        <p className={statusText ? 'govuk-body' : undefined} role="status">
+          {statusText}
+        </p>
+
+        {!loading && failed && (
+          <p className="govuk-body" role="alert">
+            {NOTIFICATIONS_MESSAGES.LOAD_FAILED}
           </p>
         )}
 
-        {!loading && failed && <p className="govuk-body">{NOTIFICATIONS_MESSAGES.LOAD_FAILED}</p>}
-
-        {!loading && !failed && total === 0 && <p className="govuk-body">{NOTIFICATIONS_MESSAGES.NONE}</p>}
-
         {!loading && !failed && total > 0 && (
           <>
-            <p className="govuk-body">{NOTIFICATIONS_MESSAGES.summary(total, unread)}</p>
             {renderCard(NOTIFICATIONS_MESSAGES.UNREAD, notifications.filter((notification) => !notification.read))}
             {renderCard(NOTIFICATIONS_MESSAGES.READ, notifications.filter((notification) => notification.read))}
-            <Pagination currentPage={Math.min(page, lastPage)} totalPages={lastPage} onPageChange={changePage} />
+            <Pagination
+              currentPage={Math.min(page, lastPage)}
+              totalPages={lastPage}
+              onPageChange={changePage}
+              pageHref={(pageNumber) => `?page=${pageNumber}`}
+            />
           </>
         )}
 

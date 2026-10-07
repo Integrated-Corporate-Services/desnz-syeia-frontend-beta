@@ -150,14 +150,15 @@ const ServiceNavigation = () => {
                                         aria-current={isOnNotificationsPage ? "page" : undefined}
                                     >
                                         Notifications
-                                        <span aria-live="polite">
-                                            {unreadNotificationCount > 0 && (
-                                                <>
-                                                    {" "}({unreadNotificationCount})
-                                                    <span className="govuk-visually-hidden"> unread</span>
-                                                </>
-                                            )}
-                                        </span>
+                                        {/* The count is part of the link's name, e.g. "Notifications (3) unread".
+                                            It is not a live region: the navigation is drawn again on every page,
+                                            so screen readers would announce the count after every page change. */}
+                                        {unreadNotificationCount > 0 && (
+                                            <>
+                                                {" "}({unreadNotificationCount})
+                                                <span className="govuk-visually-hidden"> unread</span>
+                                            </>
+                                        )}
                                     </Link>
                                 </li>
                             )}

@@ -177,12 +177,56 @@ describe('NotificationsPage', () => {
     expect(await screen.findByText('Your applications')).toBeInTheDocument();
   });
 
-  it('says so when the notifications cannot be loaded', async () => {
+  it('says so when the notifications cannot be loaded, as an alert screen readers announce', async () => {
     vi.mocked(getInAppNotifications).mockResolvedValue(null);
     renderPage();
 
-    expect(await screen.findByText('Your notifications could not be loaded. Try again shortly.')).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('Your notifications could not be loaded. Try again shortly.');
     expect(screen.queryByText('You have no notifications.')).not.toBeInTheDocument();
+  });
+
+  it('announces "Loading notifications" and then the result, in the same status region (WCAG 4.1.3)', async () => {
+    let respond!: (page: InAppNotificationsResponse) => void;
+    vi.mocked(getInAppNotifications).mockReturnValue(new Promise((resolve) => { respond = resolve; }));
+    renderPage();
+
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent('Loading notifications');
+    respond(pageOf([unreadNwl, readS37]));
+
+    await waitFor(() => expect(status).toHaveTextContent('2 notifications: 1 unread and 1 read.'));
+    // The same element changes, so screen readers announce the new text.
+    expect(screen.getByRole('status')).toBe(status);
+  });
+
+  it('announces an empty list in the status region too', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([]));
+    renderPage();
+
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('You have no notifications.'));
+  });
+
+  it('makes each page link a real link to its page, and leaves a Ctrl/Cmd-click to the browser', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([readS37], { total: 34, unread: 0 }));
+    renderPage();
+
+    const pagination = await screen.findByRole('navigation', { name: 'Pagination' });
+    expect(within(pagination).getByRole('link', { name: 'Go to page 2 of 4' })).toHaveAttribute('href', '?page=2');
+    expect(within(pagination).getByRole('link', { name: 'Go to next page, page 2 of 4' })).toHaveAttribute('href', '?page=2');
+    expect(within(pagination).getByRole('link', { name: 'Current page, page 1 of 4' })).toHaveAttribute('href', '?page=1');
+
+    let cancelledByPage: boolean | undefined;
+    const afterPage = (event: Event) => {
+      cancelledByPage = event.defaultPrevented;
+      event.preventDefault();
+    };
+    document.addEventListener('click', afterPage);
+    fireEvent.click(within(pagination).getByRole('link', { name: 'Go to page 3 of 4' }), { ctrlKey: true });
+    document.removeEventListener('click', afterPage);
+
+    expect(cancelledByPage).toBe(false);
+    expect(screen.getByTestId('url')).toHaveTextContent('/notifications');
+    expect(getInAppNotifications).not.toHaveBeenCalledWith(3, 10);
   });
 
   it.each(['Infinity', 'abc', '-2', '1.5', '0'])('treats a malformed page number (%s) as the first page', async (value) => {
