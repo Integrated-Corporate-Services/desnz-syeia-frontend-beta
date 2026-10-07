@@ -44,6 +44,7 @@ function DateInput({ id, label, value = '', onChange, disabled, error }: { id: s
 const CpoNoticesPage: React.FC = () => {
   const { applicationId = '', noticeStep = 'inspection' } = useParams();
   const [searchParams] = useSearchParams();
+  const fromApplicationReview = searchParams.get('from') === 'application-review';
   const navigate = useNavigate();
   const location = useLocation();
   const requirements = location.pathname.endsWith('/notice-requirements');
@@ -114,9 +115,9 @@ const CpoNoticesPage: React.FC = () => {
       setData({ ...result, canEdit: data.canEdit }); setAnswer(nextAnswer);
       if (uploadOnly) { setUploadDate(''); return; }
       if (saveForLater) { navigate('/application-dashboard'); return; }
-      if (step === 'check') navigate(`${CPO_BASE_URL}/${applicationId}/task-list`);
-      else if (step === 'requirements') navigate(base);
-      else navigate(`${base}/${searchParams.get('from') === 'check' ? 'check' : NOTICE_STEPS[NOTICE_STEPS.indexOf(step) + 1]}`);
+      if (step === 'check') navigate(`${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
+      else if (step === 'requirements') navigate(fromApplicationReview ? `${CPO_BASE_URL}/${applicationId}/check-and-submit` : base);
+      else navigate(`${base}/${searchParams.get('from') === 'check' || fromApplicationReview ? 'check' : NOTICE_STEPS[NOTICE_STEPS.indexOf(step) + 1]}${fromApplicationReview ? '?from=application-review' : ''}`);
     } catch (failure) { setErrors([{ id: category ? 'file-upload-input' : 'notices-heading', message: failure instanceof Error ? failure.message : 'Unable to save your publicity record. Try again.' }]); }
     finally { setSaving(false); }
   };
@@ -190,7 +191,7 @@ const CpoNoticesPage: React.FC = () => {
           {step !== 'newspapers' && dateInput('completionDate', step === 'site' ? 'Date the final notice was affixed' : 'Date service on the last person completed')}
         </>}
         {step === 'check' && <>
-          <dl className="govuk-summary-list">{NOTICE_STEPS.filter((target) => target !== 'check').map((target) => <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{LABELS[target]}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{reviewValue(target)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=check`}>Change<span className="govuk-visually-hidden"> {LABELS[target].toLowerCase()}</span></Link></dd></div>)}</dl>
+          <dl className="govuk-summary-list">{NOTICE_STEPS.filter((target) => target !== 'check').map((target) => <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{LABELS[target]}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{reviewValue(target)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'application-review' : 'check'}`}>Change<span className="govuk-visually-hidden"> {LABELS[target].toLowerCase()}</span></Link></dd></div>)}</dl>
           <p className="govuk-body"><strong>Final day for objections:</strong> {formatDate(data.finalObjectionDate || undefined)}</p>
           <div className={`govuk-form-group${errorFor('confirmed-yes') ? ' govuk-form-group--error' : ''}`}><fieldset className="govuk-fieldset" aria-describedby={errorFor('confirmed-yes') ? 'confirmed-error' : undefined}><legend className="govuk-fieldset__legend govuk-fieldset__legend--m">Is everything in this section correct?</legend>{errorFor('confirmed-yes') && <p className="govuk-error-message" id="confirmed-error">{errorFor('confirmed-yes')}</p>}<div className="govuk-radios govuk-radios--inline">{[true, false].map((value) => <div className="govuk-radios__item" key={String(value)}><input className="govuk-radios__input" id={`confirmed-${value ? 'yes' : 'no'}`} name="confirmed" type="radio" checked={answer.confirmed === value} onChange={() => { setAnswer({ confirmed: value }); setErrors([]); }} /><label className="govuk-label govuk-radios__label" htmlFor={`confirmed-${value ? 'yes' : 'no'}`}>{value ? 'Yes' : 'No'}</label></div>)}</div></fieldset></div>
         </>}

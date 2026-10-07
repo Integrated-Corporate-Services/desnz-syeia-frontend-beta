@@ -81,6 +81,7 @@ import CpoPreSubmissionMeetingConfirmationPage from '../features/CPO/CpoPreSubmi
 import CpoOrderDetailsPage from '../features/CPO/CpoOrderDetailsPage';
 import CpoOrderDocumentsPage from '../features/CPO/CpoOrderDocumentsPage';
 import CpoNoticesPage from '../features/CPO/CpoNoticesPage';
+import CpoCheckYourAnswersPage from '../features/CPO/CpoCheckYourAnswersPage';
 // import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 // import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
@@ -719,6 +720,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/cpo/:applicationId/record-notices/:noticeStep',
         component: CpoNoticesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/check-and-submit',
+        component: CpoCheckYourAnswersPage,
         auth: true,
         layout: true,
     },

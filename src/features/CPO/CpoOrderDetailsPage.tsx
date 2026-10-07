@@ -26,7 +26,8 @@ const CpoOrderDetailsPage: React.FC = () => {
   const step: OrderStep = ORDER_STEPS.includes(orderStep as OrderStep) ? orderStep as OrderStep : 'name';
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const fromCheck = searchParams.get('from') === 'check';
+  const fromApplicationReview = searchParams.get('from') === 'application-review';
+  const fromCheck = searchParams.get('from') === 'check' || fromApplicationReview;
   const editId = searchParams.get('edit');
   const [details, setDetails] = useState<OrderDetails>(EMPTY_ORDER_DETAILS);
   const [documents, setDocuments] = useState<OrderDocument[]>([]);
@@ -90,7 +91,7 @@ const CpoOrderDetailsPage: React.FC = () => {
   const update = (changes: Partial<OrderDetails>) => setDetails((current) => ({ ...current, ...changes }));
   const errorFor = (id: string) => errors.find((error) => error.id === id)?.message;
   const inlineError = (id: string) => errorFor(id) && <p className="govuk-error-message" id={`${id}-error`}><span className="govuk-visually-hidden">Error:</span> {errorFor(id)}</p>;
-  const changeUrl = (target: OrderStep) => `${base}/${target}?from=check`;
+  const changeUrl = (target: OrderStep) => `${base}/${target}?from=${fromApplicationReview ? 'application-review' : 'check'}`;
 
   const choices = (id: string, value: boolean | null, onChange: (answer: boolean) => void, title: string, visibleLegend = false) => (
     <div className={`govuk-form-group${errorFor(`${id}-yes`) ? ' govuk-form-group--error' : ''}`}>
@@ -173,7 +174,8 @@ const CpoOrderDetailsPage: React.FC = () => {
       if (fromCheck && !['related-applications', 'add-related-application', 'related-applications-list', 'check'].includes(step)) {
         next = step === 'special-land' && result.details.includesSpecialLand && result.details.exchangeLand === null ? 'exchange-land' : 'check';
       }
-      navigate(next ? `${base}/${next}${fromCheck && next !== 'check' ? '?from=check' : ''}` : `${CPO_BASE_URL}/${applicationId}/task-list`);
+      const returnQuery = fromApplicationReview ? '?from=application-review' : fromCheck && next !== 'check' ? '?from=check' : '';
+      navigate(next ? `${base}/${next}${returnQuery}` : `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
     } catch (error) {
       setErrors([{ id: step === 'executive-summary' ? 'file-upload-input' : 'order-heading', message: error instanceof Error ? error.message : 'Unable to save order details. Try again.' }]);
     } finally { setSaving(false); }
@@ -241,7 +243,7 @@ const CpoOrderDetailsPage: React.FC = () => {
             <dl className="govuk-summary-list">{details.relatedApplications.map((entry) => <div className="govuk-summary-list__row" key={entry.id}>
               <dt className="govuk-summary-list__key">{entry.type === 'OTHER' ? entry.otherType || 'Other' : RELATED_TYPE_LABELS[entry.type]}</dt>
               <dd className="govuk-summary-list__value">{[entry.reference, entry.siteAddress, entry.relationship].filter(Boolean).join(' - ') || 'Not answered'}</dd>
-              <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/add-related-application?edit=${entry.id}${fromCheck ? '&from=check' : ''}`}>Change<span className="govuk-visually-hidden"> related application {entry.reference || entry.type}</span></Link></dd>
+              <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/add-related-application?edit=${entry.id}${fromCheck ? `&from=${fromApplicationReview ? 'application-review' : 'check'}` : ''}`}>Change<span className="govuk-visually-hidden"> related application {entry.reference || entry.type}</span></Link></dd>
             </div>)}</dl>
             {choices('add-another', addAnother, setAddAnother, 'Do you need to add another related application?', true)}
           </>}

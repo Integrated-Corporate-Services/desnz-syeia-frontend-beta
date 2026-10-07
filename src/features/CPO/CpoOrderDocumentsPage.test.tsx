@@ -116,6 +116,17 @@ describe('CPO order documents journey', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-documents/check'));
   });
+  it('preserves the full application return path while checking changed documents', async () => {
+    renderStep('maps', '?from=application-review'); await ready();
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-documents/check?from=application-review'));
+  });
+  it('returns confirmed documents to the full application review', async () => {
+    renderStep('check', '?from=application-review'); await ready();
+    expect(screen.getByRole('link', { name: 'Change the order' })).toHaveAttribute('href', '/cpo/application-id/order-documents/order?from=application-review');
+    fireEvent.click(screen.getByLabelText('Yes')); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
+  });
   it('reviews all four document groups and optional absence with Change links', async () => {
     renderStep('check');
     await ready();
@@ -149,7 +160,7 @@ describe('CPO order documents journey', () => {
     vi.mocked(cpoOrderDocumentsService.get).mockRejectedValue(new Error('Unable to load'));
     renderStep();
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Unable to load'));
-    expect(screen.getByRole('alert')).toHaveFocus();
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus());
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
   });
   it('does not show upload or delete controls for view-only access', async () => {

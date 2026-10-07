@@ -38,7 +38,8 @@ const CpoOrderDocumentsPage: React.FC = () => {
   const step: DocumentStep = DOCUMENT_STEPS.includes(documentStep as DocumentStep) ? documentStep as DocumentStep : 'order';
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const fromCheck = searchParams.get('from') === 'check';
+  const fromApplicationReview = searchParams.get('from') === 'application-review';
+  const fromCheck = searchParams.get('from') === 'check' || fromApplicationReview;
   const [data, setData] = useState<OrderDocumentsResponse>({ orderDetails: {}, documents: [] });
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -104,7 +105,7 @@ const CpoOrderDocumentsPage: React.FC = () => {
       setData((current) => ({ ...result, canEdit: current.canEdit }));
       if (saveForLater) { navigate('/application-dashboard'); return; }
       const next = fromCheck ? 'check' : DOCUMENT_STEPS[DOCUMENT_STEPS.indexOf(step) + 1];
-      navigate(step === 'check' ? `${CPO_BASE_URL}/${applicationId}/task-list` : `${base}/${next}`);
+      navigate(step === 'check' ? `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}` : `${base}/${next}${fromApplicationReview ? '?from=application-review' : ''}`);
     } catch (failure) {
       setErrors([{ id: step === 'check' ? 'documents-heading' : 'file-upload-input', message: failure instanceof Error ? failure.message : 'Unable to save documents. Try again.' }]);
     } finally { setSaving(false); }
@@ -164,7 +165,7 @@ const CpoOrderDocumentsPage: React.FC = () => {
               const files = data.documents.filter((document) => document.category === DOCUMENT_CATEGORIES[target]);
               return <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{SUMMARY_LABELS[target]}</dt>
                 <dd className="govuk-summary-list__value">{files.length ? files.map((document) => <p className="govuk-!-margin-bottom-1" key={document.document_id}>{document.filename}</p>) : target === 'additional' ? 'None uploaded' : 'Not uploaded'}</dd>
-                <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=check`}>Change<span className="govuk-visually-hidden"> {SUMMARY_LABELS[target].toLowerCase()}</span></Link></dd>
+                <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'application-review' : 'check'}`}>Change<span className="govuk-visually-hidden"> {SUMMARY_LABELS[target].toLowerCase()}</span></Link></dd>
               </div>;
             })}</dl>
             <div className={`govuk-form-group${errors.some((error) => error.id === 'documents-correct-yes') ? ' govuk-form-group--error' : ''}`}>

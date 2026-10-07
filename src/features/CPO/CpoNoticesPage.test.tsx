@@ -97,6 +97,17 @@ describe('CPO notices journey', () => {
     renderStep('website', '?from=check'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/check'));
   });
+  it('preserves the application review return path through publicity rechecking', async () => {
+    renderStep('website', '?from=application-review'); await ready();
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/check?from=application-review'));
+  });
+  it('returns a confirmed publicity review to the whole application', async () => {
+    renderStep('check', '?from=application-review'); await ready();
+    expect(screen.getByRole('link', { name: 'Change website notice' })).toHaveAttribute('href', '/cpo/app/record-notices/website?from=application-review');
+    fireEvent.click(screen.getByLabelText('Yes')); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/check-and-submit'));
+  });
   it('requires affirmative review and then returns to the task list', async () => {
     renderStep('check'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     expect(screen.getByRole('alert')).toHaveTextContent('Select yes');
