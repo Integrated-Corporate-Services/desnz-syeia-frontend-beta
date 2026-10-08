@@ -74,13 +74,15 @@ const CpoNoticesPage: React.FC = () => {
     if (!uploadRef.current?.getPendingFiles().length) return answer;
     if (!validDate(uploadDate)) throw new Error('Enter a valid document date before uploading');
     const uploaded = await uploadRef.current.triggerUpload();
+    const evidence = [...(answer.evidence || []), ...uploaded.uploadedFiles.map((file) => ({ fileId: file.id, date: uploadDate }))];
+    const nextAnswer = { ...answer, evidence };
+    setAnswer(nextAnswer);
     if (uploaded.scanErrors.length) {
       const refreshed = await cpoNoticesService.get(applicationId);
       setData(refreshed);
       throw new Error(uploaded.scanErrors.join(' '));
     }
-    const evidence = [...(answer.evidence || []), ...uploaded.uploadedFiles.map((file) => ({ fileId: file.id, date: uploadDate }))];
-    return { ...answer, evidence };
+    return nextAnswer;
   };
   const submit = async (saveForLater: boolean, uploadOnly = false) => {
     if (blocked) return;
