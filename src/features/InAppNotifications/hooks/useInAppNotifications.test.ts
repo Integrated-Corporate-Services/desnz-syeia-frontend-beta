@@ -112,6 +112,34 @@ describe('useNotifications', () => {
     expect(result.current.loading).toBe(false);
   });
 
+  it('counts a read once when a refresh that already includes it arrives before the update finishes', async () => {
+    const other = { ...unreadItem, id: 'n-2', desnzRef: 'S3700005', message: 'Application S3700005 has an update for you.' };
+    const both = { notifications: [unreadItem, other], total: 5, unread: 2, page: 1, limit: 10 };
+    const afterRead = { notifications: [{ ...unreadItem, read: true }, other], total: 5, unread: 1, page: 1, limit: 10 };
+    const reload = deferred<typeof afterRead>(); // the reload after the read, held back until checked
+    vi.mocked(getInAppNotifications).mockResolvedValueOnce(both).mockResolvedValueOnce(afterRead).mockReturnValueOnce(reload.promise);
+    const update = deferred<boolean>();
+    vi.mocked(markInAppNotificationRead).mockReset().mockReturnValueOnce(update.promise);
+    const { result } = renderHook(() => useNotifications(1));
+    await waitFor(() => expect(result.current.unread).toBe(2));
+
+    let marking!: Promise<void>;
+    act(() => {
+      marking = result.current.markRead(unreadItem); // e.g. opened in a new tab
+      window.dispatchEvent(new Event('focus')); // a refresh that sees the read already saved...
+    });
+    await waitFor(() => expect(result.current.unread).toBe(1));
+    await act(async () => {
+      update.resolve(true); // ...arrives before the update's own response
+      await marking;
+    });
+
+    expect(result.current.unread).toBe(1); // not 0: the same read is not counted twice
+    expect(getInAppNotifications).toHaveBeenCalledTimes(3); // and the page is reloaded after the read
+    await act(async () => reload.resolve(afterRead));
+    expect(result.current.unread).toBe(1);
+  });
+
   it('counts a notification as read once when it is opened twice before the first update finishes', async () => {
     vi.mocked(getInAppNotifications).mockResolvedValue(pageWith(unreadItem, 2));
     const update = deferred<boolean>();

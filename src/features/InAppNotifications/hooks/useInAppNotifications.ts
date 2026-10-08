@@ -67,6 +67,17 @@ export function useNotifications(page: number, visitKey?: string) {
   // response requested before a read finished still shows that notification unread.
   const confirmedRead = useRef(new Set<string>());
   const marking = useRef(new Set<string>());
+  // The last list response as the server sent it: its unread total and which of its items it still
+  // counted as unread. The unread total shown is that total less the reads made here that it did not
+  // count yet, each read counted once, whichever of the response and the read finished first.
+  const snapshot = useRef({ unread: 0, unreadIds: new Set<string>() });
+  const unreadNow = () => {
+    let readHere = 0;
+    confirmedRead.current.forEach((id) => {
+      if (snapshot.current.unreadIds.has(id)) readHere += 1;
+    });
+    return Math.max(snapshot.current.unread - readHere, 0);
+  };
 
   useEffect(() => {
     let active = true;
@@ -90,13 +101,17 @@ export function useNotifications(page: number, visitKey?: string) {
           return;
         }
         loaded = true;
-        const items = result.notifications.map((item) =>
-          !item.read && confirmedRead.current.has(item.id) ? { ...item, read: true } : item
+        snapshot.current = {
+          unread: result.unread,
+          unreadIds: new Set(result.notifications.filter((item) => !item.read).map((item) => item.id)),
+        };
+        setNotifications(
+          result.notifications.map((item) =>
+            !item.read && confirmedRead.current.has(item.id) ? { ...item, read: true } : item
+          )
         );
-        const readMeanwhile = items.filter((item, index) => item.read !== result.notifications[index].read).length;
-        setNotifications(items);
         setTotal(result.total);
-        setUnread(Math.max(result.unread - readMeanwhile, 0));
+        setUnread(unreadNow());
         setFailed(false);
       } catch {
         if (active && request === latest && !quiet) setFailed(true);
@@ -136,7 +151,8 @@ export function useNotifications(page: number, visitKey?: string) {
     if (!updated) return;
     confirmedRead.current.add(id);
     setNotifications((items) => items.map((item) => (item.id === id ? { ...item, read: true } : item)));
-    setUnread((count) => Math.max(count - 1, 0));
+    // Not a blind "minus one": a refresh that already counted this read must not be counted again.
+    setUnread(unreadNow());
     window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT));
   }
 

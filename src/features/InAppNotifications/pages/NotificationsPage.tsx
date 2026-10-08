@@ -19,6 +19,14 @@ const pageFrom = (value: string | null) => {
   return Number.isSafeInteger(page) && page > 0 ? page : 1;
 };
 
+// Whether this tab has an earlier page of the service to go back to. The router numbers its history
+// entries (history.state.idx): a page opened directly is entry 0, and correcting the page number in the
+// address (a replace, e.g. ?page=99 to the last page) keeps that number, so it still counts as direct.
+const hasEarlierPage = () => {
+  const idx = (window.history.state as { idx?: unknown } | null)?.idx;
+  return typeof idx === 'number' && idx > 0;
+};
+
 // Ctrl/Cmd/Shift/Alt-click keeps its usual browser behaviour, e.g. opening the link in a new tab.
 const isPlainClick = (event: React.MouseEvent) =>
   event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
@@ -48,14 +56,14 @@ const NotificationsPage: React.FC = () => {
     (event: React.MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault();
       // Opened directly (no earlier page in this tab): go to the applications instead.
-      if (location.key === 'default') navigate(APPLICATIONS_PATH);
-      else navigate(-1);
+      if (hasEarlierPage()) navigate(-1);
+      else navigate(APPLICATIONS_PATH);
     },
-    [location.key, navigate]
+    [navigate]
   );
 
   // The back link goes in the layout's breadcrumb area, above the page content and before <main>, as on
-  // the other pages. Made once per location, so the layout is not given a new link on every refresh.
+  // the other pages. Made once, so the layout is not given a new link on every refresh.
   const backLink = useMemo(
     () => (
       <a href="#" className="govuk-back-link" onClick={handleBack}>

@@ -188,6 +188,40 @@ describe('NotificationsPage', () => {
     expect(await screen.findByText('Your applications')).toBeInTheDocument();
   });
 
+  it('still goes to the applications from Back after a page number past the end was corrected', async () => {
+    vi.mocked(getInAppNotifications).mockImplementation(async (page: number) => pageOf(page === 4 ? [readS37] : [], { total: 34, unread: 0, page }));
+    renderPage('/notifications?page=99');
+    await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('/notifications?page=4'));
+
+    fireEvent.click(screen.getByRole('link', { name: 'Back' }));
+    expect(await screen.findByText('Your applications')).toBeInTheDocument();
+  });
+
+  it('goes back to the previous page from Back when there is one', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageOf([readS37]));
+    const before = window.history.state;
+    window.history.replaceState({ idx: 1 }, ''); // the router's count: one page before this one
+    try {
+      render(
+        <BreadcrumbProvider>
+          <MemoryRouter initialEntries={['/elsewhere', '/notifications']} initialIndex={1}>
+            <BreadcrumbOutlet />
+            <Routes>
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/elsewhere" element={<p>The previous page</p>} />
+              <Route path="/application-dashboard" element={<p>Your applications</p>} />
+            </Routes>
+          </MemoryRouter>
+        </BreadcrumbProvider>
+      );
+
+      fireEvent.click(await screen.findByRole('link', { name: 'Back' }));
+      expect(await screen.findByText('The previous page')).toBeInTheDocument();
+    } finally {
+      window.history.replaceState(before, '');
+    }
+  });
+
   it('says so when the notifications cannot be loaded, as an alert screen readers announce', async () => {
     vi.mocked(getInAppNotifications).mockResolvedValue(null);
     renderPage();
