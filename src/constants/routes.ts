@@ -103,6 +103,7 @@ import {
     FurtherInformationRequestsPage,
     FurtherInformationSubmittedPage,
 } from '../features/FIR/pages';
+import { NotificationsPage, NOTIFICATIONS_PATH } from '../features/InAppNotifications';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
@@ -254,6 +255,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: '/admin/reporting',
         component: ReportingDashboard,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: NOTIFICATIONS_PATH,
+        component: NotificationsPage,
         auth: true,
         layout: true,
     },
