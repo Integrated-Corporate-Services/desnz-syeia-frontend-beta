@@ -103,12 +103,7 @@ import {
     FurtherInformationRequestsPage,
     FurtherInformationSubmittedPage,
 } from '../features/FIR/pages';
-import {
-    NotificationDecisionPage,
-    NotificationsPage,
-    NOTIFICATION_DECISION_ROUTE,
-    NOTIFICATIONS_PATH,
-} from '../features/InAppNotifications';
+import { NotificationsPage, NOTIFICATIONS_PATH } from '../features/InAppNotifications';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
@@ -266,12 +261,6 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: NOTIFICATIONS_PATH,
         component: NotificationsPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: NOTIFICATION_DECISION_ROUTE,
-        component: NotificationDecisionPage,
         auth: true,
         layout: true,
     },

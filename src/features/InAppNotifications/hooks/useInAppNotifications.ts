@@ -137,10 +137,12 @@ export function useNotifications(page: number, visitKey?: string) {
     };
   }, [page, visitKey]);
 
-  async function markRead(notification: InAppNotification) {
+  // Marks it read (opening it, or "Mark as read"). False only when the server could not mark it read,
+  // so the page can say so and it can be tried again.
+  async function markRead(notification: InAppNotification): Promise<boolean> {
     const { id } = notification;
     // Already read, or already being marked read (e.g. opened twice in new tabs): count it once.
-    if (notification.read || confirmedRead.current.has(id) || marking.current.has(id)) return;
+    if (notification.read || confirmedRead.current.has(id) || marking.current.has(id)) return true;
     marking.current.add(id);
     let updated = false;
     try {
@@ -148,12 +150,13 @@ export function useNotifications(page: number, visitKey?: string) {
     } finally {
       marking.current.delete(id); // a failed update can be tried again
     }
-    if (!updated) return;
+    if (!updated) return false;
     confirmedRead.current.add(id);
     setNotifications((items) => items.map((item) => (item.id === id ? { ...item, read: true } : item)));
     // Not a blind "minus one": a refresh that already counted this read must not be counted again.
     setUnread(unreadNow());
     window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT));
+    return true;
   }
 
   return { notifications, total, unread, loading, failed, markRead };

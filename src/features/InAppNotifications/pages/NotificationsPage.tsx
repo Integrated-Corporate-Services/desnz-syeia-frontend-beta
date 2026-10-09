@@ -1,15 +1,10 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { Pagination } from '../../ApplicationDashboard/components/Pagination';
 import { useApplicationNavigation } from '../../../hooks/useApplicationNavigation';
-import {
-  NOTIFICATION_TYPES,
-  NOTIFICATIONS_MESSAGES,
-  NOTIFICATIONS_PAGE_SIZE,
-  notificationDecisionPath,
-} from '../constants/inAppNotifications';
+import { NOTIFICATION_TYPES, NOTIFICATIONS_MESSAGES, NOTIFICATIONS_PAGE_SIZE } from '../constants/inAppNotifications';
 import { useNotifications } from '../hooks/useInAppNotifications';
 import type { InAppNotification } from '../types/inAppNotifications';
 import { formatNotificationDate } from '../utils/formatNotificationDate';
@@ -17,6 +12,8 @@ import '../styles/NotificationsPage.css';
 
 const APPLICATION_SUMMARY_ROUTE = 'application-summary';
 const APPLICATIONS_PATH = '/application-dashboard';
+const UNREAD_HEADING_ID = 'notifications-unread';
+const READ_HEADING_ID = 'notifications-read';
 
 // The page number in the address: a positive whole number, otherwise the first page.
 const pageFrom = (value: string | null) => {
@@ -36,16 +33,13 @@ const hasEarlierPage = () => {
 const isPlainClick = (event: React.MouseEvent) =>
   event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 
-// Notifications about an access request have no application: the whole message is the link. A new
-// registration opens the request for review; a decision by another coordinator opens its read-only
-// summary (the review page would refuse a request that is already decided).
-const messageLinkFor = (notification: InAppNotification) => {
-  if (notification.type === NOTIFICATION_TYPES.ACCESS_REQUEST_SUBMITTED && notification.referenceId) {
-    return `/admin/review-request/${notification.referenceId}`;
-  }
-  if (notification.type === NOTIFICATION_TYPES.ACCESS_REQUEST_DECIDED) return notificationDecisionPath(notification.id);
-  return null;
-};
+// Only a notification with something to do is a link. A new registration has no application: its whole
+// message opens the request for the Team Coordinator to approve or reject. A decision
+// (ACCESS_REQUEST_DECIDED) has nothing left to do, so it is text.
+const reviewPathFor = (notification: InAppNotification) =>
+  notification.type === NOTIFICATION_TYPES.ACCESS_REQUEST_SUBMITTED && notification.referenceId
+    ? `/admin/review-request/${notification.referenceId}`
+    : null;
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,6 +49,9 @@ const NotificationsPage: React.FC = () => {
   // Selecting Notifications again (a new location key) reloads the list.
   const { notifications, total, unread, loading, failed, markRead } = useNotifications(page, location.key);
   const { getNavigationPath, navigateToApplication } = useApplicationNavigation();
+  const [updateFailed, setUpdateFailed] = useState(false);
+  // Where keyboard focus goes once a "Mark as read" button has gone (a CSS selector).
+  const [focusTarget, setFocusTarget] = useState<string | null>(null);
   const lastPage = Math.max(Math.ceil(total / NOTIFICATIONS_PAGE_SIZE), 1);
 
   // A page past the end (e.g. an old link) shows the last page instead.
@@ -101,16 +98,38 @@ const NotificationsPage: React.FC = () => {
     navigateToApplication(notification.applicationType ?? '', notification.applicationId ?? '', APPLICATION_SUMMARY_ROUTE);
   };
 
-  // Only the application reference is a link, as in the design. A registration opens the review page,
-  // a decision its summary.
+  // "Mark as read": the notification moves to Read, where it has no button, so keyboard focus goes to the
+  // next unread notification's button (or the one before), or to the Read heading when none is left. A
+  // failure is announced and can be tried again.
+  const handleMarkRead = async (notification: InAppNotification) => {
+    setUpdateFailed(false);
+    const unreadIds = notifications.filter((item) => !item.read).map((item) => item.id);
+    const at = unreadIds.indexOf(notification.id);
+    const next = unreadIds[at + 1] ?? unreadIds[at - 1];
+    if (await markRead(notification)) {
+      setFocusTarget(next ? `[data-mark-read="${CSS.escape(next)}"]` : `#${READ_HEADING_ID}`);
+    } else {
+      setUpdateFailed(true);
+    }
+  };
+  useEffect(() => {
+    if (!focusTarget) return;
+    const target = document.querySelector<HTMLElement>(focusTarget);
+    if (target) {
+      target.focus();
+      setFocusTarget(null);
+    }
+  }, [notifications, focusTarget]);
+
+  // Only the application reference is a link, as in the design. A registration opens the review page.
   const renderMessage = (notification: InAppNotification) => {
     const { desnzRef, applicationId, message } = notification;
-    const messageLink = messageLinkFor(notification);
-    if (messageLink) {
+    const reviewPath = reviewPathFor(notification);
+    if (reviewPath) {
       return (
         <Link
           className="govuk-link"
-          to={messageLink}
+          to={reviewPath}
           onClick={() => markReadInBackground(notification)}
           onAuxClick={(event) => handleAuxClick(event, notification)}
         >
@@ -136,11 +155,14 @@ const NotificationsPage: React.FC = () => {
     );
   };
 
-  const renderCard = (title: string, items: InAppNotification[]) =>
+  // Unread notifications have a "Mark as read" action; read ones have none (a two-column summary list).
+  const renderCard = (title: string, items: InAppNotification[], headingId: string) =>
     items.length > 0 && (
       <div className="govuk-summary-card">
         <div className="govuk-summary-card__title-wrapper">
-          <h2 className="govuk-summary-card__title">{title}</h2>
+          <h2 className="govuk-summary-card__title" id={headingId} tabIndex={-1}>
+            {title}
+          </h2>
         </div>
         <div className="govuk-summary-card__content">
           <dl className="govuk-summary-list">
@@ -148,6 +170,21 @@ const NotificationsPage: React.FC = () => {
               <div className="govuk-summary-list__row" key={notification.id}>
                 <dt className="govuk-summary-list__key">{formatNotificationDate(notification.createdAt)}</dt>
                 <dd className="govuk-summary-list__value">{renderMessage(notification)}</dd>
+                {notification.read ? null : (
+                  <dd className="govuk-summary-list__actions">
+                    {/* A button, not a link: it changes the notification rather than going anywhere. The
+                        hidden words say which notification, for screen reader users. */}
+                    <button
+                      type="button"
+                      className="govuk-link notifications-page__mark-read"
+                      data-mark-read={notification.id}
+                      onClick={() => void handleMarkRead(notification)}
+                    >
+                      {NOTIFICATIONS_MESSAGES.MARK_READ}
+                      <span className="govuk-visually-hidden">{`: ${notification.message}`}</span>
+                    </button>
+                  </dd>
+                )}
               </div>
             ))}
           </dl>
@@ -171,41 +208,63 @@ const NotificationsPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-grid-row notifications-page">
-      <div className="govuk-grid-column-two-thirds">
-        <PageTitle title={NOTIFICATIONS_MESSAGES.PAGE_TITLE} />
-        <h1 className="govuk-heading-l">{NOTIFICATIONS_MESSAGES.PAGE_TITLE}</h1>
+    <div className="notifications-page">
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-two-thirds">
+          <PageTitle title={NOTIFICATIONS_MESSAGES.PAGE_TITLE} />
+          <h1 className="govuk-heading-l">{NOTIFICATIONS_MESSAGES.PAGE_TITLE}</h1>
 
-        {/* One status region that stays on the page, so screen readers hear "Loading notifications" and
-            then the result, e.g. "13 notifications: 10 unread and 3 read." (WCAG 4.1.3). */}
-        <p className={statusText ? 'govuk-body' : undefined} role="status">
-          {statusText}
-        </p>
-
-        {!loading && failed && (
-          <p className="govuk-body" role="alert">
-            {NOTIFICATIONS_MESSAGES.LOAD_FAILED}
+          {/* One status region that stays on the page, so screen readers hear "Loading notifications" and
+              then the result, e.g. "13 notifications: 10 unread and 3 read." (WCAG 4.1.3). */}
+          <p className={statusText ? 'govuk-body' : undefined} role="status">
+            {statusText}
           </p>
-        )}
 
-        {!loading && !failed && total > 0 && (
-          <>
-            {renderCard(NOTIFICATIONS_MESSAGES.UNREAD, notifications.filter((notification) => !notification.read))}
-            {renderCard(NOTIFICATIONS_MESSAGES.READ, notifications.filter((notification) => notification.read))}
-            <Pagination
-              currentPage={Math.min(page, lastPage)}
-              totalPages={lastPage}
-              onPageChange={changePage}
-              pageHref={(pageNumber) => `?page=${pageNumber}`}
-            />
-          </>
-        )}
+          {!loading && failed && (
+            <p className="govuk-body" role="alert">
+              {NOTIFICATIONS_MESSAGES.LOAD_FAILED}
+            </p>
+          )}
 
-        <p className="govuk-body">
-          <Link className="govuk-link" to={APPLICATIONS_PATH}>
-            {NOTIFICATIONS_MESSAGES.GO_TO_APPLICATIONS}
-          </Link>
-        </p>
+          {updateFailed && (
+            <p className="govuk-body" role="alert">
+              {NOTIFICATIONS_MESSAGES.UPDATE_FAILED}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* The cards use the full width, so the summary list's standard columns (date 30%, message 50%,
+          "Mark as read" 20%) each fit without squeezing the others. */}
+      <div className="govuk-grid-row">
+        <div className="govuk-grid-column-full">
+          {!loading && !failed && total > 0 && (
+            <>
+              {renderCard(
+                NOTIFICATIONS_MESSAGES.UNREAD,
+                notifications.filter((notification) => !notification.read),
+                UNREAD_HEADING_ID
+              )}
+              {renderCard(
+                NOTIFICATIONS_MESSAGES.READ,
+                notifications.filter((notification) => notification.read),
+                READ_HEADING_ID
+              )}
+              <Pagination
+                currentPage={Math.min(page, lastPage)}
+                totalPages={lastPage}
+                onPageChange={changePage}
+                pageHref={(pageNumber) => `?page=${pageNumber}`}
+              />
+            </>
+          )}
+
+          <p className="govuk-body">
+            <Link className="govuk-link" to={APPLICATIONS_PATH}>
+              {NOTIFICATIONS_MESSAGES.GO_TO_APPLICATIONS}
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

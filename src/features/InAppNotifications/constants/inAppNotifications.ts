@@ -5,33 +5,12 @@ export const NOTIFICATIONS_CHANGED_EVENT = 'in-app-notifications:changed';
 
 export const NOTIFICATIONS_PATH = '/notifications';
 
-// The backend's notification types this page links (SYEIA-2400).
+// The backend's notification types (SYEIA-2400). Only one with something to do is a link: a new
+// registration opens the request for the Team Coordinator to approve or reject. A decision (sent to every
+// Team Coordinator of the organisation, the one who decided included) is shown as text.
 export const NOTIFICATION_TYPES = {
   ACCESS_REQUEST_SUBMITTED: 'ACCESS_REQUEST_SUBMITTED',
   ACCESS_REQUEST_DECIDED: 'ACCESS_REQUEST_DECIDED',
-} as const;
-
-// The read-only summary a decision notification opens.
-export const NOTIFICATION_DECISION_ROUTE = `${NOTIFICATIONS_PATH}/:notificationId/decision`;
-export const notificationDecisionPath = (notificationId: string) =>
-  `${NOTIFICATIONS_PATH}/${encodeURIComponent(notificationId)}/decision`;
-
-// PLACEHOLDER wording for the decision summary, to be confirmed by the business analyst.
-export const DECISION_MESSAGES = {
-  PAGE_TITLE: 'Registration request decision',
-  BACK: 'Back',
-  LOADING: 'Loading the decision',
-  LOAD_FAILED: 'The decision could not be loaded. Try again shortly.',
-  NOT_FOUND: 'This notification could not be found.',
-  NO_LONGER_SHOWN:
-    'The applicant has sent this registration request again since this decision, so its details are no longer shown.',
-  APPLICANT: 'Applicant',
-  ORGANISATION: 'Organisation',
-  DECISION: 'Decision',
-  DECIDED_BY: 'Decided by',
-  DECIDED_ON: 'Date decided',
-  REASON: 'Reason for rejection',
-  OUTCOME: { APPROVED: 'Approved', REJECTED: 'Rejected' },
 } as const;
 
 export const NOTIFICATIONS_PAGE_SIZE = 10;
@@ -45,6 +24,8 @@ export const NOTIFICATIONS_MESSAGES = {
   UNREAD: 'Unread',
   READ: 'Read',
   GO_TO_APPLICATIONS: 'Go to your applications',
+  MARK_READ: 'Mark as read',
+  UPDATE_FAILED: 'The notification could not be marked as read. Try again.',
   // Unread notifications are listed first, then read ones, newest first within each.
   summary: (total: number, unread: number) =>
     `${total} ${total === 1 ? 'notification' : 'notifications'}: ${unread} unread and ${total - unread} read.`,

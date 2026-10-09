@@ -123,7 +123,7 @@ describe('useNotifications', () => {
     const { result } = renderHook(() => useNotifications(1));
     await waitFor(() => expect(result.current.unread).toBe(2));
 
-    let marking!: Promise<void>;
+    let marking!: Promise<boolean>;
     act(() => {
       marking = result.current.markRead(unreadItem); // e.g. opened in a new tab
       window.dispatchEvent(new Event('focus')); // a refresh that sees the read already saved...
@@ -147,8 +147,8 @@ describe('useNotifications', () => {
     const { result } = renderHook(() => useNotifications(1));
     await waitFor(() => expect(result.current.unread).toBe(2));
 
-    let first!: Promise<void>;
-    let second!: Promise<void>;
+    let first!: Promise<boolean>;
+    let second!: Promise<boolean>;
     act(() => {
       first = result.current.markRead(unreadItem);
       second = result.current.markRead(unreadItem);
@@ -227,7 +227,7 @@ describe('useNotifications', () => {
     const { result, rerender } = renderHook(({ page }: { page: number }) => useNotifications(page), { initialProps: { page: 1 } });
     await waitFor(() => expect(result.current.unread).toBe(5));
 
-    let marking!: Promise<void>;
+    let marking!: Promise<boolean>;
     act(() => {
       marking = result.current.markRead(unreadItem); // e.g. opened in a new tab...
     });
@@ -243,5 +243,26 @@ describe('useNotifications', () => {
 
     await act(async () => stalePage2.resolve(pageOf(5))); // page 2, asked for before the read finished, arrives last
     expect(result.current.unread).toBe(4);
+  });
+
+  it('says when it could not be marked read, and keeps it unread so it can be tried again', async () => {
+    vi.mocked(getInAppNotifications).mockResolvedValue(pageWith(unreadItem, 1));
+    vi.mocked(markInAppNotificationRead).mockReset().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    const { result } = renderHook(() => useNotifications(1));
+    await waitFor(() => expect(result.current.unread).toBe(1));
+
+    let done!: boolean;
+    await act(async () => {
+      done = await result.current.markRead(unreadItem);
+    });
+    expect(done).toBe(false);
+    expect(result.current.notifications[0].read).toBe(false);
+    expect(result.current.unread).toBe(1);
+
+    await act(async () => {
+      done = await result.current.markRead(unreadItem);
+    });
+    expect(done).toBe(true);
+    expect(result.current.unread).toBe(0);
   });
 });
