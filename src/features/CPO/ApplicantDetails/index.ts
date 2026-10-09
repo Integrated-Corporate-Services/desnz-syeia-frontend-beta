@@ -1,5 +1,7 @@
 export { default as NetworkOperatorDetails } from './pages/NetworkOperatorDetails';
 export { default as NetworkOperatorContactDetails } from './pages/NetworkOperatorContactDetails';
+export { default as CpoPreSubmissionMeetingPage } from './pages/CpoPreSubmissionMeetingPage';
+export { default as CpoPreSubmissionMeetingConfirmationPage } from './pages/CpoPreSubmissionMeetingConfirmationPage';
 
 export { ContactDetailsSummary } from './components/ContactDetailsSummary';
 export { ContactConfirmationRadios } from './components/ContactConfirmationRadios';
