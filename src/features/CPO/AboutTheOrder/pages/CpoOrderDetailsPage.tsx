@@ -7,6 +7,7 @@ import { cpoOrderDetailsService, nextOrderStep } from '../services/cpoOrderDetai
 import { EMPTY_ORDER_DETAILS, EXECUTIVE_SUMMARY_CATEGORY, ORDER_STEPS, RELATED_TYPE_LABELS } from '../constants/orderDetailsConstants';
 import type { OrderDetails, OrderDocument, OrderStep, RelatedApplication, RelatedType } from '../types/orderDetails';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
+import '../../styles/cpo.css';
 import { ALLOWED_FILE_EXTENSIONS } from '../../../../utils/fileValidationConstants';
 
 type FormError = { id: string; message: string };

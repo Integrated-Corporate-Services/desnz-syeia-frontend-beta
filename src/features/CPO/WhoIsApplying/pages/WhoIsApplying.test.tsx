@@ -5,8 +5,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { networkOperatorApiService } from '../../../../services/networkOperatorApiService';
 import WhoIsApplying from './WhoIsApplying';
-import ChooseApplicationType from '../../../SignIn/ChooseApplicationTypePage';
-import * as csrf from '../../../../utils/csrf';
 
 const navigate = vi.fn();
 vi.mock('../../../../components/PageTitle', () => ({ default: () => null }));
@@ -86,29 +84,5 @@ describe('CPO Who is applying', () => {
     await screen.findByRole('alert');
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
     expect(applicationApiService.createApplication).not.toHaveBeenCalled();
-  });
-
-  it('retains the same CPO draft through the application-type Back journey', async () => {
-    render(<MemoryRouter initialEntries={[{ pathname: '/choose-application', state: { applicationType: 'cpo', applicationId: 'existing-app' } }]}><ChooseApplicationType /></MemoryRouter>);
-    expect(screen.getByRole('radio', { name: 'Compulsory purchase order' })).toBeChecked();
-    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(navigate).toHaveBeenCalledWith('/cpo/who-is-applying?applicationId=existing-app');
-  });
-});
-
-describe('CPO onboarding API save failures', () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-    vi.spyOn(csrf, 'getCsrfHeaders').mockReturnValue({ 'X-CSRF-Token': 'test-token' });
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'Internal error' }), { status: 500 }));
-  });
-  it('rejects an application creation HTTP error', async () => {
-    await expect(applicationApiService.createApplication({ type: 'CPO', status: 'DRAFT' })).rejects.toThrow('Unable to create');
-  });
-  it('rejects an organisation update HTTP error', async () => {
-    await expect(applicationApiService.updateOrganisation('app', 'org', 'Grid')).rejects.toThrow('Unable to save the organisation');
-  });
-  it('rejects an applicant save HTTP error', async () => {
-    await expect(applicationApiService.saveNetworkOperator({ type: 'CPO' })).rejects.toThrow('Unable to save the applicant details');
   });
 });

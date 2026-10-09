@@ -73,18 +73,7 @@ import ConsultationWithdrawnPage from '../features/Consultation/pages/Consultati
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
-import { NetworkOperatorDetails as CpoApplicantDetails, NetworkOperatorContactDetails as CpoApplicantContactDetails } from '../features/CPO/ApplicantDetails';
-import {
-    CPOWhoIsApplying,
-    CpoCheckYourAnswersPage,
-    CpoNoticesPage,
-    CpoOrderDetailsPage,
-    CpoOrderDocumentsPage,
-    CpoPreSubmissionMeetingConfirmationPage,
-    CpoPreSubmissionMeetingPage,
-    CpoTaskListPage,
-    CpoTaskUnavailablePage,
-} from '../features/CPO';
+import { cpoRoutes } from '../features/CPO/routes';
 // import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
 // import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
@@ -666,108 +655,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    {
-        path: '/cpo/who-is-applying',
-        component: CPOWhoIsApplying,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/applicant-details',
-        component: CpoApplicantDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/network-operator-contact-details',
-        component: CpoApplicantContactDetails,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/task-list',
-        component: CpoTaskListPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/delete-confirmation',
-        component: ApplicationDeleteConfirmationPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/delete-success',
-        component: ApplicationDeleteSuccessPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/:taskSlug',
-        component: CpoTaskUnavailablePage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/order-details',
-        component: CpoOrderDetailsPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/notice-requirements',
-        component: CpoNoticesPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/record-notices',
-        component: CpoNoticesPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/record-notices/:noticeStep',
-        component: CpoNoticesPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/check-and-submit',
-        component: CpoCheckYourAnswersPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/order-documents',
-        component: CpoOrderDocumentsPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/order-documents/:documentStep',
-        component: CpoOrderDocumentsPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/order-details/:orderStep',
-        component: CpoOrderDetailsPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/pre-submission-meeting',
-        component: CpoPreSubmissionMeetingPage,
-        auth: true,
-        layout: true,
-    },
-    {
-        path: '/cpo/:applicationId/pre-submission-meeting/confirmation',
-        component: CpoPreSubmissionMeetingConfirmationPage,
-        auth: true,
-        layout: true,
-    },
+    ...cpoRoutes,
     {
         path: `${NWL_BASE_URL}/:applicationId/applicant-details`,
         component: NWLNetworkOperatorDetails,

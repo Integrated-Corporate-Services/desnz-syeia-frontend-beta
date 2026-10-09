@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApplication } from '../../../../hooks/useApplication';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import type { AuthUser } from '../../../../types/auth';
+import type { NewApplication } from '../../../../types/application';
 import type { OrganizationOption } from './useNetworkOperators';
 
 export const useWhoIsApplyingForm = () => {
@@ -51,9 +52,10 @@ export const useWhoIsApplyingForm = () => {
     setSaving(true);
     try {
       if (!applicationId.current) {
-        const application = await createNewApplication({
+        const draft: NewApplication & { status: 'DRAFT'; operator_ref: string } = {
           type: 'CPO', status: 'DRAFT', operator_ref: '', created_by: user?.user_id || '',
-        });
+        };
+        const application = await createNewApplication(draft);
         if (!application?.application_id) throw new Error('Failed to create application');
         applicationId.current = application.application_id;
         setSearchParams({ applicationId: application.application_id }, { replace: true });

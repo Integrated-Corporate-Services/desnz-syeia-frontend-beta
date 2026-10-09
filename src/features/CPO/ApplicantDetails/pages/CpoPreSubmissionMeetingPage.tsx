@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { applicationApiService } from '../../../../services/applicationApiService';
-import type { CpoMeetingAnswer } from '../../../../services/applicationApiService';
+import { cpoPreSubmissionMeetingService } from '../services/cpoPreSubmissionMeetingService';
+import type { CpoMeetingAnswer } from '../types/preSubmissionMeeting';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 const CpoPreSubmissionMeetingPage: React.FC = () => {
@@ -80,7 +81,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     setError('');
     setSaving(true);
     try {
-      await applicationApiService.saveCpoPreSubmissionMeeting(applicationId, answer === null ? null : answer === 'request-meeting', complete, {
+      await cpoPreSubmissionMeetingService.save(applicationId, answer === null ? null : answer === 'request-meeting', complete, {
         answer, reason: answer === 'not-needed' ? reason.trim() : '',
       });
       navigate(!complete

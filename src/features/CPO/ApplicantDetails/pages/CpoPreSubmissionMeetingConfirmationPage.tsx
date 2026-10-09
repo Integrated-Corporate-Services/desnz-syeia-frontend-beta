@@ -4,6 +4,7 @@ import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
+import '../../styles/cpo.css';
 
 const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
   const applicationId = useCpoApplicationId();

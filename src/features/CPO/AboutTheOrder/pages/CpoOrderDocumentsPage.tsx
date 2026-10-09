@@ -8,6 +8,7 @@ import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES, DOCUMENT_STEPS } from '../constants/orderDocumentsConstants';
 import type { CpoDocument, DocumentStep, OrderDocumentsResponse, UploadStep } from '../types/orderDocuments';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
+import '../../styles/cpo.css';
 import { ALLOWED_FILE_EXTENSIONS } from '../../../../utils/fileValidationConstants';
 
 const COPY: Record<UploadStep, { heading: string; description: string; uploadTitle: string; hint: string; guidanceTitle: string; points: string[] }> = {
