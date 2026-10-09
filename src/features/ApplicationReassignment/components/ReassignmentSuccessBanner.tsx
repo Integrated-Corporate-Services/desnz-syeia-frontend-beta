@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { ReassignmentSuccess } from '../types/applicationReassignment';
+import { isManualReassignmentEnabled } from '../../../config/appConfig';
 
 export function ReassignmentSuccessBanner() {
     const location = useLocation();
     const navigate = useNavigate();
     const [success] = useState<ReassignmentSuccess | null>(
-        () => location.state?.reassignment || null
+        () => isManualReassignmentEnabled() ? location.state?.reassignment || null : null
     );
     const banner = useRef<HTMLDivElement>(null);
     useEffect(() => {

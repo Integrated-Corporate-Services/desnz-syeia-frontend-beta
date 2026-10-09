@@ -4,6 +4,7 @@ import { SummaryRow } from '../../NWL/CheckYourAnswers/types';
 import { getApplicationStatusLabel, getApplicationStatusTagClass } from '../../../constants/status';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../constants';
 import { WithdrawalRequest } from '../types';
+import { isManualReassignmentEnabled } from '../../../config/appConfig';
 
 const L = CONSTANTS.REVIEW_LAYOUT;
 
@@ -36,10 +37,10 @@ export const ReviewApplicationInfoCard: React.FC<ReviewApplicationInfoCardProps>
             key: { text: L.SUMMARY_CARD.DESNZ_REF },
             value: { text: desnzRef || L.DEFAULTS.NOT_AVAILABLE },
         },
-        {
+        ...(isManualReassignmentEnabled() ? [{
             key: { text: 'Assigned to' },
             value: { text: assigneeName || 'Not assigned' },
-        },
+        }] : []),
         {
             key: { text: L.SUMMARY_CARD.CASE_TYPE },
             value: { text: L.CASE_TYPE_LABEL },

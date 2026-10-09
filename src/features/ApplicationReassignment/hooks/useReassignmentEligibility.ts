@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { hasReassignmentRole, isReassignmentTerminal } from '../constants/reassignment';
+import { isManualReassignmentEnabled } from '../../../config/appConfig';
 
 export function useReassignmentEligibility(
     applicationId: string,
     status: string | null,
     role: string | undefined
 ) {
-    const allowed = hasReassignmentRole(role) && !isReassignmentTerminal(status);
+    const allowed = isManualReassignmentEnabled() && hasReassignmentRole(role) && !isReassignmentTerminal(status);
     const [authorizedApplicationId, setAuthorizedApplicationId] = useState<string | null>(null);
     useEffect(() => {
         let active = true;
