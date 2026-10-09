@@ -13,7 +13,6 @@ import { useApplicationSync } from "../hooks/useApplicationSync";
 import { useCoordinatorOptions } from "../hooks/useCoordinatorOptions";
 import { useRoleBasedLogic } from "../hooks/useRoleBasedLogic";
 import { useNWLProgress } from "../../hooks/useNWLProgress";
-import { CPO_BASE_URL } from "../../../../constants/cpo";
 import { createLogger } from "../../../../utils/logger";
 import PageTitle from "../../../../components/PageTitle";
 import Details from "../../../../components/Details";
@@ -36,9 +35,6 @@ const NetworkOperatorDetails: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const appId = useGetApplicationId();
-  const isCpoApplication = location.pathname.startsWith(CPO_BASE_URL);
-  const applicationBaseUrl = isCpoApplication ? CPO_BASE_URL : NWL_BASE_URL;
-  const applicationType = isCpoApplication ? "CPO" : "NWL";
   const errorSummaryRef = React.useRef<HTMLDivElement>(null);
   const [submitFailTick, setSubmitFailTick] = useState(0);
 
@@ -54,7 +50,7 @@ const NetworkOperatorDetails: React.FC = () => {
         <li className="govuk-breadcrumbs__list-item" aria-current="false">
           <Link
             className="govuk-breadcrumbs__link"
-            to={`${applicationBaseUrl}/${
+            to={`${NWL_BASE_URL}/${
               application?.application_id || ""
             }/task-list`}
           >
@@ -101,7 +97,7 @@ const NetworkOperatorDetails: React.FC = () => {
     application?.application_party?.organisation_name || stateOrgName || "";
 
   const { coordinators } = useRoleBasedNetworkOperators();
-  const { updateProgress } = useNWLProgress(appId || undefined, applicationType);
+  const { updateProgress } = useNWLProgress(appId || undefined);
 
   const options = useCoordinatorOptions({
     coordinators,
@@ -187,7 +183,7 @@ const NetworkOperatorDetails: React.FC = () => {
 
       if (!app) {
         const newAppData = {
-          type: applicationType,
+          type: "NWL",
           operator_ref: networkOperatorRef,
           status: "DRAFT",
           created_by: created_by,
@@ -196,7 +192,7 @@ const NetworkOperatorDetails: React.FC = () => {
         
         if (app?.application_id) {
           navigate(
-            `${applicationBaseUrl}/${app.application_id}/${isCpoApplication ? "task-list" : "network-operator-contact-details"}`,
+            `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`,
             { replace: true }
           );
         }
@@ -224,12 +220,12 @@ const NetworkOperatorDetails: React.FC = () => {
 
         if (result?.application?.application_id) {
           navigate(
-            `${applicationBaseUrl}/${result.application.application_id}/${isCpoApplication ? "task-list" : "network-operator-contact-details"}`,
+            `${NWL_BASE_URL}/${result.application.application_id}/network-operator-contact-details`,
             { replace: true }
           );
         } else {
           navigate(
-            `${applicationBaseUrl}/${app.application_id}/${isCpoApplication ? "task-list" : "network-operator-contact-details"}`,
+            `${NWL_BASE_URL}/${app.application_id}/network-operator-contact-details`,
             { replace: true }
           );
         }
