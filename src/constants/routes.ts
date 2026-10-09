@@ -121,6 +121,7 @@ import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/Wi
 import ApplicationSummaryPage from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
 import { ReassignmentPage } from '../features/ApplicationReassignment/pages/ReassignmentPage';
 import { ReassignmentHistoryPage } from '../features/ApplicationReassignment/pages/ReassignmentHistoryPage';
+import { isManualReassignmentEnabled } from '../config/appConfig';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
@@ -1036,7 +1037,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    {
+    ...(isManualReassignmentEnabled() ? [{
         path: `${S37_BASE_URL}/:applicationId/reassign`,
         component: ReassignmentPage,
         auth: true,
@@ -1047,7 +1048,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         component: ReassignmentHistoryPage,
         auth: true,
         layout: true,
-    },
+    }] : []),
     {
         path: `${S37_BASE_URL}/:applicationId/withdraw`,
         component: S37WithdrawApplicationPage,  // Use old proven S37 implementation

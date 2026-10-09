@@ -55,6 +55,7 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
 import { useAssignmentHistory } from '../../ApplicationReassignment/hooks/useAssignmentHistory';
+import { isManualReassignmentEnabled } from '../../../config/appConfig';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -575,7 +576,7 @@ const ApplicationSummary: React.FC = () => {
                       {formatCaseType(applicationMetadata?.formType)}
                     </dd>
                   </div>
-                    <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Assigned to</dt><dd className="govuk-summary-list__value">{assigneeName || 'Not assigned'}</dd></div>
+                    {isManualReassignmentEnabled() && <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Assigned to</dt><dd className="govuk-summary-list__value">{assigneeName || 'Not assigned'}</dd></div>}
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">{FIELD_LABELS.STATUS}</dt>
                     <dd className="govuk-summary-list__value">

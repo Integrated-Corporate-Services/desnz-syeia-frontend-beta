@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { useAssignmentHistory } from './useAssignmentHistory';
 import type { AssignmentDetails } from '../types/applicationReassignment';
+vi.mock('../../../config/appConfig', () => ({ isManualReassignmentEnabled: () => true }));
 
 vi.mock('../../../services/applicationApiService', () => ({
     applicationApiService: { getAssignmentHistory: vi.fn() },

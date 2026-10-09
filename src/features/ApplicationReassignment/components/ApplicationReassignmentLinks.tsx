@@ -4,6 +4,7 @@ import { getUserRole } from '../../../utils/roleUtils';
 import { useAssignmentHistory } from '../hooks/useAssignmentHistory';
 import { useReassignmentEligibility } from '../hooks/useReassignmentEligibility';
 import { getAssignmentBasePath } from '../utils/reassignment';
+import { isManualReassignmentEnabled } from '../../../config/appConfig';
 
 export function ApplicationReassignmentLinks({
     applicationId,
@@ -18,6 +19,7 @@ export function ApplicationReassignmentLinks({
     const canReassign = useReassignmentEligibility(applicationId, status, getUserRole(user));
     const lastActor = details?.history[0]?.assigned_by_name;
     const base = getAssignmentBasePath(pathname);
+    if (!isManualReassignmentEnabled()) return null;
     return (
         <div className="govuk-!-margin-top-6">
             {canReassign && (

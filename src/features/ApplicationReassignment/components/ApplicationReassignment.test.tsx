@@ -11,6 +11,7 @@ import {
 } from './ApplicationReassignment';
 
 const { mockUseAuthUserContext } = vi.hoisted(() => ({ mockUseAuthUserContext: vi.fn() }));
+vi.mock('../../../config/appConfig', () => ({ isManualReassignmentEnabled: () => true }));
 
 vi.mock('../../../context/AuthUserContext', () => ({
     useAuthUserContext: mockUseAuthUserContext,

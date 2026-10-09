@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { applicationApiService } from '../../../services/applicationApiService';
 import type { AssignmentDetails } from '../types/applicationReassignment';
+import { isManualReassignmentEnabled } from '../../../config/appConfig';
 
 export function useAssignmentHistory(applicationId: string | undefined) {
+    const enabled = isManualReassignmentEnabled();
     const [state, setState] = useState<{
         applicationId?: string;
         details: AssignmentDetails | null;
@@ -11,6 +13,7 @@ export function useAssignmentHistory(applicationId: string | undefined) {
     }>({ details: null, loading: true, error: null });
     useEffect(() => {
         let active = true;
+        if (!enabled) return;
         if (!applicationId) {
             setState({ details: null, loading: false, error: 'Application reference is required' });
             return;
@@ -33,7 +36,8 @@ export function useAssignmentHistory(applicationId: string | undefined) {
         return () => {
             active = false;
         };
-    }, [applicationId]);
+    }, [applicationId, enabled]);
+    if (!enabled) return { details: null, loading: false, error: null };
     return state.applicationId === applicationId
         ? state
         : {
