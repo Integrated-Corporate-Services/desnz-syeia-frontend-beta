@@ -61,9 +61,6 @@ async function mapWithConcurrency<T, R>(
 
 export interface FileUploadProps {
   title?: string;
-  hint?: string;
-  acceptedTypes?: string;
-  inputDescribedBy?: string;
   prefix?: string;
   uploadedFiles?: UploadedFile[];
   applicationDocuments?: ApplicationDocument[]; // Added: to filter files by category
@@ -101,9 +98,6 @@ export interface FileUploadHandle {
 
 const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   title = "Upload a file",
-  hint,
-  acceptedTypes,
-  inputDescribedBy,
   prefix = "",
   uploadedFiles,
   applicationDocuments,
@@ -632,13 +626,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         prevFiles.filter((file) => !failedFileKeys.has(`${file.name}:${file.size}`))
       );
 
-      const message = err instanceof Error ? err.message : 'Failed to upload files. Please try again.';
       if (onValidationErrorsRef.current) {
+        const message = err instanceof Error ? err.message : 'Failed to upload files. Please try again.';
         onValidationErrorsRef.current([message]);
       }
 
       logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
-      return { uploadedFiles: [], applicationDocuments: [], scanErrors: [message] };
+      return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
     } finally {
       setIsScanning(false);
     }
@@ -865,8 +859,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         </TitleHeading>
       )}
       <p className="govuk-hint govuk-!-margin-bottom-4">
-        {hint || <>You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
-        .xlsx files of up to 25MB each. Files cannot be password protected.</>}
+        You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
+        .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
 
       {isScanning && (
@@ -920,10 +914,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           multiple
           ref={fileInputRef}
           id="file-upload-input"
-          aria-describedby={inputDescribedBy}
           className="govuk-visually-hidden"
           onChange={handleFileChange}
-          accept={acceptedTypes || '.pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx'}
+          accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
           disabled={isScanning}
         />
         <div className="gds-upload-dropzone-content">
