@@ -4,14 +4,23 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  // Optional: the address of each page (e.g. "?page=2"). The page links are then real links to their
+  // page, as in the GOV.UK pagination component, so they can also be opened in a new tab.
+  pageHref?: (page: number) => string;
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange,
+  pageHref,
 }) => {
   if (totalPages <= 1) return null;
+
+  const hrefFor = (page: number) => (pageHref ? pageHref(page) : '#');
+  // With real page addresses, Ctrl/Cmd/Shift-click is left to the browser (e.g. to open a new tab).
+  const leaveToBrowser = (e: React.MouseEvent) =>
+    !!pageHref && (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -52,11 +61,12 @@ export const Pagination: React.FC<PaginationProps> = ({
         <div className="govuk-pagination__prev">
           <a
             className="govuk-link govuk-pagination__link"
-            href="#"
+            href={hrefFor(currentPage - 1)}
             rel="prev"
             aria-label={`Go to previous page, page ${currentPage - 1} of ${totalPages}`}
             tabIndex={0}
             onClick={(e) => {
+              if (leaveToBrowser(e)) return;
               e.preventDefault();
               onPageChange(currentPage - 1);
             }}
@@ -102,11 +112,12 @@ export const Pagination: React.FC<PaginationProps> = ({
                 >
                   <a
                     className="govuk-link govuk-pagination__link"
-                    href="#"
+                    href={hrefFor(page as number)}
                     aria-label={`${page === currentPage ? 'Current page, ' : 'Go to '}page ${page} of ${totalPages}`}
                     aria-current={page === currentPage ? 'page' : undefined}
                     tabIndex={0}
                     onClick={(e) => {
+                      if (leaveToBrowser(e)) return;
                       e.preventDefault();
                       if (page !== currentPage) {
                         onPageChange(page as number);
@@ -130,11 +141,12 @@ export const Pagination: React.FC<PaginationProps> = ({
         <div className="govuk-pagination__next">
           <a
             className="govuk-link govuk-pagination__link"
-            href="#"
+            href={hrefFor(currentPage + 1)}
             rel="next"
             aria-label={`Go to next page, page ${currentPage + 1} of ${totalPages}`}
             tabIndex={0}
             onClick={(e) => {
+              if (leaveToBrowser(e)) return;
               e.preventDefault();
               onPageChange(currentPage + 1);
             }}
