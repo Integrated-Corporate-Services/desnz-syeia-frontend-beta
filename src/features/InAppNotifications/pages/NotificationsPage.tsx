@@ -4,7 +4,12 @@ import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { Pagination } from '../../ApplicationDashboard/components/Pagination';
 import { useApplicationNavigation } from '../../../hooks/useApplicationNavigation';
-import { NOTIFICATIONS_MESSAGES, NOTIFICATIONS_PAGE_SIZE } from '../constants/inAppNotifications';
+import {
+  NOTIFICATION_TYPES,
+  NOTIFICATIONS_MESSAGES,
+  NOTIFICATIONS_PAGE_SIZE,
+  notificationDecisionPath,
+} from '../constants/inAppNotifications';
 import { useNotifications } from '../hooks/useInAppNotifications';
 import type { InAppNotification } from '../types/inAppNotifications';
 import { formatNotificationDate } from '../utils/formatNotificationDate';
@@ -31,11 +36,16 @@ const hasEarlierPage = () => {
 const isPlainClick = (event: React.MouseEvent) =>
   event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 
-// A new registration has no application: its whole message opens the request for review.
-const reviewPathFor = (notification: InAppNotification) =>
-  notification.type === 'ACCESS_REQUEST_SUBMITTED' && notification.referenceId
-    ? `/admin/review-request/${notification.referenceId}`
-    : null;
+// Notifications about an access request have no application: the whole message is the link. A new
+// registration opens the request for review; a decision by another coordinator opens its read-only
+// summary (the review page would refuse a request that is already decided).
+const messageLinkFor = (notification: InAppNotification) => {
+  if (notification.type === NOTIFICATION_TYPES.ACCESS_REQUEST_SUBMITTED && notification.referenceId) {
+    return `/admin/review-request/${notification.referenceId}`;
+  }
+  if (notification.type === NOTIFICATION_TYPES.ACCESS_REQUEST_DECIDED) return notificationDecisionPath(notification.id);
+  return null;
+};
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -91,15 +101,16 @@ const NotificationsPage: React.FC = () => {
     navigateToApplication(notification.applicationType ?? '', notification.applicationId ?? '', APPLICATION_SUMMARY_ROUTE);
   };
 
-  // Only the application reference is a link, as in the design. A registration opens the review page.
+  // Only the application reference is a link, as in the design. A registration opens the review page,
+  // a decision its summary.
   const renderMessage = (notification: InAppNotification) => {
     const { desnzRef, applicationId, message } = notification;
-    const reviewPath = reviewPathFor(notification);
-    if (reviewPath) {
+    const messageLink = messageLinkFor(notification);
+    if (messageLink) {
       return (
         <Link
           className="govuk-link"
-          to={reviewPath}
+          to={messageLink}
           onClick={() => markReadInBackground(notification)}
           onAuxClick={(event) => handleAuxClick(event, notification)}
         >

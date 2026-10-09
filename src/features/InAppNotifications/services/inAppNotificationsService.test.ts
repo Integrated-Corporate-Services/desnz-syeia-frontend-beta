@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { markInAppNotificationRead } from './inAppNotificationsService';
+import { getNotificationDecision, markInAppNotificationRead } from './inAppNotificationsService';
 import { fetchCsrfToken, getCsrfHeaders, getCsrfToken } from '../../../utils/csrf';
 
 vi.mock('../../../utils/csrf', () => ({
@@ -58,5 +58,35 @@ describe('markInAppNotificationRead', () => {
 
     expect(await markInAppNotificationRead('n-1')).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('getNotificationDecision', () => {
+  const fetchMock = vi.fn();
+  const summary = { id: 'n-9', message: 'Hannah Martin approved the registration request for Jane Smith.', notifiedAt: '2026-10-09T10:00:00Z', organisationName: 'NGED', decision: null };
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock);
+    fetchMock.mockReset();
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("returns the summary of one of the user's decision notifications", async () => {
+    fetchMock.mockResolvedValue({ ok: true, status: 200, json: async () => summary } as Response);
+
+    expect(await getNotificationDecision('n-9')).toEqual({ status: 'found', summary });
+    expect(fetchMock).toHaveBeenCalledWith('http://api.test/in-app-notifications/n-9/decision', { credentials: 'include' });
+  });
+
+  it('tells "not found" apart from a failure', async () => {
+    fetchMock.mockResolvedValueOnce(response(404));
+    expect(await getNotificationDecision('n-9')).toEqual({ status: 'not-found' });
+
+    fetchMock.mockResolvedValueOnce(response(500));
+    expect(await getNotificationDecision('n-9')).toEqual({ status: 'failed' });
+
+    fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    expect(await getNotificationDecision('n-9')).toEqual({ status: 'failed' });
   });
 });

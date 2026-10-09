@@ -24,3 +24,24 @@ export interface InAppNotificationsResponse {
 export interface UnreadNotificationCountResponse {
   count: number;
 }
+
+// The read-only summary a decision notification (ACCESS_REQUEST_DECIDED) opens. decision is null when the
+// applicant has sent the request again since, so the decision it reported is no longer on record.
+export interface NotificationDecisionSummary {
+  id: string;
+  message: string;
+  notifiedAt: string;
+  organisationName: string;
+  decision: {
+    outcome: 'APPROVED' | 'REJECTED';
+    applicantName: string | null;
+    decidedBy: string | null;
+    decidedAt: string | null;
+    rejectionReason: string | null;
+  } | null;
+}
+
+export type NotificationDecisionResult =
+  | { status: 'found'; summary: NotificationDecisionSummary }
+  | { status: 'not-found' }
+  | { status: 'failed' };
