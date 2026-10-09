@@ -9,7 +9,6 @@ import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES, DOCUMENT_STEPS } from '
 import type { CpoDocument, DocumentStep, OrderDocumentsResponse, UploadStep } from '../types/orderDocuments';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
-import { ALLOWED_FILE_EXTENSIONS } from '../../../../utils/fileValidationConstants';
 
 const COPY: Record<UploadStep, { heading: string; description: string; uploadTitle: string; hint: string; guidanceTitle: string; points: string[] }> = {
   order: {
@@ -136,13 +135,12 @@ const CpoOrderDocumentsPage: React.FC = () => {
           <legend className="govuk-visually-hidden">{heading}</legend>
           {step !== 'check' ? <>
             <p className="govuk-body" id="documents-hint">{COPY[step].description}</p>
+            {COPY[step].hint && <p className="govuk-hint">{COPY[step].hint}</p>}
             {(step === 'order' || step === 'additional') && <ul className="govuk-list govuk-list--bullet">{COPY[step].points.map(point => <li key={point}>{point}</li>)}</ul>}
             {step === 'order' && <div className="govuk-inset-text">If your file is larger than 25MB and cannot be uploaded, please contact our team at <a className="govuk-link" href="mailto:compulsorypurchaseorders@energysecurity.gov.uk">compulsorypurchaseorders@energysecurity.gov.uk</a> to arrange another way to send the file. Remember to include this application's DESNZ reference number in your email.</div>}
             {errors.filter((error) => error.id === 'file-upload-input').map((error, index) => <p className="govuk-error-message" id={`documents-upload-error-${index}`} key={index}><span className="govuk-visually-hidden">Error:</span> {error.message}</p>)}
-            {editable ? <FileUpload key={step} ref={uploadRef} visibleDocumentsHeading canDelete={!loading && !saving && !loadFailed} title={COPY[step].uploadTitle} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`} acceptedTypes={ALLOWED_FILE_EXTENSIONS.join(',')}
+            {editable ? <FileUpload key={step} ref={uploadRef} title={COPY[step].uploadTitle} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`}
               uploadImmediately
-              hint={`You can upload ${ALLOWED_FILE_EXTENSIONS.join(', ')} files of up to 25MB each. Files cannot be password protected. ${COPY[step].hint}`}
-              inputDescribedBy={['documents-hint', ...errors.filter((error) => error.id === 'file-upload-input').map((_error, index) => `documents-upload-error-${index}`)].join(' ')}
               uploadedFiles={pageDocuments.map((document) => ({ id: document.file_id, storageProvider: document.storage_provider, s3Key: document.s3_key, bucketName: document.bucket_name, virtualFolder: document.virtual_folder, filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp, scanStatus: document.scan_status, scanResult: document.scan_result }))}
               applicationDocuments={pageDocuments.map((document) => ({ documentId: document.document_id, applicationId, fileId: document.file_id, category, subCategory: step.toUpperCase(), addedBy: document.added_by, addedAt: document.added_at }))}
               onUploaded={refreshDocuments} onDeleteFile={(id) => setData((current) => ({ ...current, documents: current.documents.filter((document) => document.file_id !== id) }))}

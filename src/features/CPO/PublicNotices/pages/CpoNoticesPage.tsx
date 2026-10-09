@@ -12,7 +12,6 @@ import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../types/notices
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import CpoNoticeInspectionPage from './CpoNoticeInspectionPage';
 import { inspectionAddresses, inspectionAddressText, noticeDateText, publicationDateForFile } from '../utils/noticeRecord';
-import { ALLOWED_FILE_EXTENSIONS } from '../../../../utils/fileValidationConstants';
 
 const HEADINGS: Record<NoticeStep, string> = {
   requirements: 'What your public notices must include', inspection: 'Record order inspection addresses',
@@ -182,7 +181,7 @@ const CpoNoticesFormPage: React.FC = () => {
           })}</dl></>}
           {editable && <>
             {errors.filter((error) => error.id === 'file-upload-input').map((error, index) => <p className="govuk-error-message" key={index} id={`upload-error-${index}`}>{error.message}</p>)}
-            <FileUpload key={step} ref={uploadRef} title={step === 'newspapers' ? 'Upload copies of the newspaper pages' : step === 'site' ? 'Upload evidence of site notices' : 'Upload a statement of service (optional)'} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`} acceptedTypes={ALLOWED_FILE_EXTENSIONS.join(',')} hint={`You can upload ${ALLOWED_FILE_EXTENSIONS.join(', ')} files of up to 25MB each. Files cannot be password protected.`}
+            <FileUpload key={step} ref={uploadRef} title={step === 'newspapers' ? 'Upload copies of the newspaper pages' : step === 'site' ? 'Upload evidence of site notices' : 'Upload a statement of service (optional)'} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`}
               uploadImmediately
               onUploaded={() => {
                 setRefreshingUploads(true);
@@ -193,7 +192,6 @@ const CpoNoticesFormPage: React.FC = () => {
                   setFileErrors([message]); setErrors([{ id: 'file-upload-input', message }]);
                 }).finally(() => setRefreshingUploads(false));
               }}
-              inputDescribedBy={errors.filter((error) => error.id === 'file-upload-input').map((_error, index) => `upload-error-${index}`).join(' ') || undefined}
               showDocumentsHeading={false}
               uploadedFiles={documents.map((file) => ({ id: file.file_id, storageProvider: file.storage_provider, s3Key: file.s3_key, bucketName: file.bucket_name, virtualFolder: file.virtual_folder, filename: file.filename, fileContentType: file.file_content_type, fileSizeBytes: file.file_size_bytes, uploadedAtTimestamp: file.uploaded_at_timestamp, scanStatus: file.scan_status, scanResult: file.scan_result }))}
               applicationDocuments={documents.map((file) => ({ documentId: file.document_id, applicationId, fileId: file.file_id, category, subCategory: step.toUpperCase(), addedBy: file.added_by, addedAt: file.added_at }))}

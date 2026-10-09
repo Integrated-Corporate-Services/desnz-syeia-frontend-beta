@@ -8,7 +8,6 @@ import { EMPTY_ORDER_DETAILS, EXECUTIVE_SUMMARY_CATEGORY, ORDER_STEPS, RELATED_T
 import type { OrderDetails, OrderDocument, OrderStep, RelatedApplication, RelatedType } from '../types/orderDetails';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
-import { ALLOWED_FILE_EXTENSIONS } from '../../../../utils/fileValidationConstants';
 
 type FormError = { id: string; message: string };
 const COPY: Record<OrderStep, { heading: string; hint?: string }> = {
@@ -229,10 +228,6 @@ const CpoOrderDetailsPage: React.FC = () => {
             {inlineError('file-upload-input')}
             <FileUpload ref={uploadRef} title="Upload your executive summary" applicationId={applicationId} category={EXECUTIVE_SUMMARY_CATEGORY} subCategory="EXECUTIVE_SUMMARY" prefix={`${applicationId}/${EXECUTIVE_SUMMARY_CATEGORY}`}
               uploadImmediately
-              visibleDocumentsHeading
-              canDelete={canEdit && !loading && !saving && !loadFailed}
-              hint={`You can upload ${ALLOWED_FILE_EXTENSIONS.join(', ')} files of up to 25MB each. You can add more than one file. Files cannot be password protected.`}
-              acceptedTypes={ALLOWED_FILE_EXTENSIONS.join(',')}
               uploadedFiles={documents.map((document) => ({ id: document.file_id, storageProvider: document.storage_provider, s3Key: document.s3_key, bucketName: document.bucket_name, virtualFolder: document.virtual_folder, filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp, scanStatus: document.scan_status, scanResult: document.scan_result }))}
               applicationDocuments={documents.map((document) => ({ documentId: document.document_id, applicationId, fileId: document.file_id, category: EXECUTIVE_SUMMARY_CATEGORY, subCategory: 'EXECUTIVE_SUMMARY', addedBy: document.added_by, addedAt: document.added_at }))}
               onValidationErrors={messages => { setUploadErrors(messages); setErrors(messages.map(message => ({ id: 'file-upload-input', message }))); }}

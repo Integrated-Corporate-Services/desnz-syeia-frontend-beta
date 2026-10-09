@@ -208,7 +208,6 @@ describe('CPO notices journey', () => {
   it.each(['newspapers', 'site', 'people'])('immediately uploads %s using the shared uploader', async step => {
     renderStep(step); await ready();
     expect(upload.props?.uploadImmediately).toBe(true);
-    expect(upload.props?.acceptedTypes).toContain('.msg');
     expect(screen.queryByRole('button', { name: 'Upload document' })).not.toBeInTheDocument();
   });
   it('refreshes immediately uploaded notice files without losing unsaved publication dates', async () => {

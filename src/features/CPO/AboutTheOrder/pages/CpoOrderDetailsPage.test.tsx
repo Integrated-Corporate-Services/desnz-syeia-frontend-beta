@@ -8,7 +8,6 @@ import { cpoOrderDetailsService } from '../services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS } from '../constants/orderDetailsConstants';
 import type { OrderDetails, RelatedApplication } from '../types/orderDetails';
 import type { FileUploadProps } from '../../../../components/FileUpload';
-import { ALLOWED_FILE_EXTENSIONS } from '../../../../utils/fileValidationConstants';
 
 const navigateMock = vi.fn();
 const uploadState = vi.hoisted(() => ({ errors: [] as string[], props: undefined as FileUploadProps | undefined }));
@@ -139,7 +138,7 @@ describe('CPO order details journey', () => {
     expect(screen.getByText('Executive summary')).toHaveClass('govuk-caption-l');
     expect(screen.getByText(/Use our executive summary template to provide an overview/)).toHaveClass('govuk-body');
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/task-list');
-    expect(uploadState.props).toMatchObject({ uploadImmediately: true, visibleDocumentsHeading: true, canDelete: true, acceptedTypes: ALLOWED_FILE_EXTENSIONS.join(',') });
+    expect(uploadState.props).toMatchObject({ uploadImmediately: true });
   });
 
   it('returns a saved executive summary directly to its task list', async () => {
@@ -167,7 +166,7 @@ describe('CPO order details journey', () => {
     vi.mocked(cpoOrderDetailsService.get).mockResolvedValue({ details: stored, documents: [], canEdit: false });
     renderStep('executive-summary');
     await screen.findByText('You can view these order details but cannot change them.');
-    expect(uploadState.props?.canDelete).toBe(false);
+    expect(screen.getByLabelText('Upload your executive summary')).toBeDisabled();
   });
 
   it.each([['Yes', 'add-related-application'], ['No', 'check']])('routes related-applications %s to %s', async (answer, destination) => {

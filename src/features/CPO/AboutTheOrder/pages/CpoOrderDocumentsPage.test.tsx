@@ -21,7 +21,7 @@ vi.mock('../../../../components/FileUpload', async () => {
   return { default: actual.forwardRef<unknown, FileUploadProps>((props, ref) => {
     uploadState.props = props;
     actual.useImperativeHandle(ref, () => ({ isBusy: () => uploadState.busy, triggerUpload: async () => ({ scanErrors: uploadState.errors, uploadedFiles: [], applicationDocuments: [] }) }));
-    return <div><p>{props.hint}</p><input id="file-upload-input" type="file" aria-label={props.title} aria-describedby={props.inputDescribedBy} />{props.uploadedFiles?.map((file) => <div key={file.id}><span>{file.filename}</span><button type="button" onClick={() => props.onDeleteFile?.(file.id)}>Delete {file.filename}</button></div>)}</div>;
+    return <div><input id="file-upload-input" type="file" aria-label={props.title} />{props.uploadedFiles?.map((file) => <div key={file.id}><span>{file.filename}</span><button type="button" onClick={() => props.onDeleteFile?.(file.id)}>Delete {file.filename}</button></div>)}</div>;
   }) };
 });
 
@@ -58,7 +58,7 @@ describe('CPO order documents journey', () => {
     renderStep();
     await ready();
     expect(screen.getByText(/Form 1 applies because/)).toBeInTheDocument();
-    expect(screen.getByText(/25MB each/)).toBeInTheDocument();
+    expect(screen.getByText('Upload them as separate files.')).toBeInTheDocument();
   });
   it('does not guess a form number when special land is included', async () => {
     stored.orderDetails.includesSpecialLand = true;
@@ -176,9 +176,8 @@ describe('CPO order documents journey', () => {
     expect(screen.getByRole('link', { name: 'compulsorypurchaseorders@energysecurity.gov.uk' })).toHaveAttribute('href', 'mailto:compulsorypurchaseorders@energysecurity.gov.uk');
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/task-list');
   });
-  it.each(['order', 'reasons', 'additional'])('uploads %s immediately with the shared S37/NWL formats', async step => {
+  it.each(['order', 'reasons', 'additional'])('uploads %s immediately', async step => {
     renderStep(step); await ready();
     expect(uploadState.props?.uploadImmediately).toBe(true);
-    expect(uploadState.props?.acceptedTypes).toContain('.msg');
   });
 });
