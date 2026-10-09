@@ -5,13 +5,14 @@ type DateInputProps = {
   onChange: (value: string) => void;
   disabled?: boolean;
   error?: string;
+  hideLabel?: boolean;
 };
 
-const DateInput = ({ id, label, value = '', onChange, disabled, error }: DateInputProps) => {
+const DateInput = ({ id, label, value = '', onChange, disabled, error, hideLabel = false }: DateInputProps) => {
   const parts = value.split('-');
   return <div className={`govuk-form-group${error ? ' govuk-form-group--error' : ''}`}>
     <fieldset className="govuk-fieldset" aria-describedby={`${id}-hint${error ? ` ${id}-error` : ''}`} disabled={disabled}>
-      <legend className="govuk-fieldset__legend govuk-fieldset__legend--s">{label}</legend>
+      <legend className={hideLabel ? 'govuk-visually-hidden' : 'govuk-fieldset__legend govuk-fieldset__legend--s'}>{label}</legend>
       <div className="govuk-hint" id={`${id}-hint`}>For example, 27 3 2026</div>
       {error && <p className="govuk-error-message" id={`${id}-error`}><span className="govuk-visually-hidden">Error:</span> {error}</p>}
       <div className="govuk-date-input" id={id}>{[{ name: 'Day', index: 2, width: 2 }, { name: 'Month', index: 1, width: 2 }, { name: 'Year', index: 0, width: 4 }].map((part) => <div className="govuk-date-input__item" key={part.name}>

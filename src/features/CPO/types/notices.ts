@@ -2,7 +2,21 @@ import type { CpoDocument } from './orderDocuments';
 
 export type NoticeStep = 'inspection' | 'online' | 'newspapers' | 'website' | 'site' | 'people' | 'check' | 'requirements';
 
+export interface InspectionAddress {
+  id: string;
+  line1: string;
+  line2: string;
+  townCity: string;
+  postcode: string;
+  from: string;
+  legacyAddress?: string;
+}
+
 export interface NoticeAnswer {
+  format?: 'reference';
+  addresses?: InspectionAddress[];
+  firstDate?: string;
+  secondDate?: string;
   acknowledged?: boolean;
   address?: string;
   url?: string;

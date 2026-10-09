@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
@@ -7,9 +7,11 @@ import CpoOrderDetailsPage from './CpoOrderDetailsPage';
 import { cpoOrderDetailsService } from '../services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS } from '../constants/orderDetailsConstants';
 import type { OrderDetails, RelatedApplication } from '../types/orderDetails';
+import type { FileUploadProps } from '../../../components/FileUpload';
+import { ALLOWED_FILE_EXTENSIONS } from '../../../utils/fileValidationConstants';
 
 const navigateMock = vi.fn();
-const uploadState = vi.hoisted(() => ({ errors: [] as string[] }));
+const uploadState = vi.hoisted(() => ({ errors: [] as string[], props: undefined as FileUploadProps | undefined }));
 vi.mock('../../../components/PageTitle', () => ({ default: () => null }));
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
@@ -17,7 +19,8 @@ vi.mock('react-router-dom', async () => {
 });
 vi.mock('../../../components/FileUpload', async () => {
   const actual = await import('react');
-  return { default: actual.forwardRef((_props, ref) => {
+  return { default: actual.forwardRef<unknown, FileUploadProps>((props, ref) => {
+    uploadState.props = props;
     actual.useImperativeHandle(ref, () => ({
       isBusy: () => false,
       triggerUpload: async () => ({ scanErrors: uploadState.errors, uploadedFiles: [], applicationDocuments: [] }),
@@ -56,14 +59,14 @@ describe('CPO order details journey', () => {
     await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     expect(screen.getByRole('alert')).toHaveFocus();
-    expect(screen.getByRole('alert')).toHaveTextContent('Enter the name of the order');
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter the order title');
     expect(cpoOrderDetailsService.save).not.toHaveBeenCalled();
   });
 
   it('saves a name and continues to the purpose question', async () => {
     renderStep();
     await ready();
-    fireEvent.change(screen.getByLabelText('What is the name of the order?'), { target: { value: 'North Ridge CPO' } });
+    fireEvent.change(screen.getByLabelText('Enter the order title'), { target: { value: 'North Ridge CPO' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-details/purpose'));
     expect(cpoOrderDetailsService.save).toHaveBeenCalledWith('application-id', 'name', { orderName: 'North Ridge CPO' }, false);
@@ -81,14 +84,14 @@ describe('CPO order details journey', () => {
     stored.purpose = 'Grid reinforcement';
     renderStep('purpose');
     await ready();
-    const input = screen.getByLabelText('What is the order for?');
+    const input = screen.getByLabelText('Explain what the order is for');
     expect(input).toHaveValue('Grid reinforcement');
     fireEvent.change(input, { target: { value: 'a'.repeat(4001) } });
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     expect(screen.getByRole('alert')).toHaveTextContent('4,000 characters or fewer');
   });
 
-  it.each([['Yes', 'exchange-land'], ['No', 'executive-summary']])('routes common-land %s to %s', async (answer, destination) => {
+  it.each([['Yes', 'exchange-land'], ['No', 'related-applications']])('routes common-land %s to %s', async (answer, destination) => {
     renderStep('special-land');
     await ready();
     fireEvent.click(screen.getByLabelText(answer));
@@ -121,6 +124,50 @@ describe('CPO order details journey', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('could not be checked'));
     expect(cpoOrderDetailsService.save).not.toHaveBeenCalled();
+  });
+  it('does not clear an immediate executive-summary upload error on Save', async () => {
+    renderStep('executive-summary'); await ready();
+    act(() => { uploadState.props?.onValidationErrors?.(['Upload service unavailable']); });
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Upload service unavailable');
+    expect(cpoOrderDetailsService.save).not.toHaveBeenCalled();
+  });
+
+  it('shows the executive-summary reference heading, guidance and task-list Back link', async () => {
+    renderStep('executive-summary'); await ready();
+    expect(screen.getByRole('heading', { name: 'Provide the executive summary' })).toBeInTheDocument();
+    expect(screen.getByText('Executive summary')).toHaveClass('govuk-caption-l');
+    expect(screen.getByText(/Use our executive summary template to provide an overview/)).toHaveClass('govuk-body');
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/task-list');
+    expect(uploadState.props).toMatchObject({ uploadImmediately: true, visibleDocumentsHeading: true, canDelete: true, acceptedTypes: ALLOWED_FILE_EXTENSIONS.join(',') });
+  });
+
+  it('returns a saved executive summary directly to its task list', async () => {
+    renderStep('executive-summary'); await ready();
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/task-list'));
+    expect(cpoOrderDetailsService.save).toHaveBeenCalledWith('application-id', 'executive-summary', {}, false);
+  });
+
+  it('preserves the application-review Back and save destinations for executive summaries', async () => {
+    renderStep('executive-summary', '?from=application-review'); await ready();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
+  });
+
+  it('saves an unfinished executive summary for later without completing it', async () => {
+    renderStep('executive-summary'); await ready();
+    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
+    await waitFor(() => expect(cpoOrderDetailsService.save).toHaveBeenCalledWith('application-id', 'executive-summary', {}, true));
+    expect(navigateMock).toHaveBeenCalledWith('/application-dashboard');
+  });
+
+  it('removes executive-summary delete controls for view-only access', async () => {
+    vi.mocked(cpoOrderDetailsService.get).mockResolvedValue({ details: stored, documents: [], canEdit: false });
+    renderStep('executive-summary');
+    await screen.findByText('You can view these order details but cannot change them.');
+    expect(uploadState.props?.canDelete).toBe(false);
   });
 
   it.each([['Yes', 'add-related-application'], ['No', 'check']])('routes related-applications %s to %s', async (answer, destination) => {
@@ -196,16 +243,15 @@ describe('CPO order details journey', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith(`/cpo/application-id/order-details/${destination}`));
   });
 
-  it('provides review change links and requires affirmative confirmation', async () => {
+  it('reviews only the title and purpose and completes without extra confirmation radios', async () => {
     stored.orderName = 'North Ridge CPO';
+    stored.purpose = 'Acquire land and rights';
     renderStep('check');
     await ready();
-    expect(screen.getByRole('link', { name: 'Change name of the order' })).toHaveAttribute('href', '/cpo/application-id/order-details/name?from=check');
-    fireEvent.click(screen.getByLabelText('No'));
-    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('Use the Change links');
-    expect(cpoOrderDetailsService.save).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByLabelText('Yes'));
+    expect(screen.getByRole('link', { name: 'Change enter the order title' })).toHaveAttribute('href', '/cpo/application-id/order-details/name?from=check');
+    expect(screen.getByRole('link', { name: 'Change explain what the order is for' })).toHaveAttribute('href', '/cpo/application-id/order-details/purpose?from=check');
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('term')).toHaveLength(2);
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/task-list'));
     expect(cpoOrderDetailsService.save).toHaveBeenCalledWith('application-id', 'check', {}, false);
@@ -244,9 +290,10 @@ describe('CPO order details journey', () => {
   });
 
   it('returns confirmed order details to the full application review', async () => {
+    stored.orderName = 'North Ridge CPO'; stored.purpose = 'Acquire land and rights';
     renderStep('check', '?from=application-review'); await ready();
-    expect(screen.getByRole('link', { name: 'Change name of the order' })).toHaveAttribute('href', '/cpo/application-id/order-details/name?from=application-review');
-    fireEvent.click(screen.getByLabelText('Yes')); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Change enter the order title' })).toHaveAttribute('href', '/cpo/application-id/order-details/name?from=application-review');
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
   });
 
@@ -266,5 +313,33 @@ describe('CPO order details journey', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Unable to load'));
     expect(screen.getByRole('alert')).toHaveFocus();
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
+  });
+
+  it('saves the purpose and proceeds directly to order review', async () => {
+    stored.orderName = 'North Ridge CPO'; stored.purpose = 'Acquire land and rights';
+    renderStep('purpose'); await ready();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/order-details');
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-details/check'));
+  });
+
+  it('keeps an unfinished order review incomplete when saving for later', async () => {
+    renderStep('check'); await ready();
+    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
+    await waitFor(() => expect(cpoOrderDetailsService.save).toHaveBeenCalledWith('application-id', 'check', {}, true));
+  });
+
+  it('returns a completed common-land answer to the document journey', async () => {
+    renderStep('special-land', '?from=order-documents'); await ready();
+    fireEvent.click(screen.getByLabelText('No'));
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-documents'));
+  });
+
+  it('preserves the document return path through the exchange-land question', async () => {
+    renderStep('special-land', '?from=order-documents&return=application-review'); await ready();
+    fireEvent.click(screen.getByLabelText('Yes'));
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-details/exchange-land?from=order-documents&return=application-review'));
   });
 });

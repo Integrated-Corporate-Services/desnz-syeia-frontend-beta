@@ -39,7 +39,13 @@ describe('CPO check your answers', () => {
     renderPage(); await ready();
     expect(screen.getByRole('link', { name: 'Change name of the order' })).toHaveAttribute('href', '/cpo/app/order-details/name?from=application-review');
     expect(screen.getByRole('link', { name: 'Change newspaper notice' })).toHaveAttribute('href', '/cpo/app/record-notices/newspapers?from=application-review');
-    expect(screen.getByRole('link', { name: 'Change order maps' })).toHaveAttribute('href', '/cpo/app/order-documents/maps?from=application-review');
+    expect(screen.getByRole('link', { name: 'Change the order documents' })).toHaveAttribute('href', '/cpo/app/order-documents/order?from=application-review');
+  });
+  it('shows the saved pre-application meeting answer and reason', async () => {
+    vi.mocked(applicationApiService.getApplicationById).mockResolvedValue({ type: 'CPO', status: 'DRAFT', pre_submission_meeting_answer: 'not-needed', pre_submission_meeting_requested: false, pre_submission_meeting_reason: 'Discussed with the case officer.' });
+    renderPage(); await ready();
+    expect(screen.getByText("No, I don't need this meeting")).toBeInTheDocument();
+    expect(screen.getByText('Discussed with the case officer.')).toBeInTheDocument();
   });
   it('pairs newspaper dates by file ID rather than API array order', async () => {
     vi.mocked(cpoNoticesService.get).mockResolvedValue({ canEdit: true, reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: null,

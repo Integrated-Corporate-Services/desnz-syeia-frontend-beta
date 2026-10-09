@@ -38,10 +38,10 @@ export const cpoOrderDetailsService = {
 export function nextOrderStep(step: OrderStep, details: OrderDetails, addAnother: boolean | null): OrderStep | null {
   switch (step) {
     case 'name': return 'purpose';
-    case 'purpose': return 'special-land';
-    case 'special-land': return details.includesSpecialLand ? 'exchange-land' : 'executive-summary';
-    case 'exchange-land': return 'executive-summary';
-    case 'executive-summary': return 'related-applications';
+    case 'purpose': return 'check';
+    case 'special-land': return details.includesSpecialLand ? 'exchange-land' : 'related-applications';
+    case 'exchange-land': return 'related-applications';
+    case 'executive-summary': return null;
     case 'related-applications': return details.hasRelatedApplications ? (details.relatedApplications.length ? 'related-applications-list' : 'add-related-application') : 'check';
     case 'add-related-application': return 'related-applications-list';
     case 'related-applications-list': return addAnother ? 'add-related-application' : 'check';

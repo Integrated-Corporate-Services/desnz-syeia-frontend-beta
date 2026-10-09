@@ -2,24 +2,24 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
 import FileUpload, { type FileUploadHandle } from '../../../components/FileUpload';
-import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { CPO_BASE_URL } from '../../../constants/cpo';
 import { cpoOrderDetailsService, nextOrderStep } from '../services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS, EXECUTIVE_SUMMARY_CATEGORY, ORDER_STEPS, RELATED_TYPE_LABELS } from '../constants/orderDetailsConstants';
 import type { OrderDetails, OrderDocument, OrderStep, RelatedApplication, RelatedType } from '../types/orderDetails';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
+import { ALLOWED_FILE_EXTENSIONS } from '../../../utils/fileValidationConstants';
 
 type FormError = { id: string; message: string };
 const COPY: Record<OrderStep, { heading: string; hint?: string }> = {
-  name: { heading: 'What is the name of the order?', hint: 'For example, National Grid Electricity Distribution (North Ridge) Compulsory Purchase Order 2026.' },
-  purpose: { heading: 'What is the order for?', hint: 'Describe what you will use the land or rights for, and why the order is needed.' },
+  name: { heading: 'Enter the order title', hint: 'Use exactly the same title used in the certified order.' },
+  purpose: { heading: 'Explain what the order is for', hint: 'Describe the rights you seek and why, similar to the summary on your order.' },
   'special-land': { heading: 'Does the order include common land, open space, or a fuel or field garden allotment?', hint: 'This decides which prescribed form your order must use, and whether you need a certificate under section 19 of the Acquisition of Land Act 1981.' },
   'exchange-land': { heading: 'Are you providing land in exchange?', hint: 'Exchange land is land given in place of the common land, open space or allotment being acquired.' },
-  'executive-summary': { heading: 'Executive summary', hint: 'Download the template, fill it in, then upload it. The executive summary explains what the order does and why it is needed.' },
+  'executive-summary': { heading: 'Provide the executive summary', hint: 'Use our executive summary template to provide an overview of your proposed order, including the project it supports, the land or rights you want to acquire and why they are needed.' },
   'related-applications': { heading: 'Are there any other applications related to this one?', hint: 'For example, a development consent order, a Section 37 consent, or another compulsory purchase order for this project.' },
   'add-related-application': { heading: 'Add a related application' },
   'related-applications-list': { heading: 'Related applications' },
-  check: { heading: 'Check order details' },
+  check: { heading: 'Check the order details' },
 };
 const emptyRelated = (): RelatedApplication => ({ id: crypto.randomUUID(), type: '', otherType: '', reference: '', siteAddress: '', relationship: '' });
 
@@ -30,18 +30,19 @@ const CpoOrderDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fromApplicationReview = searchParams.get('from') === 'application-review';
+  const fromOrderDocuments = searchParams.get('from') === 'order-documents';
   const fromCheck = searchParams.get('from') === 'check' || fromApplicationReview;
   const editId = searchParams.get('edit');
   const [details, setDetails] = useState<OrderDetails>(EMPTY_ORDER_DETAILS);
   const [documents, setDocuments] = useState<OrderDocument[]>([]);
   const [related, setRelated] = useState<RelatedApplication>(emptyRelated);
   const [addAnother, setAddAnother] = useState<boolean | null>(null);
-  const [correct, setCorrect] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [canEdit, setCanEdit] = useState(true);
   const [errors, setErrors] = useState<FormError[]>([]);
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const errorSummary = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const uploadRef = useRef<FileUploadHandle>(null);
@@ -50,20 +51,19 @@ const CpoOrderDetailsPage: React.FC = () => {
     ? `You have added ${details.relatedApplications.length} related application${details.relatedApplications.length === 1 ? '' : 's'}`
     : COPY[step].heading;
 
-  useBreadcrumb(
-    <div className="govuk-breadcrumbs"><ol className="govuk-breadcrumbs__list">
-      <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={`${CPO_BASE_URL}/${applicationId}/task-list`}>Task list</Link></li>
-      <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={base}>Order details</Link></li>
-    </ol></div>
-  );
+  const documentsUrl = `${CPO_BASE_URL}/${applicationId}/order-documents${searchParams.get('return') === 'application-review' ? '?from=application-review' : ''}`;
+  const backUrl = step === 'executive-summary' ? `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`
+    : fromOrderDocuments ? documentsUrl : fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
+    : step === 'purpose' ? base : step === 'check' ? `${base}/purpose${fromApplicationReview ? '?from=application-review' : ''}`
+      : `${CPO_BASE_URL}/${applicationId}/task-list`;
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setLoadFailed(false);
     setErrors([]);
+    setUploadErrors([]);
     setAddAnother(null);
-    setCorrect(null);
     cpoOrderDetailsService.get(applicationId).then((result) => {
       if (!active) return;
       setDetails(result.details);
@@ -121,14 +121,13 @@ const CpoOrderDetailsPage: React.FC = () => {
   );
 
   const validate = (): FormError[] => {
-    if (step === 'name' && !details.orderName.trim()) return [{ id: 'orderName', message: 'Enter the name of the order' }];
-    if (step === 'purpose' && (!details.purpose.trim() || details.purpose.length > 4000)) return [{ id: 'purpose', message: details.purpose.length > 4000 ? 'What the order is for must be 4,000 characters or fewer' : 'Enter what the order is for' }];
+    if ((step === 'name' || step === 'check') && !details.orderName.trim()) return [{ id: step === 'check' ? 'order-heading' : 'orderName', message: 'Enter the order title' }];
+    if ((step === 'purpose' || step === 'check') && (!details.purpose.trim() || details.purpose.length > 4000)) return [{ id: step === 'check' ? 'order-heading' : 'purpose', message: details.purpose.length > 4000 ? 'What the order is for must be 4,000 characters or fewer' : 'Explain what the order is for' }];
     if (step === 'special-land' && details.includesSpecialLand === null) return [{ id: 'special-land-yes', message: 'Select yes or no for common land, open space or allotment' }];
     if (step === 'exchange-land' && details.exchangeLand === null) return [{ id: 'exchange-land-yes', message: 'Select yes or no for exchange land' }];
     if (step === 'related-applications' && details.hasRelatedApplications === null) return [{ id: 'related-applications-yes', message: 'Select yes or no for related applications' }];
     if (step === 'related-applications-list' && addAnother === null) return [{ id: 'add-another-yes', message: 'Select yes or no to add another related application' }];
     if (step === 'related-applications-list' && addAnother === false && !details.relatedApplications.length) return [{ id: 'add-another-yes', message: 'Add a related application or change your related applications answer to no' }];
-    if (step === 'check' && correct !== true) return [{ id: 'correct-yes', message: correct === false ? 'Use the Change links to correct your answers, then select yes' : 'Select yes if everything in this section is correct' }];
     if (step === 'add-related-application') {
       const result: FormError[] = [];
       if (!related.type) result.push({ id: 'related-type-DCO', message: 'Select the type of related application' });
@@ -141,6 +140,7 @@ const CpoOrderDetailsPage: React.FC = () => {
 
   const save = async (saveForLater: boolean) => {
     if (loading || saving || loadFailed || !canEdit) return;
+    if (uploadErrors.length) { setErrors(uploadErrors.map(message => ({ id: 'file-upload-input', message }))); return; }
     const validationErrors = saveForLater ? [] : validate();
     if (validationErrors.length) { setErrors(validationErrors); return; }
     if (uploadRef.current?.isBusy()) { setErrors([{ id: 'file-upload-input', message: 'Wait for your files to finish uploading and being checked for viruses' }]); return; }
@@ -173,6 +173,12 @@ const CpoOrderDetailsPage: React.FC = () => {
       setDetails(result.details);
       setDocuments(result.documents);
       if (saveForLater) { navigate('/application-dashboard'); return; }
+      if (fromOrderDocuments && ['special-land', 'exchange-land'].includes(step)) {
+        navigate(step === 'special-land' && result.details.includesSpecialLand && result.details.exchangeLand === null
+          ? `${base}/exchange-land?${searchParams.toString()}` : documentsUrl);
+        return;
+      }
+      if (step === 'executive-summary') { navigate(`${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`); return; }
       let next = nextOrderStep(step, result.details, addAnother);
       if (fromCheck && !['related-applications', 'add-related-application', 'related-applications-list', 'check'].includes(step)) {
         next = step === 'special-land' && result.details.includesSpecialLand && result.details.exchangeLand === null ? 'exchange-land' : 'check';
@@ -185,21 +191,24 @@ const CpoOrderDetailsPage: React.FC = () => {
   };
 
   const summaryRow = (label: string, value: React.ReactNode, target: OrderStep) => <div className="govuk-summary-list__row" key={label}>
-    <dt className="govuk-summary-list__key">{label}</dt><dd className="govuk-summary-list__value">{value}</dd>
+    <dt className="govuk-summary-list__key">{label}</dt><dd className="govuk-summary-list__value" style={{ whiteSpace: 'pre-line', overflowWrap: 'anywhere' }}>{value}</dd>
     <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={changeUrl(target)}>Change<span className="govuk-visually-hidden"> {label.toLowerCase()}</span></Link></dd>
   </div>;
-  const choiceText = (value: boolean | null) => value === null ? 'Not answered' : value ? 'Yes' : 'No';
 
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${heading}`} />
-    <div className="govuk-width-container cpo-order-details"><div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
+    <div className={`govuk-width-container cpo-order-details${step === 'executive-summary' ? ' cpo-executive-summary' : ''}`}>
+    <Link className="govuk-back-link govuk-!-margin-bottom-6" to={backUrl}>Back</Link>
+    <div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
       {errors.length > 0 && <div className="govuk-error-summary" role="alert" tabIndex={-1} ref={errorSummary} aria-labelledby="order-error-title">
         <h2 className="govuk-error-summary__title" id="order-error-title">There is a problem</h2>
         <div className="govuk-error-summary__body"><ul className="govuk-list govuk-error-summary__list">{errors.map((error, index) => <li key={`${error.id}-${index}`}><a href={`#${error.id}`}>{error.message}</a></li>)}</ul></div>
       </div>}
       {step === 'add-related-application' && <span className="govuk-caption-l">Related applications</span>}
+      {['name', 'purpose', 'check'].includes(step) && <span className="govuk-caption-l">Order details</span>}
+      {step === 'executive-summary' && <span className="govuk-caption-l">Executive summary</span>}
       <h1 className="govuk-heading-l" id="order-heading" ref={headingRef} tabIndex={-1}>{heading}</h1>
-      <div id="order-hint" className={COPY[step].hint ? 'govuk-hint' : 'govuk-visually-hidden'}>{COPY[step].hint || heading}</div>
+      <div id="order-hint" className={step === 'executive-summary' ? 'govuk-body' : COPY[step].hint ? 'govuk-hint' : 'govuk-visually-hidden'}>{COPY[step].hint || heading}</div>
       {loading && <p className="govuk-body" role="status">Loading order details...</p>}
       {!loading && !canEdit && <p className="govuk-body" role="status">You can view these order details but cannot change them.</p>}
       <form onSubmit={(event) => { event.preventDefault(); void save(false); }}>
@@ -209,7 +218,7 @@ const CpoOrderDetailsPage: React.FC = () => {
             <label className="govuk-label govuk-visually-hidden" htmlFor={step === 'name' ? 'orderName' : 'purpose'}>{heading}</label>
             {inlineError(step === 'name' ? 'orderName' : 'purpose')}
             {step === 'name' ? <input className={`govuk-input${errorFor('orderName') ? ' govuk-input--error' : ''}`} id="orderName" value={details.orderName} maxLength={500} onChange={(event) => update({ orderName: event.target.value })} aria-describedby={`order-hint${errorFor('orderName') ? ' orderName-error' : ''}`} />
-              : <><textarea className={`govuk-textarea${errorFor('purpose') ? ' govuk-textarea--error' : ''}`} id="purpose" rows={3} maxLength={4000} value={details.purpose} onChange={(event) => update({ purpose: event.target.value })} aria-describedby={`order-hint purpose-limit${errorFor('purpose') ? ' purpose-error' : ''}`} /><div className="govuk-hint" id="purpose-limit">You can enter up to 4,000 characters</div></>}
+              : <><textarea className={`govuk-textarea${errorFor('purpose') ? ' govuk-textarea--error' : ''}`} id="purpose" rows={5} maxLength={4000} value={details.purpose} onChange={(event) => update({ purpose: event.target.value })} aria-describedby={`order-hint purpose-limit${errorFor('purpose') ? ' purpose-error' : ''}`} /><div className="govuk-hint" id="purpose-limit">You can enter up to 4,000 characters</div></>}
           </div>}
           {step === 'special-land' && choices('special-land', details.includesSpecialLand, (value) => update({ includesSpecialLand: value }), heading)}
           {step === 'exchange-land' && choices('exchange-land', details.exchangeLand, (value) => update({ exchangeLand: value }), heading)}
@@ -218,11 +227,14 @@ const CpoOrderDetailsPage: React.FC = () => {
             <a className="govuk-button govuk-button--secondary govuk-!-margin-bottom-6" href={cpoOrderDetailsService.templateUrl(applicationId)}>Download executive summary template</a>
             {inlineError('file-upload-input')}
             <FileUpload ref={uploadRef} title="Upload your executive summary" applicationId={applicationId} category={EXECUTIVE_SUMMARY_CATEGORY} subCategory="EXECUTIVE_SUMMARY" prefix={`${applicationId}/${EXECUTIVE_SUMMARY_CATEGORY}`}
-              hint="You can upload .pdf, .jpg, .jpeg, .png, .docx and .xlsx files of up to 25MB each. You can add more than one file. Files cannot be password protected."
-              acceptedTypes=".pdf,.jpg,.jpeg,.png,.docx,.xlsx"
+              uploadImmediately
+              visibleDocumentsHeading
+              canDelete={canEdit && !loading && !saving && !loadFailed}
+              hint={`You can upload ${ALLOWED_FILE_EXTENSIONS.join(', ')} files of up to 25MB each. You can add more than one file. Files cannot be password protected.`}
+              acceptedTypes={ALLOWED_FILE_EXTENSIONS.join(',')}
               uploadedFiles={documents.map((document) => ({ id: document.file_id, storageProvider: document.storage_provider, s3Key: document.s3_key, bucketName: document.bucket_name, virtualFolder: document.virtual_folder, filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp, scanStatus: document.scan_status, scanResult: document.scan_result }))}
               applicationDocuments={documents.map((document) => ({ documentId: document.document_id, applicationId, fileId: document.file_id, category: EXECUTIVE_SUMMARY_CATEGORY, subCategory: 'EXECUTIVE_SUMMARY', addedBy: document.added_by, addedAt: document.added_at }))}
-              onValidationErrors={(messages) => setErrors(messages.map((message) => ({ id: 'file-upload-input', message })))}
+              onValidationErrors={messages => { setUploadErrors(messages); setErrors(messages.map(message => ({ id: 'file-upload-input', message }))); }}
               onDeleteFile={(id) => setDocuments((current) => current.filter((document) => document.file_id !== id))}
               onUploaded={() => { void cpoOrderDetailsService.get(applicationId).then((result) => setDocuments(result.documents)).catch(() => setErrors([{ id: 'file-upload-input', message: 'Unable to refresh uploaded documents. Refresh the page.' }])); }} />
           </>}
@@ -252,14 +264,9 @@ const CpoOrderDetailsPage: React.FC = () => {
           </>}
           {step === 'check' && <>
             <dl className="govuk-summary-list">
-              {summaryRow('Name of the order', details.orderName || 'Not answered', 'name')}
-              {summaryRow('What the order is for', details.purpose || 'Not answered', 'purpose')}
-              {summaryRow('Common land, open space or allotment', choiceText(details.includesSpecialLand), 'special-land')}
-              {details.includesSpecialLand && summaryRow('Land in exchange', choiceText(details.exchangeLand), 'exchange-land')}
-              {summaryRow('Executive summary', documents.length ? documents.map((document) => <p className="govuk-!-margin-bottom-1" key={document.document_id}>{document.filename}</p>) : 'Not uploaded', 'executive-summary')}
-              {summaryRow('Related applications', details.hasRelatedApplications ? `Yes. ${details.relatedApplications.length} added: ${details.relatedApplications.map((entry) => entry.reference || RELATED_TYPE_LABELS[entry.type]).join(', ')}` : choiceText(details.hasRelatedApplications), 'related-applications')}
+              {summaryRow('Enter the order title', details.orderName || 'Not answered', 'name')}
+              {summaryRow('Explain what the order is for', details.purpose || 'Not answered', 'purpose')}
             </dl>
-            {choices('correct', correct, setCorrect, 'Is everything in this section correct?', true)}
           </>}
           <div className="govuk-button-group govuk-!-margin-top-6"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>
         </fieldset>

@@ -73,6 +73,7 @@ import ConsultationWithdrawnPage from '../features/Consultation/pages/Consultati
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
+import { NetworkOperatorDetails as CpoApplicantDetails, NetworkOperatorContactDetails as CpoApplicantContactDetails } from '../features/CPO/ApplicantDetails';
 import {
     CPOWhoIsApplying,
     CpoCheckYourAnswersPage,
@@ -673,7 +674,13 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     },
     {
         path: '/cpo/:applicationId/applicant-details',
-        component: NWLNetworkOperatorDetails,
+        component: CpoApplicantDetails,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: '/cpo/:applicationId/network-operator-contact-details',
+        component: CpoApplicantContactDetails,
         auth: true,
         layout: true,
     },

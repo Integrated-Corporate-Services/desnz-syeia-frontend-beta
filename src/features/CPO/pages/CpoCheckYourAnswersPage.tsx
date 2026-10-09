@@ -10,18 +10,21 @@ import { cpoOrderDetailsService } from '../services/cpoOrderDetailsService';
 import { RELATED_TYPE_LABELS } from '../constants/orderDetailsConstants';
 import type { OrderDetailsResponse, OrderDocument } from '../types/orderDetails';
 import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
-import { DOCUMENT_CATEGORIES } from '../constants/orderDocumentsConstants';
+import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES } from '../constants/orderDocumentsConstants';
 import type { OrderDocumentsResponse } from '../types/orderDocuments';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import { NOTICE_CATEGORIES } from '../constants/noticesConstants';
 import type { NoticesResponse, NoticeStep } from '../types/notices';
 import { CPO_SUBSECTIONS, CPO_TASK_SECTIONS } from '../constants/cpoTaskListConstants';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
+import { inspectionAddresses, inspectionAddressText, noticeDateText } from '../utils/noticeRecord';
 
 interface ReviewApplication {
   type: string;
   status: string;
   pre_submission_meeting_requested?: boolean | null;
+  pre_submission_meeting_answer?: 'had-meeting' | 'request-meeting' | 'not-needed' | null;
+  pre_submission_meeting_reason?: string;
   additional_contact?: string | string[];
   permissions?: { canEdit?: boolean; canDownload?: boolean };
   application_party?: {
@@ -107,7 +110,10 @@ const CpoCheckYourAnswersPage: React.FC = () => {
   const party = data?.application.application_party;
   const additional = party?.additional_contact ?? data?.application.additional_contact;
   const contacts = Array.isArray(additional) ? additional : additional?.split(',').map((value) => value.trim()).filter(Boolean) || [];
-  const incomplete = CPO_TASK_SECTIONS.flatMap((section) => section.tasks).filter((task) => task.subsection !== CPO_SUBSECTIONS.CHECK_AND_SUBMIT && !data?.progress.some((item) => item.subsection_name === task.subsection && item.status.toLowerCase() === 'completed'));
+  const incomplete = CPO_TASK_SECTIONS.flatMap((section) => section.tasks).filter(task => task.subsection !== CPO_SUBSECTIONS.CHECK_AND_SUBMIT && (
+    !data?.progress.some(item => item.subsection_name === task.subsection && item.status.toLowerCase() === 'completed')
+    || task.subsection === CPO_SUBSECTIONS.RECORD_NOTICES && (data?.notices.record.requirements?.acknowledged !== true || data?.notices.record.check?.confirmed !== true)
+  ));
   return <>
     <PageTitle title={`${error ? 'Error: ' : ''}${heading}`} />
     <div className="govuk-width-container"><div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
@@ -125,32 +131,35 @@ const CpoCheckYourAnswersPage: React.FC = () => {
           {row('Email address', party?.contact_person_email || 'Not answered', 'applicant-details')}
           {row('Phone number', party?.contact_person_phone || 'Not answered', 'applicant-details')}
           {row('Additional contacts', contacts.join('\n') || 'None added', 'applicant-details')}
-          {row('Do you want a pre-submission meeting?', choiceText(data.application.pre_submission_meeting_requested), 'pre-submission-meeting')}
+          {row('Have you had a pre-application meeting?', data.application.pre_submission_meeting_answer === 'had-meeting' ? "Yes, I've had this meeting"
+            : data.application.pre_submission_meeting_answer === 'request-meeting' || data.application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
+              : data.application.pre_submission_meeting_answer === 'not-needed' || data.application.pre_submission_meeting_requested === false ? "No, I don't need this meeting" : 'Not answered', 'pre-submission-meeting')}
+          {data.application.pre_submission_meeting_answer === 'not-needed' && row("Why you don't need this meeting", data.application.pre_submission_meeting_reason || 'Not answered', 'pre-submission-meeting')}
         </dl>
         <h2 className="govuk-heading-m govuk-!-margin-top-8">Order details</h2>
         <dl className="govuk-summary-list">
           {row('Name of the order', data.order.details.orderName || 'Not answered', 'order-details/name')}
           {row('What the order is for', data.order.details.purpose || 'Not answered', 'order-details/purpose')}
-          {row('Common land, open space or allotment', choiceText(data.order.details.includesSpecialLand), 'order-details/special-land')}
+          {typeof data.order.details.includesSpecialLand === 'boolean' && row('Common land, open space or allotment', choiceText(data.order.details.includesSpecialLand), 'order-details/special-land')}
           {data.order.details.includesSpecialLand && row('Land in exchange', choiceText(data.order.details.exchangeLand), 'order-details/exchange-land')}
           {row('Executive summary', files(data.order.documents), 'order-details/executive-summary')}
-          {row('Related applications', data.order.details.hasRelatedApplications ? <><p className="govuk-!-margin-bottom-1">Yes. {data.order.details.relatedApplications.length} added.</p>{data.order.details.relatedApplications.map((entry) => <p className="govuk-!-margin-bottom-1" key={entry.id}>{entry.type === 'OTHER' ? entry.otherType : RELATED_TYPE_LABELS[entry.type]}{entry.reference && `: ${entry.reference}`}{entry.siteAddress && `\n${entry.siteAddress}`}{entry.relationship && `\n${entry.relationship}`}</p>)}</> : choiceText(data.order.details.hasRelatedApplications), 'order-details/related-applications')}
+          {typeof data.order.details.hasRelatedApplications === 'boolean' && row('Related applications', data.order.details.hasRelatedApplications ? <><p className="govuk-!-margin-bottom-1">Yes. {data.order.details.relatedApplications.length} added.</p>{data.order.details.relatedApplications.map((entry) => <p className="govuk-!-margin-bottom-1" key={entry.id}>{entry.type === 'OTHER' ? entry.otherType : RELATED_TYPE_LABELS[entry.type]}{entry.reference && `: ${entry.reference}`}{entry.siteAddress && `\n${entry.siteAddress}`}{entry.relationship && `\n${entry.relationship}`}</p>)}</> : choiceText(data.order.details.hasRelatedApplications), 'order-details/related-applications')}
         </dl>
         <h2 className="govuk-heading-m govuk-!-margin-top-8">Public notices</h2>
         <dl className="govuk-summary-list">
-          {row('Where the order can be inspected', <>{data.notices.record.inspection?.address || 'Not answered'}<br />From {dateText(data.notices.record.inspection?.from)} until {dateText(data.notices.record.inspection?.until)}</>, 'record-notices/inspection')}
-          {row('Where the order can be viewed online', <>{data.notices.record.online?.url || 'Not answered'}<br />From {dateText(data.notices.record.online?.from)} until {dateText(data.notices.record.online?.until)}</>, 'record-notices/online')}
+          {row('Notice requirements', data.notices.record.requirements?.acknowledged === true ? 'Read and acknowledged' : 'Not acknowledged', 'record-notices/requirements')}
+          {row('Where the order can be inspected', inspectionAddresses(data.notices.record.inspection).length ? inspectionAddresses(data.notices.record.inspection).map(address => <p className="govuk-!-margin-bottom-1" key={address.id}>{inspectionAddressText(address)}<br />Available from {noticeDateText(address.from)}</p>) : 'Not answered', 'record-notices/inspection')}
+          {row('Where the order can be viewed online', <>{data.notices.record.online?.url || 'Not answered'}{data.notices.record.online?.format !== 'reference' && <><br />From {dateText(data.notices.record.online?.from)} until {dateText(data.notices.record.online?.until)}</>}</>, 'record-notices/online')}
           {row('Newspaper notice', publicityFiles('newspapers', 'Published'), 'record-notices/newspapers')}
-          {row('Website notice', <>{data.notices.record.website?.url || 'Not answered'}<br />Live from {dateText(data.notices.record.website?.liveDate)}</>, 'record-notices/website')}
+          {data.notices.record.website?.url && row('Website notice', <>{data.notices.record.website.url}<br />Live from {dateText(data.notices.record.website.liveDate)}</>, 'record-notices/website')}
           {row('Site notice', publicityFiles('site', 'Last notice affixed'), 'record-notices/site')}
-          {row('Notice to qualifying persons', publicityFiles('people', 'Last person served'), 'record-notices/people')}
-          {row('Final day for objections', dateText(data.notices.finalObjectionDate), 'record-notices/check')}
+          {row('Statement of service (optional)', publicityFiles('people', 'Last person served'), 'record-notices/people')}
+          {data.notices.finalObjectionDate && row('Final day for objections', dateText(data.notices.finalObjectionDate), 'record-notices/check')}
         </dl>
         <h2 className="govuk-heading-m govuk-!-margin-top-8">Order documents</h2>
         <dl className="govuk-summary-list">
-          {row('The order', files(data.documents.documents.filter((file) => file.category === DOCUMENT_CATEGORIES.order)), 'order-documents/order')}
-          {row('Order maps', files(data.documents.documents.filter((file) => file.category === DOCUMENT_CATEGORIES.maps)), 'order-documents/maps')}
-          {row('Statement of reasons', files(data.documents.documents.filter((file) => file.category === DOCUMENT_CATEGORIES.reasons)), 'order-documents/reasons')}
+          {row('The order documents', files(data.documents.documents.filter(file => DOCUMENT_GROUP_CATEGORIES.order.includes(file.category))), 'order-documents/order')}
+          {row('Statement of reasons and related documents', files(data.documents.documents.filter((file) => file.category === DOCUMENT_CATEGORIES.reasons)), 'order-documents/reasons')}
           {row('Additional documents', files(data.documents.documents.filter((file) => file.category === DOCUMENT_CATEGORIES.additional), 'None uploaded'), 'order-documents/additional')}
         </dl>
       </>}

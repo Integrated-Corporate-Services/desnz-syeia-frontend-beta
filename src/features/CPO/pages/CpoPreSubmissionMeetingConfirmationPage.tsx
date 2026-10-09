@@ -31,7 +31,7 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
           navigate(`${CPO_BASE_URL}/${applicationId}/pre-submission-meeting`, { replace: true });
           return;
         }
-        setMeetingRequested(application.pre_submission_meeting_requested);
+        setMeetingRequested(application.pre_submission_meeting_requested ?? null);
         setReference(application.desnz_ref);
       })
       .catch(() => { if (active) setError('Unable to load your application confirmation. Refresh the page to try again.'); })

@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../constants/cpo';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { progressApiService } from '../../../services/progressApiService';
-import { CPO_SUBSECTIONS, CPO_TASK_COUNT, CPO_TASK_SECTIONS } from '../constants/cpoTaskListConstants';
+import { CPO_SUBSECTIONS, CPO_TASK_SECTIONS } from '../constants/cpoTaskListConstants';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 type CpoProgressItem = {
@@ -17,21 +17,33 @@ const CpoTaskListPage: React.FC = () => {
   const navigate = useNavigate();
   const [application, setApplication] = useState<any>(null);
   const [progress, setProgress] = useState<CpoProgressItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const errorSummary = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!applicationId) return;
-
-    applicationApiService.getApplicationById(applicationId).then(setApplication).catch(() => setApplication(null));
-    progressApiService.fetchApplicationProgress(applicationId).then(setProgress).catch(() => setProgress([]));
+    let active = true;
+    setLoading(true);
+    setError('');
+    Promise.all([applicationApiService.getApplicationById(applicationId), progressApiService.fetchApplicationProgress(applicationId)])
+      .then(([saved, savedProgress]) => {
+        if (!active) return;
+        if (saved.type !== 'CPO') throw new Error('Not a CPO application');
+        setApplication(saved); setProgress(savedProgress);
+      }).catch(() => { if (active) setError('Unable to load the CPO task list. Refresh the page to try again.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [applicationId]);
 
+  useEffect(() => { if (error) errorSummary.current?.focus(); }, [error]);
+
   const progressByTask = useMemo(
-    () => new Map(progress.map((item) => [item.subsection_name, item.status])),
-    [progress]
+    () => new Map(progress.map(item => [item.subsection_name,
+      item.subsection_name === CPO_SUBSECTIONS.RECORD_NOTICES && item.status.toLowerCase() === 'completed'
+        && (application?.cpo_publicity?.requirements?.acknowledged !== true || application?.cpo_publicity?.check?.confirmed !== true)
+        ? 'Not completed' : item.status])),
+    [progress, application]
   );
-  const completedCount = CPO_TASK_SECTIONS.flatMap((section) => section.tasks).filter(
-    (task) => progressByTask.get(task.subsection)?.toLowerCase() === 'completed'
-  ).length;
   const allOtherTasksCompleted = CPO_TASK_SECTIONS.flatMap((section) => section.tasks)
     .filter((task) => task.subsection !== CPO_SUBSECTIONS.CHECK_AND_SUBMIT)
     .every((task) => progressByTask.get(task.subsection)?.toLowerCase() === 'completed');
@@ -40,22 +52,20 @@ const CpoTaskListPage: React.FC = () => {
     if (subsection === CPO_SUBSECTIONS.CHECK_AND_SUBMIT && !allOtherTasksCompleted) {
       return 'Cannot start yet';
     }
-    return progressByTask.get(subsection) ?? 'Not completed';
+    const status = progressByTask.get(subsection)?.toLowerCase();
+    return status === 'completed' ? 'Completed' : status === 'in progress' ? 'In progress' : 'Not completed';
   };
 
   const renderStatus = (status: string) => {
-    if (status === 'Cannot start yet') {
-      return <span className="govuk-body">{status}</span>;
-    }
-    const isComplete = status.toLowerCase() === 'completed';
+    const colour = status === 'Completed' ? 'green' : status === 'Cannot start yet' ? 'grey' : 'blue';
     return (
-      <strong className={`govuk-tag${isComplete ? ' govuk-tag--green' : ' govuk-tag--blue'}`}>
-        {isComplete ? 'Completed' : 'Incomplete'}
+      <strong className={`govuk-tag govuk-tag--${colour}`}>
+        {status}
       </strong>
     );
   };
 
-  const applicationTitle = application?.cpo_order_details?.orderName || 'Compulsory purchase order application';
+  const applicationTitle = 'Compulsory purchase order';
 
   return (
     <>
@@ -63,12 +73,15 @@ const CpoTaskListPage: React.FC = () => {
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
+            {loading && <p className="govuk-body" role="status">Loading your task list...</p>}
+            {error && <div className="govuk-error-summary" role="alert" ref={errorSummary} tabIndex={-1}><h2 className="govuk-error-summary__title">There is a problem</h2><div className="govuk-error-summary__body"><p>{error}</p></div></div>}
+            {!loading && !error && <>
             <span className="govuk-caption-l">
               {application?.application_party?.organisation_name || application?.operator_name || ''}
             </span>
             <h1 className="govuk-heading-l">{applicationTitle}</h1>
             <p className="govuk-body">
-              Complete every section, then check and submit your application. You have completed {completedCount} of {CPO_TASK_COUNT} tasks.
+              Complete the following sections in order to create and submit your application.
             </p>
 
             {CPO_TASK_SECTIONS.map((section, sectionIndex) => (
@@ -78,7 +91,7 @@ const CpoTaskListPage: React.FC = () => {
                 </h2>
                 <div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
                 <ul className="govuk-task-list govuk-!-margin-bottom-1">
-                  {section.tasks.map((task) => {
+                  {section.tasks.map((task, taskIndex) => {
                     const status = getTaskStatus(task.subsection);
                     const isBlocked = status === 'Cannot start yet';
                     const taskUrl = task.slug ? `${CPO_BASE_URL}/${applicationId}/${task.slug}` : undefined;
@@ -91,37 +104,27 @@ const CpoTaskListPage: React.FC = () => {
                               <Link
                                 className="govuk-link govuk-task-list__link"
                                 to={taskUrl}
-                                aria-describedby={task.subsection === CPO_SUBSECTIONS.RECORD_NOTICES ? 'record-notices-hint' : undefined}
+                                aria-describedby={`cpo-task-status-${sectionIndex}-${taskIndex}`}
                               >
                                 {task.label}
                               </Link>
                             ) : (
                               <span
                                 className="govuk-task-list__description"
-                                aria-describedby={isBlocked ? 'check-and-submit-hint' : undefined}
                               >
                                 {task.label}
                               </span>
                             )}
                           </span>
-                          <span className="govuk-task-list__status">{renderStatus(status)}</span>
+                          <span className="govuk-task-list__status" id={`cpo-task-status-${sectionIndex}-${taskIndex}`}>{renderStatus(status)}</span>
                         </li>
                       </React.Fragment>
                     );
                   })}
                 </ul>
-                {section.tasks.some((task) => task.subsection === CPO_SUBSECTIONS.RECORD_NOTICES) && (
-                  <p className="govuk-body-s govuk-!-margin-bottom-0" id="record-notices-hint">
-                    Set the final day for objections before publishing or serving your notices. Record each step as you finish it. If the dates change, check whether your notices or the final day need to change.
-                  </p>
-                )}
-                {section.tasks.some((task) => task.subsection === CPO_SUBSECTIONS.CHECK_AND_SUBMIT) && !allOtherTasksCompleted && (
-                  <p className="govuk-body-s govuk-!-margin-bottom-0" id="check-and-submit-hint">
-                    You can submit once every other task is completed.
-                  </p>
-                )}
               </section>
             ))}
+            </>}
           </div>
         </div>
         <div className="govuk-grid-row">
@@ -129,6 +132,7 @@ const CpoTaskListPage: React.FC = () => {
             <button
               className="govuk-button govuk-button--warning"
               type="button"
+              disabled={loading || Boolean(error)}
               onClick={() => navigate(`${CPO_BASE_URL}/${applicationId}/delete-confirmation`)}
             >
               Delete application

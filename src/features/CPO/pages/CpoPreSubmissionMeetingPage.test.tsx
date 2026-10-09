@@ -43,22 +43,22 @@ describe('CPO pre-submission meeting', () => {
   });
 
   it.each([
-    ['Yes', true, '/cpo/application-id/pre-submission-meeting/confirmation'],
-    ['No', false, '/cpo/application-id/pre-submission-meeting/confirmation'],
-  ])('saves %s and navigates to the appropriate page', async (label, requested, destination) => {
+    ["Yes, I've had this meeting", false, 'had-meeting'],
+    ['No, I would like a pre-application meeting', true, 'request-meeting'],
+  ])('saves %s and navigates to the appropriate page', async (label, requested, answer) => {
     renderPage();
     await waitForForm();
     fireEvent.click(screen.getByLabelText(label));
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith(destination));
-    expect(applicationApiService.saveCpoPreSubmissionMeeting).toHaveBeenCalledWith('application-id', requested, true);
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting/confirmation'));
+    expect(applicationApiService.saveCpoPreSubmissionMeeting).toHaveBeenCalledWith('application-id', requested, true, { answer, reason: '' });
   });
 
-  it.each(['Yes', 'No'])('clears a selection error when %s is chosen', async (label) => {
+  it.each(["Yes, I've had this meeting", 'No, I would like a pre-application meeting', "No, I don't need this meeting"])('clears a selection error when %s is chosen', async (label) => {
     renderPage();
     await waitForForm();
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('Select yes or no');
+    expect(screen.getByRole('alert')).toHaveTextContent('Select whether you have had');
     fireEvent.click(screen.getByLabelText(label));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(applicationApiService.saveCpoPreSubmissionMeeting).not.toHaveBeenCalled();
@@ -69,21 +69,21 @@ describe('CPO pre-submission meeting', () => {
     await waitForForm();
     fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/application-dashboard'));
-    expect(applicationApiService.saveCpoPreSubmissionMeeting).toHaveBeenCalledWith('application-id', null, false);
+    expect(applicationApiService.saveCpoPreSubmissionMeeting).toHaveBeenCalledWith('application-id', null, false, { answer: null, reason: '' });
   });
 
   it('restores the saved No answer', async () => {
     vi.mocked(applicationApiService.getApplicationById).mockResolvedValue({ type: 'CPO', pre_submission_meeting_requested: false });
     renderPage();
     await waitForForm();
-    expect(screen.getByLabelText('No')).toBeChecked();
+    expect(screen.getByLabelText("No, I don't need this meeting")).toBeChecked();
   });
 
   it('does not show success or navigate when saving fails', async () => {
     vi.mocked(applicationApiService.saveCpoPreSubmissionMeeting).mockRejectedValue(new Error('Unable to save'));
     renderPage();
     await waitForForm();
-    fireEvent.click(screen.getByLabelText('Yes'));
+    fireEvent.click(screen.getByLabelText("Yes, I've had this meeting"));
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Unable to save'));
     expect(navigateMock).not.toHaveBeenCalled();
@@ -95,6 +95,39 @@ describe('CPO pre-submission meeting', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Unable to load'));
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Save for later' })).toBeDisabled();
+  });
+
+  it('reveals and requires a reason only when a meeting is not needed', async () => {
+    renderPage(); await waitForForm();
+    expect(screen.getByRole('heading', { name: 'Have you had a pre-application meeting?' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/task-list');
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("No, I don't need this meeting"));
+    const reason = screen.getByRole('textbox', { name: "Tell us why you don't need this meeting" });
+    expect(reason).toHaveAttribute('maxlength', '4000');
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('alert')).toHaveFocus();
+    expect(applicationApiService.saveCpoPreSubmissionMeeting).not.toHaveBeenCalled();
+    fireEvent.change(reason, { target: { value: '  Already discussed with DESNZ.  ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(applicationApiService.saveCpoPreSubmissionMeeting).toHaveBeenCalledWith('application-id', false, true, { answer: 'not-needed', reason: 'Already discussed with DESNZ.' }));
+  });
+
+  it('restores the saved choice and reason and omits a hidden reason when changing choice', async () => {
+    vi.mocked(applicationApiService.getApplicationById).mockResolvedValue({ type: 'CPO', pre_submission_meeting_answer: 'not-needed', pre_submission_meeting_reason: 'Already discussed' });
+    renderPage(); await waitForForm();
+    expect(screen.getByRole('textbox')).toHaveValue('Already discussed');
+    fireEvent.click(screen.getByLabelText("Yes, I've had this meeting"));
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(applicationApiService.saveCpoPreSubmissionMeeting).toHaveBeenCalledWith('application-id', false, true, { answer: 'had-meeting', reason: '' }));
+  });
+
+  it('allows saving an unfinished reason for later', async () => {
+    renderPage(); await waitForForm();
+    fireEvent.click(screen.getByLabelText("No, I don't need this meeting"));
+    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
+    await waitFor(() => expect(applicationApiService.saveCpoPreSubmissionMeeting).toHaveBeenCalledWith('application-id', false, false, { answer: 'not-needed', reason: '' }));
   });
 
   it('shows a persisted request and the real reference on confirmation', async () => {
