@@ -46,13 +46,19 @@ export const LandRegistrySummaryCard: React.FC<Props> = ({ data, applicationId, 
                     : [];
 
         if (registryDocs.length > 0) {
-            rows.push({
-                key: { text: CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC },
-                value: {
-                    text: '',
-                    html: registryDocs.map(buildDocumentLinkHtml).join('<br>'),
-                },
-            });
+            const objectDocs = registryDocs.filter((d) => typeof d === 'object' && d?.filename);
+            if (objectDocs.length > 0) {
+                rows.push({
+                    key: { text: CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC },
+                    value: {
+                        text: '',
+                        html: objectDocs.map(buildDocumentLinkHtml).join('<br>'),
+                    },
+                });
+            } else {
+                // String fallback (old format)
+                rows.push(createSummaryRow(CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC, registryDocs.map(String).join(', ')));
+            }
         } else {
             rows.push(createSummaryRow(CONSTANTS.LAND_REGISTRY_FIELDS.REGISTRY_DOC, CONSTANTS.DEFAULTS.EMPTY));
         }
