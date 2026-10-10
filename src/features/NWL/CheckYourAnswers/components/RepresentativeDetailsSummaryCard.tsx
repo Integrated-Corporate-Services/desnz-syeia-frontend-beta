@@ -48,6 +48,12 @@ export const RepresentativeDetailsSummaryCard: React.FC<Props> = ({ data, applic
 
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.ORGANISATION, data.representative_organisation || CONSTANTS.DEFAULTS.EMPTY));
 
+    const addressParts = [data.representative_address_line1, data.representative_address_line2, data.representative_town, data.representative_county, data.representative_postcode].filter((part) => part && part !== '-');
+    rows.push({
+        key: { text: CONSTANTS.REPRESENTATIVE_FIELDS.ADDRESS },
+        value: { text: '', html: addressParts.length > 0 ? addressParts.join('<br>') : CONSTANTS.DEFAULTS.EMPTY },
+    });
+
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.EMAIL, formatEmail(data.representative_email), undefined, 'Change', true));
 
     rows.push(createSummaryRow(CONSTANTS.REPRESENTATIVE_FIELDS.PHONE, formatPhone(data.representative_phone)));
