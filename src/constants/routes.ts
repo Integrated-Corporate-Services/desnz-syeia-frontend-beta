@@ -107,7 +107,8 @@ import { NotificationsPage, NOTIFICATIONS_PATH } from '../features/InAppNotifica
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
-import { isFirFeatureDisabled, isNotificationsFeatureDisabled, isReassignmentFeatureDisabled, isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
+import { isFirFeatureDisabled, isNotificationsFeatureDisabled, isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
+import { isManualReassignmentEnabled } from '../config/appConfig';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
@@ -1045,9 +1046,8 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    ...(isReassignmentFeatureDisabled()
-        ? []
-        : [
+    ...(isManualReassignmentEnabled()
+        ? [
             {
                 path: `${S37_BASE_URL}/:applicationId/reassign`,
                 component: ReassignmentPage,
@@ -1060,7 +1060,8 @@ export const ROUTE_CONFIG: RouteConfig[] = [
                 auth: true,
                 layout: true,
             },
-        ]),
+        ]
+        : []),
     {
         path: `${S37_BASE_URL}/:applicationId/withdraw`,
         component: S37WithdrawApplicationPage,  // Use old proven S37 implementation

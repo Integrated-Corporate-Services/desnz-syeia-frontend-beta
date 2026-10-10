@@ -7,7 +7,6 @@ const YOUR_DETAILS_DISABLED_KEYS = ['your-details', 'your_details', 'yourdetails
 const FIR_DISABLED_KEYS = ['fir', 'further-information-requests', 'further-information-request'];
 
 const NOTIFICATIONS_DISABLED_KEYS = ['notifications', 'notification', 'in-app-notifications'];
-const REASSIGNMENT_DISABLED_KEYS = ['reassignment', 'reassign', 'application-reassignment'];
 
 export const getDisabledFormTypes = (): string[] => {
   const disabledTypes = getRuntimeEnv('VITE_DISABLED_FORM_TYPES', DEFAULT_DISABLED_FORM_TYPES);
@@ -33,9 +32,4 @@ export const isFirFeatureDisabled = (): boolean => {
 export const isNotificationsFeatureDisabled = (): boolean => {
   const disabledTypes = getDisabledFormTypes();
   return NOTIFICATIONS_DISABLED_KEYS.some((key) => disabledTypes.includes(key));
-};
-
-export const isReassignmentFeatureDisabled = (): boolean => {
-  const disabledTypes = getDisabledFormTypes();
-  return REASSIGNMENT_DISABLED_KEYS.some((key) => disabledTypes.includes(key));
 };
