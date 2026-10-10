@@ -1,5 +1,6 @@
 const S37_BASE_URL = '/s-37';
 const NWL_BASE_URL = '/nwl';
+const CPO_BASE_URL = '/cpo';
 
 export const ALLOWED_ROUTES = [
   '/',
@@ -15,6 +16,7 @@ export const ALLOWED_ROUTES = [
   '/access-revoked',
   '/start/:orgCode',
   '/choose-application',
+  `${CPO_BASE_URL}/who-is-applying`,
   '/s37-guidance',
   '/nwl-guidance',
   '/request-access',
@@ -120,6 +122,9 @@ export const ALLOWED_ROUTES = [
   `${NWL_BASE_URL}/:applicationId/network-operator-details`,
   `${NWL_BASE_URL}/:applicationId/contact-details`,
   `${NWL_BASE_URL}/:applicationId/task-list`,
+  `${CPO_BASE_URL}/:applicationId/applicant-details`,
+  `${CPO_BASE_URL}/:applicationId/task-list`,
+  `${CPO_BASE_URL}/:applicationId/:taskSlug`,
   `${NWL_BASE_URL}/:applicationId/assets`,
   `${NWL_BASE_URL}/:applicationId/information-about-lines`,
   `${NWL_BASE_URL}/:applicationId/application-plan`,
