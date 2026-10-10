@@ -1,12 +1,16 @@
 import { CPO_BASE_URL } from '../../constants/cpo';
 import { ApplicationDeleteConfirmationPage } from '../../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../../pages/ApplicationDeleteSuccessPage';
-import { NetworkOperatorDetails, NetworkOperatorContactDetails, CpoPreSubmissionMeetingPage, CpoPreSubmissionMeetingConfirmationPage } from './ApplicantDetails';
+import { NetworkOperatorDetails } from './ApplicantDetails';
+import { NetworkOperatorContactDetails } from './CheckApplicantDetails';
+import { CpoPreSubmissionMeetingPage, CpoPreSubmissionMeetingConfirmationPage } from './PreApplicationMeeting';
 import { CPOWhoIsApplying } from './WhoIsApplying';
 import { CpoTaskListPage, CpoTaskUnavailablePage } from './TaskList';
-import { CpoOrderDetailsPage, CpoOrderDocumentsPage } from './AboutTheOrder';
-import { CpoNoticesPage } from './PublicNotices';
-import { CpoCheckYourAnswersPage } from './CheckAndSubmit';
+import { CpoOrderDetailsPage } from './OrderDetails';
+import { CpoExecutiveSummaryPage } from './ExecutiveSummary';
+import { CpoOrderDocumentsPage } from './OrderDocuments';
+import { CpoNoticesPage } from './RecordNotices';
+import { CpoCheckYourAnswersPage } from './CheckAndSubmitApplication';
 
 export const cpoRoutes = [
     { path: `${CPO_BASE_URL}/who-is-applying`, component: CPOWhoIsApplying, auth: true, layout: true },
@@ -23,6 +27,7 @@ export const cpoRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/check-and-submit`, component: CpoCheckYourAnswersPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-documents`, component: CpoOrderDocumentsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-documents/:documentStep`, component: CpoOrderDocumentsPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/order-details/executive-summary`, component: CpoExecutiveSummaryPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-details/:orderStep`, component: CpoOrderDetailsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`, component: CpoPreSubmissionMeetingPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`, component: CpoPreSubmissionMeetingConfirmationPage, auth: true, layout: true },

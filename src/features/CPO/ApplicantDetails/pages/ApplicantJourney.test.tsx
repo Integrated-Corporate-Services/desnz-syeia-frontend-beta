@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import ApplicantDetails from './NetworkOperatorDetails';
-import CheckContactDetails from './NetworkOperatorContactDetails';
+import CheckContactDetails from '../../CheckApplicantDetails/pages/NetworkOperatorContactDetails';
 
 const navigate = vi.fn();
 const options = [{ organisation_id: 'org', person_id: 'person', person_name: 'Alex Smith', organisation_name: 'Grid Operator' }];

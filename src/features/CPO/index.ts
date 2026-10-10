@@ -1,6 +1,10 @@
-export * from './TaskList';
-export * from './AboutTheOrder';
-export * from './PublicNotices';
-export * from './CheckAndSubmit';
-export * from './WhoIsApplying';
-export { CpoPreSubmissionMeetingPage, CpoPreSubmissionMeetingConfirmationPage } from './ApplicantDetails';
+export { NetworkOperatorDetails } from './ApplicantDetails';
+export { NetworkOperatorContactDetails } from './CheckApplicantDetails';
+export { CpoPreSubmissionMeetingPage, CpoPreSubmissionMeetingConfirmationPage } from './PreApplicationMeeting';
+export { CpoOrderDetailsPage } from './OrderDetails';
+export { CpoExecutiveSummaryPage } from './ExecutiveSummary';
+export { CpoOrderDocumentsPage } from './OrderDocuments';
+export { CpoNoticesPage } from './RecordNotices';
+export { CpoCheckYourAnswersPage } from './CheckAndSubmitApplication';
+export { CpoTaskListPage, CpoTaskUnavailablePage } from './TaskList';
+export { CPOWhoIsApplying } from './WhoIsApplying';
