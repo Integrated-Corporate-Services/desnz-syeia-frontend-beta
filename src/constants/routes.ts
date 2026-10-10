@@ -107,7 +107,7 @@ import { NotificationsPage, NOTIFICATIONS_PATH } from '../features/InAppNotifica
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
-import { isFirFeatureDisabled } from '../utils/disabledFormTypes';
+import { isFirFeatureDisabled, isNotificationsFeatureDisabled } from '../utils/disabledFormTypes';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
@@ -258,12 +258,16 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
-    {
-        path: NOTIFICATIONS_PATH,
-        component: NotificationsPage,
-        auth: true,
-        layout: true,
-    },
+    ...(isNotificationsFeatureDisabled()
+        ? []
+        : [
+            {
+                path: NOTIFICATIONS_PATH,
+                component: NotificationsPage,
+                auth: true,
+                layout: true,
+            },
+        ]),
     // UAT Invite System Routes
     {
         path: '/access-denied',

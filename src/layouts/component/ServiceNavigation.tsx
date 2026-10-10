@@ -5,6 +5,7 @@ import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
 import { NOTIFICATIONS_PATH } from "../../features/InAppNotifications/constants/inAppNotifications";
 import { useUnreadNotificationCount } from "../../features/InAppNotifications/hooks/useInAppNotifications";
+import { isNotificationsFeatureDisabled } from "../../utils/disabledFormTypes";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
@@ -56,6 +57,7 @@ const ServiceNavigation = () => {
 
     // Pending users are still requesting access, so they have no notifications.
     const showNotifications =
+        !isNotificationsFeatureDisabled() &&
         !!user &&
         (user as AuthUser)?.role !== "pending" &&
         !isInRegistrationFlow &&
