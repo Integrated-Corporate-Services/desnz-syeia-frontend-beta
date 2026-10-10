@@ -14,6 +14,7 @@ type RouteConfig = {
     path: string;
     component: React.ComponentType;
     auth?: boolean;
+    accessGuard?: boolean;
     layout?: boolean | 'minimal';
 };
 

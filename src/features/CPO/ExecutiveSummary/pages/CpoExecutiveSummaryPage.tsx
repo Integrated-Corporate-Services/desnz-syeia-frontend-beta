@@ -77,7 +77,7 @@ const CpoExecutiveSummaryPage: React.FC = () => {
         <form onSubmit={(event) => { event.preventDefault(); void save(false); }}>
           <fieldset className="govuk-fieldset" disabled={loading || saving || loadFailed || !canEdit}>
             <legend className="govuk-visually-hidden">{heading}</legend>
-            <a className="govuk-button govuk-button--secondary govuk-!-margin-bottom-6" href={cpoExecutiveSummaryService.templateUrl(applicationId)}>Download executive summary template</a>
+            <a className="govuk-button govuk-button--secondary govuk-!-margin-bottom-6" href={cpoExecutiveSummaryService.templateUrl(applicationId)} download="executive-summary-template.txt">Download executive summary template</a>
             {uploadError && <p className="govuk-error-message" id="file-upload-input-error"><span className="govuk-visually-hidden">Error:</span> {uploadError.message}</p>}
             <ExecutiveSummaryUpload
               ref={uploadRef}

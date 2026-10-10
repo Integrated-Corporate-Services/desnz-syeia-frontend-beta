@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { applicationApiService } from '../../../../services/applicationApiService';
+import { progressApiService } from '../../../../services/progressApiService';
 import ApplicantDetails from './NetworkOperatorDetails';
 import CheckContactDetails from '../../CheckApplicantDetails/pages/NetworkOperatorContactDetails';
 
@@ -27,6 +28,7 @@ describe('CPO applicant onboarding pages', () => {
       organisation_id: 'org', organisation_name: 'Grid Operator', contact_person_id: 'person', contact_person_name: 'Alex Smith', contact_person_email: 'alex@example.gov.uk', contact_person_phone: '0123456789', contact_person_line1: '1 Street', contact_person_postcode: 'SW1A 1AA', additional_contact: 'old@example.gov.uk',
     } });
     vi.spyOn(applicationApiService, 'saveNetworkOperator').mockResolvedValue({});
+    vi.spyOn(progressApiService, 'updateApplicationProgress').mockResolvedValue({});
     vi.spyOn(applicationApiService, 'createApplication');
   });
   it('restores the saved values and reuses the same draft', async () => {
@@ -76,5 +78,6 @@ describe('CPO applicant onboarding pages', () => {
     fireEvent.click(screen.getByLabelText('Yes'));
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/task-list'));
+    expect(progressApiService.updateApplicationProgress).toHaveBeenCalledWith('app', 'Check applicant contact details', 'Completed');
   });
 });

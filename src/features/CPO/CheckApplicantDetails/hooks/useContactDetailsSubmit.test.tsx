@@ -21,11 +21,11 @@ describe('CPO applicant contact confirmation', () => {
     vi.spyOn(applicationApiService, 'saveNetworkOperator').mockResolvedValue({});
     vi.spyOn(progressApiService, 'updateApplicationProgress').mockResolvedValue({});
   });
-  it.each([true, false])('saves %s with CPO progress and returns to the CPO task list', async confirmed => {
+  it.each([[true, 'Completed'], [false, 'Not completed']])('saves %s with CPO progress and returns to the CPO task list', async (confirmed, status) => {
     const { result } = renderHook(() => useContactDetailsSubmit({ application, appId: 'app', contactIsConfirmed: confirmed, setError }), { wrapper });
     await act(() => result.current.handleSubmit({ preventDefault: vi.fn() } as any));
     expect(applicationApiService.saveNetworkOperator).toHaveBeenCalledWith(expect.objectContaining({ type: 'CPO', contact_isconfirmed: confirmed }));
-    expect(progressApiService.updateApplicationProgress).not.toHaveBeenCalled();
+    expect(progressApiService.updateApplicationProgress).toHaveBeenCalledWith('app', 'Check applicant contact details', status);
     expect(navigate).toHaveBeenCalledWith('/cpo/app/task-list');
   });
   it('does not navigate when saving fails', async () => {

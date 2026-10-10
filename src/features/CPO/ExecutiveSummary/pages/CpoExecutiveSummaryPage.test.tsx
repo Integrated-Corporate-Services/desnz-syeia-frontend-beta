@@ -46,7 +46,7 @@ describe('CPO executive summary', () => {
     uploadState.errors = ['The file could not be checked for viruses'];
     renderPage();
     await ready();
-    expect(screen.getByRole('link', { name: 'Download executive summary template' })).toHaveAttribute('href', expect.stringContaining('/order-details/executive-summary-template'));
+    expect(screen.getByRole('link', { name: 'Download executive summary template' })).toHaveAttribute('href', expect.stringContaining('data:text/plain'));
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('could not be checked'));
     expect(cpoOrderDetailsService.save).not.toHaveBeenCalled();

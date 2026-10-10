@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
-import { applicationApiService } from '../../../../services/applicationApiService';
+// LOCAL MODE: the application is read from the CPO store. Restore the commented import/call for the backend.
+import { useCpoStore } from '../../store/useCpoStore';
+import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
+// import { applicationApiService } from '../../../../services/applicationApiService';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
 
@@ -23,7 +26,8 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
     setReference('');
     setError('');
     setMeetingRequested(null);
-    applicationApiService.getApplicationById(applicationId)
+    syncApplicantFromBackend(applicationId).then(() => useCpoStore.getState().getApplication(applicationId))
+    // applicationApiService.getApplicationById(applicationId)
       .then((application) => {
         if (!active) return;
         const hasMeetingRequest = application.pre_submission_meeting_requested === true && application.pre_submission_meeting_requested_at;

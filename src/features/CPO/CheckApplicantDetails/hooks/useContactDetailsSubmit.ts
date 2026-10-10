@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef, useState } from 'react';
 import { applicationApiService } from "../../../../services/applicationApiService";
+import { progressApiService } from "../../../../services/progressApiService";
 import { Application, ApplicationParty } from "../../../../types/application";
 import { ERROR_MESSAGES } from "../constants/contactDetailsConstants";
 
@@ -56,6 +57,12 @@ export function useContactDetailsSubmit({
         type: application?.type,
         additional_contact: party?.additional_contact || null,
       });
+      // application_type is omitted so the backend resolves CPO from the application row.
+      await progressApiService.updateApplicationProgress(
+        application.application_id,
+        'Check applicant contact details',
+        contactIsConfirmed ? 'Completed' : 'Not completed',
+      );
 
       navigate(`${CPO_BASE_URL}/${appId}/${new URLSearchParams(location.search).get('from') === 'application-review' ? 'check-and-submit' : 'task-list'}`);
     } catch {

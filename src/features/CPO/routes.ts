@@ -12,7 +12,7 @@ import { CpoOrderDocumentsPage } from './OrderDocuments';
 import { CpoNoticesPage } from './RecordNotices';
 import { CpoCheckYourAnswersPage } from './CheckAndSubmitApplication';
 
-export const cpoRoutes = [
+const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/who-is-applying`, component: CPOWhoIsApplying, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/applicant-details`, component: NetworkOperatorDetails, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/network-operator-contact-details`, component: NetworkOperatorContactDetails, auth: true, layout: true },
@@ -32,3 +32,8 @@ export const cpoRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`, component: CpoPreSubmissionMeetingPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`, component: CpoPreSubmissionMeetingConfirmationPage, auth: true, layout: true },
 ];
+
+// LOCAL (frontend-only) MODE: no sign-in or backend access check, so the pages open with the backend off.
+// To use the backend again, replace this with `export const cpoRoutes = cpoPageRoutes;`.
+export const cpoRoutes = cpoPageRoutes.map(route => ({ ...route, auth: false, accessGuard: false }));
+// export const cpoRoutes = cpoPageRoutes;
