@@ -4,8 +4,17 @@ import { getUserRole } from '../../../utils/roleUtils';
 import { useAssignmentHistory } from '../hooks/useAssignmentHistory';
 import { useReassignmentEligibility } from '../hooks/useReassignmentEligibility';
 import { getAssignmentBasePath } from '../utils/reassignment';
+import { isManualReassignmentEnabled } from '../../../config/appConfig';
 
-export function ApplicationReassignmentLinks({
+export function ApplicationReassignmentLinks(props: {
+    applicationId: string;
+    status: string | null;
+}) {
+    if (!isManualReassignmentEnabled()) return null;
+    return <ReassignmentLinksContent {...props} />;
+}
+
+function ReassignmentLinksContent({
     applicationId,
     status,
 }: {

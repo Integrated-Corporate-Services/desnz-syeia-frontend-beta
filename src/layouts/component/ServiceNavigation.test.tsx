@@ -6,9 +6,15 @@ import ServiceNavigation from './ServiceNavigation';
 import { useAuthUserContext } from '../../context/AuthUserContext';
 import { NOTIFICATIONS_CHANGED_EVENT } from '../../features/InAppNotifications/constants/inAppNotifications';
 import { getUnreadNotificationCount } from '../../features/InAppNotifications/services/inAppNotificationsService';
+import { isNotificationsFeatureDisabled, isYourDetailsFeatureDisabled } from '../../utils/disabledFormTypes';
 
 vi.mock('../../context/AuthUserContext', () => ({
   useAuthUserContext: vi.fn(),
+}));
+
+vi.mock('../../utils/disabledFormTypes', () => ({
+  isNotificationsFeatureDisabled: vi.fn(() => false),
+  isYourDetailsFeatureDisabled: vi.fn(() => false),
 }));
 
 vi.mock('../../features/InAppNotifications/services/inAppNotificationsService', () => ({
@@ -35,6 +41,35 @@ const renderNavigation = (path = '/application-dashboard') =>
 describe('ServiceNavigation notifications link', () => {
   beforeEach(() => {
     vi.mocked(getUnreadNotificationCount).mockReset();
+    vi.mocked(isNotificationsFeatureDisabled).mockReturnValue(false);
+    vi.mocked(isYourDetailsFeatureDisabled).mockReturnValue(false);
+  });
+
+  it('shows the Your details link when the feature is enabled', async () => {
+    signInAs('APPLICANT_USER');
+    vi.mocked(getUnreadNotificationCount).mockResolvedValue(0);
+    renderNavigation();
+
+    expect(await screen.findByRole('link', { name: 'Your details' })).toHaveAttribute('href', '/your-details');
+  });
+
+  it('hides the Your details link when the feature is disabled', async () => {
+    vi.mocked(isYourDetailsFeatureDisabled).mockReturnValue(true);
+    signInAs('APPLICANT_USER');
+    vi.mocked(getUnreadNotificationCount).mockResolvedValue(0);
+    renderNavigation();
+
+    await screen.findByRole('link', { name: 'Notifications' });
+    expect(screen.queryByRole('link', { name: 'Your details' })).not.toBeInTheDocument();
+  });
+
+  it('hides the link and does not ask for a count when the notifications feature is disabled', () => {
+    vi.mocked(isNotificationsFeatureDisabled).mockReturnValue(true);
+    signInAs('APPLICANT_USER');
+    renderNavigation();
+
+    expect(screen.queryByRole('link', { name: /Notifications/ })).not.toBeInTheDocument();
+    expect(getUnreadNotificationCount).not.toHaveBeenCalled();
   });
 
   it('shows the signed-in user their unread notification count', async () => {

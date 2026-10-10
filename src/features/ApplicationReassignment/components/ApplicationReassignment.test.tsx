@@ -10,7 +10,14 @@ import {
     ReassignmentSuccessBanner,
 } from './ApplicationReassignment';
 
-const { mockUseAuthUserContext } = vi.hoisted(() => ({ mockUseAuthUserContext: vi.fn() }));
+const { mockUseAuthUserContext, mockIsManualReassignmentEnabled } = vi.hoisted(() => ({
+    mockUseAuthUserContext: vi.fn(),
+    mockIsManualReassignmentEnabled: vi.fn(() => true),
+}));
+
+vi.mock('../../../config/appConfig', () => ({
+    isManualReassignmentEnabled: mockIsManualReassignmentEnabled,
+}));
 
 vi.mock('../../../context/AuthUserContext', () => ({
     useAuthUserContext: mockUseAuthUserContext,
@@ -54,6 +61,7 @@ function renderFlow(status: string) {
 describe('application reassignment confirmation', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockIsManualReassignmentEnabled.mockReturnValue(true);
         mockUseAuthUserContext.mockReturnValue({ user: { role: 'APPLICANT_TEAM_COORDINATOR' } });
         vi.mocked(applicationApiService.getEligibleAssignees).mockResolvedValue([
             {
@@ -235,6 +243,20 @@ describe('application reassignment confirmation', () => {
         expect(
             await screen.findByRole('link', { name: 'Reassign application' })
         ).toBeInTheDocument();
+    });
+
+    it('renders nothing and makes no requests when manual reassignment is disabled', () => {
+        mockIsManualReassignmentEnabled.mockReturnValue(false);
+        render(
+            <MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
+                <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
+            </MemoryRouter>
+        );
+
+        expect(screen.queryByRole('link', { name: 'Reassign application' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View reassignment history' })).not.toBeInTheDocument();
+        expect(applicationApiService.getAssignmentHistory).not.toHaveBeenCalled();
+        expect(applicationApiService.getEligibleAssignees).not.toHaveBeenCalled();
     });
 
     it.each(['APPLICANT_USER', 'APPLICANT_AGENT'])(

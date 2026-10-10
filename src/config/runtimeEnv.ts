@@ -33,6 +33,7 @@ interface RuntimeEnv {
   VITE_SRI_MODE: string;
   VITE_TRUSTED_ORIGIN: string;
   VITE_ENABLE_MANAGE_USER_ROLE_CHANGE: string;
+  VITE_ENABLE_MANUAL_REASSIGNMENT: string;
   MODE: string;
 }
 
@@ -67,6 +68,7 @@ if (typeof window !== 'undefined' && !window._env_) {
     VITE_SRI_MODE: 'report',
     VITE_TRUSTED_ORIGIN: '',
     VITE_ENABLE_MANAGE_USER_ROLE_CHANGE: import.meta.env.VITE_ENABLE_MANAGE_USER_ROLE_CHANGE || 'false',
+    VITE_ENABLE_MANUAL_REASSIGNMENT: import.meta.env.VITE_ENABLE_MANUAL_REASSIGNMENT || 'false',
     MODE: 'development'
   };
 }
