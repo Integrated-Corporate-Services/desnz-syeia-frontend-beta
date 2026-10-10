@@ -48,18 +48,23 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
     if (data.is_registered) {
         rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_REF, data.land_registry_ref || CONSTANTS.DEFAULTS.EMPTY));
 
-        if (data.land_registry_reference_document) {
-            const doc = data.land_registry_reference_document;
-            // Handle both object format and string format for backwards compatibility
-            if (typeof doc === 'object' && doc.filename) {
-                const docHtml = buildDocumentLinkHtml(doc);
+        const registryDocs: any[] =
+            Array.isArray(data.land_registry_reference_documents) && data.land_registry_reference_documents.length > 0
+                ? data.land_registry_reference_documents
+                : data.land_registry_reference_document
+                    ? [data.land_registry_reference_document]
+                    : [];
+
+        if (registryDocs.length > 0) {
+            const objectDocs = registryDocs.filter((d) => typeof d === 'object' && d.filename);
+            if (objectDocs.length > 0) {
                 rows.push({
                     key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },
-                    value: { text: '', html: docHtml },
+                    value: { text: '', html: objectDocs.map(buildDocumentLinkHtml).join('<br>') },
                 });
             } else {
                 // String fallback (old format)
-                rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, String(doc)));
+                rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, registryDocs.map(String).join(', ')));
             }
         } else {
             rows.push(createSummaryRow(CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC, CONSTANTS.DEFAULTS.EMPTY));
