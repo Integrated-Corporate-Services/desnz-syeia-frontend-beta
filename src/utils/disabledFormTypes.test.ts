@@ -9,6 +9,7 @@ import {
   getDisabledFormTypes,
   isFirFeatureDisabled,
   isNotificationsFeatureDisabled,
+  isReassignmentFeatureDisabled,
 } from './disabledFormTypes';
 
 describe('disabledFormTypes', () => {
@@ -29,5 +30,12 @@ describe('disabledFormTypes', () => {
   it('does not disable notifications for unrelated types', () => {
     getRuntimeEnv.mockReturnValue('fir');
     expect(isNotificationsFeatureDisabled()).toBe(false);
+  });
+
+  it('detects the reassignment flag only when listed', () => {
+    getRuntimeEnv.mockReturnValue('your-details,reassignment');
+    expect(isReassignmentFeatureDisabled()).toBe(true);
+    getRuntimeEnv.mockReturnValue('fir');
+    expect(isReassignmentFeatureDisabled()).toBe(false);
   });
 });
