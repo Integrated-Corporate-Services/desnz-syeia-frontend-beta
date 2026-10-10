@@ -5,7 +5,7 @@ import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
 import { NOTIFICATIONS_PATH } from "../../features/InAppNotifications/constants/inAppNotifications";
 import { useUnreadNotificationCount } from "../../features/InAppNotifications/hooks/useInAppNotifications";
-import { isNotificationsFeatureDisabled } from "../../utils/disabledFormTypes";
+import { isNotificationsFeatureDisabled, isYourDetailsFeatureDisabled } from "../../utils/disabledFormTypes";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
@@ -164,8 +164,7 @@ const ServiceNavigation = () => {
                                     </Link>
                                 </li>
                             )}
-                            {/* Your details navigation is temporarily hidden from the UI.
-                            {!yourDetailsFeatureDisabled && (
+                            {!isYourDetailsFeatureDisabled() && (
                                 <li
                                     className={`rcc-service-nav__item${
                                         isOnYourDetailsPages ? ' rcc-service-nav__item--active' : ''
@@ -179,7 +178,7 @@ const ServiceNavigation = () => {
                                         Your details
                                     </Link>
                                 </li>
-                            )} */}
+                            )}
                         </>
                     )}
                 </ul>

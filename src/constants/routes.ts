@@ -107,7 +107,7 @@ import { NotificationsPage, NOTIFICATIONS_PATH } from '../features/InAppNotifica
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
-import { isFirFeatureDisabled, isNotificationsFeatureDisabled } from '../utils/disabledFormTypes';
+import { isFirFeatureDisabled, isNotificationsFeatureDisabled, isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
@@ -156,12 +156,12 @@ import DownloadLpaConsultationFormPage from '../features/Consultation/pages/Down
 import ClosedPage from '../pages/ClosedPage';
 import StartRedirect from '../components/StartRedirect';
 import { FeedbackPage } from '../modules/feedback';
-// import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
-// import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
-// import ChangeWorkAddressPage from '../features/YourDetails/pages/ChangeWorkAddressPage';
-// import ChangeAgencyNamePage from '../features/YourDetails/pages/ChangeAgencyNamePage';
-// import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
-// import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
+import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
+import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
+import ChangeWorkAddressPage from '../features/YourDetails/pages/ChangeWorkAddressPage';
+import ChangeAgencyNamePage from '../features/YourDetails/pages/ChangeAgencyNamePage';
+import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
+import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
 
 const FIR_ROUTES: RouteConfig[] = [
     {
@@ -619,8 +619,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: false,
     },
-    /* Your details routes are temporarily hidden from the UI.
-    ...(!yourDetailsFeatureDisabled
+    ...(!isYourDetailsFeatureDisabled()
         ? [
             {
                 path: '/your-details',
@@ -660,7 +659,6 @@ export const ROUTE_CONFIG: RouteConfig[] = [
             },
         ]
         : []),
-    */
     {
         path: `${NWL_BASE_URL}/who-is-applying`,
         component: NWLWhoIsApplying,
