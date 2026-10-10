@@ -56,7 +56,7 @@ export const LandLocationSummaryCard: React.FC<Props> = ({ data, applicationId, 
                     : [];
 
         if (registryDocs.length > 0) {
-            const objectDocs = registryDocs.filter((d) => typeof d === 'object' && d.filename);
+            const objectDocs = registryDocs.filter((d) => typeof d === 'object' && d?.filename);
             if (objectDocs.length > 0) {
                 rows.push({
                     key: { text: CONSTANTS.LAND_LOCATION_FIELDS.REGISTRY_DOC },
