@@ -31,6 +31,9 @@ interface AppConfig {
     manageUserRoleChange: {
       enabled: boolean;
     };
+    manualReassignment: {
+      enabled: boolean;
+    };
   };
   session: {
     timeoutSeconds: number;
@@ -99,6 +102,9 @@ class ConfigService {
         ),
         manageUserRoleChange: {
           enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_MANAGE_USER_ROLE_CHANGE', 'false')),
+        },
+        manualReassignment: {
+          enabled: parseEnvBoolean(getRuntimeEnv('VITE_ENABLE_MANUAL_REASSIGNMENT', 'false')),
         },
       },
       session: {
@@ -212,3 +218,4 @@ export const getApiUrl = (path: string) => configService.getApiUrl(path);
 export const isProduction = () => configService.isProduction();
 export const isDevelopment = () => configService.isDevelopment();
 export const isManageUserRoleChangeEnabled = () => configService.getFeatureFlags().manageUserRoleChange.enabled;
+export const isManualReassignmentEnabled = () => configService.getFeatureFlags().manualReassignment.enabled;
