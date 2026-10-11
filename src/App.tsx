@@ -99,13 +99,13 @@ const AppContent = () => {
           <MainLayout>
             <Routes>
               {ROUTE_CONFIG.filter((r) => r.layout !== false).map((route) => {
-                const { path, component: Component, auth } = route;
+                const { path, component: Component, auth, accessGuard } = route;
                 if (path === "/" || path === "/landingPage") {
                   return (
                     <Route key={path} path={path} element={<LandingPage />} />
                   );
                 }
-                const isApplicationScoped = path.includes(":applicationId");
+                const isApplicationScoped = path.includes(":applicationId") && accessGuard !== false;
                 let element = <Component />;
                 if (isApplicationScoped) {
                   element = (
@@ -124,13 +124,13 @@ const AppContent = () => {
         ) : (
           <Routes>
             {ROUTE_CONFIG.filter((r) => r.layout === false).map((route) => {
-              const { path, component: Component, auth } = route;
+              const { path, component: Component, auth, accessGuard } = route;
               if (path === "/" || path === "/landingPage") {
                 return (
                   <Route key={path} path={path} element={<LandingPage />} />
                 );
               }
-              const isApplicationScoped = path.includes(":applicationId");
+              const isApplicationScoped = path.includes(":applicationId") && accessGuard !== false;
               let element = <Component />;
               if (isApplicationScoped) {
                 element = (

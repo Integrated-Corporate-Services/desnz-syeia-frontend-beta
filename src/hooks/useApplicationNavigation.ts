@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../constants/nwl';
 import { S37_BASE_URL } from '../constants/s37';
+import { CPO_BASE_URL } from '../constants/cpo';
 import { APPLICATION_TYPES } from '../constants/applicationTypes';
 import { getBaseUrl } from '../constants/routes';
 
@@ -12,6 +13,9 @@ export const useApplicationNavigation = () => {
     if (appType === APPLICATION_TYPES.NWL) {
       return `${NORMALISED_BASE}${NWL_BASE_URL}/${appId}/${route}`;
     } else {
+      if (appType === APPLICATION_TYPES.CPO) {
+        return `${NORMALISED_BASE}${CPO_BASE_URL}/${appId}/${route}`;
+      }
       return `${NORMALISED_BASE}${S37_BASE_URL}/${appId}/${route}`;
     }
   };

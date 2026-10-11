@@ -23,6 +23,7 @@ export const ApplicationDeleteConfirmationPage: React.FC = () => {
   // Determine the base URL from the current path
   const getBaseUrl = () => {
     const pathname = location.pathname;
+    if (pathname.includes('/cpo/')) return '/cpo';
     if (pathname.includes('/s-37/')) return '/s-37';
     if (pathname.includes('/nwl/')) return '/nwl';
     if (pathname.includes('/tlp/')) return '/tlp';
