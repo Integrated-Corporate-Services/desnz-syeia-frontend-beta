@@ -11,7 +11,7 @@ import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../RecordNotices
 import { inspectionAddresses, validNoticeDate } from '../RecordNotices/utils/noticeRecord';
 import { CPO_SUBSECTIONS } from '../TaskList/constants/cpoTaskListConstants';
 import type { CpoProgressItem } from '../TaskList/types/cpoTaskList';
-import type { CpoMeetingAnswer } from '../PreApplicationMeeting/types/preSubmissionMeeting';
+import type { CpoMeetingAnswer, CpoMeetingFields } from '../PreApplicationMeeting/types/preSubmissionMeeting';
 import { LOCAL_USER_ID, OBJECTIONS_EMAIL } from './constants';
 
 type Progress = 'Completed' | 'In progress' | 'Not completed';
@@ -42,7 +42,10 @@ export type CpoApplication = Application & Pick<CpoApplicationRecord,
 
 export interface ApplicantProgressRow { subsection_name: string; status: string }
 
-const APPLICANT_SUBSECTIONS: string[] = [CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS];
+// Subsections whose answers live in the backend; their progress is copied in by syncApplicant.
+const BACKEND_SUBSECTIONS: string[] = [
+  CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS, CPO_SUBSECTIONS.PRE_SUBMISSION_MEETING,
+];
 
 const ORDER_DOCUMENT_CATEGORIES = [...DOCUMENT_GROUP_CATEGORIES.order, ...DOCUMENT_GROUP_CATEGORIES.reasons, ...DOCUMENT_GROUP_CATEGORIES.additional];
 const NOTICE_DOCUMENT_CATEGORIES = Object.values(NOTICE_CATEGORIES) as string[];
@@ -88,7 +91,6 @@ interface CpoStoreState {
   getApplication: (applicationId: string) => CpoApplication;
   getProgress: (applicationId: string) => CpoProgressItem[];
   syncApplicant: (applicationId: string, application: Partial<Application>, progress: ApplicantProgressRow[]) => void;
-  saveMeeting: (applicationId: string, requested: boolean | null, complete: boolean, meeting?: { answer: CpoMeetingAnswer | null; reason: string }) => CpoApplication;
   getOrderDetails: (applicationId: string) => OrderDetailsResponse;
   saveOrderDetails: (applicationId: string, step: string, changes: Partial<OrderDetails>, saveForLater: boolean) => OrderDetailsResponse;
   getOrderDocuments: (applicationId: string) => OrderDocumentsResponse;
@@ -147,32 +149,18 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
         draft.created_by = application.created_by || draft.created_by;
         draft.created_at = application.created_at || draft.created_at;
         draft.application_party = application.application_party ?? draft.application_party;
-        for (const subsection of APPLICANT_SUBSECTIONS) {
+        const meeting = application as Partial<CpoMeetingFields>;
+        draft.pre_submission_meeting_requested = meeting.pre_submission_meeting_requested ?? null;
+        draft.pre_submission_meeting_answer = meeting.pre_submission_meeting_answer ?? null;
+        draft.pre_submission_meeting_reason = meeting.pre_submission_meeting_reason ?? '';
+        draft.pre_submission_meeting_requested_at = meeting.pre_submission_meeting_requested_at ?? null;
+        draft.pre_submission_meeting_completed_at = meeting.pre_submission_meeting_completed_at ?? null;
+        for (const subsection of BACKEND_SUBSECTIONS) {
           const saved = progress.find((item) => item.subsection_name === subsection);
           if (saved) draft.progress[subsection] = saved.status as Progress;
           else delete draft.progress[subsection];
         }
       });
-    },
-
-    saveMeeting: (applicationId, requested, complete, meeting) => {
-      const record = update(applicationId, (draft) => {
-        if (draft.pre_submission_meeting_requested_at) {
-          throw new Error('This application can no longer be updated or its meeting request has already been submitted. Refresh the page.');
-        }
-        const now = new Date().toISOString();
-        draft.pre_submission_meeting_requested = requested;
-        draft.pre_submission_meeting_answer = meeting?.answer ?? null;
-        draft.pre_submission_meeting_reason = meeting?.reason ?? '';
-        if (complete) {
-          draft.pre_submission_meeting_completed_at = now;
-          if (requested === true) draft.pre_submission_meeting_requested_at = now;
-          draft.progress[CPO_SUBSECTIONS.PRE_SUBMISSION_MEETING] = 'Completed';
-        } else if (requested !== null && draft.progress[CPO_SUBSECTIONS.PRE_SUBMISSION_MEETING] !== 'Completed') {
-          draft.progress[CPO_SUBSECTIONS.PRE_SUBMISSION_MEETING] = 'In progress';
-        }
-      });
-      return toApplication(record);
     },
 
     getOrderDetails: (applicationId) => orderDetailsResponse(read(applicationId)),
