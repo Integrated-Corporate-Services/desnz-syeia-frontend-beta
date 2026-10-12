@@ -11,6 +11,8 @@ export const NOTIFICATIONS_PATH = '/notifications';
 export const NOTIFICATION_TYPES = {
   ACCESS_REQUEST_SUBMITTED: 'ACCESS_REQUEST_SUBMITTED',
   ACCESS_REQUEST_DECIDED: 'ACCESS_REQUEST_DECIDED',
+  // SYEIA-2405: an application's status changed; only its DESNZ reference is a link, to its summary.
+  APPLICATION_STATUS_CHANGED: 'APPLICATION_STATUS_CHANGED',
 } as const;
 
 export const NOTIFICATIONS_PAGE_SIZE = 10;
