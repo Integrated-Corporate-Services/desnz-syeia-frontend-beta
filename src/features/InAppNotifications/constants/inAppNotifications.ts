@@ -11,6 +11,8 @@ export const NOTIFICATIONS_PATH = '/notifications';
 export const NOTIFICATION_TYPES = {
   ACCESS_REQUEST_SUBMITTED: 'ACCESS_REQUEST_SUBMITTED',
   ACCESS_REQUEST_DECIDED: 'ACCESS_REQUEST_DECIDED',
+  // SYEIA-2401: the user's role changed; text only, nothing to open.
+  USER_ROLE_CHANGED: 'USER_ROLE_CHANGED',
 } as const;
 
 export const NOTIFICATIONS_PAGE_SIZE = 10;
