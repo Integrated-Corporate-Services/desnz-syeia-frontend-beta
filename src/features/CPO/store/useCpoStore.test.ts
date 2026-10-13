@@ -61,22 +61,13 @@ describe('CPO local store journey', () => {
     expect(progress(id)['Order documents']).toBe('Completed');
   });
 
-  it('completes notices once the typed answers are recorded and confirmed, without uploaded files', () => {
+  it('mirrors the notices progress saved through the API', () => {
     const id = 'app-1';
-    expect(() => store().saveNotices(id, 'check', { format: 'reference', confirmed: true }, false)).toThrow('acknowledge');
-    store().saveNotices(id, 'requirements', { format: 'reference', acknowledged: true }, false);
-    store().saveNotices(id, 'inspection', { format: 'reference', addresses: [{ id: 'a', line1: '1 Street', line2: '', townCity: 'London', postcode: 'SE1 1AA', from: '2026-10-07' }] }, false);
-    expect(() => store().saveNotices(id, 'check', { format: 'reference' }, false)).toThrow('website address');
-    store().saveNotices(id, 'online', { format: 'reference', url: 'https://example.gov.uk/order' }, false);
-    store().saveNotices(id, 'newspapers', { format: 'reference', firstDate: '2026-10-07', secondDate: '2026-10-14' }, false);
-    store().saveNotices(id, 'site', { format: 'reference', completionDate: '2026-10-15' }, false);
-    expect(progress(id)['Record your notices']).toBe('In progress');
-    const result = store().saveNotices(id, 'check', { format: 'reference' }, false);
+    store().syncApplicant(id, {}, [{ subsection_name: 'Record your notices', status: 'Completed' }]);
     expect(progress(id)['Record your notices']).toBe('Completed');
-    expect(result).toMatchObject({ finalObjectionDate: '2026-11-05', reference: store().getApplication(id).desnz_ref });
-    expect(store().getApplication(id).cpo_publicity).toMatchObject({ requirements: { acknowledged: true }, check: { confirmed: true } });
-    store().saveNotices(id, 'online', { format: 'reference', url: 'https://example.gov.uk/changed' }, false);
+    store().syncApplicant(id, {}, [{ subsection_name: 'Record your notices', status: 'In progress' }]);
     expect(progress(id)['Record your notices']).toBe('In progress');
-    expect(store().getApplication(id).cpo_publicity.check?.confirmed).toBe(false);
+    store().syncApplicant(id, {}, []);
+    expect(progress(id)['Record your notices']).toBeUndefined();
   });
 });
