@@ -2,10 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
-// LOCAL MODE: the application is read from the CPO store. Restore the commented import/call for the backend.
-import { useCpoStore } from '../../store/useCpoStore';
-import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
-// import { applicationApiService } from '../../../../services/applicationApiService';
+import { cpoPreSubmissionMeetingService } from '../services/cpoPreSubmissionMeetingService';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
 
@@ -15,19 +12,16 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
   const [reference, setReference] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [meetingRequested, setMeetingRequested] = useState<boolean | null>(null);
-  const heading = meetingRequested === null
-    ? 'Application confirmation'
-    : meetingRequested ? 'Pre-submission meeting request submitted' : 'Application started';
+  const [confirmed, setConfirmed] = useState(false);
+  const heading = confirmed ? 'Application started' : 'Application confirmation';
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setReference('');
     setError('');
-    setMeetingRequested(null);
-    syncApplicantFromBackend(applicationId).then(() => useCpoStore.getState().getApplication(applicationId))
-    // applicationApiService.getApplicationById(applicationId)
+    setConfirmed(false);
+    cpoPreSubmissionMeetingService.get(applicationId)
       .then((application) => {
         if (!active) return;
         const hasMeetingRequest = application.pre_submission_meeting_requested === true && application.pre_submission_meeting_requested_at;
@@ -36,7 +30,7 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
           navigate(`${CPO_BASE_URL}/${applicationId}/pre-submission-meeting`, { replace: true });
           return;
         }
-        setMeetingRequested(application.pre_submission_meeting_requested ?? null);
+        setConfirmed(true);
         setReference(application.desnz_ref);
       })
       .catch(() => { if (active) setError('Unable to load your application confirmation. Refresh the page to try again.'); })
@@ -58,24 +52,19 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
                   <h1 className="govuk-panel__title">{heading}</h1>
                   <div className="govuk-panel__body">DESNZ reference: {reference}</div>
                 </div>
-                <h2 className="govuk-heading-s govuk-!-font-weight-regular govuk-!-margin-top-6">What happens next</h2>
+                <h2 className="govuk-heading-s govuk-!-margin-top-6">What happens next</h2>
                 <ul className="govuk-list govuk-list--bullet">
-                  {meetingRequested ? (
-                    <>
-                      <li>the case officer will be in touch via email to arrange a pre-submission meeting</li>
-                      <li>you can continue with the rest of your application or wait until the meeting</li>
-                    </>
-                  ) : (
-                    <>
-                      <li>use this reference on your public notices and whenever you contact DESNZ</li>
-                      <li>you can ask for a pre-submission meeting at any time before you submit</li>
-                    </>
-                  )}
+                  <li>quote the DESNZ reference whenever you contact us</li>
+                  <li>
+                    you can arrange a pre-application meeting by emailing{' '}
+                    <a className="govuk-link" href="mailto:compulsorypurchaseorders@energysecurity.gov.uk">compulsorypurchaseorders@energysecurity.gov.uk</a>
+                  </li>
+                  <li>you must complete the executive summary before you have the pre-application meeting</li>
+                  <li>you can continue working on your application now</li>
                 </ul>
-                <div className="govuk-button-group govuk-!-margin-top-6">
-                  <Link className="govuk-button" to={`${CPO_BASE_URL}/${applicationId}/task-list`}>Save and continue</Link>
-                  <Link className="govuk-button govuk-button--secondary" to="/application-dashboard">See all applications</Link>
-                </div>
+                <h2 className="govuk-heading-s">Public notices</h2>
+                <p className="govuk-body">You should use the DESNZ reference number in all your public notices.</p>
+                <Link className="govuk-button" to={`${CPO_BASE_URL}/${applicationId}/task-list`}>Continue</Link>
               </>
             ) : null}
           </div>

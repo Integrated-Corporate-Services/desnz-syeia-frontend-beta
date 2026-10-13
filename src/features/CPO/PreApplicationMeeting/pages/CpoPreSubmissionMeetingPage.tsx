@@ -2,9 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
-// LOCAL MODE: the application is read from the CPO store. Restore the commented import/call for the backend.
-import { useCpoStore } from '../../store/useCpoStore';
-// import { applicationApiService } from '../../../../services/applicationApiService';
 import { cpoPreSubmissionMeetingService } from '../services/cpoPreSubmissionMeetingService';
 import type { CpoMeetingAnswer } from '../types/preSubmissionMeeting';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
@@ -30,8 +27,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     setError('');
     setAnswer(null);
     setReason('');
-    Promise.resolve().then(() => useCpoStore.getState().getApplication(applicationId))
-    // applicationApiService.getApplicationById(applicationId)
+    cpoPreSubmissionMeetingService.get(applicationId)
       .then((application) => {
         if (!active) return;
         if (application.type !== 'CPO') throw new Error('This page is only available for compulsory purchase order applications.');

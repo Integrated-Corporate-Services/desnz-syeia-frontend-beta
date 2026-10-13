@@ -24,14 +24,20 @@ describe('CPO local store journey', () => {
     expect(store().getApplication(id).desnz_ref).toBe('CPO00001');
   });
 
-  it('completes the meeting task and then locks a submitted request', () => {
+  it('mirrors the meeting answer and progress saved through the API', () => {
     const id = 'app-1';
-    store().saveMeeting(id, true, false, { answer: 'request-meeting', reason: '' });
-    expect(progress(id)['Pre-submission meeting']).toBe('In progress');
-    store().saveMeeting(id, true, true, { answer: 'request-meeting', reason: '' });
+    store().syncApplicant(id, {
+      pre_submission_meeting_requested: true, pre_submission_meeting_answer: 'request-meeting', pre_submission_meeting_reason: null,
+      pre_submission_meeting_requested_at: '2026-10-06T12:00:00Z', pre_submission_meeting_completed_at: '2026-10-06T12:00:00Z',
+    } as any, [{ subsection_name: 'Pre-submission meeting', status: 'Completed' }]);
     expect(progress(id)['Pre-submission meeting']).toBe('Completed');
-    expect(store().getApplication(id).pre_submission_meeting_requested_at).toBeTruthy();
-    expect(() => store().saveMeeting(id, false, true, { answer: 'had-meeting', reason: '' })).toThrow('already been submitted');
+    expect(store().getApplication(id)).toMatchObject({
+      pre_submission_meeting_requested: true, pre_submission_meeting_answer: 'request-meeting', pre_submission_meeting_reason: '',
+      pre_submission_meeting_requested_at: '2026-10-06T12:00:00Z',
+    });
+    store().syncApplicant(id, {}, []);
+    expect(progress(id)['Pre-submission meeting']).toBeUndefined();
+    expect(store().getApplication(id).pre_submission_meeting_requested_at).toBeNull();
   });
 
   it('completes order details only from the check step with a title and purpose', () => {
