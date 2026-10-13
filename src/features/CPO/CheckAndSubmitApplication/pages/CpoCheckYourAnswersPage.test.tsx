@@ -8,6 +8,7 @@ import { applicationApiService } from '../../../../services/applicationApiServic
 import { progressApiService } from '../../../../services/progressApiService';
 import { cpoOrderDetailsService } from '../../OrderDetails/services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS } from '../../OrderDetails/constants/orderDetailsConstants';
+import { cpoExecutiveSummaryService } from '../../ExecutiveSummary/services/cpoExecutiveSummaryService';
 import { cpoOrderDocumentsService } from '../../OrderDocuments/services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES } from '../../OrderDocuments/constants/orderDocumentsConstants';
 import { cpoNoticesService } from '../../RecordNotices/services/cpoNoticesService';

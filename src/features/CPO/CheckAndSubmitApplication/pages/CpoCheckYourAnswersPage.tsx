@@ -7,6 +7,7 @@ import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
 import { cpoOrderDetailsService } from '../../OrderDetails/services/cpoOrderDetailsService';
+import { cpoExecutiveSummaryService } from '../../ExecutiveSummary/services/cpoExecutiveSummaryService';
 import { RELATED_TYPE_LABELS } from '../../OrderDetails/constants/orderDetailsConstants';
 import type { OrderDetailsResponse, OrderDocument } from '../../OrderDetails/types/orderDetails';
 import { cpoOrderDocumentsService } from '../../OrderDocuments/services/cpoOrderDocumentsService';
@@ -75,10 +76,13 @@ const CpoCheckYourAnswersPage: React.FC = () => {
       cpoOrderDetailsService.get(applicationId),
       cpoOrderDocumentsService.get(applicationId),
       cpoNoticesService.get(applicationId),
-      progressApiService.fetchApplicationProgress(applicationId),
-    ]).then(([application, order, documents, notices, progress]) => {
+      Promise.resolve().then(() => useCpoStore.getState().getProgress(applicationId)),
+      cpoExecutiveSummaryService.get(applicationId),
+      // applicationApiService.getApplicationById(applicationId),
+      // progressApiService.fetchApplicationProgress(applicationId),
+    ])).then(([application, order, documents, notices, progress, summary]) => {
       if (application.type !== 'CPO') throw new Error('Compulsory purchase order application not found');
-      if (active) setData({ application, order, documents, notices, progress });
+      if (active) setData({ application, order: { ...order, documents: summary.documents }, documents, notices, progress });
     }).catch((failure) => { if (active) setError(failure instanceof Error ? failure.message : 'Unable to load your answers. Try again.'); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };

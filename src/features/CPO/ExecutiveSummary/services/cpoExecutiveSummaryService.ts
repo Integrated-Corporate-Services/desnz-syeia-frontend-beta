@@ -14,6 +14,7 @@ const DEFAULT_ERROR = 'Unable to load or save the executive summary. Try again.'
 async function readResponse(response: Response): Promise<ExecutiveSummaryData> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
+    // Validation messages are written for the applicant; other failures use fixed copy.
     const message = response.status === 400 && typeof body.message === 'string'
       ? body.message
       : ERROR_MESSAGES[response.status] || DEFAULT_ERROR;
@@ -38,12 +39,15 @@ export const cpoExecutiveSummaryService = {
     }
     if (!csrfHeaders['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
 
-    return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary`), {
+    const result = await readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary`), {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': generateCorrelationId(), ...csrfHeaders },
       body: JSON.stringify({ saveForLater }),
     }));
+    // The task list reads the Executive summary progress the backend just wrote.
+    await syncApplicantFromBackend(applicationId, true);
+    return result;
   },
 
   templateUrl: (applicationId: string) => buildBackendUrl(`/api/applications/${applicationId}/executive-summary/template`),
