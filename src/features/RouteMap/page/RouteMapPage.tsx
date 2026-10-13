@@ -160,6 +160,7 @@ const RouteMapPage: React.FC = () => {
             northing: pt.northing,
             point_id:''
           })),
+          route_type: location.state?.routeType,
           disconnectedroute_justification: details
         });
       } else {
@@ -172,7 +173,6 @@ const RouteMapPage: React.FC = () => {
             northing: pt.northing,
             point_id: pt.point_id,
           })),
-          disconnectedroute_justification: details
         }]);
       }
       // After save, delete points if any
