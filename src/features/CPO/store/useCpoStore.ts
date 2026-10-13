@@ -4,8 +4,7 @@ import type { Application, ApplicationParty } from '../../../types/application';
 import { EXECUTIVE_SUMMARY_CATEGORY } from '../ExecutiveSummary/constants/executiveSummaryConstants';
 import { EMPTY_ORDER_DETAILS } from '../OrderDetails/constants/orderDetailsConstants';
 import type { OrderDetails, OrderDetailsResponse } from '../OrderDetails/types/orderDetails';
-import { DOCUMENT_GROUP_CATEGORIES } from '../OrderDocuments/constants/orderDocumentsConstants';
-import type { CpoDocument, DocumentStep, OrderDocumentsResponse } from '../OrderDocuments/types/orderDocuments';
+import type { CpoDocument } from '../OrderDocuments/types/orderDocuments';
 import { NOTICE_CATEGORIES } from '../RecordNotices/constants/noticesConstants';
 import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../RecordNotices/types/notices';
 import { inspectionAddresses, validNoticeDate } from '../RecordNotices/utils/noticeRecord';
@@ -42,9 +41,11 @@ export type CpoApplication = Application & Pick<CpoApplicationRecord,
 
 export interface ApplicantProgressRow { subsection_name: string; status: string }
 
-const APPLICANT_SUBSECTIONS: string[] = [CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS];
+// Subsections whose progress lives in the backend; syncApplicant copies it in.
+const BACKEND_SUBSECTIONS: string[] = [
+  CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS, CPO_SUBSECTIONS.ORDER_DOCUMENTS,
+];
 
-const ORDER_DOCUMENT_CATEGORIES = [...DOCUMENT_GROUP_CATEGORIES.order, ...DOCUMENT_GROUP_CATEGORIES.reasons, ...DOCUMENT_GROUP_CATEGORIES.additional];
 const NOTICE_DOCUMENT_CATEGORIES = Object.values(NOTICE_CATEGORIES) as string[];
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 const hasText = (value?: string) => Boolean(value?.trim());
@@ -91,8 +92,6 @@ interface CpoStoreState {
   saveMeeting: (applicationId: string, requested: boolean | null, complete: boolean, meeting?: { answer: CpoMeetingAnswer | null; reason: string }) => CpoApplication;
   getOrderDetails: (applicationId: string) => OrderDetailsResponse;
   saveOrderDetails: (applicationId: string, step: string, changes: Partial<OrderDetails>, saveForLater: boolean) => OrderDetailsResponse;
-  getOrderDocuments: (applicationId: string) => OrderDocumentsResponse;
-  saveOrderDocuments: (applicationId: string, step: DocumentStep, saveForLater: boolean, confirmed: boolean | null) => OrderDocumentsResponse;
   getNotices: (applicationId: string) => NoticesResponse;
   saveNotices: (applicationId: string, step: NoticeStep, answers: NoticeAnswer, saveForLater: boolean) => NoticesResponse;
   reset: () => void;
@@ -119,10 +118,6 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
     details: { ...EMPTY_ORDER_DETAILS, ...record.orderDetails },
     documents: documentsIn(record, [EXECUTIVE_SUMMARY_CATEGORY]), canEdit: true,
   });
-  const orderDocumentsResponse = (record: CpoApplicationRecord): OrderDocumentsResponse => clone({
-    orderDetails: { includesSpecialLand: record.orderDetails.includesSpecialLand, exchangeLand: record.orderDetails.exchangeLand },
-    documents: documentsIn(record, ORDER_DOCUMENT_CATEGORIES), canEdit: true,
-  });
   const noticesResponse = (record: CpoApplicationRecord): NoticesResponse => clone({
     record: record.notices, documents: documentsIn(record, NOTICE_DOCUMENT_CATEGORIES), reference: record.desnz_ref,
     objectionsEmail: OBJECTIONS_EMAIL, finalObjectionDate: finalObjectionDate(record), canEdit: true,
@@ -147,7 +142,7 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
         draft.created_by = application.created_by || draft.created_by;
         draft.created_at = application.created_at || draft.created_at;
         draft.application_party = application.application_party ?? draft.application_party;
-        for (const subsection of APPLICANT_SUBSECTIONS) {
+        for (const subsection of BACKEND_SUBSECTIONS) {
           const saved = progress.find((item) => item.subsection_name === subsection);
           if (saved) draft.progress[subsection] = saved.status as Progress;
           else delete draft.progress[subsection];
@@ -196,20 +191,6 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
         if (step === 'special-land' || step === 'exchange-land') demote(draft, CPO_SUBSECTIONS.ORDER_DOCUMENTS);
       });
       return orderDetailsResponse(record);
-    },
-
-    getOrderDocuments: (applicationId) => orderDocumentsResponse(read(applicationId)),
-
-    saveOrderDocuments: (applicationId, step, saveForLater, confirmed) => {
-      const record = update(applicationId, (draft) => {
-        // Required uploads are not enforced for now; only the confirmation at the check step completes the task.
-        if (step === 'check' && !saveForLater && confirmed === true) {
-          draft.progress[CPO_SUBSECTIONS.ORDER_DOCUMENTS] = 'Completed';
-        } else if (draft.progress[CPO_SUBSECTIONS.ORDER_DOCUMENTS] !== 'Completed') {
-          draft.progress[CPO_SUBSECTIONS.ORDER_DOCUMENTS] = 'In progress';
-        }
-      });
-      return orderDocumentsResponse(record);
     },
 
     getNotices: (applicationId) => noticesResponse(read(applicationId)),
