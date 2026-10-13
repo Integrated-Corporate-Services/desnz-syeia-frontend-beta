@@ -80,6 +80,12 @@ const RelatedApplications: React.FC = () => {
         other_information_details: additionalInformationData?.other_information_details || undefined,
       });
 
+      try {
+        await updateProgress('Additional information', 'In Progress');
+      } catch (progressError) {
+        // Continue even if progress update fails
+      }
+
       // Always navigate to OtherImportantInformation page regardless of Yes/No
       // Both questions must be answered before completing the section
       navigateToOtherImportantInformation();

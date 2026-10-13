@@ -91,13 +91,6 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
             site_postcode: objectorAddress.objector_postcode || '',
           });
           
-          // Update progress to completed
-          try {
-            await updateProgress('Site address', 'Completed');
-          } catch (e) {
-            // ignore
-          }
-          
           // Navigate to country selection (skip address entry)
           goToCountrySelection();
         } catch (error) {
