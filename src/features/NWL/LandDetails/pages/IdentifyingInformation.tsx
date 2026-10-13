@@ -55,7 +55,7 @@ const IdentifyingInformation: React.FC = () => {
       });
 
       try {
-        await updateProgress('Identifying information', 'Completed');
+        await updateProgress('Identifying information', 'In Progress');
       } catch (err) {
       }
 

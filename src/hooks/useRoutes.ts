@@ -1,9 +1,12 @@
 import { useState, useCallback } from 'react';
 import { getRoutesWithPoints, createRouteWithPoints, saveRoutesWithPoints, deleteRoutePoints as deleteRoutePointsService, deleteRoute as deleteRouteService } from '../services/routeMapService';
 
+export type RouteType = 'MAIN' | 'SPUR' | 'DISCONNECTED';
+
 export interface Route {
   route_id?: string;
   routeName?: string;
+  route_type?: RouteType;
   gridPoints: Array<{ easting: string; northing: string; point_id?: string; route_id?: string }>;
   disconnectedroute_justification?: string;
 }
