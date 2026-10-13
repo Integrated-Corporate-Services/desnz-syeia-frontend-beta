@@ -77,7 +77,7 @@ const SiteAddress: React.FC = () => {
       });
 
         try {
-          await updateProgress('Site address', 'Completed');
+          await updateProgress('Site address', 'In Progress');
         } catch (e) {
           // ignore progress errors
         }

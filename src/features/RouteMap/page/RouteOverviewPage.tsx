@@ -246,7 +246,7 @@ export const RouteOverviewPage: React.FC = () => {
                                 setFormError(null);
                                 if (spurChoice === 'spur' || spurChoice === 'notconnected') {
                                     navigate(`${S37_BASE_URL}/${applicationId}/route-map`, {
-                                        state: { applicationId, routeName: getNextRouteName(routes.map((r) => r.routeName)), isNewRoute: true, details: spurChoice === 'notconnected' ? details : undefined },
+                                        state: { applicationId, routeName: getNextRouteName(routes.map((r) => r.routeName)), isNewRoute: true, routeType: spurChoice === 'notconnected' ? 'DISCONNECTED' : 'SPUR', details: spurChoice === 'notconnected' ? details : undefined },
                                     });
                                 } else {
                                     // Call progress update for 'no spur' before navigating
