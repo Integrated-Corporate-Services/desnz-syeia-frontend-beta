@@ -8,6 +8,7 @@ import { resetCpoStore } from '../../store/testHelpers';
 import { useCpoStore } from '../../store/useCpoStore';
 import { cpoOrderDetailsService } from '../../OrderDetails/services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS } from '../../OrderDetails/constants/orderDetailsConstants';
+import { cpoExecutiveSummaryService } from '../../ExecutiveSummary/services/cpoExecutiveSummaryService';
 import { cpoOrderDocumentsService } from '../../OrderDocuments/services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES } from '../../OrderDocuments/constants/orderDocumentsConstants';
 import { cpoNoticesService } from '../../RecordNotices/services/cpoNoticesService';
@@ -29,7 +30,8 @@ describe('CPO check your answers', () => {
     resetCpoStore();
     mockApplication(application());
     vi.spyOn(useCpoStore.getState(), 'getProgress').mockReturnValue(completedProgress);
-    vi.spyOn(cpoOrderDetailsService, 'get').mockResolvedValue({ canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'North Ridge CPO', purpose: 'Acquire land and rights', includesSpecialLand: false, hasRelatedApplications: false }, documents: [file('executive-summary.docx')] });
+    vi.spyOn(cpoOrderDetailsService, 'get').mockResolvedValue({ canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'North Ridge CPO', purpose: 'Acquire land and rights', includesSpecialLand: false, hasRelatedApplications: false }, documents: [] });
+    vi.spyOn(cpoExecutiveSummaryService, 'get').mockResolvedValue({ canEdit: true, documents: [file('executive-summary.docx')] });
     vi.spyOn(cpoOrderDocumentsService, 'get').mockResolvedValue({ canEdit: true, orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }] });
     vi.spyOn(cpoNoticesService, 'get').mockResolvedValue({ canEdit: true, reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', record: { newspapers: { evidence: [{ fileId: 'notice.pdf', date: '2026-10-14' }] }, site: { completionDate: '2026-10-07' }, people: { completionDate: '2026-10-19' } }, documents: [{ ...file('notice.pdf'), category: 'CPO_NEWSPAPER_NOTICES' }] });
   });
