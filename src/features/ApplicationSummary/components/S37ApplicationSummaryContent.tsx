@@ -10,6 +10,7 @@ import { SummaryRow } from '../../NWL/CheckYourAnswers/types';
 import { ApplicationReviewSummaryData } from '../types/reviewSummary';
 import { WithdrawalRequest } from '../types';
 import { SummaryWithdrawButton } from './SummaryWithdrawButton';
+import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 
 interface S37ApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -90,6 +91,8 @@ export const S37ApplicationSummaryContent: React.FC<S37ApplicationSummaryContent
             <SummaryCard title="Summary" rows={summaryRows} />
 
             {payment && <SummaryCard title="Payment details" rows={paymentRows} />}
+
+            <ApplicationReassignmentLinks applicationId={applicationId} status={data.status} />
 
             {data.permissions.canWithdraw && !data.permissions.canEdit && !withdrawalRequest && (
                 <div className="govuk-button-group govuk-!-margin-top-6">
