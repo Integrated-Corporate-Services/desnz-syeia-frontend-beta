@@ -10,6 +10,8 @@ import {
   FormActions 
 } from '../components';
 import { useApplicationId, useAssetForm } from '../hooks';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import AccessibleSelect from '../../../../components/commonFormFields/AccessibleSelect';
 import { 
   LABELS, 
@@ -31,6 +33,7 @@ const Asset: React.FC = () => {
   const isAddingAnother = searchParams.get('add') === 'true';
   const editAssetId = searchParams.get('edit');
   const isEditMode = !!editAssetId;
+  const { updateProgress } = useNWLProgress(applicationId || undefined);
   
   const {
     voltage,
@@ -211,6 +214,12 @@ const Asset: React.FC = () => {
 
       // Reset form
       resetForm();
+
+      try {
+        await updateProgress('Assets', APPLICATION_STATUS.NOT_COMPLETED);
+      } catch {
+        // Continue even if progress update fails
+      }
 
       // Navigate to review page
       navigate(`${NWL_BASE_URL}/${applicationId}/assets-review`);
