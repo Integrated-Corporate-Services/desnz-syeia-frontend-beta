@@ -84,7 +84,7 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
     rows.push({
       key: { text: CONSTANTS.NEGOTIATIONS_FIELDS.EVIDENCE_DOCUMENTS },
       value: { 
-        text: documents.length === 0 ? CONSTANTS.NEGOTIATIONS_FIELDS.NO_DOCUMENTS : '',
+        text: '',
         documents: documents.length > 0 ? documents : undefined
       },
     });
