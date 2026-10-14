@@ -653,7 +653,12 @@ const ApplicationSummary: React.FC = () => {
               </div>
             )}
 
-            {applicationId && <ApplicationReassignmentLinks applicationId={applicationId} status={applicationMetadata?.status || null} />}
+            {applicationId && (
+              <ApplicationReassignmentLinks
+                applicationId={applicationId}
+                status={applicationMetadata?.status || null}
+              />
+            )}
 
             {/* Withdraw application button - only show if user has withdraw permission and no pending withdrawal request */}
             {permissions?.canWithdraw && !permissions?.canEdit && !withdrawalRequest && (

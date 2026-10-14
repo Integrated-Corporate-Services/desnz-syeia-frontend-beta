@@ -10,7 +10,6 @@ import {
     ApplicationSummaryBreadcrumbs,
     ApplicationSummaryContent,
 } from '../components';
-import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
 import PageTitle from '../../../components/PageTitle';
 
@@ -127,7 +126,6 @@ export const ApplicationSummaryPage: React.FC = () => {
                             applicationId={applicationId!}
                             withdrawalRequest={withdrawalRequest}
                         />
-                        <ApplicationReassignmentLinks applicationId={applicationId!} status={data.status} />
                     </div>
                 </div>
                     </div>
