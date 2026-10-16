@@ -20,6 +20,7 @@ import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import PageTitle from '../../../../components/PageTitle';
 import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
 
@@ -81,7 +82,7 @@ const RelatedApplications: React.FC = () => {
       });
 
       try {
-        await updateProgress('Additional information', 'In Progress');
+        await updateProgress('Additional information', APPLICATION_STATUS.NOT_COMPLETED);
       } catch (progressError) {
         // Continue even if progress update fails
       }
