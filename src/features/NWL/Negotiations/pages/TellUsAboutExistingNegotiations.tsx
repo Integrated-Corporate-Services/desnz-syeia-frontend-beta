@@ -19,6 +19,7 @@ import {
 } from '../components';
 import { updateNegotiationsData } from '../services';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import { NegotiationsData } from '../types/negotiations';
 import { createLogger } from '../../../../utils/logger';
 import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
@@ -160,7 +161,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
       logger.debug('[TellUsAboutExistingNegotiations] Refetch complete');
 
       try {
-        await updateProgress('Negotiations', 'In Progress');
+        await updateProgress('Negotiations', APPLICATION_STATUS.NOT_COMPLETED);
       } catch (progressError) {
         // Continue even if progress update fails
       }
