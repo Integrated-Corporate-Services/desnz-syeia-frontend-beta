@@ -6,3 +6,17 @@
 .cpo-order-details {
   overflow-wrap: anywhere;
 }
+
+/* Button that looks like a GOV.UK text link (e.g. Delete, Remove) */
+.cpo-notice-text-action {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+.cpo-notice-documents .govuk-task-list__status {
+  flex-shrink: 0;
+}

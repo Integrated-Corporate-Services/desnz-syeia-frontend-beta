@@ -35,18 +35,10 @@ it('shows the reference title and the saved progress on the task list', async ()
 it('unlocks application review when all seven prerequisites are complete', async () => {
   seedApplication('application-id', {
     progress: completed(Object.values(CPO_SUBSECTIONS).filter(subsection => subsection !== CPO_SUBSECTIONS.CHECK_AND_SUBMIT)),
-    notices: { requirements: { acknowledged: true }, check: { confirmed: true } },
   });
   renderPage();
   expect(await screen.findByRole('link', { name: 'Check and submit your application' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
   expect(screen.getAllByRole('link', { name: 'Record your notices' })).toHaveLength(1);
-});
-
-it('keeps completed notices unfinished until requirements are acknowledged and reviewed', async () => {
-  seedApplication('application-id', { progress: completed(Object.values(CPO_SUBSECTIONS)), notices: {} });
-  renderPage();
-  expect((await screen.findByRole('link', { name: 'Record your notices' })).closest('li')).toHaveTextContent('Not completed');
-  expect(screen.getByText('Cannot start yet')).toBeInTheDocument();
 });
 
 it('does not show misleading task statuses after a task-list load failure', async () => {

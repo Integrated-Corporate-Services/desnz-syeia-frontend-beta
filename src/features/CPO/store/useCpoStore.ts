@@ -6,13 +6,10 @@ import { EMPTY_ORDER_DETAILS } from '../OrderDetails/constants/orderDetailsConst
 import type { OrderDetails, OrderDetailsResponse } from '../OrderDetails/types/orderDetails';
 import { DOCUMENT_GROUP_CATEGORIES } from '../OrderDocuments/constants/orderDocumentsConstants';
 import type { CpoDocument, DocumentStep, OrderDocumentsResponse } from '../OrderDocuments/types/orderDocuments';
-import { NOTICE_CATEGORIES } from '../RecordNotices/constants/noticesConstants';
-import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../RecordNotices/types/notices';
-import { inspectionAddresses, validNoticeDate } from '../RecordNotices/utils/noticeRecord';
 import { CPO_SUBSECTIONS } from '../TaskList/constants/cpoTaskListConstants';
 import type { CpoProgressItem } from '../TaskList/types/cpoTaskList';
 import type { CpoMeetingAnswer } from '../PreApplicationMeeting/types/preSubmissionMeeting';
-import { LOCAL_USER_ID, OBJECTIONS_EMAIL } from './constants';
+import { LOCAL_USER_ID } from './constants';
 
 type Progress = 'Completed' | 'In progress' | 'Not completed';
 
@@ -29,23 +26,22 @@ export interface CpoApplicationRecord {
   pre_submission_meeting_requested_at: string | null;
   pre_submission_meeting_completed_at: string | null;
   orderDetails: OrderDetails;
-  notices: Partial<Record<NoticeStep, NoticeAnswer>>;
   documents: CpoDocument[];
   progress: Record<string, Progress>;
 }
 
 export type CpoApplication = Application & Pick<CpoApplicationRecord,
   'pre_submission_meeting_requested' | 'pre_submission_meeting_answer' | 'pre_submission_meeting_reason'
-  | 'pre_submission_meeting_requested_at' | 'pre_submission_meeting_completed_at'> & {
-  cpo_publicity: { requirements?: NoticeAnswer; check?: NoticeAnswer };
-};
+  | 'pre_submission_meeting_requested_at' | 'pre_submission_meeting_completed_at'>;
 
 export interface ApplicantProgressRow { subsection_name: string; status: string }
 
-const APPLICANT_SUBSECTIONS: string[] = [CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS];
+// Subsections whose progress lives in the backend; syncApplicant copies it in.
+const BACKEND_SUBSECTIONS: string[] = [
+  CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS, CPO_SUBSECTIONS.RECORD_NOTICES,
+];
 
 const ORDER_DOCUMENT_CATEGORIES = [...DOCUMENT_GROUP_CATEGORIES.order, ...DOCUMENT_GROUP_CATEGORIES.reasons, ...DOCUMENT_GROUP_CATEGORIES.additional];
-const NOTICE_DOCUMENT_CATEGORIES = Object.values(NOTICE_CATEGORIES) as string[];
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 const hasText = (value?: string) => Boolean(value?.trim());
 
@@ -54,7 +50,7 @@ const createRecord = (applicationId: string, createdBy: string, sequence: number
   operator_ref: '', created_by: createdBy, created_at: new Date().toISOString(), application_party: undefined,
   pre_submission_meeting_requested: null, pre_submission_meeting_answer: null, pre_submission_meeting_reason: '',
   pre_submission_meeting_requested_at: null, pre_submission_meeting_completed_at: null,
-  orderDetails: clone(EMPTY_ORDER_DETAILS), notices: {}, documents: [], progress: {},
+  orderDetails: clone(EMPTY_ORDER_DETAILS), documents: [], progress: {},
 });
 
 const toApplication = (record: CpoApplicationRecord): CpoApplication => clone({
@@ -67,20 +63,10 @@ const toApplication = (record: CpoApplicationRecord): CpoApplication => clone({
   pre_submission_meeting_reason: record.pre_submission_meeting_reason,
   pre_submission_meeting_requested_at: record.pre_submission_meeting_requested_at,
   pre_submission_meeting_completed_at: record.pre_submission_meeting_completed_at,
-  cpo_publicity: { requirements: record.notices.requirements, check: record.notices.check },
 });
 
 const documentsIn = (record: CpoApplicationRecord, categories: readonly string[]) =>
   record.documents.filter((document) => categories.includes(document.category));
-
-const finalObjectionDate = (record: CpoApplicationRecord): string | null => {
-  const dates = [record.notices.newspapers?.secondDate, record.notices.site?.completionDate, record.notices.people?.completionDate]
-    .filter((value): value is string => Boolean(value) && validNoticeDate(value as string));
-  if (!record.notices.newspapers?.secondDate || !record.notices.site?.completionDate || !dates.length) return null;
-  const latest = new Date(`${[...dates].sort().pop()}T00:00:00Z`);
-  latest.setUTCDate(latest.getUTCDate() + 21);
-  return latest.toISOString().slice(0, 10);
-};
 
 interface CpoStoreState {
   applications: Record<string, CpoApplicationRecord>;
@@ -93,8 +79,6 @@ interface CpoStoreState {
   saveOrderDetails: (applicationId: string, step: string, changes: Partial<OrderDetails>, saveForLater: boolean) => OrderDetailsResponse;
   getOrderDocuments: (applicationId: string) => OrderDocumentsResponse;
   saveOrderDocuments: (applicationId: string, step: DocumentStep, saveForLater: boolean, confirmed: boolean | null) => OrderDocumentsResponse;
-  getNotices: (applicationId: string) => NoticesResponse;
-  saveNotices: (applicationId: string, step: NoticeStep, answers: NoticeAnswer, saveForLater: boolean) => NoticesResponse;
   reset: () => void;
 }
 
@@ -123,10 +107,6 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
     orderDetails: { includesSpecialLand: record.orderDetails.includesSpecialLand, exchangeLand: record.orderDetails.exchangeLand },
     documents: documentsIn(record, ORDER_DOCUMENT_CATEGORIES), canEdit: true,
   });
-  const noticesResponse = (record: CpoApplicationRecord): NoticesResponse => clone({
-    record: record.notices, documents: documentsIn(record, NOTICE_DOCUMENT_CATEGORIES), reference: record.desnz_ref,
-    objectionsEmail: OBJECTIONS_EMAIL, finalObjectionDate: finalObjectionDate(record), canEdit: true,
-  });
   const demote = (record: CpoApplicationRecord, subsection: string) => {
     if (record.progress[subsection] === 'Completed') record.progress[subsection] = 'In progress';
   };
@@ -147,7 +127,7 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
         draft.created_by = application.created_by || draft.created_by;
         draft.created_at = application.created_at || draft.created_at;
         draft.application_party = application.application_party ?? draft.application_party;
-        for (const subsection of APPLICANT_SUBSECTIONS) {
+        for (const subsection of BACKEND_SUBSECTIONS) {
           const saved = progress.find((item) => item.subsection_name === subsection);
           if (saved) draft.progress[subsection] = saved.status as Progress;
           else delete draft.progress[subsection];
@@ -210,30 +190,6 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
         }
       });
       return orderDocumentsResponse(record);
-    },
-
-    getNotices: (applicationId) => noticesResponse(read(applicationId)),
-
-    saveNotices: (applicationId, step, answers, saveForLater) => {
-      const record = update(applicationId, (draft) => {
-        const subsection = CPO_SUBSECTIONS.RECORD_NOTICES;
-        if (step === 'check') {
-          if (!saveForLater) {
-            const problem = draft.notices.requirements?.acknowledged !== true ? 'Read and acknowledge the notice requirements first'
-              : !inspectionAddresses(draft.notices.inspection).some((address) => validNoticeDate(address.from)) ? 'Add an inspection address and the date it was made available'
-                : !hasText(draft.notices.online?.url) ? 'Enter the website address where the order and maps can be viewed' : '';
-            if (problem) throw new Error(problem);
-          }
-          draft.notices.check = { ...answers, confirmed: !saveForLater };
-          draft.progress[subsection] = saveForLater ? 'In progress' : 'Completed';
-          return;
-        }
-        draft.notices[step] = answers;
-        // Any change to a publicity answer needs the final check to be confirmed again.
-        draft.notices.check = { format: 'reference', confirmed: false };
-        draft.progress[subsection] = 'In progress';
-      });
-      return noticesResponse(record);
     },
 
     reset: () => set({ applications: {}, referenceCounter: 0 }),
