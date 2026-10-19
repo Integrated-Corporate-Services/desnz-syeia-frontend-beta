@@ -1,7 +1,6 @@
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 import { generateCorrelationId } from '../../../../utils/correlationId';
 import { fetchCsrfToken, getCsrfHeaders } from '../../../../utils/csrf';
-import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
 import type { NoticeAnswer, NoticeStep, NoticesResponse } from '../types/notices';
 
 const ERROR_MESSAGES: Record<number, string> = {
@@ -43,14 +42,11 @@ export const cpoNoticesService = {
     }
     if (!csrfHeaders['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
 
-    const result = await readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/notices`), {
+    return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/notices`), {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': generateCorrelationId(), ...csrfHeaders },
       body: JSON.stringify({ step, answers, saveForLater }),
     }));
-    // The task list reads the Record your notices progress the backend just wrote.
-    await syncApplicantFromBackend(applicationId, true);
-    return result;
   },
 };

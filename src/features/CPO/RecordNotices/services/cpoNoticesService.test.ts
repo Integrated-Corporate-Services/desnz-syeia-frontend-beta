@@ -1,13 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cpoNoticesService } from './cpoNoticesService';
-import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
 
 vi.mock('../../../../utils/apiConfig', () => ({ buildBackendUrl: (path: string) => path }));
 vi.mock('../../../../utils/csrf', () => ({
   getCsrfHeaders: () => ({ 'X-CSRF-Token': 'test-token' }),
   fetchCsrfToken: vi.fn(),
 }));
-vi.mock('../../store/cpoApplicantSync', () => ({ syncApplicantFromBackend: vi.fn().mockResolvedValue(undefined) }));
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -28,7 +26,7 @@ describe('cpoNoticesService', () => {
     });
   });
 
-  it('PUTs the step, answers and saveForLater with the CSRF token, then refreshes progress', async () => {
+  it('PUTs the step, answers and saveForLater with the CSRF token', async () => {
     const fetchMock = vi.fn().mockResolvedValue(json({ record: {}, documents: [], canEdit: true }));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -39,7 +37,7 @@ describe('cpoNoticesService', () => {
     expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({ step: 'online', answers: { format: 'reference', url: 'https://example.gov.uk' }, saveForLater: true });
-    expect(syncApplicantFromBackend).toHaveBeenCalledWith('app-1', true);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -48,12 +46,11 @@ describe('cpoNoticesService', () => {
     [404, 'not found'],
     [409, 'Only draft'],
     [500, 'Unable to load or save your publicity record'],
-  ])('maps status %s to a user-facing message without syncing progress', async (status, message) => {
+  ])('maps status %s to a user-facing message', async (status, message) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ error: 'x' }, status)));
 
     await expect(cpoNoticesService.save('app-1', 'check', { format: 'reference', confirmed: true }, false)).rejects.toMatchObject({ message: expect.stringContaining(message), status });
     await expect(cpoNoticesService.get('app-1')).rejects.toMatchObject({ status });
-    expect(syncApplicantFromBackend).not.toHaveBeenCalled();
   });
 
   it('shows the backend validation message for a 400', async () => {
