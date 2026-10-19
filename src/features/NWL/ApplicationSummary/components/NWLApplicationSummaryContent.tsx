@@ -30,6 +30,7 @@ import { CHECK_YOUR_ANSWERS_CONSTANTS as CYA_CONSTANTS } from '../../CheckYourAn
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../ApplicationSummary/constants';
 import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
 import { isFirFeatureDisabled } from '../../../../utils/disabledFormTypes';
+import { ApplicationReassignmentLinks } from '../../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -153,6 +154,8 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 desnzRef={data.desnzRef}
                 applicationStatus={data.status}
             />
+
+            <ApplicationReassignmentLinks applicationId={applicationId} status={data.status} />
 
             <h2 className="govuk-heading-m govuk-!-margin-top-6">
                 Download and share a copy of your application
