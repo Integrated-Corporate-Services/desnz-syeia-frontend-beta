@@ -1,42 +1,62 @@
-// LOCAL (frontend-only) MODE: data comes from the Zustand CPO store. The backend calls are kept commented for later.
+import { buildBackendUrl } from '../../../../utils/apiConfig';
+import { generateCorrelationId } from '../../../../utils/correlationId';
+import { fetchCsrfToken, getCsrfHeaders } from '../../../../utils/csrf';
+import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
 import { useCpoStore } from '../../store/useCpoStore';
-// import { buildBackendUrl } from '../../../../utils/apiConfig';
-// import { fetchCsrfToken, getCsrfHeaders } from '../../../../utils/csrf';
-// import { EMPTY_ORDER_DETAILS } from '../constants/orderDetailsConstants';
+import { EMPTY_ORDER_DETAILS } from '../constants/orderDetailsConstants';
 import type { OrderDetails, OrderDetailsResponse, OrderStep } from '../types/orderDetails';
 
-// async function readResponse(response: Response): Promise<OrderDetailsResponse> {
-//   if (!response.ok) {
-//     const body = await response.json().catch(() => ({}));
-//     const message = response.status === 400 && typeof body.message === 'string'
-//       ? body.message
-//       : response.status === 401 ? 'Your session has expired. Sign in again.'
-//         : response.status === 403 ? 'You do not have permission to update this application.'
-//           : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
-//             : 'Unable to load or save order details. Try again.';
-//     throw new Error(message);
-//   }
-//   const result = await response.json();
-//   return { details: { ...EMPTY_ORDER_DETAILS, ...result.details }, documents: result.documents || [], canEdit: result.canEdit };
-// }
+const ERROR_MESSAGES: Record<number, string> = {
+  401: 'Your session has expired. Sign in again.',
+  403: 'You do not have permission to update this application.',
+  404: 'Compulsory purchase order application not found.',
+  409: 'Only draft compulsory purchase order applications can be updated.',
+};
+const DEFAULT_ERROR = 'Unable to load or save order details. Try again.';
+
+async function readResponse(response: Response): Promise<OrderDetailsResponse> {
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    // Validation messages are written for the applicant; other failures use fixed copy.
+    const message = response.status === 400 && typeof body.message === 'string'
+      ? body.message
+      : ERROR_MESSAGES[response.status] || DEFAULT_ERROR;
+    throw Object.assign(new Error(message), { status: response.status });
+  }
+  const result = await response.json();
+  return { details: { ...EMPTY_ORDER_DETAILS, ...result.details }, documents: result.documents || [], canEdit: result.canEdit };
+}
 
 export const cpoOrderDetailsService = {
-  get: async (applicationId: string): Promise<OrderDetailsResponse> => useCpoStore.getState().getOrderDetails(applicationId),
-  save: async (applicationId: string, step: string, changes: Partial<OrderDetails>, saveForLater: boolean): Promise<OrderDetailsResponse> =>
-    useCpoStore.getState().saveOrderDetails(applicationId, step, changes, saveForLater),
-  // get: async (applicationId: string) => readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/order-details`), { credentials: 'include' })),
-  // save: async (applicationId: string, step: string, changes: Partial<OrderDetails>, saveForLater: boolean) => {
-  //   let headers = getCsrfHeaders();
-  //   if (!headers['X-CSRF-Token']) {
-  //     await fetchCsrfToken();
-  //     headers = getCsrfHeaders();
-  //   }
-  //   if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
-  //   return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/order-details`), {
-  //     method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
-  //     body: JSON.stringify({ step, changes, saveForLater }),
-  //   }));
-  // },
+  get: async (applicationId: string): Promise<OrderDetailsResponse> => {
+    const result = await readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/order-details`), {
+      credentials: 'include',
+      headers: { 'X-Correlation-ID': generateCorrelationId() },
+    }));
+    // Order documents still read the land answers from the local CPO store.
+    useCpoStore.getState().syncOrderDetails(applicationId, result.details);
+    return result;
+  },
+
+  save: async (applicationId: string, step: string, changes: Partial<OrderDetails>, saveForLater: boolean): Promise<OrderDetailsResponse> => {
+    let csrfHeaders = getCsrfHeaders();
+    if (!csrfHeaders['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      csrfHeaders = getCsrfHeaders();
+    }
+    if (!csrfHeaders['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
+
+    const result = await readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/order-details`), {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': generateCorrelationId(), ...csrfHeaders },
+      body: JSON.stringify({ step, changes, saveForLater }),
+    }));
+    useCpoStore.getState().syncOrderDetails(applicationId, result.details, step);
+    // The task list reads the Order details progress the backend just wrote.
+    await syncApplicantFromBackend(applicationId, true);
+    return result;
+  },
 };
 
 export function nextOrderStep(step: OrderStep, details: OrderDetails, addAnother: boolean | null): OrderStep | null {

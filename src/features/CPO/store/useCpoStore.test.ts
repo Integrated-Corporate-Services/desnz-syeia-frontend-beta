@@ -18,7 +18,7 @@ describe('CPO local store journey', () => {
       { subsection_name: 'Applicant details', status: 'Completed' }, { subsection_name: 'Order details', status: 'Completed' },
     ]);
     expect(store().getApplication(id)).toMatchObject({ desnz_ref: 'CPO00001', operator_ref: 'REF-1', application_party: { contact_person_name: 'Alex Smith' } });
-    expect(progress(id)).toEqual({ 'Applicant details': 'Completed' });
+    expect(progress(id)).toEqual({ 'Applicant details': 'Completed', 'Order details': 'Completed' });
     store().syncApplicant(id, {}, []);
     expect(progress(id)).toEqual({});
     expect(store().getApplication(id).desnz_ref).toBe('CPO00001');
@@ -34,21 +34,24 @@ describe('CPO local store journey', () => {
     expect(() => store().saveMeeting(id, false, true, { answer: 'had-meeting', reason: '' })).toThrow('already been submitted');
   });
 
-  it('completes order details only from the check step with a title and purpose', () => {
+  it('mirrors saved order details and only invalidates Order documents when a land answer changes', () => {
     const id = 'app-1';
-    store().saveOrderDetails(id, 'name', { orderName: 'North Ridge CPO' }, false);
-    expect(progress(id)['Order details']).toBe('In progress');
-    store().saveOrderDetails(id, 'purpose', { purpose: 'Acquire rights' }, false);
-    expect(progress(id)['Order details']).toBe('In progress');
-    expect(store().saveOrderDetails(id, 'check', {}, false).details).toMatchObject({ orderName: 'North Ridge CPO', purpose: 'Acquire rights' });
-    expect(progress(id)['Order details']).toBe('Completed');
+    const details = { orderName: 'North Ridge CPO', purpose: 'Acquire rights', includesSpecialLand: false, exchangeLand: null, hasRelatedApplications: null, relatedApplications: [] };
+    store().syncOrderDetails(id, details);
+    expect(store().applications[id].orderDetails).toMatchObject({ orderName: 'North Ridge CPO', includesSpecialLand: false });
+    store().saveOrderDocuments(id, 'check', false, true);
+    store().syncOrderDetails(id, { ...details, orderName: 'Renamed' }, 'name');
+    expect(progress(id)['Order documents']).toBe('Completed');
+    store().syncOrderDetails(id, { ...details, includesSpecialLand: true }, 'special-land');
+    expect(progress(id)['Order documents']).toBe('In progress');
+    expect(store().applications[id].orderDetails.includesSpecialLand).toBe(true);
   });
 
   it('completes the executive summary without an uploaded file', () => {
     const id = 'app-1';
-    store().saveOrderDetails(id, 'executive-summary', {}, true);
+    store().saveExecutiveSummary(id, true);
     expect(progress(id)['Executive summary']).toBe('In progress');
-    store().saveOrderDetails(id, 'executive-summary', {}, false);
+    store().saveExecutiveSummary(id, false);
     expect(progress(id)['Executive summary']).toBe('Completed');
   });
 

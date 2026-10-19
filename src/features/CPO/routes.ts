@@ -34,6 +34,11 @@ const cpoPageRoutes = [
 ];
 
 // LOCAL (frontend-only) MODE: no sign-in or backend access check, so the pages open with the backend off.
-// To use the backend again, replace this with `export const cpoRoutes = cpoPageRoutes;`.
-export const cpoRoutes = cpoPageRoutes.map(route => ({ ...route, auth: false, accessGuard: false }));
-// export const cpoRoutes = cpoPageRoutes;
+// Backend-wired pages (Order details) keep real sign-in and the application access check.
+// To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
+const backendRoutePaths = new Set([
+    `${CPO_BASE_URL}/:applicationId/order-details`,
+    `${CPO_BASE_URL}/:applicationId/order-details/:orderStep`,
+]);
+export const cpoRoutes = cpoPageRoutes.map(route =>
+    backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });

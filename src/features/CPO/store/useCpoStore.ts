@@ -2,8 +2,9 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Application, ApplicationParty } from '../../../types/application';
 import { EXECUTIVE_SUMMARY_CATEGORY } from '../ExecutiveSummary/constants/executiveSummaryConstants';
+import type { ExecutiveSummaryData } from '../ExecutiveSummary/types/executiveSummary';
 import { EMPTY_ORDER_DETAILS } from '../OrderDetails/constants/orderDetailsConstants';
-import type { OrderDetails, OrderDetailsResponse } from '../OrderDetails/types/orderDetails';
+import type { OrderDetails } from '../OrderDetails/types/orderDetails';
 import { DOCUMENT_GROUP_CATEGORIES } from '../OrderDocuments/constants/orderDocumentsConstants';
 import type { CpoDocument, DocumentStep, OrderDocumentsResponse } from '../OrderDocuments/types/orderDocuments';
 import { NOTICE_CATEGORIES } from '../RecordNotices/constants/noticesConstants';
@@ -42,7 +43,10 @@ export type CpoApplication = Application & Pick<CpoApplicationRecord,
 
 export interface ApplicantProgressRow { subsection_name: string; status: string }
 
-const APPLICANT_SUBSECTIONS: string[] = [CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS];
+// Subsections whose progress lives in the backend; syncApplicant copies it in.
+const BACKEND_SUBSECTIONS: string[] = [
+  CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS, CPO_SUBSECTIONS.ORDER_DETAILS,
+];
 
 const ORDER_DOCUMENT_CATEGORIES = [...DOCUMENT_GROUP_CATEGORIES.order, ...DOCUMENT_GROUP_CATEGORIES.reasons, ...DOCUMENT_GROUP_CATEGORIES.additional];
 const NOTICE_DOCUMENT_CATEGORIES = Object.values(NOTICE_CATEGORIES) as string[];
@@ -89,8 +93,9 @@ interface CpoStoreState {
   getProgress: (applicationId: string) => CpoProgressItem[];
   syncApplicant: (applicationId: string, application: Partial<Application>, progress: ApplicantProgressRow[]) => void;
   saveMeeting: (applicationId: string, requested: boolean | null, complete: boolean, meeting?: { answer: CpoMeetingAnswer | null; reason: string }) => CpoApplication;
-  getOrderDetails: (applicationId: string) => OrderDetailsResponse;
-  saveOrderDetails: (applicationId: string, step: string, changes: Partial<OrderDetails>, saveForLater: boolean) => OrderDetailsResponse;
+  syncOrderDetails: (applicationId: string, details: OrderDetails, savedStep?: string) => void;
+  getExecutiveSummary: (applicationId: string) => ExecutiveSummaryData;
+  saveExecutiveSummary: (applicationId: string, saveForLater: boolean) => ExecutiveSummaryData;
   getOrderDocuments: (applicationId: string) => OrderDocumentsResponse;
   saveOrderDocuments: (applicationId: string, step: DocumentStep, saveForLater: boolean, confirmed: boolean | null) => OrderDocumentsResponse;
   getNotices: (applicationId: string) => NoticesResponse;
@@ -115,8 +120,7 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
     set((state) => ({ applications: { ...state.applications, [applicationId]: next } }));
     return next;
   };
-  const orderDetailsResponse = (record: CpoApplicationRecord): OrderDetailsResponse => clone({
-    details: { ...EMPTY_ORDER_DETAILS, ...record.orderDetails },
+  const executiveSummaryResponse = (record: CpoApplicationRecord): ExecutiveSummaryData => clone({
     documents: documentsIn(record, [EXECUTIVE_SUMMARY_CATEGORY]), canEdit: true,
   });
   const orderDocumentsResponse = (record: CpoApplicationRecord): OrderDocumentsResponse => clone({
@@ -147,7 +151,7 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
         draft.created_by = application.created_by || draft.created_by;
         draft.created_at = application.created_at || draft.created_at;
         draft.application_party = application.application_party ?? draft.application_party;
-        for (const subsection of APPLICANT_SUBSECTIONS) {
+        for (const subsection of BACKEND_SUBSECTIONS) {
           const saved = progress.find((item) => item.subsection_name === subsection);
           if (saved) draft.progress[subsection] = saved.status as Progress;
           else delete draft.progress[subsection];
@@ -175,27 +179,23 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
       return toApplication(record);
     },
 
-    getOrderDetails: (applicationId) => orderDetailsResponse(read(applicationId)),
-
-    saveOrderDetails: (applicationId, step, changes, saveForLater) => {
-      const record = update(applicationId, (draft) => {
-        if (step === 'executive-summary') {
-          // File upload is not required for now, so saving always completes the task.
-          draft.progress[CPO_SUBSECTIONS.EXECUTIVE_SUMMARY] = saveForLater ? 'In progress' : 'Completed';
-          return;
-        }
-        draft.orderDetails = { ...draft.orderDetails, ...changes };
-        const { orderName, purpose } = draft.orderDetails;
-        const valid = hasText(orderName) && hasText(purpose);
-        if (step === 'check' && !saveForLater && valid) {
-          draft.orderDetails.completedAt = new Date().toISOString();
-          draft.progress[CPO_SUBSECTIONS.ORDER_DETAILS] = 'Completed';
-        } else if (draft.progress[CPO_SUBSECTIONS.ORDER_DETAILS] !== 'Completed' || !valid) {
-          draft.progress[CPO_SUBSECTIONS.ORDER_DETAILS] = hasText(orderName) || hasText(purpose) ? 'In progress' : 'Not completed';
-        }
-        if (step === 'special-land' || step === 'exchange-land') demote(draft, CPO_SUBSECTIONS.ORDER_DOCUMENTS);
+    syncOrderDetails: (applicationId, details, savedStep) => {
+      update(applicationId, (draft) => {
+        const landChanged = draft.orderDetails.includesSpecialLand !== details.includesSpecialLand
+          || draft.orderDetails.exchangeLand !== details.exchangeLand;
+        draft.orderDetails = { ...EMPTY_ORDER_DETAILS, ...details };
+        if (landChanged && (savedStep === 'special-land' || savedStep === 'exchange-land')) demote(draft, CPO_SUBSECTIONS.ORDER_DOCUMENTS);
       });
-      return orderDetailsResponse(record);
+    },
+
+    getExecutiveSummary: (applicationId) => executiveSummaryResponse(read(applicationId)),
+
+    saveExecutiveSummary: (applicationId, saveForLater) => {
+      const record = update(applicationId, (draft) => {
+        // File upload is not required for now, so saving always completes the task.
+        draft.progress[CPO_SUBSECTIONS.EXECUTIVE_SUMMARY] = saveForLater ? 'In progress' : 'Completed';
+      });
+      return executiveSummaryResponse(record);
     },
 
     getOrderDocuments: (applicationId) => orderDocumentsResponse(read(applicationId)),
