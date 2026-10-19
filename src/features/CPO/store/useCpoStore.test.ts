@@ -44,12 +44,14 @@ describe('CPO local store journey', () => {
     expect(progress(id)['Order details']).toBe('Completed');
   });
 
-  it('completes the executive summary without an uploaded file', () => {
+  it('mirrors the executive summary progress saved through the API', () => {
     const id = 'app-1';
-    store().saveOrderDetails(id, 'executive-summary', {}, true);
-    expect(progress(id)['Executive summary']).toBe('In progress');
-    store().saveOrderDetails(id, 'executive-summary', {}, false);
+    store().syncApplicant(id, {}, [{ subsection_name: 'Executive summary', status: 'Completed' }]);
     expect(progress(id)['Executive summary']).toBe('Completed');
+    store().syncApplicant(id, {}, [{ subsection_name: 'Executive summary', status: 'Not completed' }]);
+    expect(progress(id)['Executive summary']).toBe('Not completed');
+    store().syncApplicant(id, {}, []);
+    expect(progress(id)['Executive summary']).toBeUndefined();
   });
 
   it('completes order documents from the confirmed check step without uploaded files', () => {

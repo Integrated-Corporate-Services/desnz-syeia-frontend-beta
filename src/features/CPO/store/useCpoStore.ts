@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Application, ApplicationParty } from '../../../types/application';
-import { EXECUTIVE_SUMMARY_CATEGORY } from '../ExecutiveSummary/constants/executiveSummaryConstants';
 import { EMPTY_ORDER_DETAILS } from '../OrderDetails/constants/orderDetailsConstants';
 import type { OrderDetails, OrderDetailsResponse } from '../OrderDetails/types/orderDetails';
 import { DOCUMENT_GROUP_CATEGORIES } from '../OrderDocuments/constants/orderDocumentsConstants';
@@ -42,7 +41,10 @@ export type CpoApplication = Application & Pick<CpoApplicationRecord,
 
 export interface ApplicantProgressRow { subsection_name: string; status: string }
 
-const APPLICANT_SUBSECTIONS: string[] = [CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS];
+// Subsections whose progress lives in the backend; syncApplicant copies it in.
+const BACKEND_SUBSECTIONS: string[] = [
+  CPO_SUBSECTIONS.APPLICANT_DETAILS, CPO_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS, CPO_SUBSECTIONS.EXECUTIVE_SUMMARY,
+];
 
 const ORDER_DOCUMENT_CATEGORIES = [...DOCUMENT_GROUP_CATEGORIES.order, ...DOCUMENT_GROUP_CATEGORIES.reasons, ...DOCUMENT_GROUP_CATEGORIES.additional];
 const NOTICE_DOCUMENT_CATEGORIES = Object.values(NOTICE_CATEGORIES) as string[];
@@ -117,7 +119,7 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
   };
   const orderDetailsResponse = (record: CpoApplicationRecord): OrderDetailsResponse => clone({
     details: { ...EMPTY_ORDER_DETAILS, ...record.orderDetails },
-    documents: documentsIn(record, [EXECUTIVE_SUMMARY_CATEGORY]), canEdit: true,
+    documents: [], canEdit: true,
   });
   const orderDocumentsResponse = (record: CpoApplicationRecord): OrderDocumentsResponse => clone({
     orderDetails: { includesSpecialLand: record.orderDetails.includesSpecialLand, exchangeLand: record.orderDetails.exchangeLand },
@@ -147,7 +149,7 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
         draft.created_by = application.created_by || draft.created_by;
         draft.created_at = application.created_at || draft.created_at;
         draft.application_party = application.application_party ?? draft.application_party;
-        for (const subsection of APPLICANT_SUBSECTIONS) {
+        for (const subsection of BACKEND_SUBSECTIONS) {
           const saved = progress.find((item) => item.subsection_name === subsection);
           if (saved) draft.progress[subsection] = saved.status as Progress;
           else delete draft.progress[subsection];
@@ -179,11 +181,6 @@ export const useCpoStore = create<CpoStoreState>()(persist((set, get) => {
 
     saveOrderDetails: (applicationId, step, changes, saveForLater) => {
       const record = update(applicationId, (draft) => {
-        if (step === 'executive-summary') {
-          // File upload is not required for now, so saving always completes the task.
-          draft.progress[CPO_SUBSECTIONS.EXECUTIVE_SUMMARY] = saveForLater ? 'In progress' : 'Completed';
-          return;
-        }
         draft.orderDetails = { ...draft.orderDetails, ...changes };
         const { orderName, purpose } = draft.orderDetails;
         const valid = hasText(orderName) && hasText(purpose);
