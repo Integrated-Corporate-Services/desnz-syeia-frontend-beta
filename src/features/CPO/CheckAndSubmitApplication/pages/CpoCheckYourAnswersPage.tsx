@@ -4,11 +4,8 @@ import PageTitle from '../../../../components/PageTitle';
 import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
-// LOCAL MODE: everything but the applicant sections is read from the CPO store. Restore the commented imports/calls below for the backend.
-import { useCpoStore } from '../../store/useCpoStore';
-import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
-// import { applicationApiService } from '../../../../services/applicationApiService';
-// import { progressApiService } from '../../../../services/progressApiService';
+import { applicationApiService } from '../../../../services/applicationApiService';
+import { progressApiService } from '../../../../services/progressApiService';
 import { cpoOrderDetailsService } from '../../OrderDetails/services/cpoOrderDetailsService';
 import { RELATED_TYPE_LABELS } from '../../OrderDetails/constants/orderDetailsConstants';
 import type { OrderDetailsResponse, OrderDocument } from '../../OrderDetails/types/orderDetails';
@@ -73,15 +70,13 @@ const CpoCheckYourAnswersPage: React.FC = () => {
   useEffect(() => {
     let active = true;
     setLoading(true); setError(''); setData(null);
-    syncApplicantFromBackend(applicationId, true).then(() => Promise.all([
-      Promise.resolve().then(() => useCpoStore.getState().getApplication(applicationId)),
+    Promise.all([
+      applicationApiService.getApplicationById(applicationId),
       cpoOrderDetailsService.get(applicationId),
       cpoOrderDocumentsService.get(applicationId),
       cpoNoticesService.get(applicationId),
-      Promise.resolve().then(() => useCpoStore.getState().getProgress(applicationId)),
-      // applicationApiService.getApplicationById(applicationId),
-      // progressApiService.fetchApplicationProgress(applicationId),
-    ])).then(([application, order, documents, notices, progress]) => {
+      progressApiService.fetchApplicationProgress(applicationId),
+    ]).then(([application, order, documents, notices, progress]) => {
       if (application.type !== 'CPO') throw new Error('Compulsory purchase order application not found');
       if (active) setData({ application, order, documents, notices, progress });
     }).catch((failure) => { if (active) setError(failure instanceof Error ? failure.message : 'Unable to load your answers. Try again.'); })

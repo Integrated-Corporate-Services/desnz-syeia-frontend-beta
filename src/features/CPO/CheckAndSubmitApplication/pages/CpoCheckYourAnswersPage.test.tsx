@@ -4,8 +4,8 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
-import { resetCpoStore } from '../../store/testHelpers';
-import { useCpoStore } from '../../store/useCpoStore';
+import { applicationApiService } from '../../../../services/applicationApiService';
+import { progressApiService } from '../../../../services/progressApiService';
 import { cpoOrderDetailsService } from '../../OrderDetails/services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS } from '../../OrderDetails/constants/orderDetailsConstants';
 import { cpoOrderDocumentsService } from '../../OrderDocuments/services/cpoOrderDocumentsService';
@@ -16,19 +16,20 @@ import CpoCheckYourAnswersPage from './CpoCheckYourAnswersPage';
 
 vi.mock('../../../../components/PageTitle', () => ({ default: () => null }));
 vi.mock('../../../../utils/s3DownloadUtil', () => ({ downloadS3FileOnSameTab: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('../../../../services/applicationApiService', () => ({ applicationApiService: { getApplicationById: vi.fn() } }));
+vi.mock('../../../../services/progressApiService', () => ({ progressApiService: { fetchApplicationProgress: vi.fn() } }));
 const renderPage = () => render(<BreadcrumbProvider><MemoryRouter initialEntries={['/cpo/app/check-and-submit']}><Routes><Route path="/cpo/:applicationId/check-and-submit" element={<CpoCheckYourAnswersPage />} /></Routes></MemoryRouter></BreadcrumbProvider>);
 const file = (filename: string) => ({ id: filename, document_id: filename, application_id: 'app', file_id: filename, filename, s3_key: `key/${filename}`, scan_status: 'COMPLETED' as const, scan_result: 'CLEAN' as const, bucket_name: 'test', virtual_folder: '', storage_provider: 'local', file_content_type: 'application/pdf', file_size_bytes: 100, uploaded_at_timestamp: '', added_by: '', added_at: '' });
 const ready = () => screen.findByRole('heading', { level: 2, name: 'Order documents' });
 const application = (overrides: Record<string, unknown> = {}) => ({ type: 'CPO', status: 'DRAFT', permissions: { canEdit: true, canDownload: true }, pre_submission_meeting_requested: true, application_party: { organisation_name: 'Grid Operator', contact_person_name: 'Alex Smith', contact_person_line1: '72 Guild Street', contact_person_city: 'London', contact_person_postcode: 'SE23 6FH', contact_person_email: 'alex@example.gov.uk', contact_person_phone: '07123456789', additional_contact: 'ops@example.gov.uk' }, ...overrides }) as any;
-const mockApplication = (value: unknown) => vi.spyOn(useCpoStore.getState(), 'getApplication').mockReturnValue(value as any);
+const mockApplication = (value: unknown) => vi.mocked(applicationApiService.getApplicationById).mockResolvedValue(value);
 const completedProgress = Object.values(CPO_SUBSECTIONS).map((subsection_name) => ({ subsection_name, status: 'Completed' }));
 
 describe('CPO check your answers', () => {
   beforeEach(() => {
     vi.restoreAllMocks(); vi.clearAllMocks();
-    resetCpoStore();
     mockApplication(application());
-    vi.spyOn(useCpoStore.getState(), 'getProgress').mockReturnValue(completedProgress);
+    vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(completedProgress);
     vi.spyOn(cpoOrderDetailsService, 'get').mockResolvedValue({ canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'North Ridge CPO', purpose: 'Acquire land and rights', includesSpecialLand: false, hasRelatedApplications: false }, documents: [file('executive-summary.docx')] });
     vi.spyOn(cpoOrderDocumentsService, 'get').mockResolvedValue({ canEdit: true, orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }] });
     vi.spyOn(cpoNoticesService, 'get').mockResolvedValue({ canEdit: true, reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', record: { newspapers: { evidence: [{ fileId: 'notice.pdf', date: '2026-10-14' }] }, site: { completionDate: '2026-10-07' }, people: { completionDate: '2026-10-19' } }, documents: [{ ...file('notice.pdf'), category: 'CPO_NEWSPAPER_NOTICES' }] });
@@ -83,7 +84,7 @@ describe('CPO check your answers', () => {
     renderPage(); await ready(); expect(screen.queryByRole('link', { name: 'order.pdf' })).not.toBeInTheDocument(); expect(screen.getByText(/Virus check not complete/)).toBeInTheDocument();
   });
   it('shows incomplete prerequisite tasks without completing anything', async () => {
-    vi.mocked(useCpoStore.getState().getProgress).mockReturnValue([]);
+    vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue([]);
     renderPage(); await ready(); expect(screen.getByRole('heading', { name: 'Complete these sections before submitting' })).toBeInTheDocument();
   });
   it('focuses an error summary rather than showing partial data when any read fails', async () => {

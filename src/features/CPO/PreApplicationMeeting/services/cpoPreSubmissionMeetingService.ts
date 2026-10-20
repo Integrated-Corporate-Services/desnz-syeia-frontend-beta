@@ -2,7 +2,6 @@ import { applicationApiService } from '../../../../services/applicationApiServic
 import { buildBackendUrl } from '../../../../utils/apiConfig';
 import { generateCorrelationId } from '../../../../utils/correlationId';
 import { fetchCsrfToken, getCsrfHeaders } from '../../../../utils/csrf';
-import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
 import type { CpoMeetingApplication, CpoMeetingDetails } from '../types/preSubmissionMeeting';
 
 const ERROR_MESSAGES: Record<number, string> = {
@@ -46,9 +45,6 @@ export const cpoPreSubmissionMeetingService = {
       error.status = response.status;
       throw error;
     }
-    const application: CpoMeetingApplication = await response.json();
-    // The task list and review page read the local CPO store, which mirrors the backend.
-    await syncApplicantFromBackend(applicationId, true);
-    return application;
+    return response.json();
   },
 };
