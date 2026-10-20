@@ -11,6 +11,12 @@ export const NOTIFICATIONS_PATH = '/notifications';
 export const NOTIFICATION_TYPES = {
   ACCESS_REQUEST_SUBMITTED: 'ACCESS_REQUEST_SUBMITTED',
   ACCESS_REQUEST_DECIDED: 'ACCESS_REQUEST_DECIDED',
+  // SYEIA-2401: the user's role changed; text only, nothing to open.
+  USER_ROLE_CHANGED: 'USER_ROLE_CHANGED',
+  // SYEIA-2405: an application's status changed; only its DESNZ reference is a link, to its summary.
+  APPLICATION_STATUS_CHANGED: 'APPLICATION_STATUS_CHANGED',
+  // SYEIA-2402: an application reassigned. Shown as text, with the application reference as a link.
+  APPLICATION_REASSIGNED: 'APPLICATION_REASSIGNED',
 } as const;
 
 export const NOTIFICATIONS_PAGE_SIZE = 10;

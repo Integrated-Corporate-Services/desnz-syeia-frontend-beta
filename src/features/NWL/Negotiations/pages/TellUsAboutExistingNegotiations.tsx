@@ -18,6 +18,8 @@ import {
   FormActions,
 } from '../components';
 import { updateNegotiationsData } from '../services';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import { NegotiationsData } from '../types/negotiations';
 import { createLogger } from '../../../../utils/logger';
 import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
@@ -30,6 +32,7 @@ const logger = createLogger('TellUsAboutExistingNegotiations');
  */
 const TellUsAboutExistingNegotiations: React.FC = () => {
   const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
+  const { updateProgress } = useNWLProgress(appId);
   const { errors, validateRadioSelection, validateDateNotInFuture, setErrors } = useFormValidation();
   const {
     navigateToEvidenceOfNegotiations,
@@ -156,6 +159,12 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
       logger.debug('[TellUsAboutExistingNegotiations] Refetching negotiations data...');
       await refetchNegotiationsData();
       logger.debug('[TellUsAboutExistingNegotiations] Refetch complete');
+
+      try {
+        await updateProgress('Negotiations', APPLICATION_STATUS.NOT_COMPLETED);
+      } catch (progressError) {
+        // Continue even if progress update fails
+      }
 
       if (hasNegotiations === 'yes') {
         navigateToEvidenceOfNegotiations();

@@ -13,6 +13,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import { LAND_DETAILS_LABELS } from '../constants';
 
 const SiteAddress: React.FC = () => {
@@ -77,7 +78,7 @@ const SiteAddress: React.FC = () => {
       });
 
         try {
-          await updateProgress('Site address', 'Completed');
+          await updateProgress('Site address', APPLICATION_STATUS.NOT_COMPLETED);
         } catch (e) {
           // ignore progress errors
         }

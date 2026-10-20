@@ -13,6 +13,7 @@ import {
   useLandNavigation,
 } from '../hooks';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import { getObjectorDetails } from '../../ObjectorDetails/services/objectorDetailsService';
 import { ObjectorDetails } from '../../ObjectorDetails/types';
 
@@ -74,7 +75,7 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
     try {
       // Update progress
       try {
-        await updateProgress('Site address', 'In Progress');
+        await updateProgress('Site address', APPLICATION_STATUS.NOT_COMPLETED);
       } catch (e) {
         // ignore progress errors
       }
@@ -90,13 +91,6 @@ const IsSiteAddressSameAsObjector: React.FC = () => {
             site_county: objectorAddress.objector_county || '',
             site_postcode: objectorAddress.objector_postcode || '',
           });
-          
-          // Update progress to completed
-          try {
-            await updateProgress('Site address', 'Completed');
-          } catch (e) {
-            // ignore
-          }
           
           // Navigate to country selection (skip address entry)
           goToCountrySelection();

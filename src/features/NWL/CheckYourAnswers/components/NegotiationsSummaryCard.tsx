@@ -31,7 +31,7 @@ const formatStartDate = (data: NegotiationsData): string => {
     return data.negotiations_start_date;
   }
 
-  return CONSTANTS.NEGOTIATIONS_FIELDS.NOT_PROVIDED;
+  return '';
 };
 
 const getEvidenceDocuments = (data: NegotiationsData): DocumentLink[] => {
@@ -61,8 +61,8 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
   }
 
   const hasNegotiations = data.has_negotiations === true;
-  const comments = data.negotiations_comments || CONSTANTS.NEGOTIATIONS_FIELDS.NOT_PROVIDED;
-  const noNegotiationsReason = data.no_negotiations_reason || CONSTANTS.NEGOTIATIONS_FIELDS.NOT_PROVIDED;
+  const comments = data.negotiations_comments || '';
+  const noNegotiationsReason = data.no_negotiations_reason || '';
 
   const rows: SummaryRow[] = [];
 
@@ -84,7 +84,7 @@ const NegotiationsSummaryCard: React.FC<NegotiationsSummaryCardProps> = ({ data,
     rows.push({
       key: { text: CONSTANTS.NEGOTIATIONS_FIELDS.EVIDENCE_DOCUMENTS },
       value: { 
-        text: documents.length === 0 ? CONSTANTS.NEGOTIATIONS_FIELDS.NO_DOCUMENTS : '',
+        text: '',
         documents: documents.length > 0 ? documents : undefined
       },
     });
