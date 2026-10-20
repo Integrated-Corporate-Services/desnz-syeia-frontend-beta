@@ -63,5 +63,8 @@ describe('reassignment page breadcrumb accessibility', () => {
     );
     expect(within(breadcrumb).getByText('Reassign application')).toHaveAttribute('aria-current', 'page');
     await waitFor(() => expect(applicationApiService.getApplicationById).toHaveBeenCalledWith(applicationId));
+    const heading = await screen.findByRole('heading', { name: 'Who do you want to reassign this application to?' });
+    expect(heading.closest('.govuk-grid-column-three-quarters')).not.toBeNull();
+    expect(heading.closest('.govuk-grid-column-three-quarters')?.parentElement).toHaveClass('govuk-grid-row');
   });
 });

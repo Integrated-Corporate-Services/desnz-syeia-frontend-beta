@@ -75,25 +75,29 @@ export function ReassignmentPage() {
         <div className="govuk-width-container">
             <PageTitle title="Reassign application" />
             <div className="govuk-main-wrapper">
-                <ReassignmentError message={current ? state.error : null} />
-                {(!current || state.loading) && (
-                    <p className="govuk-body" role="status">
-                        Loading application...
-                    </p>
-                )}
-                {current &&
-                    !state.loading &&
-                    !state.error &&
-                    (!allowed ? (
-                        <p className="govuk-body">This application cannot be reassigned.</p>
-                    ) : (
-                        applicationId && (
-                            <ApplicationReassignment
-                                applicationId={applicationId}
-                                status={state.status}
-                            />
-                        )
-                    ))}
+                <div className="govuk-grid-row">
+                    <div className="govuk-grid-column-three-quarters">
+                        <ReassignmentError message={current ? state.error : null} />
+                        {(!current || state.loading) && (
+                            <p className="govuk-body" role="status">
+                                Loading application...
+                            </p>
+                        )}
+                        {current &&
+                            !state.loading &&
+                            !state.error &&
+                            (!allowed ? (
+                                <p className="govuk-body">This application cannot be reassigned.</p>
+                            ) : (
+                                applicationId && (
+                                    <ApplicationReassignment
+                                        applicationId={applicationId}
+                                        status={state.status}
+                                    />
+                                )
+                            ))}
+                    </div>
+                </div>
             </div>
         </div>
     );

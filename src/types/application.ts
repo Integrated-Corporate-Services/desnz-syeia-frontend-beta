@@ -19,6 +19,7 @@ export type Application = {
   your_reference?: string;
   status: string;
   created_by: string;
+  assigned_to?: string | null;
   created_at: string;
   submitted_at: string;
   application_party?: ApplicationParty | undefined;
