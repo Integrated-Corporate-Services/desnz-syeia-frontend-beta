@@ -13,6 +13,7 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [confirmed, setConfirmed] = useState(false);
+  const [meetingRequested, setMeetingRequested] = useState(false);
   const heading = confirmed ? 'Application started' : 'Application confirmation';
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
     setReference('');
     setError('');
     setConfirmed(false);
+    setMeetingRequested(false);
     cpoPreSubmissionMeetingService.get(applicationId)
       .then((application) => {
         if (!active) return;
@@ -31,6 +33,7 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
           return;
         }
         setConfirmed(true);
+        setMeetingRequested(application.pre_submission_meeting_requested === true);
         setReference(application.desnz_ref);
       })
       .catch(() => { if (active) setError('Unable to load your application confirmation. Refresh the page to try again.'); })
@@ -54,13 +57,22 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
                 </div>
                 <h2 className="govuk-heading-s govuk-!-margin-top-6">What happens next</h2>
                 <ul className="govuk-list govuk-list--bullet">
-                  <li>quote the DESNZ reference whenever you contact us</li>
-                  <li>
-                    you can arrange a pre-application meeting by emailing{' '}
-                    <a className="govuk-link" href="mailto:compulsorypurchaseorders@energysecurity.gov.uk">compulsorypurchaseorders@energysecurity.gov.uk</a>
-                  </li>
-                  <li>you must complete the executive summary before you have the pre-application meeting</li>
-                  <li>you can continue working on your application now</li>
+                  {!meetingRequested ? (
+                    <>
+                      <li>quote the DESNZ reference whenever you contact us</li>
+                      <li>
+                        you can arrange a pre-application meeting by emailing{' '}
+                        <a className="govuk-link" href="mailto:compulsorypurchaseorders@energysecurity.gov.uk">compulsorypurchaseorders@energysecurity.gov.uk</a>
+                      </li>
+                      <li>you must complete the executive summary before you have the pre-application meeting</li>
+                      <li>you can continue working on your application now</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>you can continue working on your application now</li>
+                      <li>quote the DESNZ reference whenever you contact us</li>
+                    </>
+                  )}
                 </ul>
                 <h2 className="govuk-heading-s">Public notices</h2>
                 <p className="govuk-body">You should use the DESNZ reference number in all your public notices.</p>

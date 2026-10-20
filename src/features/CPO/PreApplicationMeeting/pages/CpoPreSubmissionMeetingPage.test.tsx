@@ -144,6 +144,7 @@ describe('CPO pre-submission meeting', () => {
     fireEvent.change(reason, { target: { value: '  Already discussed with DESNZ.  ' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', false, true, { answer: 'not-needed', reason: 'Already discussed with DESNZ.' }));
+    expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting/confirmation');
   });
 
   it('omits a hidden reason when the choice changes', async () => {
@@ -168,7 +169,7 @@ describe('CPO pre-submission meeting', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting/confirmation', { replace: true }));
   });
 
-  it('shows a persisted request and the real reference on confirmation', async () => {
+  it('shows the shorter confirmation and real reference for a persisted request', async () => {
     seedApplication({
       desnz_ref: 'CPO00042', pre_submission_meeting_requested: true, pre_submission_meeting_requested_at: '2026-10-06T12:00:00Z',
       pre_submission_meeting_completed_at: '2026-10-06T12:00:00Z',
@@ -176,6 +177,9 @@ describe('CPO pre-submission meeting', () => {
     renderPage(true);
     expect(await screen.findByRole('heading', { name: 'Application started' })).toBeInTheDocument();
     expect(screen.getByText('DESNZ reference: CPO00042')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'compulsorypurchaseorders@energysecurity.gov.uk' })).not.toBeInTheDocument();
+    expect(screen.queryByText('you must complete the executive summary before you have the pre-application meeting')).not.toBeInTheDocument();
+    expect(screen.getByText('you can continue working on your application now')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Continue' })).toHaveAttribute('href', '/cpo/application-id/task-list');
   });
 
@@ -185,9 +189,10 @@ describe('CPO pre-submission meeting', () => {
     expect(screen.queryByRole('heading', { name: 'Application started' })).not.toBeInTheDocument();
   });
 
-  it('shows Application started and the reference for a completed No answer', async () => {
+  it.each(['had-meeting', 'not-needed'] as const)('shows the full confirmation for a completed %s answer', async (answer) => {
     seedApplication({
-      desnz_ref: 'CPO00043', pre_submission_meeting_requested: false, pre_submission_meeting_answer: 'had-meeting',
+      desnz_ref: 'CPO00043', pre_submission_meeting_requested: false, pre_submission_meeting_answer: answer,
+      pre_submission_meeting_reason: answer === 'not-needed' ? 'Already discussed with DESNZ' : '',
       pre_submission_meeting_completed_at: '2026-10-06T12:00:00Z', pre_submission_meeting_requested_at: null,
     });
     renderPage(true);
@@ -196,6 +201,7 @@ describe('CPO pre-submission meeting', () => {
     expect(screen.getByText('quote the DESNZ reference whenever you contact us')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'compulsorypurchaseorders@energysecurity.gov.uk' })).toHaveAttribute('href', 'mailto:compulsorypurchaseorders@energysecurity.gov.uk');
     expect(screen.getByText('you must complete the executive summary before you have the pre-application meeting')).toBeInTheDocument();
+    expect(screen.getByText('you can continue working on your application now')).toBeInTheDocument();
     expect(screen.getByText('You should use the DESNZ reference number in all your public notices.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Continue' })).toHaveAttribute('href', '/cpo/application-id/task-list');
   });
