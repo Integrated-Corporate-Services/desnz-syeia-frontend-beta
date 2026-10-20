@@ -13,15 +13,15 @@ describe('cpoPreSubmissionMeetingService.save', () => {
   beforeEach(() => vi.clearAllMocks());
   afterEach(() => vi.unstubAllGlobals());
 
-  it('PUTs the answer with credentials and the CSRF token and returns the saved application', async () => {
+  it('POSTs a completed answer with credentials and the CSRF token and returns the saved application', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ application_id: 'app-1' }), { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(cpoPreSubmissionMeetingService.save('app-1', true, true, meeting)).resolves.toEqual({ application_id: 'app-1' });
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe('/api/applications/app-1/pre-submission-meeting');
-    expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
+    expect(url).toBe('/api/applications/app-1/pre-submission-meeting/submit');
+    expect(init).toMatchObject({ method: 'POST', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({ requested: true, complete: true, answer: 'request-meeting', reason: '' });
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -33,6 +33,8 @@ describe('cpoPreSubmissionMeetingService.save', () => {
 
     await cpoPreSubmissionMeetingService.save('app-1', null, false);
 
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/pre-submission-meeting');
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({ method: 'PUT' });
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ requested: null, complete: false, answer: null, reason: '' });
   });
 

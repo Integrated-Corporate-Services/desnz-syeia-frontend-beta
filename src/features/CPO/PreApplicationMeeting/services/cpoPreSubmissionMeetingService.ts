@@ -29,8 +29,11 @@ export const cpoPreSubmissionMeetingService = {
     }
     if (!csrfHeaders['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token');
 
-    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/pre-submission-meeting`), {
-      method: 'PUT',
+    const endpoint = complete
+      ? '/api/applications/' + applicationId + '/pre-submission-meeting/submit'
+      : '/api/applications/' + applicationId + '/pre-submission-meeting';
+    const response = await fetch(buildBackendUrl(endpoint), {
+      method: complete ? 'POST' : 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': generateCorrelationId(), ...csrfHeaders },
       body: JSON.stringify({ requested, complete, answer: meeting.answer, reason: meeting.reason }),
