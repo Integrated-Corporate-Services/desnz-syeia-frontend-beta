@@ -113,7 +113,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                 paginatedUsers.map((user) => (
                   <tr key={user.id} className="govuk-table__row">
                     <td className="govuk-table__cell">{user.fullName}</td>
-                    <td className="govuk-table__cell">{user.email}</td>
+                    <td className="govuk-table__cell active-users-email">{user.email}</td>
                     <td className="govuk-table__cell">
                       {formatRole(user.role)}
                     </td>
@@ -165,7 +165,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                     </div>
                     <div className="user-card__row">
                       <span className="user-card__label">Email: </span>
-                      <span className="user-card__value">{user.email}</span>
+                      <span className="user-card__value active-users-email">{user.email}</span>
                     </div>
                     <div className="user-card__row">
                       <span className="user-card__label">Role: </span>

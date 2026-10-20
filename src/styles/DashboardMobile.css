@@ -29,6 +29,16 @@
 }
 
 /* ==========================================================================
+   ACTIVE USERS - LONG EMAIL GUARD (SYEIA-2722)
+   Lets a long email address break anywhere so the Active users table and
+   cards stay within the grid instead of overflowing it
+   ========================================================================== */
+.active-users-email {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ==========================================================================
    MOBILE APPLICATION CARDS
    Converts table rows to stacked cards on mobile devices
    ========================================================================== */
