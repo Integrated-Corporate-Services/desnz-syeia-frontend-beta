@@ -21,9 +21,9 @@ const continueGuidance = 'you can continue working on your application now';
 const referenceGuidance = 'quote the DESNZ reference whenever you contact us';
 
 const answers: { answer: CpoMeetingAnswer; label: string }[] = [
-  { answer: 'request-meeting', label: 'No, I would like a pre-application meeting' },
-  { answer: 'had-meeting', label: "Yes, I've had this meeting" },
-  { answer: 'not-needed', label: "No, I don't need this meeting" },
+  { answer: 'No, I would like a pre-application meeting', label: 'No, I would like a pre-application meeting' },
+  { answer: 'Yes, I’ve had this meeting', label: "Yes, I’ve had this meeting" },
+  { answer: 'No, I don’t need this meeting', label: "No, I don’t need this meeting" },
 ];
 
 let application: CpoMeetingApplication;
@@ -42,7 +42,7 @@ const renderJourney = (path = formPath) => render(
 const expectConfirmation = (answer: CpoMeetingAnswer) => {
   expect(screen.getByText('DESNZ reference: CPO00042')).toBeInTheDocument();
   const nextSteps = within(screen.getByRole('list')).getAllByRole('listitem');
-  if (answer === 'had-meeting' || answer === 'not-needed') {
+  if (answer === 'Yes, I’ve had this meeting' || answer === 'No, I don’t need this meeting') {
     expect(nextSteps).toHaveLength(4);
     expect(nextSteps[0]).toHaveTextContent(referenceGuidance);
     expect(nextSteps[2]).toHaveTextContent(executiveSummaryGuidance);
@@ -108,7 +108,7 @@ describe('CPO meeting confirmation journey', () => {
       const save = screen.getByRole('button', { name: 'Save and continue' });
       await waitFor(() => expect(save).toBeEnabled());
       fireEvent.click(screen.getByLabelText(label));
-      if (answer === 'not-needed') {
+      if (answer === 'No, I don’t need this meeting') {
         fireEvent.change(screen.getByRole('textbox'), {
           target: { value: 'Already discussed with DESNZ' },
         });
@@ -118,8 +118,8 @@ describe('CPO meeting confirmation journey', () => {
 
       await screen.findByRole('heading', { name: 'Application started' });
       expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith(
-        'application-id', answer === 'request-meeting', true,
-        { answer, reason: answer === 'not-needed' ? 'Already discussed with DESNZ' : '' }
+        'application-id', answer === 'No, I would like a pre-application meeting', true,
+        { answer, reason: answer === 'No, I don’t need this meeting' ? 'Already discussed with DESNZ' : '' }
       );
       expectConfirmation(answer);
 

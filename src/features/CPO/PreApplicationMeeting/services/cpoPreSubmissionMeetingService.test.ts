@@ -7,7 +7,7 @@ vi.mock('../../../../utils/csrf', () => ({
   fetchCsrfToken: vi.fn(),
 }));
 
-const meeting = { answer: 'request-meeting' as const, reason: '' };
+const meeting = { answer: 'No, I would like a pre-application meeting' as const, reason: '' };
 
 describe('cpoPreSubmissionMeetingService.save', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -23,7 +23,7 @@ describe('cpoPreSubmissionMeetingService.save', () => {
     expect(url).toBe('/api/applications/app-1/pre-submission-meeting/submit');
     expect(init).toMatchObject({ method: 'POST', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
-    expect(JSON.parse(init.body)).toEqual({ requested: true, complete: true, answer: 'request-meeting', reason: '' });
+    expect(JSON.parse(init.body)).toEqual({ requested: true, complete: true, answer: 'No, I would like a pre-application meeting', reason: '' });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -55,7 +55,7 @@ describe('cpoPreSubmissionMeetingService.save', () => {
   it('shows the backend validation message for a 400', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: 'Validation Error', message: "Tell us why you don't need this meeting" }), { status: 400 })));
 
-    await expect(cpoPreSubmissionMeetingService.save('app-1', false, true, { answer: 'not-needed', reason: '' }))
+    await expect(cpoPreSubmissionMeetingService.save('app-1', false, true, { answer: 'No, I don’t need this meeting', reason: '' }))
       .rejects.toThrow("Tell us why you don't need this meeting");
   });
 });

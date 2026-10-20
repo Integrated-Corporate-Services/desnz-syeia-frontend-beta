@@ -1,6 +1,12 @@
 import type { Application } from '../../../../types/application';
 
-export type CpoMeetingAnswer = 'request-meeting' | 'had-meeting' | 'not-needed';
+export const CPO_MEETING_ANSWER = {
+  HAD_MEETING: 'Yes, I’ve had this meeting',
+  REQUEST_MEETING: 'No, I would like a pre-application meeting',
+  NOT_NEEDED: 'No, I don’t need this meeting',
+} as const;
+
+export type CpoMeetingAnswer = (typeof CPO_MEETING_ANSWER)[keyof typeof CPO_MEETING_ANSWER];
 
 export type CpoMeetingDetails = {
   answer: CpoMeetingAnswer | null;

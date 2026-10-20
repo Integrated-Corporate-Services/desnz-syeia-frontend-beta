@@ -48,9 +48,9 @@ describe('CPO check your answers', () => {
     expect(screen.getByRole('link', { name: 'Change the order documents' })).toHaveAttribute('href', '/cpo/app/order-documents/order?from=application-review');
   });
   it('shows the saved pre-application meeting answer and reason', async () => {
-    mockApplication(application({ pre_submission_meeting_answer: 'not-needed', pre_submission_meeting_requested: false, pre_submission_meeting_reason: 'Discussed with the case officer.' }));
+    mockApplication(application({ pre_submission_meeting_answer: 'No, I don’t need this meeting', pre_submission_meeting_requested: false, pre_submission_meeting_reason: 'Discussed with the case officer.' }));
     renderPage(); await ready();
-    expect(screen.getByText("No, I don't need this meeting")).toBeInTheDocument();
+    expect(screen.getByText("No, I don’t need this meeting")).toBeInTheDocument();
     expect(screen.getByText('Discussed with the case officer.')).toBeInTheDocument();
   });
   it('pairs newspaper dates by file ID rather than array order', async () => {

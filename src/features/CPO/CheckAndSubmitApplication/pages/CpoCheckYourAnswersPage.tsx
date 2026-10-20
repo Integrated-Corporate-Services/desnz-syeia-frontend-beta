@@ -23,7 +23,7 @@ interface ReviewApplication {
   type: string;
   status: string;
   pre_submission_meeting_requested?: boolean | null;
-  pre_submission_meeting_answer?: 'had-meeting' | 'request-meeting' | 'not-needed' | null;
+  pre_submission_meeting_answer?: 'Yes, I’ve had this meeting' | 'No, I would like a pre-application meeting' | 'No, I don’t need this meeting' | null;
   pre_submission_meeting_reason?: string;
   additional_contact?: string | string[];
   permissions?: { canEdit?: boolean; canDownload?: boolean };
@@ -131,10 +131,10 @@ const CpoCheckYourAnswersPage: React.FC = () => {
           {row('Email address', party?.contact_person_email || 'Not answered', 'applicant-details')}
           {row('Phone number', party?.contact_person_phone || 'Not answered', 'applicant-details')}
           {row('Additional contacts', contacts.join('\n') || 'None added', 'applicant-details')}
-          {row('Have you had a pre-application meeting?', data.application.pre_submission_meeting_answer === 'had-meeting' ? "Yes, I've had this meeting"
-            : data.application.pre_submission_meeting_answer === 'request-meeting' || data.application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
-              : data.application.pre_submission_meeting_answer === 'not-needed' || data.application.pre_submission_meeting_requested === false ? "No, I don't need this meeting" : 'Not answered', 'pre-submission-meeting')}
-          {data.application.pre_submission_meeting_answer === 'not-needed' && row("Why you don't need this meeting", data.application.pre_submission_meeting_reason || 'Not answered', 'pre-submission-meeting')}
+          {row('Have you had a pre-application meeting?', data.application.pre_submission_meeting_answer === 'Yes, I’ve had this meeting' ? "Yes, I’ve had this meeting"
+            : data.application.pre_submission_meeting_answer === 'No, I would like a pre-application meeting' || data.application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
+              : data.application.pre_submission_meeting_answer === 'No, I don’t need this meeting' || data.application.pre_submission_meeting_requested === false ? "No, I don’t need this meeting" : 'Not answered', 'pre-submission-meeting')}
+          {data.application.pre_submission_meeting_answer === 'No, I don’t need this meeting' && row("Why you don’t need this meeting", data.application.pre_submission_meeting_reason || 'Not answered', 'pre-submission-meeting')}
         </dl>
         <h2 className="govuk-heading-m govuk-!-margin-top-8">Order details</h2>
         <dl className="govuk-summary-list">
