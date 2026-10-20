@@ -36,11 +36,22 @@ const triggerBrowserDownload = (blob: Blob, filename: string): void => {
   setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
 };
 
-export const downloadApplicationPdf = async (applicationId: string): Promise<void> => {
-  try {
-    logger.info('Initiating PDF download', { applicationId });
+export type SummaryPdfFormType = 'NWL' | 'S37';
 
-    const downloadUrl = buildBackendUrl(`/api/nwl/${applicationId}/download-pdf`);
+// NWL keeps its existing path; S37 is served with the other S37 routes under /api/applications (SYEIA-2695).
+const SUMMARY_PDF_PATHS: Record<SummaryPdfFormType, (applicationId: string) => string> = {
+  NWL: (applicationId) => `/api/nwl/${applicationId}/download-pdf`,
+  S37: (applicationId) => `/api/applications/${applicationId}/download-pdf`,
+};
+
+export const downloadApplicationPdf = async (
+  applicationId: string,
+  formType: SummaryPdfFormType = 'NWL'
+): Promise<void> => {
+  try {
+    logger.info('Initiating PDF download', { applicationId, formType });
+
+    const downloadUrl = buildBackendUrl(SUMMARY_PDF_PATHS[formType](applicationId));
 
     const response = await fetch(downloadUrl, {
       method: 'GET',
@@ -56,7 +67,7 @@ export const downloadApplicationPdf = async (applicationId: string): Promise<voi
     }
 
     const disposition = response.headers.get('content-disposition');
-    const fallbackName = `NWL_${applicationId}.pdf`;
+    const fallbackName = `${formType}_${applicationId}.pdf`;
     const rawFilename = parseFilenameFromContentDisposition(disposition) || fallbackName;
     const filename = rawFilename.replace(/[/\\\r\n]/g, '_');
     const blob = await response.blob();

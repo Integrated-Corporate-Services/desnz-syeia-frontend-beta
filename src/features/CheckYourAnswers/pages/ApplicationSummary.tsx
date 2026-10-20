@@ -29,6 +29,7 @@ import {
 import SensitiveAreaCheckMap from "../../../components/SensitiveAreaCheckMap";
 import { createLogger } from "../../../utils/logger";
 import WorksOverviewSummaryRows from "../component/WorksOverviewSummaryRows";
+import { S37SummaryPdfDownloadLink } from "../component/S37SummaryPdfDownloadLink";
 
 import {
   PAGE_LABELS,
@@ -657,6 +658,14 @@ const ApplicationSummary: React.FC = () => {
               <ApplicationReassignmentLinks
                 applicationId={applicationId}
                 status={applicationMetadata?.status || null}
+              />
+            )}
+
+            {/* SYEIA-2695: summary PDF download, shown once submitted, directly above Withdraw application */}
+            {applicationId && (
+              <S37SummaryPdfDownloadLink
+                applicationId={applicationId}
+                status={applicationMetadata?.status}
               />
             )}
 
