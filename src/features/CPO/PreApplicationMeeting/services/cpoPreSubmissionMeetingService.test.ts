@@ -42,7 +42,7 @@ describe('cpoPreSubmissionMeetingService.save', () => {
     [401, 'session has expired'],
     [403, 'do not have permission'],
     [404, 'unavailable'],
-    [409, 'meeting request has already been submitted'],
+    [409, 'This application can no longer be updated'],
     [500, 'Unable to save your pre-submission meeting answer'],
   ])('maps status %s to a user-facing message', async (status, message) => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: 'x' }), { status })));

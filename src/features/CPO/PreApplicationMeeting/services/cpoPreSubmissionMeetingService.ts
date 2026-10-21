@@ -8,7 +8,7 @@ const ERROR_MESSAGES: Record<number, string> = {
   401: 'Your session has expired. Sign in again before saving your answer.',
   403: 'You do not have permission to update this application. Refresh the page or contact support.',
   404: 'The meeting service or application is unavailable. Refresh the page or contact support.',
-  409: 'This application can no longer be updated or its meeting request has already been submitted. Refresh the page.',
+  409: 'This application can no longer be updated. Refresh the page.',
 };
 const DEFAULT_SAVE_ERROR = 'Unable to save your pre-submission meeting answer. Try again.';
 

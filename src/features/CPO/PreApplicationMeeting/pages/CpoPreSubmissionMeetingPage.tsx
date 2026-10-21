@@ -19,6 +19,15 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
   const [reasonError, setReasonError] = useState(false);
   const errorSummary = useRef<HTMLDivElement>(null);
   const heading = 'Have you had a pre-application meeting?';
+  const REASON_MAX_LENGTH = 4000;
+  const remainingReasonCharacters = REASON_MAX_LENGTH - reason.length;
+  const reasonCharacterCount = remainingReasonCharacters === 0
+    ? 'You have 0 characters remaining'
+    : remainingReasonCharacters < 0
+      ? `You have ${Math.abs(remainingReasonCharacters)} characters too many`
+      : remainingReasonCharacters === 1
+        ? 'You have 1 character remaining'
+        : `You can enter up to ${remainingReasonCharacters.toLocaleString('en-GB')} characters`;
 
   useEffect(() => {
     let active = true;
@@ -31,10 +40,6 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
       .then((application) => {
         if (!active) return;
         if (application.type !== 'CPO') throw new Error('This page is only available for compulsory purchase order applications.');
-        if (application.pre_submission_meeting_requested_at) {
-          navigate(`${CPO_BASE_URL}/${applicationId}/pre-submission-meeting/confirmation`, { replace: true });
-          return;
-        }
         if (application.permissions?.canEdit === false) throw new Error('You cannot update this application.');
         setAnswer(application.pre_submission_meeting_answer
           ?? (application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
@@ -70,9 +75,9 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
       setError('Select whether you have had a pre-application meeting');
       return;
     }
-    if (answer === 'No, I don’t need this meeting' && ((complete && !reason.trim()) || reason.trim().length > 4000)) {
+    if (answer === 'No, I don’t need this meeting' && ((complete && !reason.trim()) || reason.trim().length > REASON_MAX_LENGTH)) {
       setReasonError(true);
-      setError(reason.trim().length > 4000 ? 'The reason must be 4,000 characters or fewer' : "Tell us why you don’t need this meeting");
+      setError(reason.trim().length > REASON_MAX_LENGTH ? 'The reason must be 4,000 characters or fewer' : "Tell us why you don’t need this meeting");
       return;
     }
     setSelectionError(false);
@@ -139,11 +144,19 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
                         <div className={`govuk-form-group${reasonError ? ' govuk-form-group--error' : ''}`}>
                           <label className="govuk-label" htmlFor="meeting-reason">Tell us why you don’t need this meeting</label>
                           {reasonError && <p className="govuk-error-message" id="meeting-reason-error"><span className="govuk-visually-hidden">Error:</span> {error}</p>}
-                          <textarea className={`govuk-textarea${reasonError ? ' govuk-textarea--error' : ''}`} id="meeting-reason" name="meeting-reason" rows={5} maxLength={4000} aria-describedby={`meeting-reason-hint${reasonError ? ' meeting-reason-error' : ''}`} value={reason} onChange={event => {
+                          <textarea className={`govuk-textarea${reasonError ? ' govuk-textarea--error' : ''}`} id="meeting-reason" name="meeting-reason" rows={5} maxLength={REASON_MAX_LENGTH} aria-describedby={`meeting-reason-hint${reasonError ? ' meeting-reason-error' : ''}`} value={reason} onChange={event => {
                             setReason(event.target.value);
                             if (reasonError) { setReasonError(false); setError(''); }
                           }} />
-                          <div className="govuk-hint" id="meeting-reason-hint">You can enter up to 4,000 characters</div>
+                          <div className="govuk-hint govuk-visually-hidden" id="meeting-reason-hint">
+                            You can enter up to {REASON_MAX_LENGTH.toLocaleString('en-GB')} characters
+                          </div>
+                          <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">
+                            {reasonCharacterCount}
+                          </div>
+                          <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">
+                            {reasonCharacterCount}
+                          </div>
                         </div>
                       </div>
                     )}

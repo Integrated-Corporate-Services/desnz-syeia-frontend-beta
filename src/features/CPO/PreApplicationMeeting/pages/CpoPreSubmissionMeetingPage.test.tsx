@@ -163,10 +163,12 @@ describe('CPO pre-submission meeting', () => {
     await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', false, false, { answer: 'No, I don’t need this meeting', reason: '' }));
   });
 
-  it('redirects a submitted meeting request to its confirmation', async () => {
+  it('keeps a submitted meeting request editable', async () => {
     seedApplication({ pre_submission_meeting_requested: true, pre_submission_meeting_requested_at: '2026-10-06T12:00:00Z' });
     renderPage();
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting/confirmation', { replace: true }));
+    await waitForForm();
+    expect(screen.getByLabelText('No, I would like a pre-application meeting')).toBeChecked();
+    expect(navigateMock).not.toHaveBeenCalled();
   });
 
   it('shows the shorter confirmation and real reference for a persisted request', async () => {
