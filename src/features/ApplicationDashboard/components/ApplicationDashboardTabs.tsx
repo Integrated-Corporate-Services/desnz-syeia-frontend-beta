@@ -68,11 +68,12 @@ export const ApplicationDashboardTabs: React.FC<ApplicationDashboardTabsProps> =
             role="presentation"
           >
             <a
+              id={`${tab.value}-tab`}
               className="govuk-tabs__tab govuk-!-font-size-19"
               href={`#${tab.value}`}
               role="tab"
               aria-selected={activeTab === tab.value}
-              aria-controls={`${tab.value}-panel`}
+              aria-controls="dashboard-tabpanel"
               tabIndex={activeTab === tab.value ? 0 : -1}
               data-tab-index={index}
               onClick={(e) => {

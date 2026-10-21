@@ -103,6 +103,29 @@ const NWLTaskList: React.FC = () => {
 		);
 	};
 
+	const renderTask = (subsectionName: string, content: React.ReactNode) => {
+		const statusId = `nwl-task-status-${subsectionName.toLowerCase().replace(/\s+/g, '-')}`;
+		const contentElement = React.isValidElement<{ 'aria-describedby'?: string; className?: string }>(content)
+			? content
+			: null;
+		const isTaskLink = contentElement?.type === Link;
+		const describedContent = contentElement
+			? React.cloneElement(contentElement, {
+				'aria-describedby': statusId,
+				className: isTaskLink
+					? `${contentElement.props.className ?? ''} govuk-task-list__link`.trim()
+					: contentElement.props.className,
+			})
+			: content;
+
+		return (
+			<li className={`govuk-task-list__item${isTaskLink ? ' govuk-task-list__item--with-link' : ''}`} key={subsectionName}>
+				<span className="govuk-task-list__name-and-hint">{describedContent}</span>
+				<span className="govuk-task-list__status" id={statusId}>{renderStatusTag(subsectionName)}</span>
+			</li>
+		);
+	};
+
 	return (
 		<>
 			<PageTitle title="Necessary wayleave consent application" />
@@ -115,208 +138,75 @@ const NWLTaskList: React.FC = () => {
 
 						<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">1. Applicant details</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-						<table className="govuk-table">
-							<tbody className="govuk-table__body">
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										<Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.APPLICANT_DETAILS, appId)}>
-											Applicant details
-										</Link>
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.APPLICANT_DETAILS)}
-									</td>
-								</tr>
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										<Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.NETWORK_OPERATOR_CONTACT_DETAILS, appId)}>
-											Check applicant contact details
-										</Link>
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS)}
-									</td>
-								</tr>
-							</tbody>
-						</table>
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+						<ul className="govuk-task-list">
+							{renderTask(NWL_SUBSECTIONS.APPLICANT_DETAILS, <Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.APPLICANT_DETAILS, appId)}>Applicant details</Link>)}
+							{renderTask(NWL_SUBSECTIONS.CHECK_APPLICANT_CONTACT_DETAILS, <Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.NETWORK_OPERATOR_CONTACT_DETAILS, appId)}>Check applicant contact details</Link>)}
+						</ul>
 					</div>
 
 <div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">2. Application details</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-						<table className="govuk-table">
-							<tbody className="govuk-table__body">
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										<Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.TYPE_OF_USE, appId)}>
-											Type of line
-										</Link>
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.TYPE_OF_USE)}
-									</td>
-								</tr>
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION, 'Grounds for application', NWL_TASK_LIST_ROUTES.GROUNDS_FOR_APPLICATION)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION)}
-									</td>
-								</tr>
-							</tbody>
-						</table>
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+						
+						<ul className="govuk-task-list">
+							{renderTask(NWL_SUBSECTIONS.TYPE_OF_USE, <Link className="govuk-link govuk-!-font-weight-bold" to={buildNwlRoute(NWL_TASK_LIST_ROUTES.TYPE_OF_USE, appId)}>Type of line</Link>)}
+							{renderTask(NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION, renderLink(NWL_SUBSECTIONS.GROUNDS_FOR_APPLICATION, 'Grounds for application', NWL_TASK_LIST_ROUTES.GROUNDS_FOR_APPLICATION))}
+						</ul>
 					</div>
 
 <div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">3. Objector details</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-						<table className="govuk-table">
-							<tbody className="govuk-table__body">
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.OBJECTOR_DETAILS, 'Objector details', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.OBJECTOR_DETAILS)}
-									</td>
-								</tr>
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.LANDOWNER_DETAILS, 'Landowner details', NWL_TASK_LIST_ROUTES.LANDOWNER_DETAILS)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.LANDOWNER_DETAILS)}
-									</td>
-								</tr>
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.REPRESENTATIVE_DETAILS, 'Representative details', NWL_TASK_LIST_ROUTES.REPRESENTATIVE_DETAILS)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.REPRESENTATIVE_DETAILS)}
-									</td>
-								</tr>
-							</tbody>
-						</table>
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+						<ul className="govuk-task-list">
+							{renderTask(NWL_SUBSECTIONS.OBJECTOR_DETAILS, renderLink(NWL_SUBSECTIONS.OBJECTOR_DETAILS, 'Objector details', NWL_TASK_LIST_ROUTES.OBJECTOR_DETAILS))}
+							{renderTask(NWL_SUBSECTIONS.LANDOWNER_DETAILS, renderLink(NWL_SUBSECTIONS.LANDOWNER_DETAILS, 'Landowner details', NWL_TASK_LIST_ROUTES.LANDOWNER_DETAILS))}
+							{renderTask(NWL_SUBSECTIONS.REPRESENTATIVE_DETAILS, renderLink(NWL_SUBSECTIONS.REPRESENTATIVE_DETAILS, 'Representative details', NWL_TASK_LIST_ROUTES.REPRESENTATIVE_DETAILS))}
+						</ul>
 					</div>
 
 				<div className="govuk-!-margin-top-8">
 					<h2 className="govuk-heading-m govuk-!-margin-bottom-4">4. Land details</h2>
-					<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-					<table className="govuk-table">
-						<tbody className="govuk-table__body">
-							<tr className="govuk-table__row">
-								<td className="govuk-table__cell">
-									{renderLink(NWL_SUBSECTIONS.SITE_ADDRESS, 'Site address', NWL_TASK_LIST_ROUTES.SITE_ADDRESS)}
-								</td>
-								<td className="govuk-table__cell govuk-!-text-align-right">
-									{renderStatusTag(NWL_SUBSECTIONS.SITE_ADDRESS)}
-								</td>
-							</tr>
-							<tr className="govuk-table__row">
-								<td className="govuk-table__cell">
-									{renderLink(NWL_SUBSECTIONS.LAND_REGISTRY, 'Land registry', NWL_TASK_LIST_ROUTES.LAND_REGISTRY)}
-								</td>
-								<td className="govuk-table__cell govuk-!-text-align-right">
-									{renderStatusTag(NWL_SUBSECTIONS.LAND_REGISTRY)}
-								</td>
-							</tr>
-							<tr className="govuk-table__row">
-								<td className="govuk-table__cell">
-									{renderLink(NWL_SUBSECTIONS.OS_GRID_REFERENCE, 'OS Grid reference', NWL_TASK_LIST_ROUTES.OS_GRID_REFERENCE)}
-								</td>
-								<td className="govuk-table__cell govuk-!-text-align-right">
-									{renderStatusTag(NWL_SUBSECTIONS.OS_GRID_REFERENCE)}
-								</td>
-							</tr>
-							<tr className="govuk-table__row">
-								<td className="govuk-table__cell">
-									{renderLink(NWL_SUBSECTIONS.IDENTIFYING_INFORMATION, 'Identifying information', NWL_TASK_LIST_ROUTES.IDENTIFYING_INFORMATION)}
-								</td>
-								<td className="govuk-table__cell govuk-!-text-align-right">
-									{renderStatusTag(NWL_SUBSECTIONS.IDENTIFYING_INFORMATION)}
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+						<ul className="govuk-task-list">
+							{renderTask(NWL_SUBSECTIONS.SITE_ADDRESS, renderLink(NWL_SUBSECTIONS.SITE_ADDRESS, 'Site address', NWL_TASK_LIST_ROUTES.SITE_ADDRESS))}
+							{renderTask(NWL_SUBSECTIONS.LAND_REGISTRY, renderLink(NWL_SUBSECTIONS.LAND_REGISTRY, 'Land registry', NWL_TASK_LIST_ROUTES.LAND_REGISTRY))}
+							{renderTask(NWL_SUBSECTIONS.OS_GRID_REFERENCE, renderLink(NWL_SUBSECTIONS.OS_GRID_REFERENCE, 'OS Grid reference', NWL_TASK_LIST_ROUTES.OS_GRID_REFERENCE))}
+							{renderTask(NWL_SUBSECTIONS.IDENTIFYING_INFORMATION, renderLink(NWL_SUBSECTIONS.IDENTIFYING_INFORMATION, 'Identifying information', NWL_TASK_LIST_ROUTES.IDENTIFYING_INFORMATION))}
+						</ul>
 				</div>
 
 					<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">5. Assets</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-						<table className="govuk-table">
-							<tbody className="govuk-table__body">
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.ASSETS, 'Information about the lines', NWL_TASK_LIST_ROUTES.INFORMATION_ABOUT_LINES)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.ASSETS)}
-									</td>
-								</tr>
-							</tbody>
-						</table>
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+						<ul className="govuk-task-list">
+							{renderTask(NWL_SUBSECTIONS.ASSETS, renderLink(NWL_SUBSECTIONS.ASSETS, 'Information about the lines', NWL_TASK_LIST_ROUTES.INFORMATION_ABOUT_LINES))}
+						</ul>
 					</div>
 
 					<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">6. Negotiations</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-						<table className="govuk-table">
-							<tbody className="govuk-table__body">
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.NEGOTIATIONS, 'Existing negotiations', NWL_TASK_LIST_ROUTES.EXISTING_NEGOTIATIONS)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.NEGOTIATIONS)}
-									</td>
-								</tr>
-							</tbody>
-						</table>
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+						<ul className="govuk-task-list">
+							{renderTask(NWL_SUBSECTIONS.NEGOTIATIONS, renderLink(NWL_SUBSECTIONS.NEGOTIATIONS, 'Existing negotiations', NWL_TASK_LIST_ROUTES.EXISTING_NEGOTIATIONS))}
+						</ul>
 					</div>
 
 					<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">7. Additional information</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-						<table className="govuk-table">
-							<tbody className="govuk-table__body">
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.ADDITIONAL_INFORMATION, 'Related applications', NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.ADDITIONAL_INFORMATION)}
-									</td>
-								</tr>
-							</tbody>
-						</table>
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+						<ul className="govuk-task-list">
+							{renderTask(NWL_SUBSECTIONS.ADDITIONAL_INFORMATION, renderLink(NWL_SUBSECTIONS.ADDITIONAL_INFORMATION, 'Related applications', NWL_TASK_LIST_ROUTES.RELATED_APPLICATIONS))}
+						</ul>
 					</div>
 
 					<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">8. Pay and submit</h2>
-						<hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-						<table className="govuk-table">
-							<tbody className="govuk-table__body">
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.CHECK_YOUR_ANSWERS, 'Check your answers', NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.CHECK_YOUR_ANSWERS)}
-									</td>
-								</tr>
-								<tr className="govuk-table__row">
-									<td className="govuk-table__cell">
-										{renderLink(NWL_SUBSECTIONS.PAY_AND_SUBMIT, 'Pay and submit', NWL_TASK_LIST_ROUTES.PAY_AND_SUBMIT)}
-									</td>
-									<td className="govuk-table__cell govuk-!-text-align-right">
-										{renderStatusTag(NWL_SUBSECTIONS.PAY_AND_SUBMIT)}
-									</td>
-								</tr>
-							</tbody>
-						</table>
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+						<ul className="govuk-task-list">
+							{renderTask(NWL_SUBSECTIONS.CHECK_YOUR_ANSWERS, renderLink(NWL_SUBSECTIONS.CHECK_YOUR_ANSWERS, 'Check your answers', NWL_TASK_LIST_ROUTES.CHECK_YOUR_ANSWERS))}
+							{renderTask(NWL_SUBSECTIONS.PAY_AND_SUBMIT, renderLink(NWL_SUBSECTIONS.PAY_AND_SUBMIT, 'Pay and submit', NWL_TASK_LIST_ROUTES.PAY_AND_SUBMIT))}
+						</ul>
 					</div>
 
 					<div className="govuk-!-margin-top-6">

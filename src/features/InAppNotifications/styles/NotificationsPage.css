@@ -1,0 +1,56 @@
+/* The summary list keeps the GOV.UK column widths (date 30%, message 50%, actions 20%): the cards are
+   full width, so "28 September 2026 at 10:30am" and "Mark as read" each fit on one line. Read
+   notifications have no action, so their list has the two GOV.UK columns (date 30%, message 70%). */
+
+/* DashboardMobile.css removes the padding of .govuk-grid-column-full on every page up to 768px, which
+   pushes the cards 10px past the screen edges. As ReportingDashboard.css does for its page, this restores
+   the GOV.UK gutter here only: 15px, lined up with the heading above. */
+@media (max-width: 768px) {
+  .notifications-page .govuk-grid-column-full {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+/* "Mark as read" is a button, because it changes the notification, styled as the
+   summary list's row action links are. The govuk-link class gives it the GOV.UK underline, hover and
+   yellow focus state; a button does not match :link or :visited, so its resting colour is set here.
+   Only the browser's button look is removed. */
+.notifications-page__mark-read {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: #1d70b8;
+  cursor: pointer;
+}
+
+/* Once the last unread notification is marked read, keyboard focus moves to the Read heading: it shows
+   the GOV.UK focus colour, as other focused content does. */
+.notifications-page .govuk-summary-card__title:focus {
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+}
+
+/* The shared pagination also prints a short "Prev"/"Next" label, which only the dashboard uses (on
+   very small screens). Here the full GOV.UK label is enough. Centred under the cards, as in the design. */
+.notifications-page .app-pagination-short-label {
+  display: none;
+}
+
+.notifications-page .govuk-pagination {
+  justify-content: center;
+}
+
+/* DashboardMobile.css gives every .govuk-link a 44px line height on small screens. The application
+   reference is a link inside a sentence, so it keeps normal text spacing. */
+@media (max-width: 640px) {
+  .notifications-page .govuk-summary-list__value .govuk-link {
+    display: inline;
+    min-height: 0;
+    line-height: inherit;
+    padding: 0;
+    margin: 0;
+  }
+}

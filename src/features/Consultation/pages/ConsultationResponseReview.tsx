@@ -9,6 +9,7 @@ import { ConsultationType } from '../../../constants/consultationType';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('ConsultationResponseReview');
 
@@ -110,24 +111,26 @@ const ConsultationResponse3: React.FC = () => {
         }
     };
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">Provide consultation response</li>
+            </ol>
+        </nav>
+    );
+
     return (
         <>
             <PageTitle title="Review consultation response" />
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
-                    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                        <ol className="govuk-breadcrumbs__list">
-                            <li className="govuk-breadcrumbs__list-item">
-                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
-                            </li>
-                            <li className="govuk-breadcrumbs__list-item">
-                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
-                            </li>
-                            <li className="govuk-breadcrumbs__list-item" aria-current="page">Provide consultation response</li>
-                        </ol>
-                    </nav>
-
                                             {isLoading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : (
@@ -150,9 +153,11 @@ const ConsultationResponse3: React.FC = () => {
                             </div>
                         )}
 
-                        {consultationType === ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">Public notices</h2>}
-                        {consultationType !== ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</h2>}
-                        <h1 className="govuk-heading-l">{consultationType === ConsultationType.PUBLIC ? 'Add additional comments about public responses (optional)' : 'Provide consultation response'}</h1>
+                        <h1 className="govuk-heading-l">
+                          {consultationType === ConsultationType.PUBLIC && <span className="govuk-caption-xl govuk-!-margin-top-0">Public notices</span>}
+                          {consultationType !== ConsultationType.PUBLIC && <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>}
+                          {consultationType === ConsultationType.PUBLIC ? 'Add additional comments about public responses (optional)' : 'Provide consultation response'}
+                        </h1>
 
                         <form noValidate>
                             <div className={`govuk-form-group ${errors.comments ? 'govuk-form-group--error' : ''}`}>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -18,6 +19,7 @@ const CountrySelection: React.FC = () => {
   const { landDetails, updateLandDetails } = useLandDetailsData(applicationId);
   const { errors, validateCountry } = useFormValidation();
   const { goToLandRegistry } = useLandNavigation(applicationId);
+  const { updateProgress } = useNWLProgress(applicationId || undefined);
 
   const [selectedCountry, setSelectedCountry] = useState<'England' | 'Wales' | ''>('');
   const [isSaving, setIsSaving] = useState(false);
@@ -49,6 +51,12 @@ const CountrySelection: React.FC = () => {
       await updateLandDetails({
         site_country: selectedCountry,
       });
+
+      try {
+        await updateProgress('Site address', 'Completed');
+      } catch (e) {
+        // ignore progress errors
+      }
 
       goToLandRegistry();
     } catch (error) {

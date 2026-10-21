@@ -49,20 +49,20 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
  
 
   return (
-    <div className="govuk-tabs__panel" id="active-users">
+    <div className="govuk-tabs__panel">
       <h2 className="govuk-heading-m">Active users</h2>
-      <p className="govuk-body-s govuk-!-margin-bottom-3">{totalResults} results</p>
+      <p className="govuk-body-s govuk-!-margin-bottom-3" role="status">{totalResults} results</p>
 
      
 
       {usersError && (
         <div
           className="govuk-error-summary"
-          aria-labelledby="error-summary-title"
+          aria-labelledby="active-users-error-summary-title"
           role="alert"
           tabIndex={-1}
         >
-          <h2 className="govuk-error-summary__title" id="error-summary-title">
+          <h2 className="govuk-error-summary__title" id="active-users-error-summary-title">
             There is a problem
           </h2>
           <div className="govuk-error-summary__body">
@@ -113,7 +113,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                 paginatedUsers.map((user) => (
                   <tr key={user.id} className="govuk-table__row">
                     <td className="govuk-table__cell">{user.fullName}</td>
-                    <td className="govuk-table__cell">{user.email}</td>
+                    <td className="govuk-table__cell active-users-email">{user.email}</td>
                     <td className="govuk-table__cell">
                       {formatRole(user.role)}
                     </td>
@@ -165,7 +165,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                     </div>
                     <div className="user-card__row">
                       <span className="user-card__label">Email: </span>
-                      <span className="user-card__value">{user.email}</span>
+                      <span className="user-card__value active-users-email">{user.email}</span>
                     </div>
                     <div className="user-card__row">
                       <span className="user-card__label">Role: </span>

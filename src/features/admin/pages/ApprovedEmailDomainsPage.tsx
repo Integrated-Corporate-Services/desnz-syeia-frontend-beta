@@ -4,13 +4,20 @@ import { useApprovedDomains } from '../../../hooks';
 import { Domain } from '../../../types/organisation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ApprovedEmailDomainsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
   const navigate = useNavigate();
-  
+
   const { domains: fetchedDomains, loading, error, updateDomains } = useApprovedDomains(organisationId);
-  
+
+  useBreadcrumb(
+    <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
+      Back
+    </Link>
+  );
+
   const [currentDomains, setCurrentDomains] = useState<Domain[]>([]);
   const [newDomains, setNewDomains] = useState<Domain[]>([]);
   const [domainInput, setDomainInput] = useState('');
@@ -85,9 +92,6 @@ const ApprovedEmailDomainsPage: React.FC = () => {
                 <div className="govuk-width-container">
                       <div className="govuk-grid-row">
               <div className="govuk-grid-column-two-thirds">
-                <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
-                  Back
-                </Link>
                 <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
                   <h2 className="govuk-error-summary__title" id="error-summary-title">
                     There is a problem
@@ -109,10 +113,6 @@ const ApprovedEmailDomainsPage: React.FC = () => {
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
-              Back
-            </Link>
-
             <h1 className="govuk-heading-l govuk-!-margin-top-6">Approved email domains</h1>
 
             {saveError && (

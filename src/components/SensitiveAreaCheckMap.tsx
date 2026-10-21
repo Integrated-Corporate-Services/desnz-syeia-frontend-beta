@@ -74,7 +74,7 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
           const tileImages = mapContainer.querySelectorAll('.leaflet-tile-pane img');
           tileImages.forEach((img: Element) => {
             if (img instanceof HTMLImageElement) {
-              img.setAttribute('alt', 'Map tile');
+              img.setAttribute('alt', '');
               img.setAttribute('role', 'presentation');
             }
           });
@@ -88,7 +88,7 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
           const tileImages = mapContainer.querySelectorAll('.leaflet-tile-pane img:not([alt])');
           tileImages.forEach((img: Element) => {
             if (img instanceof HTMLImageElement) {
-              img.setAttribute('alt', 'Map tile');
+              img.setAttribute('alt', '');
               img.setAttribute('role', 'presentation');
             }
           });
@@ -164,11 +164,13 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
           
           latlngs.forEach((latlng, i) => {
             const marker = L.marker(latlng, {
+              interactive: false,
+              keyboard: false,
               icon: L.divIcon({
                 className: 'custom-marker',
                 html: isCurrentRoute 
-                  ? `<span style="font-size: 15px; color: #111; background: none; border: none; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;">${i + 1}</span>`
-                  : `<span style="color: ${MARKER_COLOR}; font-size: 12px; font-weight: bold; background: none; border: none;">&#10005;</span>`
+                  ? `<span aria-hidden="true" style="font-size: 15px; color: #111; background: none; border: none; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;">${i + 1}</span>`
+                  : `<span aria-hidden="true" style="color: ${MARKER_COLOR}; font-size: 12px; font-weight: bold; background: none; border: none;">&#10005;</span>`
               })
             }).addTo(map);
             markersRef.current.push(marker);
@@ -178,9 +180,11 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
           if (latlngs.length > 0) {
             latlngs.forEach((latlng) => {
               const xMarker = L.marker(latlng, {
+                interactive: false,
+                keyboard: false,
                 icon: L.divIcon({
                   className: 'custom-marker',
-                  html: `<span style="color: ${MARKER_COLOR}; font-size: 12px; font-weight: bold; background: none; border: none;">&#10005;</span>`
+                  html: `<span aria-hidden="true" style="color: ${MARKER_COLOR}; font-size: 12px; font-weight: bold; background: none; border: none;">&#10005;</span>`
                 })
               }).addTo(map);
               markersRef.current.push(xMarker);
@@ -193,9 +197,10 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
           // Show route name at the single point
           const routeLabelMarker = L.marker(latlngs[0] as [number, number], {
             interactive: false,
+            keyboard: false,
             icon: L.divIcon({
               className: 'route-label',
-              html: `<span class=\"govuk-body\" style=\"font-size: 15px; color: ${ROUTE_COLOR}; white-space: nowrap; display: inline-block; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;\">${label}</span>`,
+              html: `<span aria-hidden=\"true\" class=\"govuk-body\" style=\"font-size: 15px; color: ${ROUTE_COLOR}; white-space: nowrap; display: inline-block; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;\">${label}</span>`,
               iconSize: undefined,
               iconAnchor: [50, 12],
             })
@@ -241,9 +246,10 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
           if (isFinite(midLatLng[0]) && isFinite(midLatLng[1])) {
             const routeLabelMarker = L.marker(midLatLng as [number, number], {
               interactive: false,
+              keyboard: false,
               icon: L.divIcon({
                 className: 'route-label',
-                html: `<span class=\"govuk-body\" style=\"font-size: 15px; color: ${ROUTE_COLOR}; white-space: nowrap; display: inline-block; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;\">${label}</span>`,
+                html: `<span aria-hidden=\"true\" class=\"govuk-body\" style=\"font-size: 15px; color: ${ROUTE_COLOR}; white-space: nowrap; display: inline-block; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0px 3px 0 #fff, 3px 0px 0 #fff, 0px -3px 0 #fff, -3px 0px 0 #fff;\">${label}</span>`,
                 iconSize: undefined,
                 iconAnchor: [50, 12],
               })
@@ -254,14 +260,36 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
         // Draw the route polyline if there are at least 2 valid points
         if (safeLatLngs.length >= 2) {
           try {
+            // Make each route line keyboard focusable with a visible focus halo
+            // (black outer + GOV.UK yellow inner, drawn beneath the blue line)
+            let focusHalos: L.Polyline[] = [];
+            {
+              const outer = L.polyline(safeLatLngs, { color: '#0b0c0c', weight: 15, opacity: 0, interactive: false, pane: 'overlayPane' }).addTo(map);
+              const inner = L.polyline(safeLatLngs, { color: '#ffdd00', weight: 10, opacity: 0, interactive: false, pane: 'overlayPane' }).addTo(map);
+              focusHalos = [outer, inner];
+              polylineRefs.current.push(outer, inner);
+            }
             // Always draw only the blue line, no yellow border
             const poly = L.polyline(safeLatLngs, {
               color: ROUTE_COLOR,
               weight: 5,
               opacity: 1,
               pane: 'overlayPane',
+              className: 'route-line',
             }).addTo(map);
             polylineRefs.current.push(poly);
+            {
+              const el = poly.getElement();
+              if (el) {
+                el.setAttribute('tabindex', '0');
+                el.setAttribute('role', 'img');
+                el.setAttribute('aria-label', `${label}, route with ${validPoints.length} points`);
+                el.addEventListener('focus', () => {
+                  if (el.matches(':focus-visible')) focusHalos.forEach(h => h.setStyle({ opacity: 1 }));
+                });
+                el.addEventListener('blur', () => focusHalos.forEach(h => h.setStyle({ opacity: 0 })));
+              }
+            }
           } catch {
             // Silently ignore fitBounds errors
           }
@@ -288,8 +316,8 @@ const SensitiveAreaCheckMap: React.FC<SensitiveAreaCheckMapProps> = ({ points, s
       ref={mapRef} 
       id="map"
       role="application"
-      aria-label="Interactive map for viewing and selecting route points. Click on the map to set coordinates for the selected point."
-      tabIndex={-1}
+      aria-label={mode === 'overview' ? 'Route map' : 'Interactive route map. Select a point to set its coordinates.'}
+      tabIndex={0}
     />
   );
 };

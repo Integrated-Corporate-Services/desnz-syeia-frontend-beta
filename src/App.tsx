@@ -5,6 +5,7 @@ import MainLayout from "./layouts/MainLayout";
 import NotFound from "./features/NotFound/NotFound";
 import { AuthUserProvider } from "./context/AuthUserContext";
 import { AccessRequestProvider } from "./context/AccessRequestContext";
+import { BreadcrumbProvider } from "./context/BreadcrumbContext";
 import { ROUTE_CONFIG } from "./constants/routes";
 import { SessionTimeoutProvider } from "./context/SessionTimeoutContext";
 import SessionTimeout from "./components/SessionTimeout";
@@ -98,13 +99,13 @@ const AppContent = () => {
           <MainLayout>
             <Routes>
               {ROUTE_CONFIG.filter((r) => r.layout !== false).map((route) => {
-                const { path, component: Component, auth } = route;
+                const { path, component: Component, auth, accessGuard } = route;
                 if (path === "/" || path === "/landingPage") {
                   return (
                     <Route key={path} path={path} element={<LandingPage />} />
                   );
                 }
-                const isApplicationScoped = path.includes(":applicationId");
+                const isApplicationScoped = path.includes(":applicationId") && accessGuard !== false;
                 let element = <Component />;
                 if (isApplicationScoped) {
                   element = (
@@ -123,13 +124,13 @@ const AppContent = () => {
         ) : (
           <Routes>
             {ROUTE_CONFIG.filter((r) => r.layout === false).map((route) => {
-              const { path, component: Component, auth } = route;
+              const { path, component: Component, auth, accessGuard } = route;
               if (path === "/" || path === "/landingPage") {
                 return (
                   <Route key={path} path={path} element={<LandingPage />} />
                 );
               }
-              const isApplicationScoped = path.includes(":applicationId");
+              const isApplicationScoped = path.includes(":applicationId") && accessGuard !== false;
               let element = <Component />;
               if (isApplicationScoped) {
                 element = (
@@ -157,7 +158,9 @@ const App = () => (
       <AuthUserProvider>
         <AccessRequestProvider>
           <SessionTimeoutProvider>
-            <AppContent />
+            <BreadcrumbProvider>
+              <AppContent />
+            </BreadcrumbProvider>
           </SessionTimeoutProvider>
         </AccessRequestProvider>
       </AuthUserProvider>

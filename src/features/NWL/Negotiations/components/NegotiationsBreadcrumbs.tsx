@@ -2,13 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { BREADCRUMBS } from '../constants/negotiationsConstants';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 
 interface NegotiationsBreadcrumbsProps {
   appId: string | undefined;
 }
 
 export const NegotiationsBreadcrumbs: React.FC<NegotiationsBreadcrumbsProps> = ({ appId }) => {
-  return (
+  useBreadcrumb(
     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
       <ol className="govuk-breadcrumbs__list">
         <li className="govuk-breadcrumbs__list-item" aria-current="false">
@@ -25,4 +26,5 @@ export const NegotiationsBreadcrumbs: React.FC<NegotiationsBreadcrumbsProps> = (
       </ol>
     </nav>
   );
+  return null;
 };

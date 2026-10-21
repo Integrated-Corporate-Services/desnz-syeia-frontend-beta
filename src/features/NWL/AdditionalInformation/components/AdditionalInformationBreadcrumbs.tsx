@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CONTENT } from '../constants';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 
 interface AdditionalInformationBreadcrumbsProps {
   appId: string | undefined;
@@ -14,7 +15,7 @@ interface AdditionalInformationBreadcrumbsProps {
 export const AdditionalInformationBreadcrumbs: React.FC<
   AdditionalInformationBreadcrumbsProps
 > = ({ appId, currentPage }) => {
-  return (
+  useBreadcrumb(
     <div className="govuk-breadcrumbs">
       <ol className="govuk-breadcrumbs__list">
         {appId && (
@@ -35,4 +36,5 @@ export const AdditionalInformationBreadcrumbs: React.FC<
       </ol>
     </div>
   );
+  return null;
 };

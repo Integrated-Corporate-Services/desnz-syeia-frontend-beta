@@ -1,0 +1,15 @@
+
+.govuk-details__summary {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 0;
+  margin: 0;
+  padding: 0 0 0 25px;
+  font: inherit;
+  text-align: left;
+}
+
+.govuk-details__summary:not(:focus) {
+  background: none;
+}

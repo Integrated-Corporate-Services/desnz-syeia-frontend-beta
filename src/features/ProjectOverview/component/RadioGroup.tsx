@@ -1,5 +1,6 @@
 
 import React from 'react';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 interface RadioOption {
 	value: string;
@@ -56,13 +57,18 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 								type="radio"
 								value={opt.value}
 								checked={value === opt.value}
+								data-aria-controls={opt.conditionalRender ? (ariaControls && ariaControls[idx] ? ariaControls[idx] : `${id}-hidden`) : undefined}
+								aria-controls={opt.conditionalRender ? (ariaControls && ariaControls[idx] ? ariaControls[idx] : `${id}-hidden`) : undefined}
 								onChange={() => onChange(opt.value)}
-
 							/>
 							<label className="govuk-label govuk-radios__label" htmlFor={idx === 0 ? id : `${id}-${opt.value}`}>{opt.label}</label>
 						</div>
-						{opt.conditionalRender && value === opt.value && (
-							<div className="govuk-radios__conditional" id={ariaControls && ariaControls[idx] ? ariaControls[idx] : `${id}-hidden`}>
+						{opt.conditionalRender && <RevealAnnouncement shown={value === opt.value} message="More information is needed. A new question is shown below." />}
+						{opt.conditionalRender && (
+							<div
+								className={`govuk-radios__conditional ${value === opt.value ? '' : 'govuk-radios__conditional--hidden'}`}
+								id={ariaControls && ariaControls[idx] ? ariaControls[idx] : `${id}-hidden`}
+							>
 								{opt.conditionalRender}
 							</div>
 						)}

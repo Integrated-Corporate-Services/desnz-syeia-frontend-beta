@@ -13,13 +13,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (loading) {
     return (
       <div className="govuk-width-container">
-        <main className="govuk-main-wrapper">
+        <div className="govuk-main-wrapper">
           <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     );
   }

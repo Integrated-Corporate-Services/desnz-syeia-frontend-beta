@@ -1,17 +1,21 @@
 
 import { buildBackendUrl } from '../../utils/apiConfig';
+import { useBreadcrumb } from '../../context/BreadcrumbContext';
+import '../../styles/RelatedContent.css';
 
 const NWLGuidancePage = () => {
+  useBreadcrumb(
+    <a
+      href="/landingPage"
+      className="govuk-back-link"
+    >
+      Submit your Energy Infrastructure Application
+    </a>
+  );
 
   return (
     <>
             <div className="govuk-width-container">
-        <a
-          href="/landingPage"
-          className="govuk-back-link"
-        >
-          Submit your Energy Infrastructure Application
-        </a>
       <style>{`
         .govuk-link,
         .govuk-link:visited,
@@ -101,7 +105,7 @@ const NWLGuidancePage = () => {
         </div>
         <div className="govuk-grid-column-one-third">
           <aside className="app-related-items" role="complementary">
-            <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: '0 0 16px 0' }} />
+            <hr className="app-related-items__divider" aria-hidden="true" />
             <h2 className="govuk-heading-s" id="related-content-title">
               Related content
             </h2>
@@ -129,7 +133,7 @@ const NWLGuidancePage = () => {
                 </li>
               </ul>
             </nav>
-            <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: '16px 0' }} />
+            <hr style={{ border: 'none', borderTop: '1px solid #b1b4b6', margin: '16px 0' }} aria-hidden="true" />
             <div style={{ marginTop: '16px' }}>
               <span className="govuk-body govuk-!-font-weight-bold">
                 Collection

@@ -12,6 +12,7 @@ import {
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
 import { VALIDATION_MESSAGES } from "../services/applicationDetailsService";
 import { createLogger } from "../../../../utils/logger";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 const logger = createLogger('TypeOfUse');
 
@@ -25,6 +26,25 @@ const TypeOfUse: React.FC = () => {
     navigateToGroundsForApplication,
     navigateToTaskList,
   } = useApplicationNavigation(appId || "");
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <a
+            className="govuk-breadcrumbs__link"
+            href="#"
+            onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </a>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.LINE_TYPE}
+        </li>
+      </ol>
+    </nav>
+  );
 
   const [typeOfUse, setTypeOfUse] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -88,23 +108,6 @@ const TypeOfUse: React.FC = () => {
     <>
       <PageTitle title="New or existing electric lines?" />
           <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href="#"
-              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.LINE_TYPE}
-          </li>
-        </ol>
-      </nav>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (

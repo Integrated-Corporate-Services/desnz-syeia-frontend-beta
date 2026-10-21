@@ -9,10 +9,26 @@ import { useParishes } from '../hooks/useParishes';
 import { useParishSubmit } from '../hooks/useParishSubmit';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import ParishesSummary from './ParishesSummary';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const Parishes: React.FC = () => {
     const params = useParams();
     const applicationId = params.applicationId || params.id || '';
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item" aria-current="false">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="true">
+                    Parishes
+                </li>
+            </ol>
+        </nav>
+    );
 
     const { parishes, addParish, removeParish, isLoading, loadError } = useParishes(applicationId);
     const { searchTerm, searchResults, isSearching, handleSearchChange, clearSearch } = useParishSearch();
@@ -64,18 +80,6 @@ const Parishes: React.FC = () => {
         <>
             <PageTitle title="Parishes" />
                         <div className="govuk-width-container">
-                            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                    <ol className="govuk-breadcrumbs__list">
-                        <li className="govuk-breadcrumbs__list-item" aria-current="false">
-                            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                                Task list
-                            </Link>
-                        </li>
-                        <li className="govuk-breadcrumbs__list-item" aria-current="true">
-                            Parishes
-                        </li>
-                    </ol>
-                </nav>
 
                 <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">

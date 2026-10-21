@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ChangeFullNamePage from './ChangeFullNamePage';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import * as yourDetailsService from '../services/yourDetailsService';
 
@@ -50,9 +51,11 @@ describe('ChangeFullNamePage', () => {
 
   it('shows validation errors when names are missing', async () => {
     render(
-      <MemoryRouter>
-        <ChangeFullNamePage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeFullNamePage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {
@@ -72,9 +75,11 @@ describe('ChangeFullNamePage', () => {
 
   it('saves and redirects to your details with one-time banner flag', async () => {
     render(
-      <MemoryRouter>
-        <ChangeFullNamePage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeFullNamePage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {

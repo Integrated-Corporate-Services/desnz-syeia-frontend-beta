@@ -16,6 +16,7 @@ import {
   ERROR_ANCHORS,
   type ErrorField,
 } from '../constants/feedback.constants';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 export default function FeedbackPage() {
   const [sourceMetadata] = useState(() => {
@@ -54,6 +55,18 @@ export default function FeedbackPage() {
     document.title = `${prefix}${CONTENT.pageTitle} - GOV.UK`;
   }, [errors, serverError, submitted]);
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to="/application-dashboard">
+            {CONTENT.breadcrumbHome}
+          </Link>
+        </li>
+      </ol>
+    </nav>
+  );
+
   if (submitted) {
     return <FeedbackConfirmation />;
   }
@@ -63,16 +76,6 @@ export default function FeedbackPage() {
 
   return (
     <>
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link className="govuk-breadcrumbs__link" to="/application-dashboard">
-              {CONTENT.breadcrumbHome}
-            </Link>
-          </li>
-        </ol>
-      </nav>
-
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           {hasErrors && (

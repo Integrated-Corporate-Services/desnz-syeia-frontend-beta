@@ -7,6 +7,7 @@ import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { useNWLProgress } from '../../hooks/useNWLProgress';
 import { saveRepresentativeAddress } from "../services/objectorDetailsService";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 const RepresentativeAddress: React.FC = () => {
   const navigate = useNavigate();
@@ -161,18 +162,21 @@ const RepresentativeAddress: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>{BREADCRUMBS.TASK_LIST}</Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Enter the representative's address" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>{BREADCRUMBS.TASK_LIST}</Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">Representative details</li>
-        </ol>
-      </nav>
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.REPRESENTATIVE_ADDRESS_TITLE}</h1>

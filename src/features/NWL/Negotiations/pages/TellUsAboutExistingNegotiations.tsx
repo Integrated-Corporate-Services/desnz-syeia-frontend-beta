@@ -18,8 +18,11 @@ import {
   FormActions,
 } from '../components';
 import { updateNegotiationsData } from '../services';
+import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import { NegotiationsData } from '../types/negotiations';
 import { createLogger } from '../../../../utils/logger';
+import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
 
 const logger = createLogger('TellUsAboutExistingNegotiations');
 
@@ -29,6 +32,7 @@ const logger = createLogger('TellUsAboutExistingNegotiations');
  */
 const TellUsAboutExistingNegotiations: React.FC = () => {
   const { appId, negotiationsData, refetchNegotiationsData } = useNegotiationsData();
+  const { updateProgress } = useNWLProgress(appId);
   const { errors, validateRadioSelection, validateDateNotInFuture, setErrors } = useFormValidation();
   const {
     navigateToEvidenceOfNegotiations,
@@ -156,6 +160,12 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
       await refetchNegotiationsData();
       logger.debug('[TellUsAboutExistingNegotiations] Refetch complete');
 
+      try {
+        await updateProgress('Negotiations', APPLICATION_STATUS.NOT_COMPLETED);
+      } catch (progressError) {
+        // Continue even if progress update fails
+      }
+
       if (hasNegotiations === 'yes') {
         navigateToEvidenceOfNegotiations();
       } else {
@@ -210,6 +220,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                         checked={hasNegotiations === 'yes'}
                         onChange={(e) => setHasNegotiations(e.target.value)}
                         data-aria-controls="conditional-date"
+                        aria-controls="conditional-date"
                       />
                       <label
                         className="govuk-label govuk-radios__label"
@@ -218,6 +229,7 @@ const TellUsAboutExistingNegotiations: React.FC = () => {
                         {FORM_LABELS.YES}
                       </label>
                     </div>
+                    <RevealAnnouncement shown={hasNegotiations === 'yes'} message={`A new question is shown below: ${HINTS.START_DATE}`} />
                     <div
                       className="govuk-radios__conditional"
                       id="conditional-date"

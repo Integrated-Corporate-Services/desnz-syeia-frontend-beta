@@ -10,6 +10,7 @@ import { useAuthUserContext } from '../../../../context/AuthUserContext';
 import { NWL_FILE_CATEGORIES } from '../../../../constants/fileCategoryConstants';
 import { createLogger } from '../../../../utils/logger';
 import { nwlAssetService } from '../services/nwlAssetService';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 
 const logger = createLogger('ProvideApplicationPlan');
 
@@ -139,26 +140,27 @@ const ProvideApplicationPlan: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          {BREADCRUMBS.ASSETS}
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Provide an application plan" />
-                  {/* Breadcrumbs */}
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${applicationId}/task-list`}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            {BREADCRUMBS.ASSETS}
-          </li>
-        </ol>
-      </nav>
-
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           
@@ -219,7 +221,7 @@ const ProvideApplicationPlan: React.FC = () => {
                 
                 {uploadedFiles && uploadedFiles.length > 0 && (
                   <div className="govuk-!-margin-top-2">
-                    <h3 className="govuk-heading-s">{MESSAGES.DOCUMENTS_UPLOADED}</h3>
+                    <h2 className="govuk-heading-s">{MESSAGES.DOCUMENTS_UPLOADED}</h2>
                   </div>
                 )}
                 

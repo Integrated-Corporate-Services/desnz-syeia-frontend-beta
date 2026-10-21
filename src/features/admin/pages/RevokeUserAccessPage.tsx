@@ -6,6 +6,7 @@ import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
 import { formatUserRoleLabel } from '../../../utils/roleUtils';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -20,6 +21,16 @@ const RevokeUserAccessPage: React.FC = () => {
     e.preventDefault();
     navigate(`/admin/manage-user/${userId}`);
   };
+
+  useBreadcrumb(
+    <a
+      href="#"
+      className="govuk-back-link"
+      onClick={handleBack}
+    >
+      Back
+    </a>
+  );
 
   const handleRevokeAccess = async () => {
     if (!userId) return;
@@ -82,14 +93,6 @@ const RevokeUserAccessPage: React.FC = () => {
     <>
       <PageTitle title="Revoke access" />
             <div className="govuk-width-container">
-              <a
-          href="#"
-          className="govuk-back-link"
-          onClick={handleBack}
-        >
-          Back
-        </a>
-
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Revoke access</h1>

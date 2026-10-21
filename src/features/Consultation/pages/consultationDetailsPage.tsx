@@ -11,6 +11,8 @@ import { progressApiService } from '../../../services/progressApiService';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('ConsultationDetailsPage');
 
@@ -20,6 +22,21 @@ const ConsultationDetailsPage: React.FC = () => {
     const navigate = useNavigate();
     const [error, setError] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link to={`${S37_BASE_URL}/${applicationId}/task-list`} className="govuk-breadcrumbs__link">
+                        Task list
+                    </Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">
+                    Consultation details
+                </li>
+            </ol>
+        </nav>
+    );
 
     // Scroll to top on mount
     useEffect(() => {
@@ -105,18 +122,6 @@ const ConsultationDetailsPage: React.FC = () => {
         <>
             <PageTitle title="Manage consultations" />
                         <div className="govuk-width-container">
-            <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                <ol className="govuk-breadcrumbs__list">
-                    <li className="govuk-breadcrumbs__list-item">
-                        <Link to={`${S37_BASE_URL}/${applicationId}/task-list`} className="govuk-breadcrumbs__link">
-                            Task list
-                        </Link>
-                    </li>
-                    <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                        Consultation details
-                    </li>
-                </ol>
-            </nav>
                         <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     {error && (
@@ -234,43 +239,42 @@ const ConsultationDetailsPage: React.FC = () => {
 
                     {/* View Previous Consultations - Expandable Section */}
                     {allHistoricalConsultations.length > 0 && (
-                        <details className="govuk-details govuk-!-margin-top-6 govuk-!-margin-bottom-6" data-module="govuk-details">
-                            <summary className="govuk-details__summary">
-                                <span className="govuk-details__summary-text">View previous consultations ({allHistoricalConsultations.length})</span>
-                            </summary>
-                            <div className="govuk-details__text">
-                                <p className="govuk-body">These consultations have been withdrawn and are shown here for reference.</p>
+                        <Details
+                            id="previous-consultations"
+                            summary={`View previous consultations (${allHistoricalConsultations.length})`}
+                            className="govuk-!-margin-top-6 govuk-!-margin-bottom-6"
+                        >
+                            <p className="govuk-body">These consultations have been withdrawn and are shown here for reference.</p>
 
-                                {allHistoricalConsultations.map((consultation) => {
-                                    const isPublic = consultation.consultationType === ConsultationType.PUBLIC;
+                            {allHistoricalConsultations.map((consultation) => {
+                                const isPublic = consultation.consultationType === ConsultationType.PUBLIC;
 
-                                    return (
-                                        <ConsultationSummaryCard
-                                            key={consultation.id}
-                                            orgName={consultation.consulteeOrganisationName}
-                                            consultationName={consultation.otherConsultee || consultation.consulteeOrganisationName || consultation.consultationType}
-                                            status={consultation.status}
-                                            consultationId={consultation.id}
-                                            applicationId={applicationId}
-                                            consultationType={consultation.consultationType}
-                                            dateRequestCreated={isPublic ? (consultation.firstDatePublished ?? undefined) : (consultation.dateRequestCreated ?? undefined)}
-                                            secondDatePublished={isPublic ? (consultation.secondDatePublished ?? undefined) : (consultation.secondDate ?? undefined)}
-                                            dateClosed={consultation.dateClosed ?? undefined}
-                                            objectionRaised={consultation.objectionRaised}
-                                            closeComments={consultation.closeComments}
-                                            responseDocuments={isPublic ? consultation.publicResponseDocuments : consultation.responseDocuments}
-                                            respondingConsulteeName={consultation.respondingConsulteeName}
-                                            respondingConsulteeEmail={consultation.respondingConsulteeEmail}
-                                            notRequiredMessage={consultation.notRequiredReason}
-                                            notRequiredDocs={consultation.notRequiredDocs}
-                                            consultationRequestDocs={isPublic ? consultation.evidenceOfPublicationDocs : consultation.consultationRequestDocs}
-                                            lpaConsultationForm={consultation.lpaConsultationForm}
-                                            evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </details>
+                                return (
+                                    <ConsultationSummaryCard
+                                        key={consultation.id}
+                                        orgName={consultation.consulteeOrganisationName}
+                                        consultationName={consultation.otherConsultee || consultation.consulteeOrganisationName || consultation.consultationType}
+                                        status={consultation.status}
+                                        consultationId={consultation.id}
+                                        applicationId={applicationId}
+                                        consultationType={consultation.consultationType}
+                                        dateRequestCreated={isPublic ? (consultation.firstDatePublished ?? undefined) : (consultation.dateRequestCreated ?? undefined)}
+                                        secondDatePublished={isPublic ? (consultation.secondDatePublished ?? undefined) : (consultation.secondDate ?? undefined)}
+                                        dateClosed={consultation.dateClosed ?? undefined}
+                                        objectionRaised={consultation.objectionRaised}
+                                        closeComments={consultation.closeComments}
+                                        responseDocuments={isPublic ? consultation.publicResponseDocuments : consultation.responseDocuments}
+                                        respondingConsulteeName={consultation.respondingConsulteeName}
+                                        respondingConsulteeEmail={consultation.respondingConsulteeEmail}
+                                        notRequiredMessage={consultation.notRequiredReason}
+                                        notRequiredDocs={consultation.notRequiredDocs}
+                                        consultationRequestDocs={isPublic ? consultation.evidenceOfPublicationDocs : consultation.consultationRequestDocs}
+                                        lpaConsultationForm={consultation.lpaConsultationForm}
+                                        evidenceResponseNotReceivedDocs={consultation.evidenceResponseNotReceivedDocs}
+                                    />
+                                );
+                            })}
+                        </Details>
                     )}
 
                     {error && (

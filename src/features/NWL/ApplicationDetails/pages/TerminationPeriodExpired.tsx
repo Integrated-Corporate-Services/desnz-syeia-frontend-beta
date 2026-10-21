@@ -9,6 +9,7 @@ import {
   OPTIONS,
 } from "../constants/terminationPeriodExpiredConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 /**
  * Termination Period Expired Page
@@ -23,6 +24,25 @@ const TerminationPeriodExpired: React.FC = () => {
   } = useApplicationNavigation(appId || "");
   const { applicationDetails, updateFields } = useApplicationDetailsData(appId);
   const { updateProgress } = useNWLProgress(appId || undefined);
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <a
+            className="govuk-breadcrumbs__link"
+            href="#"
+            onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </a>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.APPLICATION_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
 
   const [hasExpired, setHasExpired] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -70,23 +90,6 @@ const TerminationPeriodExpired: React.FC = () => {
     <>
       <PageTitle title="Has the termination period expired?" />
           <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href="#"
-              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.APPLICATION_DETAILS}
-          </li>
-        </ol>
-      </nav>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (

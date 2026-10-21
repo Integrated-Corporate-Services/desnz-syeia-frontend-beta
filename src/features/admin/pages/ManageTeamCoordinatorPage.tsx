@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTeamCoordinator } from "../../../hooks";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import PageTitle from "../../../components/PageTitle";
+import { useBreadcrumb } from "../../../context/BreadcrumbContext";
 
 const ManageTeamCoordinatorPage: React.FC = () => {
   const { organisationId, coordinatorId } = useParams<{
@@ -18,6 +19,15 @@ const ManageTeamCoordinatorPage: React.FC = () => {
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string>("");
+
+  useBreadcrumb(
+    <Link
+      to={`/admin/organisations/${organisationId}/team-coordinators`}
+      className="govuk-back-link"
+    >
+      Back
+    </Link>
+  );
 
   const handleSave = async () => {
     try {
@@ -49,12 +59,6 @@ const ManageTeamCoordinatorPage: React.FC = () => {
                 <div className="govuk-width-container">
                     <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
-              <Link
-                to={`/admin/organisations/${organisationId}/team-coordinators`}
-                className="govuk-back-link"
-              >
-                Back
-              </Link>
               <div
                 className="govuk-error-summary"
                 aria-labelledby="error-summary-title"
@@ -86,13 +90,6 @@ const ManageTeamCoordinatorPage: React.FC = () => {
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <Link
-              to={`/admin/organisations/${organisationId}/team-coordinators`}
-              className="govuk-back-link"
-            >
-              Back
-            </Link>
-
             <h1 className="govuk-heading-l govuk-!-margin-top-6">
               Manage team coordinator
             </h1>

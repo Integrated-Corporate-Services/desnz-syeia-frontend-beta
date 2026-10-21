@@ -165,7 +165,7 @@ export const ApplicationTable: React.FC<Props> = ({
             <td
               className="govuk-table__cell"
               role="cell"
-              aria-label={`DESNZ reference: ${app.desnz_ref || "Not available"}`}
+              aria-label={`${app.desnz_ref || "N/A"}, DESNZ reference`}
             >
               <a
                 href={getNavigationPath(

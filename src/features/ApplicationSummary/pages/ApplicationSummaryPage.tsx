@@ -10,6 +10,7 @@ import {
     ApplicationSummaryBreadcrumbs,
     ApplicationSummaryContent,
 } from '../components';
+import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
 import PageTitle from '../../../components/PageTitle';
 
 export const ApplicationSummaryPage: React.FC = () => {
@@ -119,6 +120,7 @@ export const ApplicationSummaryPage: React.FC = () => {
 
                             <div className="govuk-grid-row">
                     <div className="govuk-grid-column-two-thirds">
+                        <ReassignmentSuccessBanner />
                         <ApplicationSummaryContent
                             data={data}
                             applicationId={applicationId!}

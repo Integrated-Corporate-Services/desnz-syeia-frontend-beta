@@ -1,8 +1,10 @@
 import React from "react";
 import PageTitle from "../../../../components/PageTitle";
+import Details from "../../../../components/Details";
 import { useAuthUserContext } from "../../../../context/AuthUserContext";
 import { useNetworkOperators } from "../hooks/useNetworkOperators";
 import { useWhoIsApplyingForm } from "../hooks/useWhoIsApplyingForm";
+import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
 
 const WhoIsApplying: React.FC = () => {
   const { user } = useAuthUserContext();
@@ -16,10 +18,10 @@ const WhoIsApplying: React.FC = () => {
     handleSubmit(e, selectedOrgName, selectedOrganisation, user);
   };
 
-  const handleOrgSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    handleOrgChange(e);
+  const handleOrgSelectChange = (value: string) => {
+    handleOrgChange({ target: { value } } as React.ChangeEvent<HTMLSelectElement>);
     // Clear any existing errors when user makes a selection
-    if (e.target.value && error) {
+    if (value && error) {
       clearError();
     }
   };
@@ -64,58 +66,51 @@ const WhoIsApplying: React.FC = () => {
                     {error}
                   </p>
                 )}
-                <select
-                  className="govuk-select govuk-!-width-full govuk-!-font-size-19"
+                <AccessibleSelect
+                  className="govuk-!-width-full govuk-!-font-size-19"
                   id="location"
-                  name="location"
+                  aria-label="Network operator"
                   aria-describedby={error ? "location-error" : undefined}
                   value={selectedOrgName}
                   onChange={handleOrgSelectChange}
                   disabled={options.length === 0}
                   required
-                >
-                  <option value="" disabled>
-                    {options.length === 0
-                      ? "No network operators found"
-                      : "Select option..."}
-                  </option>
-                  {options.map((opt) => (
-                    <option
-                      key={opt.organisation_name}
-                      value={opt.organisation_name}
-                    >
-                      {opt.organisation_name}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    {
+                      value: "",
+                      text:
+                        options.length === 0
+                          ? "No network operators found"
+                          : "Select option...",
+                    },
+                    ...options.map((opt) => ({
+                      value: opt.organisation_name,
+                      text: opt.organisation_name,
+                    })),
+                  ]}
+                />
               </div>
-              <details
-                className="govuk-details"
+              <Details
+                id="network-operator-not-listed"
+                summary="The network operator is not listed"
                 style={{ maxWidth: 600, marginTop: "2rem" }}
               >
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    The network operator is not listed
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  <p>
-                    You must contact the team coordinator in your organisation
-                    that you want to create an application for to provide you
-                    with access to their organisation.
-                  </p>
-                  <p>
-                    If you do not know who the team coordinator is then contact
-                    the service desk for advice at{" "}
-                    <a
-                      href="mailto:ukop@nstauthority.co.uk"
-                      className="govuk-link"
-                    >
-                      ukop@nstauthority.co.uk
-                    </a>
-                  </p>
-                </div>
-              </details>
+                <p>
+                  You must contact the team coordinator in your organisation
+                  that you want to create an application for to provide you
+                  with access to their organisation.
+                </p>
+                <p>
+                  If you do not know who the team coordinator is then contact
+                  the service desk for advice at{" "}
+                  <a
+                    href="mailto:ukop@nstauthority.co.uk"
+                    className="govuk-link"
+                  >
+                    ukop@nstauthority.co.uk
+                  </a>
+                </p>
+              </Details>
               <div className="govuk-!-static-margin-top-6">
                 <button
                   type="submit"

@@ -6,12 +6,19 @@ import { ROLES } from '../../../constants/roles';
 import { formatUserRoleLabel } from '../../../utils/roleUtils';
 import { isManageUserRoleChangeEnabled } from '../../../config/appConfig';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ManageUserPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const { users, loading } = useManageUsers();
 
   const user = users.find(u => u.id === userId);
+
+  useBreadcrumb(
+    <Link to="/admin/user-management?tab=active-users" className="govuk-back-link">
+      Back
+    </Link>
+  );
 
   const formatLastLogin = (lastLogin: string | null) => {
     if (!lastLogin) return 'Never';
@@ -63,10 +70,6 @@ const ManageUserPage: React.FC = () => {
     <>
       <PageTitle title="Manage user" />
             <div className="govuk-width-container">
-              <Link to="/admin/user-management?tab=active-users" className="govuk-back-link">
-          Back
-        </Link>
-
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Manage user</h1>

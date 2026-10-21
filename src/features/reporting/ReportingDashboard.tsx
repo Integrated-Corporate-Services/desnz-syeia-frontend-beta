@@ -16,6 +16,7 @@ import { ReportingContents, ReportingFilters } from "./components/ReportingContr
 import OperationalTasks from "./components/OperationalTasks";
 import { REPORTING_MESSAGES } from "./constants";
 import { useReportingDashboard } from "./useReportingDashboard";
+import PageTitle from "../../components/PageTitle";
 import "./ReportingDashboard.css";
 
 type DashboardTab = "reports" | "operational-tasks";
@@ -47,6 +48,7 @@ const ReportingDashboard: React.FC = () => {
 
   return (
     <div className="govuk-grid-row reporting-dashboard">
+      <PageTitle title="Reporting dashboard" />
       <div className="govuk-grid-column-full">
         {canViewOperationalTasks && (
           <nav className="govuk-tabs reporting-dashboard__nav" aria-label="Reporting sections">

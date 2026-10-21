@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { BREADCRUMBS } from '../constants';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 
 interface AssetsBreadcrumbsProps {
   applicationId: string;
@@ -12,7 +13,7 @@ export const AssetsBreadcrumbs: React.FC<AssetsBreadcrumbsProps> = ({
   applicationId,
   currentPage = 'add',
 }) => {
-  return (
+  useBreadcrumb(
     <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
       <ol className="govuk-breadcrumbs__list">
         <li className="govuk-breadcrumbs__list-item">
@@ -34,11 +35,12 @@ export const AssetsBreadcrumbs: React.FC<AssetsBreadcrumbsProps> = ({
           </li>
         )}
         <li className="govuk-breadcrumbs__list-item" aria-current="page">
-          {currentPage === 'review' 
-            ? BREADCRUMBS.REVIEW_ASSETS 
+          {currentPage === 'review'
+            ? BREADCRUMBS.REVIEW_ASSETS
             : BREADCRUMBS.INFORMATION_ABOUT_LINES}
         </li>
       </ol>
     </nav>
   );
+  return null;
 };

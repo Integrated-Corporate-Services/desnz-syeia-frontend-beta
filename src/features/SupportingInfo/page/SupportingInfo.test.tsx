@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SupportingInfo from './SupportingInfo';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 
 const saveSupportingInfoMock = vi.fn();
 
@@ -25,11 +26,13 @@ vi.mock('../../../components/FileUpload', () => ({
 
 const renderPage = () =>
   render(
-    <MemoryRouter initialEntries={['/s-37/test-application-id/supporting-info']}>
-      <Routes>
-        <Route path="/s-37/:applicationId/supporting-info" element={<SupportingInfo />} />
-      </Routes>
-    </MemoryRouter>
+    <BreadcrumbProvider>
+      <MemoryRouter initialEntries={['/s-37/test-application-id/supporting-info']}>
+        <Routes>
+          <Route path="/s-37/:applicationId/supporting-info" element={<SupportingInfo />} />
+        </Routes>
+      </MemoryRouter>
+    </BreadcrumbProvider>
   );
 
 describe('SupportingInfo validation clearing', () => {

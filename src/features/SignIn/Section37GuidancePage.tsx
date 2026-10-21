@@ -1,17 +1,20 @@
 
 import { buildBackendUrl } from '../../utils/apiConfig';
+import { useBreadcrumb } from '../../context/BreadcrumbContext';
 
 const Section37GuidancePage = () => {
+  useBreadcrumb(
+    <a
+      href="/landingPage"
+      className="govuk-back-link govuk-!-margin-bottom-6 govuk-!-margin-top-0"
+      style={{ display: "inline-block", marginBottom: "32px", marginTop: 0 }}
+    >
+      Submit your Energy Infrastructure Application
+    </a>
+  );
 
   return (
     <>
-      <a
-        href="/landingPage"
-        className="govuk-back-link govuk-!-margin-bottom-6 govuk-!-margin-top-0"
-        style={{ display: "inline-block", marginBottom: "32px", marginTop: 0 }}
-      >
-        Submit your Energy Infrastructure Application
-      </a>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-l">

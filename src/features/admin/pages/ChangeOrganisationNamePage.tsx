@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import PageTitle from '../../../components/PageTitle';
 import { useOrganisation } from '../../../hooks';
 import organisationService from '../../../services/organisationService';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ChangeOrganisationNamePage: React.FC = () => {
   const { organisationId = '' } = useParams<{ organisationId: string }>();
@@ -53,14 +54,14 @@ const ChangeOrganisationNamePage: React.FC = () => {
   const backPath = `/admin/organisation/${organisationId}/settings`;
   const errorMessage = fieldError || submitError || loadError;
 
+  useBreadcrumb(<Link className="govuk-back-link" to={backPath}>Back</Link>);
+
   return (
     <>
       <PageTitle title="Change organisation name" />
       <div className="govuk-width-container">
-        <Link className="govuk-back-link" to={backPath}>Back</Link>
-        <main className="govuk-main-wrapper govuk-grid-row">
+        <div className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-l">Organisation name</h1>
             {errorMessage && (
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} ref={errorSummaryRef}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
@@ -73,6 +74,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
                 </div>
               </div>
             )}
+            <h1 className="govuk-heading-l">Organisation name</h1>
             {loading ? <p className="govuk-body">Loading...</p> : (
               <>
                 <form noValidate onSubmit={handleSubmit}>
@@ -89,7 +91,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
               </>
             )}
           </div>
-        </main>
+        </div>
       </div>
     </>
   );

@@ -9,6 +9,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { applicationApiService } from '../services/applicationApiService';
 import { createLogger } from '../utils/logger';
 import PageTitle from '../components/PageTitle';
+import { useBreadcrumb } from '../context/BreadcrumbContext';
 
 const logger = createLogger('ApplicationDeleteConfirmationPage');
 
@@ -22,6 +23,7 @@ export const ApplicationDeleteConfirmationPage: React.FC = () => {
   // Determine the base URL from the current path
   const getBaseUrl = () => {
     const pathname = location.pathname;
+    if (pathname.includes('/cpo/')) return '/cpo';
     if (pathname.includes('/s-37/')) return '/s-37';
     if (pathname.includes('/nwl/')) return '/nwl';
     if (pathname.includes('/tlp/')) return '/tlp';
@@ -64,6 +66,19 @@ export const ApplicationDeleteConfirmationPage: React.FC = () => {
     navigate(-1);
   };
 
+  useBreadcrumb(
+    <a
+      href="#"
+      className="govuk-back-link"
+      onClick={(e) => {
+        e.preventDefault();
+        goBack();
+      }}
+    >
+      Back
+    </a>
+  );
+
   if (!applicationId) {
     return <div>Invalid application ID</div>;
   }
@@ -74,17 +89,6 @@ export const ApplicationDeleteConfirmationPage: React.FC = () => {
       <div className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <a
-              href="#" 
-              className="govuk-back-link" 
-              onClick={(e) => {
-                e.preventDefault();
-                goBack();
-              }}
-            >
-              Back
-            </a>
-
             <h1 className="govuk-heading-l">Are you sure you want to delete this application?</h1>
             
             <div className="govuk-body">
@@ -93,6 +97,7 @@ export const ApplicationDeleteConfirmationPage: React.FC = () => {
 
             <div className="govuk-form-group">
               <fieldset className="govuk-fieldset">
+                <legend className="govuk-visually-hidden">Are you sure you want to delete this application?</legend>
                 <div className="govuk-radios" data-module="govuk-radios">
                   <div className="govuk-radios__item">
                     <input

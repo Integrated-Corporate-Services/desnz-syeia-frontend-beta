@@ -4,6 +4,7 @@ import { getSensitiveAreaReviewSummary, SensitiveAreaReviewSummary, LayerCheckIt
 import { S37_BASE_URL } from '../../../constants/s37';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('ReviewManualPage');
 
@@ -24,6 +25,15 @@ const ReviewManualPage: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const queryId = queryParams.get('id');
   const effectiveApplicationId = applicationId || queryId || '';
+
+  useBreadcrumb(
+    <Link
+      to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`}
+      className="govuk-back-link"
+    >
+      Back
+    </Link>
+  );
 
   // API Data State
   const [checksSummary, setChecksSummary] = useState<SensitiveAreaReviewSummary | null>(null);
@@ -203,14 +213,6 @@ const ReviewManualPage: React.FC = () => {
     <>
             <PageTitle title="Review areas we could not check" />
             <div className="govuk-width-container">
-      {/* Back Link - Always visible */}
-      <Link
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review`}
-        className="govuk-back-link"
-      >
-        Back
-      </Link>
-
       {/* Page Heading - Three-quarters width */}
       <div className='govuk-grid-row'>
         <div className="govuk-grid-column-three-quarters">
@@ -298,9 +300,9 @@ const ReviewManualPage: React.FC = () => {
               <div className="govuk-form-group" id="failed-areas">
                 <fieldset className="govuk-fieldset">
                   <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                    <h4 className="govuk-fieldset__heading">
+                    <h2 className="govuk-fieldset__heading">
                       Does your route pass through any of these areas?
-                    </h4>
+                    </h2>
                   </legend>
                   <div className="govuk-hint">
                     Select all areas that apply

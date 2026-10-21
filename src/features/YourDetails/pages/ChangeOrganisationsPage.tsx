@@ -6,6 +6,8 @@ import {
   submitCurrentUserOrganisationRequest,
 } from '../services/yourDetailsService';
 import PageTitle from '../../../components/PageTitle';
+import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 type FormErrors = {
   organisationIds?: string;
@@ -23,6 +25,12 @@ const ChangeOrganisationsPage: React.FC = () => {
   const [availableOrganisations, setAvailableOrganisations] = useState<OrganisationOption[]>([]);
   const [selectedOrganisationIds, setSelectedOrganisationIds] = useState<string[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useBreadcrumb(
+    <Link className="govuk-back-link" to="/your-details">
+      Back
+    </Link>
+  );
 
   useEffect(() => {
     const loadOrganisations = async () => {
@@ -128,10 +136,6 @@ const ChangeOrganisationsPage: React.FC = () => {
     <>
             <PageTitle title="Change organisations" />
             <div className="govuk-width-container">
-              <Link className="govuk-back-link" to="/your-details">
-          Back
-        </Link>
-
         {loading && <p className="govuk-body">Loading...</p>}
 
         {!loading && (
@@ -210,40 +214,33 @@ const ChangeOrganisationsPage: React.FC = () => {
                 </p>
               </div>
 
-              <details className="govuk-details" data-module="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    Organisations you have previously selected
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  <p className="govuk-body">Approved organisations:</p>
-                  {approvedOrganisations.length > 0 ? (
-                    <ul className="govuk-list govuk-list--bullet">
-                      {approvedOrganisations.map((org) => (
-                        <li key={`approved-${org.organisationId}`}>{org.organisationName}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="govuk-body">None</p>
-                  )}
+              <Details id="previously-selected-organisations" summary="Organisations you have previously selected">
+                <p className="govuk-body">Approved organisations:</p>
+                {approvedOrganisations.length > 0 ? (
+                  <ul className="govuk-list govuk-list--bullet">
+                    {approvedOrganisations.map((org) => (
+                      <li key={`approved-${org.organisationId}`}>{org.organisationName}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="govuk-body">None</p>
+                )}
 
-                  <p className="govuk-body">Organisations waiting for approval:</p>
-                  {pendingOrganisations.length > 0 ? (
-                    <ul className="govuk-list govuk-list--bullet">
-                      {pendingOrganisations.map((org) => (
-                        <li key={`pending-${org.organisationId}`}>{org.organisationName}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="govuk-body">None</p>
-                  )}
+                <p className="govuk-body">Organisations waiting for approval:</p>
+                {pendingOrganisations.length > 0 ? (
+                  <ul className="govuk-list govuk-list--bullet">
+                    {pendingOrganisations.map((org) => (
+                      <li key={`pending-${org.organisationId}`}>{org.organisationName}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="govuk-body">None</p>
+                )}
 
-                  <p className="govuk-body">
-                    To remove an organisation you must contact their team coordinator directly.
-                  </p>
-                </div>
-              </details>
+                <p className="govuk-body">
+                  To remove an organisation you must contact their team coordinator directly.
+                </p>
+              </Details>
 
               <button type="submit" className="govuk-button" disabled={saving}>
                 {saving ? 'Saving...' : 'Save and continue'}

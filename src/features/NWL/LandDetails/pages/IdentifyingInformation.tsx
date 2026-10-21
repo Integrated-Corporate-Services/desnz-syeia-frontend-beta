@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PageTitle from '../../../../components/PageTitle';
 import { useGetApplicationId } from '../../../../hooks/useGetApplicationId';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import {
   LandDetailsBreadcrumbs,
   FormActions,
@@ -55,7 +56,7 @@ const IdentifyingInformation: React.FC = () => {
       });
 
       try {
-        await updateProgress('Identifying information', 'Completed');
+        await updateProgress('Identifying information', APPLICATION_STATUS.NOT_COMPLETED);
       } catch (err) {
       }
 

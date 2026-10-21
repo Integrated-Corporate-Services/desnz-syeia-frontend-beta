@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PageTitle from "../../../../components/PageTitle";
+import Details from "../../../../components/Details";
 import { useGetApplicationId } from "../../../../hooks/useGetApplicationId";
 import { 
   useApplicationNavigation, 
@@ -13,6 +14,7 @@ import {
   FORM_ERRORS,
 } from "../constants/groundsForApplicationConstants";
 import { APPLICATION_DETAILS_PAGE_IDS } from "../constants/pageNames";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 /**
  * Grounds For Application Page
@@ -27,6 +29,25 @@ const GroundsForApplication: React.FC = () => {
     navigateToWayleaveOffer,
     navigateToTaskList,
   } = useApplicationNavigation(appId || "");
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <a
+            className="govuk-breadcrumbs__link"
+            href="#"
+            onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </a>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.APPLICATION_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
 
   const [groundsForApplication, setGroundsForApplication] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -103,23 +124,6 @@ const GroundsForApplication: React.FC = () => {
     <>
       <PageTitle title="Grounds for application" />
           <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <a
-              className="govuk-breadcrumbs__link"
-              href="#"
-              onClick={(e) => { e.preventDefault(); navigateToTaskList(); }}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </a>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.APPLICATION_DETAILS}
-          </li>
-        </ol>
-      </nav>
-
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
@@ -207,16 +211,9 @@ const GroundsForApplication: React.FC = () => {
                 </fieldset>
               </div>
 
-              <details className="govuk-details" data-module="govuk-details">
-                <summary className="govuk-details__summary">
-                  <span className="govuk-details__summary-text">
-                    {LABELS.OBJECTOR_TITLE}
-                  </span>
-                </summary>
-                <div className="govuk-details__text">
-                  {LABELS.OBJECTOR_CONTENT}
-                </div>
-              </details>
+              <Details id="objector-details" summary={LABELS.OBJECTOR_TITLE}>
+                {LABELS.OBJECTOR_CONTENT}
+              </Details>
 
               <p className="govuk-body">
                 <a

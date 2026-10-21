@@ -10,7 +10,7 @@ export function PrivacyNoticePage() {
   return (
     <div className="govuk-width-container">
       <PageTitle title="Privacy notice for the Submit Your Energy Application service" />
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <div className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl">Privacy notice for the Submit Your Energy Application service</h1>
@@ -56,7 +56,7 @@ export function PrivacyNoticePage() {
             <PageFeedback />
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

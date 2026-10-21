@@ -7,6 +7,8 @@ import {
   UpdateFullNamePayload,
 } from '../services/yourDetailsService';
 import PageTitle from '../../../components/PageTitle';
+import AccessibleSelect from '../../../components/commonFormFields/AccessibleSelect';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 type FormErrors = {
   title?: string;
@@ -27,6 +29,12 @@ const ChangeFullNamePage: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useBreadcrumb(
+    <Link className="govuk-back-link" to="/your-details">
+      Back
+    </Link>
+  );
 
   useEffect(() => {
     const loadDetails = async () => {
@@ -134,10 +142,6 @@ const ChangeFullNamePage: React.FC = () => {
     <>
             <PageTitle title="Change your full name" />
             <div className="govuk-width-container">
-      <Link className="govuk-back-link" to="/your-details">
-        Back
-      </Link>
-
               <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Change your full name</h1>
 
         {loading && <p className="govuk-body">Loading...</p>}
@@ -175,20 +179,14 @@ const ChangeFullNamePage: React.FC = () => {
                     <span className="govuk-visually-hidden">Error:</span> {errors.title}
                   </p>
                 )}
-                <select
-                  className={`govuk-select${errors.title ? ' govuk-input--error' : ''}`}
+                <AccessibleSelect
                   id="title"
-                  name="title"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  error={Boolean(errors.title)}
+                  options={TITLE_OPTIONS}
+                  onChange={setTitle}
                   aria-describedby={errors.title ? 'title-error' : undefined}
-                >
-                  {TITLE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.text}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div className={`govuk-form-group${errors.firstName ? ' govuk-form-group--error' : ''}`}>

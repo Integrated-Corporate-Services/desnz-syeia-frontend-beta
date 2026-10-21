@@ -1,0 +1,12 @@
+.route-overview__justification {
+  margin-left: 0;
+  margin-top: 8px;
+}
+
+.route-overview__justification--error {
+  border-left: 4px solid #d4351c;
+}
+
+.route-overview__justification-input {
+  min-height: 100px;
+}

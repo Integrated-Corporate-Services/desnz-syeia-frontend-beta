@@ -48,7 +48,7 @@ const RouteDeletePage: React.FC = () => {
       <PageTitle title="Delete route" />
       <div className="govuk-grid-column-two-thirds">
         <form onSubmit={handleDelete} data-module="fds-html-form">
-          <h2 className="govuk-heading-l">Are you sure you want to delete {routeName}?</h2>
+          <h1 className="govuk-heading-l">Are you sure you want to delete {routeName}?</h1>
           <div className="govuk-summary-card" id="route">
             <div className="govuk-summary-card__title-wrapper">
               <h2 className="govuk-summary-card__title">{routeName}</h2>

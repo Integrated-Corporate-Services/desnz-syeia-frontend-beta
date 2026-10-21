@@ -5,6 +5,9 @@ import FileUpload, { FileUploadHandle } from '../../../../components/FileUpload'
 import { NWL_FILE_CATEGORIES } from "../../../../constants/fileCategoryConstants";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import { Link, useParams } from "react-router-dom";
+import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
+import AccessibleSelect from '../../../../components/commonFormFields/AccessibleSelect';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 // You may need to adjust the import paths above to match your project structure
 
 const ApplicationLandDetails: React.FC = () => {
@@ -90,22 +93,25 @@ const ApplicationLandDetails: React.FC = () => {
 		}
 	};
 
+	useBreadcrumb(
+		<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+			<ol className="govuk-breadcrumbs__list">
+				<li className="govuk-breadcrumbs__list-item">
+					<Link
+						className="govuk-breadcrumbs__link"
+						to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+					>
+						Task list
+					</Link>
+				</li>
+				<li className="govuk-breadcrumbs__list-item" aria-current="page">Application and Land details</li>
+			</ol>
+		</nav>
+	);
+
 	return (
 		<>
 			<PageTitle title="Application and land details" />
-										<nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-						<ol className="govuk-breadcrumbs__list">
-							<li className="govuk-breadcrumbs__list-item">
-								<Link
-									className="govuk-breadcrumbs__link"
-									to={`${NWL_BASE_URL}/${applicationId}/task-list`}
-								>
-									Task list
-								</Link>
-							</li>
-							<li className="govuk-breadcrumbs__list-item" aria-current="page">Application and Land details</li>
-						</ol>
-					</nav>
 			<div className="govuk-grid-row">
 				<div className="govuk-grid-column-two-thirds">
 					<h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Application and Land details</h1>
@@ -136,43 +142,49 @@ const ApplicationLandDetails: React.FC = () => {
 							{errors.applicationType && (
 								<p className="govuk-error-message" id="application-type-error">{errors.applicationType}</p>
 							)}
-							<select className="govuk-select" id="application-type" name="ApplicationType" value={applicationType} onChange={e => setApplicationType(e.target.value)} aria-describedby={errors.applicationType ? "application-type-error" : undefined}>
-								<option value="select">Select an option</option>
-								<option value="newLine">New line</option>
-								<option value="existingLine">Existing line</option>
-							</select>
+							<AccessibleSelect
+								id="application-type"
+								value={applicationType}
+								onChange={setApplicationType}
+								aria-describedby={errors.applicationType ? "application-type-error" : undefined}
+								options={[
+									{ value: "select", text: "Select an option" },
+									{ value: "newLine", text: "New line" },
+									{ value: "existingLine", text: "Existing line" },
+								]}
+							/>
 						</div>
-						<div className={`govuk-form-group${errors.fileUpload1 ? ' govuk-form-group--error' : ''}`}>  
-							<fieldset className="govuk-fieldset">
-								<label className="govuk-label govuk-label--s" htmlFor="fileUpload1">
-									Upload any documents to support your application
-								</label>
-								<FileUpload
-									ref={fileUploadRef}
-									title=""
-																	  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_APPLICATION_LAND_DETAILS}`}
-									uploadedFiles={uploadedFiles}									uploadImmediately={true}									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {
-										setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));
-										setApplicationDocuments(prev => ([...(prev || []), ...newDocuments]));
-									}}
-								/>
-								<div className="govuk-hint govuk-!-margin-top-1">
-									For example:
-									<ul>
-										<li>application plan</li>
-										<li>boundary of property</li>
-										<li>land registry documents</li>
-										<li>notice to remove</li>
-										<li>wayleave documents (if relevant)</li>
-									</ul>
-									<p className="govuk-hint">You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password-protected.</p>
-								</div>
-								{errors.fileUpload1 && (
-									<p className="govuk-error-message" id="fileUpload1-error">{errors.fileUpload1}</p>
-								)}
-							</fieldset>
+						<div className={`govuk-form-group${errors.fileUpload1 ? ' govuk-form-group--error' : ''}`}>
+							<label className="govuk-label govuk-label--s" htmlFor="file-upload-input">
+								Upload any documents to support your application
+							</label>
+							<FileUpload
+								ref={fileUploadRef}
+								title=""
+								showTitle={false}
+								hasExternalLabel
+																  prefix={`${applicationId}/${NWL_FILE_CATEGORIES.NWL_APPLICATION_LAND_DETAILS}`}
+								uploadedFiles={uploadedFiles}									uploadImmediately={true}									onUploaded={(newUploadedFiles: unknown[], newDocuments: unknown[]) => {
+									setUploadedFiles(prev => ([...(prev || []), ...newUploadedFiles]));
+									setApplicationDocuments(prev => ([...(prev || []), ...newDocuments]));
+								}}
+							/>
+							<div className="govuk-hint govuk-!-margin-top-1">
+								For example:
+								<ul>
+									<li>application plan</li>
+									<li>boundary of property</li>
+									<li>land registry documents</li>
+									<li>notice to remove</li>
+									<li>wayleave documents (if relevant)</li>
+								</ul>
+								<p className="govuk-hint">You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and .xlsx files of up to 25MB each. Files cannot be password-protected.</p>
+							</div>
+							{errors.fileUpload1 && (
+								<p className="govuk-error-message" id="fileUpload1-error">{errors.fileUpload1}</p>
+							)}
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h2 className="govuk-heading-m">Land details</h2>
 						<div className={`govuk-form-group${errors.landLocation ? ' govuk-form-group--error' : ''}`}>  
 							<label className="govuk-label govuk-label--s" htmlFor="landLocation">Land location</label>
@@ -180,11 +192,17 @@ const ApplicationLandDetails: React.FC = () => {
 							{errors.landLocation && (
 								<p className="govuk-error-message" id="landLocation-error">{errors.landLocation}</p>
 							)}
-							<select className="govuk-select" id="landLocation" name="landLocation" value={landLocation} onChange={e => setLandLocation(e.target.value)} aria-describedby={errors.landLocation ? "landLocation-error" : "landLocation-hint"}>
-								<option value="updated">Select an option</option>
-								<option value="views">England</option>
-								<option value="comments">Wales</option>
-							</select>
+							<AccessibleSelect
+								id="landLocation"
+								value={landLocation}
+								onChange={setLandLocation}
+								aria-describedby={errors.landLocation ? "landLocation-error" : "landLocation-hint"}
+								options={[
+									{ value: "updated", text: "Select an option" },
+									{ value: "views", text: "England" },
+									{ value: "comments", text: "Wales" },
+								]}
+							/>
 						</div>
 						<div className="govuk-form-group">
 							<label className="govuk-label govuk-label--s" htmlFor="landRef">Land reference <span className="govuk-hint">(optional)</span></label>
@@ -194,7 +212,7 @@ const ApplicationLandDetails: React.FC = () => {
 						<div className={`govuk-form-group${errors.landRegistry ? ' govuk-form-group--error' : ''}`}>  
 							<fieldset className="govuk-fieldset" aria-describedby="contact-hint">
 								<legend className="govuk-fieldset__legend govuk-fieldset__legend--s">
-									<h1 className="govuk-fieldset__heading">Is the land registered with the Land Registry?</h1>
+									<h2 className="govuk-fieldset__heading">Is the land registered with the Land Registry?</h2>
 								</legend>
 								<div id="contact-hint" className="govuk-hint"></div>
 								{errors.landRegistry && (
@@ -202,7 +220,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 								<div className="govuk-radios" data-module="govuk-radios">
 									<div className="govuk-radios__item">
-										<input className="govuk-radios__input" id="landRegistry-yes" name="landRegistry" type="radio" value="yes" checked={landRegistry === "yes"} onChange={e => setLandRegistry(e.target.value)} />
+										<input className="govuk-radios__input" id="landRegistry-yes" name="landRegistry" type="radio" value="yes" checked={landRegistry === "yes"} onChange={e => setLandRegistry(e.target.value)} aria-controls="landRegistry-yes-hidden" />
 										<label className="govuk-label govuk-radios__label" htmlFor="landRegistry-yes">Yes</label>
 									</div>
 									<div className="govuk-radios__item">
@@ -210,8 +228,9 @@ const ApplicationLandDetails: React.FC = () => {
 										<label className="govuk-label govuk-radios__label" htmlFor="landRegistry-no">No</label>
 									</div>
 								</div>
+								<RevealAnnouncement shown={landRegistry === "yes"} message="A new question is shown below: Reference number" />
 								{landRegistry === "yes" && (
-									<div className={`govuk-form-group${errors.landRegistryRef ? ' govuk-form-group--error' : ''}`}>  
+									<div className={`govuk-form-group${errors.landRegistryRef ? ' govuk-form-group--error' : ''}`} id="landRegistry-yes-hidden">  
 										<label className="govuk-label" htmlFor="landRegistryRef">Reference number</label>
 										<div className="govuk-hint">Usually found on the land title or deeds</div>
 										{errors.landRegistryRef && (
@@ -222,7 +241,7 @@ const ApplicationLandDetails: React.FC = () => {
 								)}
 							</fieldset>
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h3 className="govuk-heading-m">OS Grid Reference <span className="govuk-hint">(optional)</span></h3>
 						<div id="OSGrid" className="govuk-hint">Enter the Ordinance Survey Grid reference number for this location.</div>
 						<div className="govuk-grid-row">
@@ -245,7 +264,7 @@ const ApplicationLandDetails: React.FC = () => {
 								</div>
 							</div>
 						</div>
-						<hr className="govuk-!-margin-bottom-5" />
+						<div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-5" aria-hidden="true" />
 						<h2 className="govuk-heading-m" id="location">Other identifying information</h2>
 						<div className="govuk-form-group" id="What3Words-group">
 							<label className="govuk-label govuk-label--s" htmlFor="What3Words">What3Words location for the site <span className="govuk-hint">(optional)</span></label>

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useAssignmentHistory } from '../../../ApplicationReassignment/hooks/useAssignmentHistory';
 import { useNavigate } from 'react-router-dom';
 import { NWL_BASE_URL } from '../../../../constants/nwl';
 import { ApplicationReviewSummaryData } from '../../../ApplicationSummary/types/reviewSummary';
@@ -29,6 +30,9 @@ import {
 } from '../../CheckYourAnswers/components';
 import { CHECK_YOUR_ANSWERS_CONSTANTS as CYA_CONSTANTS } from '../../CheckYourAnswers/constants';
 import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../ApplicationSummary/constants';
+import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
+import { isFirFeatureDisabled } from '../../../../utils/disabledFormTypes';
+import { ApplicationReassignmentLinks } from '../../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -44,6 +48,8 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     withdrawalRequest,
 }) => {
     const navigate = useNavigate();
+    const assignment = useAssignmentHistory(applicationId);
+    const assigneeName = assignment.loading ? 'Loading...' : assignment.error ? 'Unavailable' : assignment.details?.current_assignee_name;
     const {
         isDownloading,
         isDownloadingPackage,
@@ -151,7 +157,19 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
             <ReviewApplicationInfoCard
                 desnzRef={data.desnzRef}
                 status={data.status}
+                assigneeName={assigneeName}
+                withdrawalRequest={withdrawalRequest}
             />
+
+            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
+                so it must not be gated on the *current* status (a completed FIR should still
+                be reachable via "View all information requests" after status moves on). */}
+            {!isFirFeatureDisabled() && (
+                <FirSummaryCard
+                    applicationId={applicationId}
+                    basePath={`${NWL_BASE_URL}/${applicationId}/further-information-requests`}
+                />
+            )}
 
             <ReviewPaymentDetailsCard 
                 payment={data.payment}
@@ -160,6 +178,8 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 desnzRef={data.desnzRef}
                 applicationStatus={data.status}
             />
+
+            <ApplicationReassignmentLinks applicationId={applicationId} status={data.status} />
 
             <h2 className="govuk-heading-m govuk-!-margin-top-6">
                 Download and share a copy of your application

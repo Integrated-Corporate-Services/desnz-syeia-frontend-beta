@@ -1,4 +1,5 @@
 import React from "react";
+import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
 
 interface RadioGroupProps {
 	isEiaDevelopment: string;
@@ -40,11 +41,13 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							checked={isEiaDevelopment === "true"}
 
 							onChange={onChange}
+							aria-controls="isEiaDevelopment-hidden"
 						/>
 						<label className="govuk-label govuk-radios__label" htmlFor="isEiaDevelopment">
 							Yes
 						</label>
 					</div>
+					<RevealAnnouncement shown={isEiaDevelopment === "true"} message="A new question is shown below: Are you sure?" />
 					{isEiaDevelopment === "true" && (
 						<div className="govuk-radios__conditional" id="isEiaDevelopment-hidden">
 							<div className="govuk-form-group">
@@ -108,6 +111,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							checked={isEiaDevelopment === "false"}
 
 							onChange={onChange}
+							aria-controls="isEiaDevelopment-no-hidden"
 						/>
 						<label className="govuk-label govuk-radios__label" htmlFor="isEiaDevelopment-no">
 							No
@@ -120,7 +124,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 							</p>
 							<ul className="govuk-list govuk-list--bullet">
 								<li>The application contains an asset with a line voltage of 132kV or higher</li>
-								<li>The route passes through sensitive areas that requires a screening decision</li>
+								<li>The route passes through sensitive areas that require a screening decision</li>
 							</ul>
 							<p className="govuk-body">
 								No further action is required.
@@ -128,6 +132,7 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
 						</div>
 					)}
 				</div>
+				<RevealAnnouncement shown={isEiaDevelopment === "false"} message="Please note, a mandatory EIA screening will be carried out for this application due to at least one of the following reasons: The application contains an asset with a line voltage of 132kV or higher. The route passes through sensitive areas that require a screening decision. No further action is required." />
 			</fieldset>
 		</div>
 	);

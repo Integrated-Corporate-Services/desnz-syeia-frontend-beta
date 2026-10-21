@@ -3,6 +3,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import PageTitle from "../../../../components/PageTitle";
 import { NWL_BASE_URL } from "../../../../constants/nwl";
 import logger from "../../../../logger";
+import RevealAnnouncement from "../../../../components/commonFormFields/RevealAnnouncement";
+import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 const LandownerOccupantDetails: React.FC = () => {
   const [classification, setClassification] = useState("");
@@ -249,22 +252,25 @@ const LandownerOccupantDetails: React.FC = () => {
     }
   };
   // Extra null checks for robustness
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+          >
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">Landowner or occupant details</li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Landowner or occupant details" />
-                <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-			<ol className="govuk-breadcrumbs__list">
-				<li className="govuk-breadcrumbs__list-item">
-					<Link
-						className="govuk-breadcrumbs__link"
-						to={`${NWL_BASE_URL}/${applicationId}/task-list`}
-					>
-						Task list
-					</Link>
-				</li>
-				<li className="govuk-breadcrumbs__list-item" aria-current="page">Landowner or occupant details</li>
-			</ol>
-		</nav>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Landowner or occupant details</h1>
@@ -288,12 +294,18 @@ const LandownerOccupantDetails: React.FC = () => {
               {errors.classification && (
                 <p className="govuk-error-message" id="classification-error">{errors.classification}</p>
               )}
-              <select className="govuk-select" id="classification" name="classification" value={classification} onChange={e => setClassification(e.target.value)} aria-describedby={errors.classification ? "classification-error" : undefined}>
-                <option value="">Select one</option>
-                <option value="Owner">Owner</option>
-                <option value="Occupier">Occupier</option>
-                <option value="Owner/Occupier">Owner/Occupier</option>
-              </select>
+              <AccessibleSelect
+                id="classification"
+                value={classification}
+                onChange={setClassification}
+                aria-describedby={errors.classification ? "classification-error" : undefined}
+                options={[
+                  { value: "", text: "Select one" },
+                  { value: "Owner", text: "Owner" },
+                  { value: "Occupier", text: "Occupier" },
+                  { value: "Owner/Occupier", text: "Owner/Occupier" },
+                ]}
+              />
             </div>
             <div className={`govuk-form-group${errors.name ? ' govuk-form-group--error' : ''}`}>  
               <label className="govuk-label govuk-label--s" htmlFor="description">Name</label>
@@ -329,7 +341,7 @@ const LandownerOccupantDetails: React.FC = () => {
               <div id="grantorRep-hint" className="govuk-hint"></div>
               <div className="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                 <div className="govuk-radios__item">
-                  <input className="govuk-radios__input" id="grantorRep" name="grantorRep" type="radio" value="Yes" checked={grantorRep === "Yes"} onChange={e => { setGrantorRep(e.target.value); setShowRepFields(e.target.value === "Yes"); }} />
+                  <input className="govuk-radios__input" id="grantorRep" name="grantorRep" type="radio" value="Yes" checked={grantorRep === "Yes"} onChange={e => { setGrantorRep(e.target.value); setShowRepFields(e.target.value === "Yes"); }} aria-controls="grantorRep-hidden" />
                   <label className="govuk-label govuk-radios__label" htmlFor="grantorRep">Yes</label>
                 </div>
                 <div className="govuk-radios__item">
@@ -338,8 +350,9 @@ const LandownerOccupantDetails: React.FC = () => {
                 </div>
               </div>
             </fieldset>
+            <RevealAnnouncement shown={showRepFields} message="New questions are shown below: representative name, address, email address and phone number" />
             {showRepFields && (
-              <div className="grantor-rep">
+              <div className="grantor-rep" id="grantorRep-hidden">
                 <div className={`govuk-form-group${errors.grantorRepDescription ? ' govuk-form-group--error' : ''}`}>  
                   <label className="govuk-label govuk-label--s" htmlFor="grantorRepDescription">Representative name</label>
                   <div id="grantorRepDescription-hint" className="govuk-hint">E.g. Smith and Smith Solicitors Ltd</div>

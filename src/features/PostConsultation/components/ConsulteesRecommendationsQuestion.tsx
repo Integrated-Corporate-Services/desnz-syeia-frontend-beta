@@ -1,4 +1,5 @@
 import React from "react";
+import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
 
 interface ConsulteesRecommendationsQuestionProps {
   consulteesRecommendations: string;
@@ -63,6 +64,7 @@ const ConsulteesRecommendationsQuestion: React.FC<
                 onConsulteesRecommendationsChange(e.target.value)
               }
               data-aria-controls="conditional-consultees-recommendations-yes"
+              aria-controls="conditional-consultees-recommendations-yes"
             />
             <label
               className="govuk-label govuk-radios__label"
@@ -71,6 +73,7 @@ const ConsulteesRecommendationsQuestion: React.FC<
               Yes
             </label>
           </div>
+          <RevealAnnouncement shown={consulteesRecommendations === "yes"} message="A new question is shown below: Do you accept the recommendations made by the consultees?" />
           <div
             className={`govuk-radios__conditional ${consulteesRecommendations === "yes" ? "" : "govuk-radios__conditional--hidden"}`}
             id="conditional-consultees-recommendations-yes"
@@ -114,6 +117,7 @@ const ConsulteesRecommendationsQuestion: React.FC<
                         onAcceptConsulteesRecommendationsChange(e.target.value)
                       }
                       data-aria-controls="conditional-accept-consultees-recommendations-no"
+                      aria-controls="conditional-accept-consultees-recommendations-no"
                     />
                     <label
                       className="govuk-label govuk-radios__label"
@@ -122,6 +126,7 @@ const ConsulteesRecommendationsQuestion: React.FC<
                       No
                     </label>
                   </div>
+                  <RevealAnnouncement shown={acceptConsulteesRecommendations === "no"} message="A new question is shown below: Explain why you do not accept the consultees' recommendations" />
                   <div
                     className={`govuk-radios__conditional ${acceptConsulteesRecommendations === "no" ? "" : "govuk-radios__conditional--hidden"}`}
                     id="conditional-accept-consultees-recommendations-no"

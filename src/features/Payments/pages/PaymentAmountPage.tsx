@@ -5,6 +5,7 @@ import { buildBackendUrl } from '../../../utils/apiConfig';
 import { NWL_BASE_URL } from '../../../constants/nwl';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const PaymentAmountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,21 @@ const PaymentAmountPage: React.FC = () => {
   const [error, setError] = useState('');
   
   const baseUrl = location.pathname.includes('/nwl/') ? NWL_BASE_URL : S37_BASE_URL;
+
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          Payment Amount
+        </li>
+      </ol>
+    </nav>
+  );
 
   // Dynamic payment breakdown - fetched from backend
   const [consentFee, setConsentFee] = useState(0);
@@ -131,20 +147,7 @@ const PaymentAmountPage: React.FC = () => {
     <>
             <PageTitle title="Payment required" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            Payment Amount
-          </li>
-        </ol>
-      </nav>
 
-      
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (

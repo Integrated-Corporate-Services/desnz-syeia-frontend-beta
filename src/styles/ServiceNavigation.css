@@ -21,7 +21,8 @@
     line-height: 1.25;
     font-weight: 700;
     color: #0b0c0c;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .rcc-service-nav__user-name {

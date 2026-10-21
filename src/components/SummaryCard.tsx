@@ -28,16 +28,14 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ sections, heading }) => (
           )}
         </div>
         <div className="govuk-summary-card__content">
-          <table className="govuk-table govuk-!-margin-bottom-0">
-            <tbody className="govuk-table__body">
-              {section.items.map((item, i) => (
-                <tr className="govuk-table__row" key={i}>
-                  <td className="govuk-table__cell govuk-!-font-weight-bold">{item.label}</td>
-                  <td className="govuk-table__cell">{item.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <dl className="govuk-summary-list govuk-!-margin-bottom-0">
+            {section.items.map((item, i) => (
+              <div className="govuk-summary-list__row" key={i}>
+                <dt className="govuk-summary-list__key">{item.label}</dt>
+                <dd className="govuk-summary-list__value">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     ))}

@@ -10,6 +10,8 @@ import { useSensitiveAreaReview } from '../../../hooks/useSensitiveAreaReview';
 import { SensitiveAreaPoleOption } from '../../../types/SensitiveAreaPoleOption';
 import { SENSITIVE_AREA_ERRORS } from '../../../constants/sensitiveAreaError';
 import PageTitle from '../../../components/PageTitle';
+import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const SensitiveAreaReviewPage: React.FC = () => {
   // Get applicationId from URL params or query string
@@ -191,20 +193,23 @@ const SensitiveAreaReviewPage: React.FC = () => {
   const allPassedAreas = [...passedAreasScreening, ...passedAreasNoScreening];
   const hasAnyFailedAreas = allFailedAreas.length > 0;
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">Sensitive area review</li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
             <PageTitle title="Sensitive area review" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${effectiveApplicationId}/task-list`}>
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">Sensitive area review</li>
-        </ol>
-      </nav>
       <div className='govuk-grid-row'>
         <div className="govuk-grid-column-two-thirds">
       <h1 className="govuk-heading-xl govuk-!-margin-bottom-2">Sensitive area review</h1>
@@ -375,6 +380,7 @@ const SensitiveAreaReviewPage: React.FC = () => {
             <FileUpload
               ref={fileUploadRef}
               title="Environmental and archaeological documents"
+              showTitle={false}
               prefix={`${effectiveApplicationId}/${FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}`}
               applicationId={effectiveApplicationId}
               category={FILE_CATEGORIES.SENSITIVE_AREA_REVIEW}
@@ -384,14 +390,9 @@ const SensitiveAreaReviewPage: React.FC = () => {
             />
           </div>
 
-          <details className="govuk-details govuk-!-margin-bottom-6" data-module="govuk-details">
-            <summary className="govuk-details__summary">
-              <span className="govuk-details__summary-text">What information should be included in the environmental and archaeological documents</span>
-            </summary>
-            <div className="govuk-details__text">
-              Upload all the supporting documentation and environmental reports relating to your application. This should include Natural England / Natural Resources Wales as well as ecological reports, heritage reports and evidence of other consultations you have had with statutory bodies
-            </div>
-          </details>
+          <Details id="document-information-details" summary="What information should be included in the environmental and archaeological documents" className="govuk-!-margin-bottom-6">
+            Upload all the supporting documentation and environmental reports relating to your application. This should include Natural England / Natural Resources Wales as well as ecological reports, heritage reports and evidence of other consultations you have had with statutory bodies
+          </Details>
 
           <div id="pole-radio-group" className={`govuk-form-group govuk-!-margin-bottom-6${formErrors.includes(SENSITIVE_AREA_ERRORS.SELECT_POLE_OPTION) ? ' govuk-form-group--error' : ''}`}> 
             <fieldset className="govuk-fieldset">

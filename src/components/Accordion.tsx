@@ -9,11 +9,12 @@ interface AccordionSection {
 interface AccordionProps {
   sections: AccordionSection[];
   heading?: string;
+  initialOpen?: boolean;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ sections, heading }) => {
+const Accordion: React.FC<AccordionProps> = ({ sections, heading, initialOpen = true }) => {
   const [openSections, setOpenSections] = useState<{ [id: string]: boolean }>(
-    sections.reduce((acc, section) => ({ ...acc, [section.id]: true }), {})
+    sections.reduce((acc, section) => ({ ...acc, [section.id]: initialOpen }), {})
   );
 
   const toggleSection = (id: string) => {
@@ -31,7 +32,6 @@ const Accordion: React.FC<AccordionProps> = ({ sections, heading }) => {
               id={`accordion-section-button-${section.id}`}
               aria-controls={`accordion-section-content-${section.id}`}
               aria-expanded={openSections[section.id]}
-              aria-labelledby={`accordion-section-heading-${section.id}`}
               onClick={() => toggleSection(section.id)}
             >
               <span className="govuk-accordion__section-heading-text">
@@ -42,6 +42,7 @@ const Accordion: React.FC<AccordionProps> = ({ sections, heading }) => {
                   <span className={`govuk-accordion-nav__chevron${openSections[section.id] ? " govuk-accordion-nav__chevron--down" : ""}`}></span>
                   <span className="govuk-accordion__section-toggle-text">
                     {openSections[section.id] ? "Hide" : "Show"}
+                    <span className="govuk-visually-hidden"> this section</span>
                   </span>
                 </span>
               </span>
@@ -51,7 +52,6 @@ const Accordion: React.FC<AccordionProps> = ({ sections, heading }) => {
             id={`accordion-section-content-${section.id}`}
             className="govuk-accordion__section-content"
             style={{ display: openSections[section.id] ? 'block' : 'none', marginTop: '8px' }}
-            aria-labelledby={`accordion-section-heading-${section.id}`}
           >
             {section.children}
           </div>

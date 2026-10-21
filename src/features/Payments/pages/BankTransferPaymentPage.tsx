@@ -12,6 +12,7 @@ import {
 } from '../../../constants/payment';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { fetchFeeTotal, fetchInvoiceNumber } from '../services/paymentDetailsService';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const BankTransferPaymentPage: React.FC = () => {
   const navigate = useNavigate();
@@ -114,24 +115,27 @@ const BankTransferPaymentPage: React.FC = () => {
     navigate(`${baseUrl}/${applicationId}/task-list`);
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
+            Pay and submit
+          </Link>
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Pay by bank transfer" />
             <div className="govuk-width-container">
-              <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item">
-              <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/payment-method`}>
-                Pay and submit
-              </Link>
-            </li>
-          </ol>
-        </nav>
 
         {error && (
           <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
@@ -176,32 +180,30 @@ const BankTransferPaymentPage: React.FC = () => {
             </div>
 
             <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
-              <fieldset className="govuk-fieldset">
-                {error && (
-                  <p id="confirm-bank-transfer-error" className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span> {error}
-                  </p>
-                )}
-                <div className="govuk-checkboxes" data-module="govuk-checkboxes">
-                  <div className="govuk-checkboxes__item">
-                    <input
-                      className="govuk-checkboxes__input"
-                      id="confirm-bank-transfer"
-                      name="confirm-bank-transfer"
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => {
-                        setIsChecked(e.target.checked);
-                        setError('');
-                      }}
-                      aria-describedby={error ? 'confirm-bank-transfer-error' : undefined}
-                    />
-                    <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-bank-transfer">
-                      I confirm I want to pay by bank transfer
-                    </label>
-                  </div>
+              {error && (
+                <p id="confirm-bank-transfer-error" className="govuk-error-message">
+                  <span className="govuk-visually-hidden">Error:</span> {error}
+                </p>
+              )}
+              <div className="govuk-checkboxes" data-module="govuk-checkboxes">
+                <div className="govuk-checkboxes__item">
+                  <input
+                    className="govuk-checkboxes__input"
+                    id="confirm-bank-transfer"
+                    name="confirm-bank-transfer"
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => {
+                      setIsChecked(e.target.checked);
+                      setError('');
+                    }}
+                    aria-describedby={error ? 'confirm-bank-transfer-error' : undefined}
+                  />
+                  <label className="govuk-label govuk-checkboxes__label" htmlFor="confirm-bank-transfer">
+                    I confirm I want to pay by bank transfer
+                  </label>
                 </div>
-              </fieldset>
+              </div>
             </div>
 
             <div className="govuk-button-group">

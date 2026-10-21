@@ -8,6 +8,7 @@ import {
   LABELS,
   INTRODUCTION_CONTENT,
 } from "../constants/objectorDetailsConstants";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 /**
  * Objector Details Introduction Page
@@ -24,25 +25,28 @@ const ObjectorDetailsIntroduction: React.FC = () => {
     })();
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${NWL_BASE_URL}/${appId}/task-list`}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {BREADCRUMBS.OBJECTOR_DETAILS}
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Objector and other parties' details" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link
-              className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${appId}/task-list`}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {BREADCRUMBS.OBJECTOR_DETAILS}
-          </li>
-        </ol>
-      </nav>
 
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">

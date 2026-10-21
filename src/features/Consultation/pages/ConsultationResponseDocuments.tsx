@@ -12,6 +12,7 @@ import { ConsultationType } from '../../../constants/consultationType';
 import { fetchConsultationDetails } from '../../../services/consultationService';
 import { CONSULTATION_VALIDATION_MESSAGES } from '../../../constants/consultationValidationMessages';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ConsultationResponse2: React.FC = () => {
     const { consultationId, applicationId } = useParams();
@@ -255,24 +256,26 @@ const ConsultationResponse2: React.FC = () => {
         }
     };
 
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">Provide consultation response</li>
+            </ol>
+        </nav>
+    );
+
     return (
         <>
             <PageTitle title="Consultation response documents" />
                         <div className="govuk-width-container">
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
-                    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-                        <ol className="govuk-breadcrumbs__list">
-                            <li className="govuk-breadcrumbs__list-item">
-                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>Task list</Link>
-                            </li>
-                            <li className="govuk-breadcrumbs__list-item">
-                                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>Manage consultation</Link>
-                            </li>
-                            <li className="govuk-breadcrumbs__list-item" aria-current="page">Provide consultation response</li>
-                        </ol>
-                    </nav>
-
                                             {isLoading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : (
@@ -312,9 +315,11 @@ const ConsultationResponse2: React.FC = () => {
                             </div>
                         )}
 
-                        {consultationType === ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">Public notices</h2>}
-                        {consultationType !== ConsultationType.PUBLIC && <h2 className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</h2>}
-                        <h1 className="govuk-heading-l">{consultationType === ConsultationType.PUBLIC ? 'Upload public responses' : 'Provide consultation response'}</h1>
+                        <h1 className="govuk-heading-l">
+                          {consultationType === ConsultationType.PUBLIC && <span className="govuk-caption-xl govuk-!-margin-top-0">Public notices</span>}
+                          {consultationType !== ConsultationType.PUBLIC && <span className="govuk-caption-xl govuk-!-margin-top-0">{consultationName}</span>}
+                          {consultationType === ConsultationType.PUBLIC ? 'Upload public responses' : 'Provide consultation response'}
+                        </h1>
 
                         <form noValidate>
                             {consultationType !== ConsultationType.PUBLIC && (
@@ -415,7 +420,7 @@ const ConsultationResponse2: React.FC = () => {
                                     
                                     {applicationDocuments && applicationDocuments.length > 0 && (
                                         <div className="govuk-!-margin-top-2">
-                                            <h3 className="govuk-heading-s">Documents uploaded</h3>
+                                            <h2 className="govuk-heading-s">Documents uploaded</h2>
                                         </div>
                                     )}
                                     

@@ -15,7 +15,7 @@ interface UseNetworkOperatorFormReturn {
   setShowErrorSummary: (show: boolean) => void;
   validateForm: () => boolean;
   handleOperatorChange: (
-    e: React.ChangeEvent<HTMLSelectElement>,
+    selectedName: string,
     options: ApplicationParty[]
   ) => void;
   resetForm: () => void;
@@ -47,8 +47,7 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
   }, [networkOperatorRef, selectedOrgName]);
 
   const handleOperatorChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>, options: ApplicationParty[]) => {
-      const selectedName = e.target.value;
+    (selectedName: string, options: ApplicationParty[]) => {
       setSelectedOrgName(selectedName);
       const org = options.find((opt) => opt.person_name === selectedName);
       setSelectedOrganisation(org || null);

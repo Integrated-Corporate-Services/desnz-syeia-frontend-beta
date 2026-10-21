@@ -39,6 +39,7 @@ const TYPE_MAP: Record<string, string> = {
   'overhead-lines': 'overhead-lines',
   'nwl': 'necessary-wayleaves',
   'necessary-wayleaves': 'necessary-wayleaves',
+  'cpo': 'compulsory-purchase-order',
 } as const;
 
 /**
@@ -79,6 +80,7 @@ export const getApplicationTypeLabel = (appType: string): string => {
   const labels: Record<string, string> = {
     'overhead-lines': 'Overhead Lines (S37)',
     'necessary-wayleaves': 'Necessary Wayleaves',
+    'compulsory-purchase-order': 'Compulsory purchase order',
   };
 
   return labels[normalized] || appType;

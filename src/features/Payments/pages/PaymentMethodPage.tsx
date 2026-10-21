@@ -11,6 +11,8 @@ import { trackPaymentEvent } from '../../../utils/analytics';
 import PAYMENT_PAGE_TEXT from '../../../constants/paymentPage.constants';
 import { getCardPaymentDescription } from '../../../constants/payment';
 import PageTitle from '../../../components/PageTitle';
+import Details from '../../../components/Details';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('PaymentMethodPage');
 
@@ -166,24 +168,25 @@ const handlePayByCard = async () => {
     });
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          Pay and submit
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
             <PageTitle title="Choose payment method" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link className="govuk-breadcrumbs__link" to={`${baseUrl}/${applicationId}/task-list`}>
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            Pay and submit
-          </li>
-        </ol>
-      </nav>
-
-      
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {error && (
@@ -209,32 +212,26 @@ const handlePayByCard = async () => {
 
             <p className="govuk-body">{PAYMENT_PAGE_TEXT.cardBenefits}</p>
 
-            <details
-              className="govuk-details govuk-!-margin-top-6"
-              data-module="govuk-details"
+            <Details
+              id="bank-transfer-details"
+              summary={PAYMENT_PAGE_TEXT.detailsSummary}
+              className="govuk-!-margin-top-6"
             >
-              <summary className="govuk-details__summary">
-                <span className="govuk-details__summary-text">
-                  {PAYMENT_PAGE_TEXT.detailsSummary}
-                </span>
-              </summary>
-              <div className="govuk-details__text">
-                <p className="govuk-body">
-                  {PAYMENT_PAGE_TEXT.detailsParagraphs[0]}
-                </p>
-                <p className="govuk-body">
-                  Your application&apos;s status will show as &apos;{PAYMENT_PAGE_TEXT.detailsStatus}&apos; until we have reconciled your payment.
-                </p>
-                <button
-                  type="button"
-                  className="govuk-button govuk-button--secondary"
-                  data-module="govuk-button"
-                  onClick={handleBankTransfer}
-                >
-                  {PAYMENT_PAGE_TEXT.bankTransferButton}
-                </button>
-              </div>
-            </details>
+              <p className="govuk-body">
+                {PAYMENT_PAGE_TEXT.detailsParagraphs[0]}
+              </p>
+              <p className="govuk-body">
+                Your application&apos;s status will show as &apos;{PAYMENT_PAGE_TEXT.detailsStatus}&apos; until we have reconciled your payment.
+              </p>
+              <button
+                type="button"
+                className="govuk-button govuk-button--secondary"
+                data-module="govuk-button"
+                onClick={handleBankTransfer}
+              >
+                {PAYMENT_PAGE_TEXT.bankTransferButton}
+              </button>
+            </Details>
 
             <div className="govuk-button-group govuk-!-margin-top-6">
               <button

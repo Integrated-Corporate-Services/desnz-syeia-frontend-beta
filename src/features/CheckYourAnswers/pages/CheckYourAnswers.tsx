@@ -31,6 +31,7 @@ import {
   POST_CONSULTATION_QUESTIONS,
 } from '../constants/applicationSummaryLabels';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 
 const CheckYourAnswers: React.FC = () => {
@@ -377,32 +378,34 @@ const CheckYourAnswers: React.FC = () => {
       });
   }, [applicationId]);
 
+  useBreadcrumb(
+    permissions?.canEdit ? (
+      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item" aria-current="false">
+            <Link
+              className="govuk-breadcrumbs__link"
+              to={`${S37_BASE_URL}/${applicationId}/task-list`}
+            >
+              Task list
+            </Link>
+          </li>
+          <li className="govuk-breadcrumbs__list-item" aria-current="true">
+            Submit Section 37 application
+          </li>
+        </ol>
+      </nav>
+    ) : (
+      <Link to="/application-dashboard" className="govuk-back-link">
+        Application Dashboard
+      </Link>
+    )
+  );
+
   return (
     <>
       <PageTitle title="Check your answers" />
             <div className="govuk-width-container">
-      {!permissions?.canEdit && (
-        <Link to="/application-dashboard" className="govuk-back-link">
-          Application Dashboard
-        </Link>
-      )}
-      {permissions?.canEdit && (
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-          <ol className="govuk-breadcrumbs__list">
-            <li className="govuk-breadcrumbs__list-item" aria-current="false">
-              <Link
-                className="govuk-breadcrumbs__link"
-                to={`${S37_BASE_URL}/${applicationId}/task-list`}
-              >
-                Task list
-              </Link>
-            </li>
-            <li className="govuk-breadcrumbs__list-item" aria-current="true">
-              Submit Section 37 application
-            </li>
-          </ol>
-        </nav>
-      )}
               {validationError && (
           <div
             className="govuk-error-summary govuk-!-width-two-thirds"

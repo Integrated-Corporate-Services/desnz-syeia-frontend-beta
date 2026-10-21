@@ -8,6 +8,7 @@ import {
   ActionButtons,
 } from '../../../components/shared/ReviewRequestComponents';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ReviewRequestPage: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
@@ -38,6 +39,12 @@ const ReviewRequestPage: React.FC = () => {
     navigateToDashboard();
   };
 
+  useBreadcrumb(
+    <a href="#" className="govuk-back-link" onClick={handleBackClick}>
+      Back
+    </a>
+  );
+
   const handleApprove = () => {
     if (requestData) {
       const fullName = `${requestData.first_name} ${requestData.last_name}`;
@@ -66,9 +73,6 @@ const ReviewRequestPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-                  <a href="#" className="govuk-back-link" onClick={handleBackClick}>
-            Back
-          </a>
           <div className="govuk-body">
             <p>Loading request details...</p>
           </div>
@@ -81,9 +85,6 @@ const ReviewRequestPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
-                      <a href="#" className="govuk-back-link" onClick={handleBackClick}>
-              Back
-            </a>
             <h1 className="govuk-heading-l">Request not found</h1>
             <p className="govuk-body">The requested access request could not be found.</p>
                   </div>
@@ -95,10 +96,6 @@ const ReviewRequestPage: React.FC = () => {
     <>
       <PageTitle title="Review access request" />
             <div className="govuk-width-container">
-                <a href="#" className="govuk-back-link" onClick={handleBackClick}>
-          Back
-        </a>
-
         {errors.length > 0 && (
           <ErrorSummary errors={errors} />
         )}

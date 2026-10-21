@@ -23,7 +23,7 @@ const SignedOutPage: React.FC = () => {
   return (
     <div className="govuk-width-container">
       <PageTitle title="You have been signed out" />
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <div className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl">You have been signed out</h1>
@@ -56,7 +56,7 @@ const SignedOutPage: React.FC = () => {
            
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

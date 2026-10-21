@@ -7,6 +7,7 @@ import {
   updateCurrentUserWorkAddress,
 } from '../services/yourDetailsService';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 type FormErrors = {
   line1?: string;
@@ -29,6 +30,12 @@ const ChangeWorkAddressPage: React.FC = () => {
   const [postcode, setPostcode] = useState('');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useBreadcrumb(
+    <Link className="govuk-back-link" to="/your-details">
+      Back
+    </Link>
+  );
 
   useEffect(() => {
     const loadDetails = async () => {
@@ -150,10 +157,6 @@ const ChangeWorkAddressPage: React.FC = () => {
     <>
             <PageTitle title="Change your work address" />
             <div className="govuk-width-container">
-      <Link className="govuk-back-link" to="/your-details">
-        Back
-      </Link>
-
               <h1 className="govuk-heading-l govuk-!-margin-bottom-6">Change your work address</h1>
 
         {loading && <p className="govuk-body">Loading...</p>}

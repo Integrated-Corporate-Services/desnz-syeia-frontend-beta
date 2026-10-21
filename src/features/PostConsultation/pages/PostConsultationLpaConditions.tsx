@@ -12,6 +12,7 @@ import {
 import { SaveType } from "../types";
 import { useNavigate } from "react-router-dom";
 import PageTitle from "../../../components/PageTitle";
+import { useBreadcrumb } from "../../../context/BreadcrumbContext";
 
 const PostConsultationLpaConditions: React.FC = () => {
   const { applicationId, getTaskListUrl, navigateAfterCompletion } = usePostConsultationNavigation();
@@ -39,6 +40,21 @@ const PostConsultationLpaConditions: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link className="govuk-breadcrumbs__link" to={getTaskListUrl()}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          {POST_CONSULTATION_CONSTANTS.BREADCRUMB_LABEL}
+        </li>
+      </ol>
+    </nav>
+  );
+
   if (loading) {
     return (
       <>
@@ -56,18 +72,6 @@ const PostConsultationLpaConditions: React.FC = () => {
     <>
             <PageTitle title="Accept LPA conditions" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={getTaskListUrl()}>
-              Task list
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            {POST_CONSULTATION_CONSTANTS.BREADCRUMB_LABEL}
-          </li>
-        </ol>
-      </nav>
              <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {(error || acceptConditionsError) && (

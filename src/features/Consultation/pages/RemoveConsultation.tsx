@@ -5,6 +5,7 @@ import { getConsultationDetailsById, removeConsultation } from '../../../service
 import { ConsultationDetails } from '../../../types/ConsultationDetails';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const logger = createLogger('RemoveConsultation');
 
@@ -67,30 +68,32 @@ const RemoveConsultation: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
+            Task list
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item">
+          <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
+            Manage consultation
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          Remove consultation
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Remove consultation" />
             <div className="govuk-width-container">
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            <ol className="govuk-breadcrumbs__list">
-              <li className="govuk-breadcrumbs__list-item">
-                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                  Task list
-                </Link>
-              </li>
-              <li className="govuk-breadcrumbs__list-item">
-                <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/consultation-details`}>
-                  Manage consultation
-                </Link>
-              </li>
-              <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                Remove consultation
-              </li>
-            </ol>
-          </nav>
-
                       {isLoading ? (
               <div className="govuk-body">Loading...</div>
             ) : (

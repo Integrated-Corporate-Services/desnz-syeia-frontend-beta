@@ -3,6 +3,9 @@ import { useLocation, Link } from "react-router-dom";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import { ROLES } from "../../constants/roles";
 import type { AuthUser } from "../../types/auth";
+import { NOTIFICATIONS_PATH } from "../../features/InAppNotifications/constants/inAppNotifications";
+import { useUnreadNotificationCount } from "../../features/InAppNotifications/hooks/useInAppNotifications";
+import { isNotificationsFeatureDisabled, isYourDetailsFeatureDisabled } from "../../utils/disabledFormTypes";
 import "../../styles/ServiceNavigation.css";
 
 const ServiceNavigation = () => {
@@ -13,7 +16,10 @@ const ServiceNavigation = () => {
     // Handle all possible application dashboard paths
     const applicationDashboardPaths = ["/", "/application-dashboard"];
 
-    // Hide navigation on the sign-in, request-access, and sent-for-approval pages
+    // Hide navigation on the sign-in, request-access, and sent-for-approval pages.
+    // /cookies is deliberately NOT here - it's a normal footer-linked page reachable
+    // both signed in and signed out, so nav visibility should follow the `!user`
+    // check below like the other footer pages (/privacy, /terms, /contact, /accessibility).
     const hideNavPaths = [
         "/",
         "/request-access",
@@ -21,7 +27,6 @@ const ServiceNavigation = () => {
         "/landingPage",
         "/s37-guidance",
         "/nwl-guidance",
-        "/cookies",
         "/access-revoked",
         "/signed-out",
         "/service-unavailable",
@@ -47,6 +52,17 @@ const ServiceNavigation = () => {
         location.pathname.includes("/admin/") ||
         location.pathname.includes("/user-management");
     const isOnReportingPage = location.pathname === "/admin/reporting";
+    // "/notifications/" is the same page as "/notifications".
+    const isOnNotificationsPage = location.pathname.replace(/\/+$/, "") === NOTIFICATIONS_PATH;
+
+    // Pending users are still requesting access, so they have no notifications.
+    const showNotifications =
+        !isNotificationsFeatureDisabled() &&
+        !!user &&
+        (user as AuthUser)?.role !== "pending" &&
+        !isInRegistrationFlow &&
+        !hideNavPaths.includes(location.pathname);
+    const unreadNotificationCount = useUnreadNotificationCount(showNotifications, (user as AuthUser | null)?.user_id);
 
     if (!user || hideNavPaths.includes(location.pathname)) return null;
 
@@ -124,8 +140,31 @@ const ServiceNavigation = () => {
                                     Applications
                                 </Link>
                             </li>
-                            {/* Your details navigation is temporarily hidden from the UI.
-                            {!yourDetailsFeatureDisabled && (
+                            {showNotifications && (
+                                <li
+                                    className={`rcc-service-nav__item${
+                                        isOnNotificationsPage ? " rcc-service-nav__item--active" : ""
+                                    }`}
+                                >
+                                    <Link
+                                        className="rcc-service-nav__link"
+                                        to={NOTIFICATIONS_PATH}
+                                        aria-current={isOnNotificationsPage ? "page" : undefined}
+                                    >
+                                        Notifications
+                                        {/* The count is part of the link's name, e.g. "Notifications (3) unread".
+                                            It is not a live region: the navigation is drawn again on every page,
+                                            so screen readers would announce the count after every page change. */}
+                                        {unreadNotificationCount > 0 && (
+                                            <>
+                                                {" "}({unreadNotificationCount})
+                                                <span className="govuk-visually-hidden"> unread</span>
+                                            </>
+                                        )}
+                                    </Link>
+                                </li>
+                            )}
+                            {!isYourDetailsFeatureDisabled() && (
                                 <li
                                     className={`rcc-service-nav__item${
                                         isOnYourDetailsPages ? ' rcc-service-nav__item--active' : ''
@@ -139,7 +178,7 @@ const ServiceNavigation = () => {
                                         Your details
                                     </Link>
                                 </li>
-                            )} */}
+                            )}
                         </>
                     )}
                 </ul>

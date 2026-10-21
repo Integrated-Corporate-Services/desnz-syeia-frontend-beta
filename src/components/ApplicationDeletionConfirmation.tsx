@@ -104,7 +104,7 @@ export const ApplicationDeletionConfirmation: React.FC<ApplicationDeletionConfir
       }}>
         {step === 'confirm' && (
           <>
-            <h1 className="govuk-heading-l">Are you sure you want to delete this application?</h1>
+            <h2 className="govuk-heading-l">Are you sure you want to delete this application?</h2>
             
             <div className="govuk-body">
               <p>This will remove all the information you have entered and remove the application from your dashboard. You cannot retrieve deleted applications.</p>
@@ -112,6 +112,7 @@ export const ApplicationDeletionConfirmation: React.FC<ApplicationDeletionConfir
 
             <div className="govuk-form-group">
               <fieldset className="govuk-fieldset">
+                <legend className="govuk-visually-hidden">Are you sure you want to delete this application?</legend>
                 <div className="govuk-radios" data-module="govuk-radios">
                   <div className="govuk-radios__item">
                     <input
@@ -162,7 +163,7 @@ export const ApplicationDeletionConfirmation: React.FC<ApplicationDeletionConfir
         {step === 'success' && (
           <>
             <div className="govuk-panel govuk-panel--confirmation">
-              <h1 className="govuk-panel__title">Application deleted</h1>
+              <h2 className="govuk-panel__title">Application deleted</h2>
               <div className="govuk-panel__body">
                 Your application has been deleted.
               </div>

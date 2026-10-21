@@ -387,7 +387,7 @@ const InvoiceGenerationPage: React.FC = () => {
                     backgroundColor: '#1d70b8',
                     padding: '10px 15px'
                   }}>
-                    <h2 style={{ 
+                    <p style={{ 
                       color: '#ffffff',
                       margin: 0,
                       fontSize: '19px',
@@ -395,7 +395,7 @@ const InvoiceGenerationPage: React.FC = () => {
                       fontFamily: 'Arial, sans-serif'
                     }}>
                       Important
-                    </h2>
+                    </p>
                   </div>
                   <div style={{ 
                     backgroundColor: '#ffffff',
@@ -435,7 +435,7 @@ const InvoiceGenerationPage: React.FC = () => {
                       margin: '0 auto 30px auto'
                     }}
                   />
-                  <p style={{ 
+                  <h1 style={{ 
                     margin: 0,
                     fontSize: '24px',
                     fontWeight: 700,
@@ -443,7 +443,7 @@ const InvoiceGenerationPage: React.FC = () => {
                     color: '#0b0c0c'
                   }}>
                     Generating invoice...
-                  </p>
+                  </h1>
                 </div>
                 
                 <style>{`

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ErrorSummary from '../../components/commonFormFields/ErrorSummary';
+import PageTitle from '../../components/PageTitle';
 import { RadioGroup } from './components/RadioGroup';
 import { useApplicationTypeSelection } from './hooks/useApplicationTypeSelection';
 import { trackButtonClick } from '../../utils/analytics';
@@ -31,7 +32,7 @@ const ChooseApplicationTypePage: React.FC = () => {
 
   return (
     <>
-            <div className="govuk-width-container">
+            <PageTitle title="Choose application type" />
                 <ErrorSummary errors={errors} />
 
         <form onSubmit={handleSubmitWithTracking} noValidate>
@@ -52,7 +53,6 @@ const ChooseApplicationTypePage: React.FC = () => {
             Continue
           </button>
         </form>
-            </div>
     </>
   );
 };

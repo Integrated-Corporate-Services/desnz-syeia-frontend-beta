@@ -1,5 +1,6 @@
 import React from "react";
 import { LABELS, CONDITIONAL_TEXT } from "../constants/contactDetailsConstants";
+import RevealAnnouncement from "../../../components/commonFormFields/RevealAnnouncement";
 
 interface ContactConfirmationRadiosProps {
   contactIsConfirmed: true | false | null;
@@ -53,6 +54,7 @@ export function ContactConfirmationRadios({
                 setContactIsConfirmed(false);
                 setError("");
               }}
+              aria-controls="contactIsConfirmed-no-hidden"
             />
             <label
               className="govuk-label govuk-radios__label"
@@ -62,13 +64,14 @@ export function ContactConfirmationRadios({
             </label>
           </div>
           {contactIsConfirmed === false && (
-            <div className="govuk-radios__conditional">
+            <div className="govuk-radios__conditional" id="contactIsConfirmed-no-hidden">
               <p className="govuk-body">
                 {CONDITIONAL_TEXT.INCORRECT_DETAILS}
               </p>
             </div>
           )}
         </div>
+        <RevealAnnouncement shown={contactIsConfirmed === false} message={CONDITIONAL_TEXT.INCORRECT_DETAILS} />
       </fieldset>
     </div>
   );

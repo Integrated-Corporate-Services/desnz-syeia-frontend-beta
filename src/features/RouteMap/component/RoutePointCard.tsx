@@ -61,13 +61,13 @@ const RoutePointCard: React.FC<RoutePointCardProps & { isSelected?: boolean }> =
         <h2 className="govuk-summary-card__title">Point {idx + 1}</h2>
         <ul className="govuk-summary-card__actions">
           <li className="govuk-summary-card__action">
-            <a href="#" className="govuk-link" onClick={e => { e.preventDefault(); onAddBefore(); }}>Add before</a>
+            <a href="#" className="govuk-link" onClick={e => { e.preventDefault(); onAddBefore(); }}>Add before<span className="govuk-visually-hidden"> Point {idx + 1}</span></a>
           </li>
           <li className="govuk-summary-card__action">
-            <a href="#" className="govuk-link" onClick={e => { e.preventDefault(); onAddAfter(); }}>Add after</a>
+            <a href="#" className="govuk-link" onClick={e => { e.preventDefault(); onAddAfter(); }}>Add after<span className="govuk-visually-hidden"> Point {idx + 1}</span></a>
           </li>
           <li className="govuk-summary-card__action">
-            <a href="#" className="govuk-link" onClick={e => { e.preventDefault(); onRemove(); }}>Remove</a>
+            <a href="#" className="govuk-link" onClick={e => { e.preventDefault(); onRemove(); }}>Remove<span className="govuk-visually-hidden"> Point {idx + 1}</span></a>
           </li>
         </ul>
       </div>

@@ -3,15 +3,22 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useTeamCoordinators, useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const TeamCoordinatorsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
   const navigate = useNavigate();
-  
+
   const { organisation, loading: orgLoading } = useOrganisation(organisationId);
   const { coordinators, loading: coordLoading, error } = useTeamCoordinators(organisationId);
-  
+
   const loading = orgLoading || coordLoading;
+
+  useBreadcrumb(
+    <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
+      Back
+    </Link>
+  );
 
   const handleSave = () => {
     // Navigate back to settings page
@@ -34,9 +41,6 @@ const TeamCoordinatorsPage: React.FC = () => {
                 <div className="govuk-width-container">
                     <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
-              <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
-                Back
-              </Link>
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
@@ -58,10 +62,6 @@ const TeamCoordinatorsPage: React.FC = () => {
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">
-            <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
-              Back
-            </Link>
-
             <h1 className="govuk-heading-l govuk-!-margin-top-6">Team coordinators</h1>
 
             <h2 className="govuk-heading-m govuk-!-margin-top-6">Coordinators for {organisation?.organisation_name}</h2>

@@ -4,6 +4,7 @@ import { S37_BASE_URL } from '../../../constants/s37';
 import { saveSensitiveReview } from '../../../services/sensitiveAreaService';
 import { getSensitiveAreaReview } from '../../../services/sensitiveAreaReviewService';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 /**
  * AddOtherAreasQuestionPage Component
@@ -22,6 +23,15 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   const queryParams = new URLSearchParams(location.search);
   const queryId = queryParams.get('id');
   const effectiveApplicationId = applicationId || queryId || '';
+
+  useBreadcrumb(
+    <Link
+      to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`}
+      className="govuk-back-link"
+    >
+      Back
+    </Link>
+  );
 
   // Form State
   const [selectedOption, setSelectedOption] = useState<'yes' | 'no' | null>(null);
@@ -178,29 +188,20 @@ const AddOtherAreasQuestionPage: React.FC = () => {
   // Show loading state while fetching data
   if (loading) {
     return (
-      <div className="govuk-width-container">
+      <>
                   <PageTitle title="Add other sensitive areas?" />
                   <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <p className="govuk-body">Loading...</p>
             </div>
           </div>
-              </div>
+              </>
     );
   }
 
   return (
     <>
             <PageTitle title="Add other sensitive areas?" />
-            <div className="govuk-width-container">
-      {/* Back Link - Always visible */}
-      <Link
-        to={`${S37_BASE_URL}/${effectiveApplicationId}/sensitive-area-review-manual`}
-        className="govuk-back-link"
-      >
-        Back
-      </Link>
-
       {/* Page Heading - Three-quarters width */}
       <div className='govuk-grid-row'>
         <div className="govuk-grid-column-three-quarters">
@@ -236,11 +237,9 @@ const AddOtherAreasQuestionPage: React.FC = () => {
           {/* Radio Button Group */}
           <div className={`govuk-form-group ${validationError ? 'govuk-form-group--error' : ''}`}>
             <fieldset className="govuk-fieldset">
-              {/* <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
-                <h2 className="govuk-fieldset__heading">
-                  Select an option
-                </h2>
-              </legend> */}
+              <legend className="govuk-fieldset__legend govuk-visually-hidden">
+                Do you want to add any other sensitive areas?
+              </legend>
 
               {/* Error Message (displayed above radio buttons) */}
               {validationError && (
@@ -305,7 +304,6 @@ const AddOtherAreasQuestionPage: React.FC = () => {
             Save for later
           </button> */}
         </div>
-      </div>
       </div>
     </>
   );

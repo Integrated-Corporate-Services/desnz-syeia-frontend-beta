@@ -6,7 +6,7 @@ export function AccessibilityStatementPage() {
   return (
     <div className="govuk-width-container">
       <PageTitle title="Accessibility statement" />
-      <main className="govuk-main-wrapper" id="main-content" role="main">
+      <div className="govuk-main-wrapper">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-xl">{ACCESSIBILITY.PAGE_TITLE}</h1>
@@ -153,7 +153,7 @@ export function AccessibilityStatementPage() {
             <PageFeedback />
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

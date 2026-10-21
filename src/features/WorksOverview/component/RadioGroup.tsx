@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { CommonInputProps } from '../../../types/form';
+import RevealAnnouncement from '../../../components/commonFormFields/RevealAnnouncement';
 
 export interface RadioOption {
   value: string;
@@ -52,11 +53,13 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
                   value={opt.value}
                   checked={isSelected}
                   onChange={onChange}
+                  aria-controls={opt.conditional ? conditionalId : undefined}
                 />
                 <label className="govuk-label govuk-radios__label" htmlFor={`${id}-${opt.value}`}>
                   {opt.label}
                 </label>
               </div>
+              {opt.conditional && <RevealAnnouncement shown={isSelected} message="More information is needed. A new question is shown below." />}
               {opt.conditional && isSelected && (
                 <div className="govuk-radios__conditional" id={conditionalId}>
                   {opt.conditional}

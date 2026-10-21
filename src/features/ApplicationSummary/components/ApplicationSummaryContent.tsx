@@ -2,6 +2,7 @@ import React from 'react';
 import { ApplicationReviewSummaryData } from '../types/reviewSummary';
 import { WithdrawalRequest } from '../types';
 import { NWLApplicationSummaryContent } from '../../NWL/ApplicationSummary';
+import { S37ApplicationSummaryContent } from './S37ApplicationSummaryContent';
 
 interface ApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -24,7 +25,13 @@ export const ApplicationSummaryContent: React.FC<ApplicationSummaryContentProps>
                 />
             );
         case 'S37':
-            return <div>S37 Application Summary - Coming Soon</div>;
+            return (
+                <S37ApplicationSummaryContent
+                    data={data}
+                    applicationId={applicationId}
+                    withdrawalRequest={withdrawalRequest}
+                />
+            );
         default:
             return <div>Unsupported application type: {data.formType}</div>;
     }

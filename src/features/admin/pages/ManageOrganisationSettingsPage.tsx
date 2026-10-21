@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import './ManageOrganisationSettingsPage.css';
 
 const ManageOrganisationSettingsPage: React.FC = () => {
@@ -10,6 +11,10 @@ const ManageOrganisationSettingsPage: React.FC = () => {
   const location = useLocation();
   const { organisation, loading, error } = useOrganisation(organisationId);
   const updatedSection = (location.state as { updatedSection?: string } | null)?.updatedSection;
+
+  useBreadcrumb(
+    <Link to="/admin/user-management" className="govuk-back-link">Back</Link>
+  );
 
   if (loading) {
     return (
@@ -27,7 +32,6 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 <div className="govuk-width-container">
                     <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
-              <Link to="/admin/user-management" className="govuk-back-link">Back</Link>
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
                   There is a problem
@@ -49,8 +53,6 @@ const ManageOrganisationSettingsPage: React.FC = () => {
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <Link to="/admin/user-management" className="govuk-back-link">Back</Link>
-
             <h1 className="govuk-heading-l govuk-!-margin-top-6">Manage organisation</h1>
 
             {updatedSection && (

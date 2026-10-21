@@ -2,10 +2,24 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useManageUsersNavigation } from '../../../hooks';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const AccessRevokedPage: React.FC = () => {
   const location = useLocation();
   const { navigateToDashboard } = useManageUsersNavigation();
+
+  useBreadcrumb(
+    <a
+      href="#"
+      className="govuk-back-link"
+      onClick={(e) => {
+        e.preventDefault();
+        navigateToDashboard();
+      }}
+    >
+      Back
+    </a>
+  );
 
   const state = location.state as { userName?: string; userEmail?: string } | null;
   const userName = state?.userName || 'the user';
@@ -15,17 +29,6 @@ const AccessRevokedPage: React.FC = () => {
     <>
       <PageTitle title="Access revoked" />
             <div className="govuk-width-container">
-              <a
-          href="#"
-          className="govuk-back-link"
-          onClick={(e) => {
-            e.preventDefault();
-            navigateToDashboard();
-          }}
-        >
-          Back
-        </a>
-
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-panel" style={{ backgroundColor: '#00703c', color: '#ffffff' }}>

@@ -14,6 +14,7 @@ type RouteConfig = {
     path: string;
     component: React.ComponentType;
     auth?: boolean;
+    accessGuard?: boolean;
     layout?: boolean | 'minimal';
 };
 
@@ -73,8 +74,9 @@ import ConsultationWithdrawnPage from '../features/Consultation/pages/Consultati
 import { ApplicationDeleteConfirmationPage } from '../pages/ApplicationDeleteConfirmationPage';
 import { ApplicationDeleteSuccessPage } from '../pages/ApplicationDeleteSuccessPage';
 import LandingPage from '../features/SignIn/LandingPage';
-import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
-import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
+import { cpoRoutes } from '../features/CPO/routes';
+// import Section37GuidancePage from '../features/SignIn/Section37GuidancePage';
+// import NWLGuidancePage from '../features/SignIn/NWLGuidancePage';
 import ChooseApplicationTypePage from '../features/SignIn/ChooseApplicationTypePage';
 import AccessRequestIntroPage from '../features/SignIn/AccessRequestIntroPage';
 import ContactDetailsPage from '../features/SignIn/ContactDetailsPage';
@@ -83,7 +85,6 @@ import AgentQuestionPage from '../features/SignIn/AgentQuestionPage';
 import CompanyNamePage from '../features/SignIn/CompanyNamePage';
 import SelectOrganisationsPage from '../features/SignIn/SelectOrganisationsPage';
 import AccessRequestSubmittedPage from '../features/SignIn/AccessRequestSubmittedPage';
-import OTPVerifyPage from '../features/OTPVerifyPage';
 import ReviewRequestPage from '../features/admin/pages/ReviewRequestPage';
 import AccessApprovedPage from '../features/admin/pages/AccessApprovedPage';
 import AccessDeniedPage from '../features/admin/pages/AccessDeniedPage';
@@ -96,9 +97,20 @@ import ManageUserPage from '../features/admin/pages/ManageUserPage';
 import ChangeUserRolePage from '../features/admin/pages/ChangeUserRolePage';
 import UserManagementDashboard from '../features/admin/pages/UserManagementDashboard';
 import ReportingDashboard from '../features/reporting/ReportingDashboard';
+import {
+    FirDocumentResponsePage,
+    FirDocumentTypesPage,
+    FirTextResponsePage,
+    FirUploadDecisionPage,
+    FurtherInformationRequestsPage,
+    FurtherInformationSubmittedPage,
+} from '../features/FIR/pages';
+import { NotificationsPage, NOTIFICATIONS_PATH } from '../features/InAppNotifications';
 import ManageOrganisationSettingsPage from '../features/admin/pages/ManageOrganisationSettingsPage';
 import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisationNamePage';
 import { configService } from '../config/appConfig';
+import { isFirFeatureDisabled, isNotificationsFeatureDisabled, isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
+import { isManualReassignmentEnabled } from '../config/appConfig';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
@@ -111,6 +123,8 @@ import S37WithdrawApplicationPage from '../features/CheckYourAnswers/pages/Withd
 import S37WithdrawalConfirmationPage from '../features/CheckYourAnswers/pages/WithdrawalConfirmationPage';
 // New modular ApplicationSummary - for NWL and future types
 import ApplicationSummaryPage from '../features/ApplicationSummary/pages/ApplicationSummaryPage';
+import { ReassignmentPage } from '../features/ApplicationReassignment/pages/ReassignmentPage';
+import { ReassignmentHistoryPage } from '../features/ApplicationReassignment/pages/ReassignmentHistoryPage';
 import WhoIsApplying from '../features/WhoIsApplying/pages/WhoIsApplying';
 import Parishes from '../features/Parishes/pages/Parishes';
 import PostConsultationLpaAgreement from '../features/PostConsultation/pages/PostConsultationLpaAgreement';
@@ -145,20 +159,118 @@ import DownloadLpaConsultationFormPage from '../features/Consultation/pages/Down
 import ClosedPage from '../pages/ClosedPage';
 import StartRedirect from '../components/StartRedirect';
 import { FeedbackPage } from '../modules/feedback';
-// import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
-// import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
-// import ChangeWorkAddressPage from '../features/YourDetails/pages/ChangeWorkAddressPage';
-// import ChangeAgencyNamePage from '../features/YourDetails/pages/ChangeAgencyNamePage';
-// import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
-// import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
+import YourDetailsPage from '../features/YourDetails/pages/YourDetailsPage';
+import ChangeFullNamePage from '../features/YourDetails/pages/ChangeFullNamePage';
+import ChangeWorkAddressPage from '../features/YourDetails/pages/ChangeWorkAddressPage';
+import ChangeAgencyNamePage from '../features/YourDetails/pages/ChangeAgencyNamePage';
+import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
+import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
+
+const FIR_ROUTES: RouteConfig[] = [
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests`,
+        component: FurtherInformationRequestsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/respond`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/upload-decision`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/document-types`,
+        component: FirDocumentTypesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-information`,
+        component: FirTextResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-documents`,
+        component: FirDocumentResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/further-information-requests/:requestId/submitted`,
+        component: FurtherInformationSubmittedPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests`,
+        component: FurtherInformationRequestsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/respond`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/upload-decision`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/document-types`,
+        component: FirDocumentTypesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-information`,
+        component: FirTextResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-documents`,
+        component: FirDocumentResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/submitted`,
+        component: FurtherInformationSubmittedPage,
+        auth: true,
+        layout: true,
+    },
+];
 
 export const ROUTE_CONFIG: RouteConfig[] = [
+    ...(isFirFeatureDisabled() ? [] : FIR_ROUTES),
     {
         path: '/admin/reporting',
         component: ReportingDashboard,
         auth: true,
         layout: true,
     },
+    ...(isNotificationsFeatureDisabled()
+        ? []
+        : [
+            {
+                path: NOTIFICATIONS_PATH,
+                component: NotificationsPage,
+                auth: true,
+                layout: true,
+            },
+        ]),
     // UAT Invite System Routes
     {
         path: '/access-denied',
@@ -356,25 +468,18 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: false,
         layout: true,
     },
-    {
-        path: '/s37-guidance',
-        component: Section37GuidancePage,
-        auth: false,
-        layout: true,
-    },
-    {
-        path: '/nwl-guidance',
-        component: NWLGuidancePage,
-        auth: false,
-        layout: true,
-    },
-
-    {
-        path: '/otp-verify',
-        component: OTPVerifyPage,
-        auth: true,
-        layout: true,
-    },
+    // {
+    //     path: '/s37-guidance',
+    //     component: Section37GuidancePage,
+    //     auth: false,
+    //     layout: true,
+    // },
+    // {
+    //     path: '/nwl-guidance',
+    //     component: NWLGuidancePage,
+    //     auth: false,
+    //     layout: true,
+    // },
     {
         path: '/admin/user-management',
         component: UserManagementDashboard,
@@ -517,8 +622,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: false,
     },
-    /* Your details routes are temporarily hidden from the UI.
-    ...(!yourDetailsFeatureDisabled
+    ...(!isYourDetailsFeatureDisabled()
         ? [
             {
                 path: '/your-details',
@@ -558,13 +662,13 @@ export const ROUTE_CONFIG: RouteConfig[] = [
             },
         ]
         : []),
-    */
     {
         path: `${NWL_BASE_URL}/who-is-applying`,
         component: NWLWhoIsApplying,
         auth: true,
         layout: true,
     },
+    ...cpoRoutes,
     {
         path: `${NWL_BASE_URL}/:applicationId/applicant-details`,
         component: NWLNetworkOperatorDetails,
@@ -945,6 +1049,22 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
+    ...(isManualReassignmentEnabled()
+        ? [
+            {
+                path: `${S37_BASE_URL}/:applicationId/reassign`,
+                component: ReassignmentPage,
+                auth: true,
+                layout: true,
+            },
+            {
+                path: `${S37_BASE_URL}/:applicationId/reassignment-history`,
+                component: ReassignmentHistoryPage,
+                auth: true,
+                layout: true,
+            },
+        ]
+        : []),
     {
         path: `${S37_BASE_URL}/:applicationId/withdraw`,
         component: S37WithdrawApplicationPage,  // Use old proven S37 implementation

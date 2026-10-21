@@ -58,6 +58,7 @@ export const AssetSummaryCard: React.FC<AssetSummaryCardProps> = ({
               }}
             >
               {LABELS.REMOVE}
+              <span className="govuk-visually-hidden"> {LABELS.ASSET} {index + 1}</span>
             </a>
           </li>
           <li className="govuk-summary-card__action">
@@ -70,6 +71,7 @@ export const AssetSummaryCard: React.FC<AssetSummaryCardProps> = ({
               }}
             >
               {LABELS.CHANGE}
+              <span className="govuk-visually-hidden"> {LABELS.ASSET} {index + 1}</span>
             </a>
           </li>
         </ul>

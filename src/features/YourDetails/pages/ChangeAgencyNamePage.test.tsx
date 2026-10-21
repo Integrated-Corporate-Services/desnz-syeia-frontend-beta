@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ChangeAgencyNamePage from './ChangeAgencyNamePage';
+import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import * as yourDetailsService from '../services/yourDetailsService';
 
@@ -50,9 +51,11 @@ describe('ChangeAgencyNamePage', () => {
 
   it('shows validation error when agency name is empty', async () => {
     render(
-      <MemoryRouter>
-        <ChangeAgencyNamePage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeAgencyNamePage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {
@@ -68,9 +71,11 @@ describe('ChangeAgencyNamePage', () => {
 
   it('saves and redirects to your details with one-time banner flag', async () => {
     render(
-      <MemoryRouter>
-        <ChangeAgencyNamePage />
-      </MemoryRouter>
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeAgencyNamePage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
     );
 
     await waitFor(() => {

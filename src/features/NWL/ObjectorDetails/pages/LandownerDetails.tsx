@@ -12,6 +12,8 @@ import {
 import { useObjectorDetailsData } from "../hooks/useObjectorDetailsData";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { saveLandownerDetails } from "../services/objectorDetailsService";
+import AccessibleSelect from "../../../../components/commonFormFields/AccessibleSelect";
+import { useBreadcrumb } from "../../../../context/BreadcrumbContext";
 
 const LandownerDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -117,22 +119,25 @@ const LandownerDetails: React.FC = () => {
     }
   };
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item" aria-current="false">
+          <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="true">
+          Landowner details
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Enter the landowner's details" />
             <div className="govuk-width-container">
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item" aria-current="false">
-            <Link className="govuk-breadcrumbs__link" to={`${NWL_BASE_URL}/${appId}/task-list`}>
-              {BREADCRUMBS.TASK_LIST}
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="true">
-            Landowner details
-          </li>
-        </ol>
-      </nav>
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{LABELS.LANDOWNER_DETAILS_TITLE}</h1>
@@ -160,16 +165,20 @@ const LandownerDetails: React.FC = () => {
             )}
             
             <form onSubmit={handleSubmit} noValidate>
-              <div className="govuk-form-group">
+              <div className={`govuk-form-group ${(formErrors.title || clientErrors.title) ? "govuk-form-group--error" : ""}`}>
                 <label className="govuk-label" htmlFor="title">{FORM_LABELS.TITLE}</label>
-                <select className="govuk-select" id="title" name="title" value={title} onChange={(e) => {
-                  setTitle(e.target.value);
-                  handleClearFieldError('title');
-                }}>
-                  {TITLE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>{option.text}</option>
-                  ))}
-                </select>
+                {(formErrors.title || clientErrors.title) && <p id="title-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {formErrors.title || clientErrors.title}</p>}
+                <AccessibleSelect
+                  id="title"
+                  value={title}
+                  options={TITLE_OPTIONS}
+                  error={Boolean(formErrors.title || clientErrors.title)}
+                  aria-describedby={(formErrors.title || clientErrors.title) ? 'title-error' : undefined}
+                  onChange={(value) => {
+                    setTitle(value);
+                    handleClearFieldError('title');
+                  }}
+                />
               </div>
               
               <div className={`govuk-form-group ${(formErrors.fullName || clientErrors.fullName) ? "govuk-form-group--error" : ""}`}>

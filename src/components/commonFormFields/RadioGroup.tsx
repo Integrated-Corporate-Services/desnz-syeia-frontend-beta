@@ -1,5 +1,6 @@
 import React from 'react';
 import { CommonInputProps } from '../../types/form';
+import RevealAnnouncement from './RevealAnnouncement';
 
 interface RadioGroupProps extends CommonInputProps {
   hint?: string;
@@ -67,14 +68,16 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
                     checked={isChecked}
                     onChange={onChange}
                     disabled={disabled}
+                    aria-controls={children ? `${inputId}-hidden` : undefined}
                   />
                   <label className="govuk-label govuk-radios__label" htmlFor={inputId}>
                     {opt.label}
                   </label>
                 </div>
                 
+                {children && <RevealAnnouncement shown={isChecked} message="More information is needed. A new question is shown below." />}
                 {children && isChecked && (
-                  <div className="govuk-radios__conditional">
+                  <div className="govuk-radios__conditional" id={`${inputId}-hidden`}>
                     <div className="govuk-form-group">
                       {children}
                     </div>

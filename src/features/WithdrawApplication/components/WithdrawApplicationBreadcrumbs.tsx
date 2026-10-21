@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { WITHDRAWAL_CONSTANTS as CONSTANTS } from '../constants';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 export interface WithdrawApplicationBreadcrumbsProps {
     applicationType: string;
@@ -15,7 +16,7 @@ export const WithdrawApplicationBreadcrumbs: React.FC<WithdrawApplicationBreadcr
 }) => {
     const summaryUrl = CONSTANTS.ROUTES.SUMMARY(applicationType, applicationId);
 
-    return (
+    useBreadcrumb(
         <nav className="govuk-breadcrumbs govuk-!-margin-bottom-6" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
                 <li className="govuk-breadcrumbs__list-item">
@@ -36,4 +37,5 @@ export const WithdrawApplicationBreadcrumbs: React.FC<WithdrawApplicationBreadcr
             </ol>
         </nav>
     );
+    return null;
 };

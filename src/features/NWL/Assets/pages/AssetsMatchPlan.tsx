@@ -7,6 +7,8 @@ import { BREADCRUMBS, LABELS, FORM_ERRORS, CHARACTER_LIMITS, MESSAGES } from '..
 import nwlAssetService from '../services/nwlAssetService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 
 const logger = createLogger('AssetsMatchPlan');
 
@@ -164,26 +166,27 @@ const AssetsMatchPlan: React.FC = () => {
 
   const hasErrors = Object.keys(errors).length > 0;
 
+  useBreadcrumb(
+    <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="govuk-breadcrumbs__list">
+        <li className="govuk-breadcrumbs__list-item">
+          <Link
+            className="govuk-breadcrumbs__link"
+            to={`${NWL_BASE_URL}/${applicationId}/task-list`}
+          >
+            {BREADCRUMBS.TASK_LIST}
+          </Link>
+        </li>
+        <li className="govuk-breadcrumbs__list-item" aria-current="page">
+          {BREADCRUMBS.ASSETS}
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <>
       <PageTitle title="Do assets match the plan?" />
-                  {/* Breadcrumbs */}
-      <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-        <ol className="govuk-breadcrumbs__list">
-          <li className="govuk-breadcrumbs__list-item">
-            <Link
-              className="govuk-breadcrumbs__link"
-              to={`${NWL_BASE_URL}/${applicationId}/task-list`}
-            >
-              {BREADCRUMBS.TASK_LIST}
-            </Link>
-          </li>
-          <li className="govuk-breadcrumbs__list-item" aria-current="page">
-            {BREADCRUMBS.ASSETS}
-          </li>
-        </ol>
-      </nav>
-
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
           
@@ -270,6 +273,7 @@ const AssetsMatchPlan: React.FC = () => {
                       value="no"
                       checked={assetsMatch === 'no'}
                       onChange={(e) => handleRadioChange(e.target.value)}
+                      aria-controls="conditional-assets-match-2"
                     />
                     <label className="govuk-label govuk-radios__label" htmlFor="assets-match-2">
                       {LABELS.NO}
@@ -327,6 +331,7 @@ const AssetsMatchPlan: React.FC = () => {
                     </div>
                   )}
                 </div>
+                <RevealAnnouncement shown={assetsMatch === 'no'} message={`A new question is shown below: ${LABELS.EXPLAIN_MISMATCH_LABEL}`} />
               </fieldset>
             </div>
 

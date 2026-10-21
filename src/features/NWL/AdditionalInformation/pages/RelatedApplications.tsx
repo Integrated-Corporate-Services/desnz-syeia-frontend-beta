@@ -20,7 +20,9 @@ import { CONTENT } from '../constants';
 import { createOrUpdateAdditionalInformationData } from '../services/additionalInformationService';
 import { createLogger } from '../../../../utils/logger';
 import { useNWLProgress } from '../../hooks/useNWLProgress';
+import { APPLICATION_STATUS } from '../../../../constants/status';
 import PageTitle from '../../../../components/PageTitle';
+import RevealAnnouncement from '../../../../components/commonFormFields/RevealAnnouncement';
 
 const logger = createLogger('RelatedApplications');
 
@@ -78,6 +80,12 @@ const RelatedApplications: React.FC = () => {
         related_applications_details: hasRelatedApplications === 'yes' ? details : undefined,
         other_information_details: additionalInformationData?.other_information_details || undefined,
       });
+
+      try {
+        await updateProgress('Additional information', APPLICATION_STATUS.NOT_COMPLETED);
+      } catch (progressError) {
+        // Continue even if progress update fails
+      }
 
       // Always navigate to OtherImportantInformation page regardless of Yes/No
       // Both questions must be answered before completing the section
@@ -144,6 +152,7 @@ const RelatedApplications: React.FC = () => {
                         checked={hasRelatedApplications === 'yes'}
                         onChange={(e) => setHasRelatedApplications(e.target.value)}
                         data-aria-controls="conditional-details"
+                        aria-controls="conditional-details"
                       />
                       <label
                         className="govuk-label govuk-radios__label"
@@ -152,6 +161,7 @@ const RelatedApplications: React.FC = () => {
                         {FORM_LABELS.YES}
                       </label>
                     </div>
+                    <RevealAnnouncement shown={hasRelatedApplications === 'yes'} message={`A new question is shown below: ${HINTS.RELATED_APPLICATIONS_DETAILS}`} />
                     <div
                       className="govuk-radios__conditional"
                       id="conditional-details"

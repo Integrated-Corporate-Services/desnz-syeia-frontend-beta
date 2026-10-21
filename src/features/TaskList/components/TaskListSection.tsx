@@ -37,13 +37,12 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
 
   return (
     <div className="govuk-!-margin-top-8">
-      <h2 className="govuk-heading-m govuk-!-margin-bottom-4">{idx + 1}. {section.title}</h2>
-      <hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" />
-      <table className="govuk-table">
-        <tbody className="govuk-table__body">
-          {section.items.map((item) => (
-            <tr className="govuk-table__row" key={item.name}>
-              <td className="govuk-table__cell">
+      <h2 id={`s37-task-heading-${idx}`} className="govuk-heading-m govuk-!-margin-bottom-4">{idx + 1}. {section.title}</h2>
+      <hr className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-0" aria-hidden="true" />
+      <ul className="govuk-task-list" aria-labelledby={`s37-task-heading-${idx}`}>
+          {section.items.map((item, itemIndex) => (
+            <li className="govuk-task-list__item" key={item.name}>
+              <div className="govuk-task-list__name-and-hint">
                 {/* Check if item is disabled */}
                 {item.disabled ? (
                   <span className="govuk-body govuk-!-font-weight-bold" style={{ color: '#626a6e' }}>
@@ -74,16 +73,22 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                   item.name === 'Route' ? (
                     <RouteEntry applicationId={applicationId}>
                       <Link 
+                        id={`s37-task-link-${idx}-${itemIndex}`}
                         className="govuk-link govuk-!-font-weight-bold" 
                         to={item.link}
+                        aria-labelledby={`s37-task-heading-${idx} s37-task-link-${idx}-${itemIndex}`}
+                        aria-describedby={`s37-task-status-${idx}-${itemIndex}`}
                       >
                         {item.name}
                       </Link>
                     </RouteEntry>
                   ) : (
                     <Link 
+                      id={`s37-task-link-${idx}-${itemIndex}`}
                       className="govuk-link govuk-!-font-weight-bold" 
                       to={item.link}
+                      aria-labelledby={`s37-task-heading-${idx} s37-task-link-${idx}-${itemIndex}`}
+                      aria-describedby={`s37-task-status-${idx}-${itemIndex}`}
                     >
                       {item.name}
                     </Link>
@@ -91,8 +96,8 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                 ) : (
                   <span className="govuk-link govuk-link--disabled govuk-!-font-weight-bold">{item.name}</span>
                 )}
-              </td>
-              <td className="govuk-table__cell govuk-!-text-align-right">
+              </div>
+              <span className="govuk-task-list__status" id={`s37-task-status-${idx}-${itemIndex}`}>
                 {item.plainTextStatus ? (
                   <span>
                     {item.status}
@@ -102,11 +107,10 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                     {item.status}
                   </span>
                 )}
-              </td>
-            </tr>
+              </span>
+            </li>
           ))}
-        </tbody>
-      </table>
+      </ul>
     </div>
   );
 };

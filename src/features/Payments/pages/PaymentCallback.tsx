@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getPaymentStatus } from '../../../services/govPayService';
 import '../../../styles/govuk.scss';
+import '../../../styles/PaymentCallback.css';
 import PageTitle from '../../../components/PageTitle';
 
 export default function PaymentCallback() {
@@ -90,22 +91,20 @@ export default function PaymentCallback() {
               </div>
             </div>
             <h2 className="govuk-heading-m govuk-!-margin-bottom-2">Payment summary</h2>
-            <table className="govuk-table govuk-!-margin-bottom-6" style={{ maxWidth: 500 }}>
-              <tbody className="govuk-table__body">
-                <tr className="govuk-table__row">
-                  <td className="govuk-table__cell">Payment for:</td>
-                  <td className="govuk-table__cell" style={{ textAlign: 'right' }}>{description}</td>
-                </tr>
-                <tr className="govuk-table__row">
-                  <td className="govuk-table__cell">Total amount:</td>
-                  <td className="govuk-table__cell" style={{ textAlign: 'right' }}>{amount}</td>
-                </tr>
-                <tr className="govuk-table__row">
-                  <td className="govuk-table__cell">Status:</td>
-                  <td className="govuk-table__cell" style={{ textAlign: 'right' }}>{status}</td>
-                </tr>
-              </tbody>
-            </table>
+            <dl className="govuk-summary-list govuk-!-margin-bottom-6 payment-callback__summary-list">
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">Payment for:</dt>
+                <dd className="govuk-summary-list__value payment-callback__summary-value--right">{description}</dd>
+              </div>
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">Total amount:</dt>
+                <dd className="govuk-summary-list__value payment-callback__summary-value--right">{amount}</dd>
+              </div>
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">Status:</dt>
+                <dd className="govuk-summary-list__value payment-callback__summary-value--right">{status}</dd>
+              </div>
+            </dl>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
               <button
                 className="govuk-button govuk-button--secondary"
