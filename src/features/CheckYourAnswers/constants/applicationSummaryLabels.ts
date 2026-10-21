@@ -111,6 +111,7 @@ export const FIELD_LABELS = {
   
   // Consultation fields
   CONSULTEE_STATUS: 'Status',
+  CONSULTATION_REQUEST_DOCUMENT: 'Consultation request document',
   DATE_CONSULTATION_REQUEST: 'Date of consultation request',
   EVIDENCE_REQUEST: 'Evidence of request',
   CONSULTEE_CONTACT_NAME: 'Consultee contact name',

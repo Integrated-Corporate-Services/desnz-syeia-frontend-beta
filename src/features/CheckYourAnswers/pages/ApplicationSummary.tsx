@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
-import { ConsultationType } from "../../../constants/consultationType";
+import { ConsultationType, isLpaJourney } from "../../../constants/consultationType";
 import { downloadS3FileOnSameTab } from "../../../utils/s3DownloadUtil";
 import { useInvoiceStatus, buildInvoiceDownloadUrl } from "../../../hooks";
 import { useDeclarationSubmit } from "../hooks/useDeclarationSubmit";
@@ -1627,6 +1627,37 @@ const ApplicationSummary: React.FC = () => {
                         ) : (
                           /* Non-PUBLIC consultation fields - existing code */
                           <>
+                            {/* LPA and OTHER-LPA only: the generated LPA consultation form (same as Check your answers) */}
+                            {isLpaJourney(consultation.consultationType || "") && (
+                              <div className="govuk-summary-list__row">
+                                <dt className="govuk-summary-list__key">{FIELD_LABELS.CONSULTATION_REQUEST_DOCUMENT}</dt>
+                                <dd className="govuk-summary-list__value">
+                                  {consultation.lpaConsultationForm &&
+                                    consultation.lpaConsultationForm.length > 0 ? (
+                                    <ul className="govuk-list">
+                                      {consultation.lpaConsultationForm.map((doc, i) => (
+                                        <li key={i}>
+                                          <a
+                                            href="#"
+                                            className="govuk-link"
+                                            onClick={async (e) => {
+                                              e.preventDefault();
+                                              try {
+                                                await downloadS3FileOnSameTab(doc.url, doc.file_id, applicationId, (doc as any)?.document_id);
+                                              } catch (error) {
+                                                logger.error('Failed to download file:', { error });
+                                              }
+                                            }}
+                                          >
+                                            {doc.name}
+                                          </a>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : "-"}
+                                </dd>
+                              </div>
+                            )}
                             <div className="govuk-summary-list__row">
                               <dt className="govuk-summary-list__key">{FIELD_LABELS.DATE_CONSULTATION_REQUEST}</dt>
                               <dd className="govuk-summary-list__value">
