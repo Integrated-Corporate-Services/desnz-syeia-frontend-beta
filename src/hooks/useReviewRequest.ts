@@ -1,28 +1,17 @@
 import { useState, useEffect } from 'react';
 import accessRequestAdminService from '../services/accessRequestAdminService';
 import { createLogger } from '../utils/logger';
+import type { AccessRequest } from '../types/accessRequest';
 
 const logger = createLogger('useReviewRequest');
-
-interface RequestData {
-  access_request_id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  organisation_name?: string;
-  is_agent: boolean;
-  agency_name?: string;
-  requested_at: string;
-  status: string;
-}
 
 interface ValidationError {
   fieldId: string;
   message: string;
 }
 
-export const useReviewRequest = (requestId: string) => {
-  const [requestData, setRequestData] = useState<RequestData | null>(null);
+export const useReviewRequest = (requestId: string, organisationId?: string) => {
+  const [requestData, setRequestData] = useState<AccessRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [errors, setErrors] = useState<ValidationError[]>([]);
@@ -30,35 +19,40 @@ export const useReviewRequest = (requestId: string) => {
   const [rejectReason, setRejectReason] = useState('');
 
   useEffect(() => {
-    logger.debug('Hook mounted, requestId:', requestId);
-    if (requestId) {
-      fetchRequestDetails();
-    } else {
-      logger.warn('No requestId provided');
-    }
-  }, [requestId]);
+    let active = true;
+    setRequestData(null);
+    setErrors([]);
+    setShowRejectReason(false);
+    setRejectReason('');
 
-  const fetchRequestDetails = async () => {
-    try {
-      logger.debug('Fetching request details for:', requestId);
-      setLoading(true);
-      const response = await accessRequestAdminService.getRequestById(requestId);
-      if (response.success && response.data) {
-        setRequestData(response.data);
-        logger.debug('Request data loaded successfully');
-      } else {
-        logger.warn('Response not successful or no data');
+    const fetchRequestDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await accessRequestAdminService.getRequestById(requestId, organisationId);
+        if (active && response.success && response.data) {
+          setRequestData(response.data);
+        }
+      } catch (err) {
+        logger.error('Error fetching request:', err);
+        if (active) {
+          setErrors([{
+            fieldId: 'general',
+            message: err instanceof Error ? err.message : 'Failed to fetch request details'
+          }]);
+        }
+      } finally {
+        if (active) setLoading(false);
       }
-    } catch (err) {
-      logger.error('Error fetching request:', err);
-      setErrors([{
-        fieldId: 'general',
-        message: err instanceof Error ? err.message : 'Failed to fetch request details'
-      }]);
-    } finally {
+    };
+
+    if (requestId) {
+      void fetchRequestDetails();
+    } else {
       setLoading(false);
     }
-  };
+    // Ignore a previous organisation's response after navigating to a different row.
+    return () => { active = false; };
+  }, [requestId, organisationId]);
 
   const validateRejectReason = (): boolean => {
     if (!rejectReason.trim()) {
@@ -81,7 +75,9 @@ export const useReviewRequest = (requestId: string) => {
   const approveRequest = async (onSuccess?: () => void) => {
     try {
       setProcessing(true);
-      await accessRequestAdminService.approveRequest(requestId);
+      const targetOrganisationId = organisationId || requestData?.organisation_id;
+      if (!targetOrganisationId) throw new Error('Select an organisation to review this access request');
+      await accessRequestAdminService.approveRequest(requestId, targetOrganisationId);
       
       // Call the success callback (which navigates with user details)
       if (onSuccess) {
@@ -105,7 +101,9 @@ export const useReviewRequest = (requestId: string) => {
 
     try {
       setProcessing(true);
-      await accessRequestAdminService.rejectRequest(requestId, rejectReason);
+      const targetOrganisationId = organisationId || requestData?.organisation_id;
+      if (!targetOrganisationId) throw new Error('Select an organisation to review this access request');
+      await accessRequestAdminService.rejectRequest(requestId, rejectReason, targetOrganisationId);
       
       // Call the success callback (which navigates with user details)
       if (onSuccess) {
