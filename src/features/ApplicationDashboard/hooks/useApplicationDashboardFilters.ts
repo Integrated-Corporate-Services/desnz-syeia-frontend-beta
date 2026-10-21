@@ -49,7 +49,7 @@ export const useApplicationDashboardFilters = (
     return applications.filter((app) => {
       // Submitted by filter
       if (submittedBy === "me" && currentUserId) {
-        if (app.created_by !== currentUserId) {
+        if ((app.assigned_to ?? app.created_by) !== currentUserId) {
           return false;
         }
       }
