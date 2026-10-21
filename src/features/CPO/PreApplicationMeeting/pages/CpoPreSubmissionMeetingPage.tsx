@@ -2,9 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
-// LOCAL MODE: the application is read from the CPO store. Restore the commented import/call for the backend.
-import { useCpoStore } from '../../store/useCpoStore';
-// import { applicationApiService } from '../../../../services/applicationApiService';
 import { cpoPreSubmissionMeetingService } from '../services/cpoPreSubmissionMeetingService';
 import type { CpoMeetingAnswer } from '../types/preSubmissionMeeting';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
@@ -22,6 +19,15 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
   const [reasonError, setReasonError] = useState(false);
   const errorSummary = useRef<HTMLDivElement>(null);
   const heading = 'Have you had a pre-application meeting?';
+  const REASON_MAX_LENGTH = 4000;
+  const remainingReasonCharacters = REASON_MAX_LENGTH - reason.length;
+  const reasonCharacterCount = remainingReasonCharacters === 0
+    ? 'You have 0 characters remaining'
+    : remainingReasonCharacters < 0
+      ? `You have ${Math.abs(remainingReasonCharacters)} characters too many`
+      : remainingReasonCharacters === 1
+        ? 'You have 1 character remaining'
+        : `You can enter up to ${remainingReasonCharacters.toLocaleString('en-GB')} characters`;
 
   useEffect(() => {
     let active = true;
@@ -30,19 +36,14 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     setError('');
     setAnswer(null);
     setReason('');
-    Promise.resolve().then(() => useCpoStore.getState().getApplication(applicationId))
-    // applicationApiService.getApplicationById(applicationId)
+    cpoPreSubmissionMeetingService.get(applicationId)
       .then((application) => {
         if (!active) return;
         if (application.type !== 'CPO') throw new Error('This page is only available for compulsory purchase order applications.');
-        if (application.pre_submission_meeting_requested_at) {
-          navigate(`${CPO_BASE_URL}/${applicationId}/pre-submission-meeting/confirmation`, { replace: true });
-          return;
-        }
         if (application.permissions?.canEdit === false) throw new Error('You cannot update this application.');
         setAnswer(application.pre_submission_meeting_answer
-          ?? (application.pre_submission_meeting_requested === true ? 'request-meeting'
-            : application.pre_submission_meeting_requested === false ? 'not-needed' : null));
+          ?? (application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
+            : application.pre_submission_meeting_requested === false ? 'No, I don’t need this meeting' : null));
         setReason(application.pre_submission_meeting_reason || '');
       })
       .catch((failure) => {
@@ -74,9 +75,9 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
       setError('Select whether you have had a pre-application meeting');
       return;
     }
-    if (answer === 'not-needed' && ((complete && !reason.trim()) || reason.trim().length > 4000)) {
+    if (answer === 'No, I don’t need this meeting' && ((complete && !reason.trim()) || reason.trim().length > REASON_MAX_LENGTH)) {
       setReasonError(true);
-      setError(reason.trim().length > 4000 ? 'The reason must be 4,000 characters or fewer' : "Tell us why you don't need this meeting");
+      setError(reason.trim().length > REASON_MAX_LENGTH ? 'The reason must be 4,000 characters or fewer' : "Tell us why you don’t need this meeting");
       return;
     }
     setSelectionError(false);
@@ -84,8 +85,8 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     setError('');
     setSaving(true);
     try {
-      await cpoPreSubmissionMeetingService.save(applicationId, answer === null ? null : answer === 'request-meeting', complete, {
-        answer, reason: answer === 'not-needed' ? reason.trim() : '',
+      await cpoPreSubmissionMeetingService.save(applicationId, answer === null ? null : answer === 'No, I would like a pre-application meeting', complete, {
+        answer, reason: answer === 'No, I don’t need this meeting' ? reason.trim() : '',
       });
       navigate(!complete
         ? '/application-dashboard'
@@ -127,27 +128,35 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
                   {selectionError && <p className="govuk-error-message" id="meeting-error"><span className="govuk-visually-hidden">Error:</span> {error}</p>}
                   <div className="govuk-radios" data-module="govuk-radios">
                     <div className="govuk-radios__item">
-                      <input className="govuk-radios__input" id="meeting-had" name="meeting-answer" type="radio" value="had-meeting" checked={answer === 'had-meeting'} onChange={() => selectAnswer('had-meeting')} />
-                      <label className="govuk-label govuk-radios__label" htmlFor="meeting-had">Yes, I've had this meeting</label>
+                      <input className="govuk-radios__input" id="meeting-had" name="meeting-answer" type="radio" value="Yes, I’ve had this meeting" checked={answer === 'Yes, I’ve had this meeting'} onChange={() => selectAnswer('Yes, I’ve had this meeting')} />
+                      <label className="govuk-label govuk-radios__label" htmlFor="meeting-had">Yes, I’ve had this meeting</label>
                     </div>
                     <div className="govuk-radios__item">
-                      <input className="govuk-radios__input" id="meeting-request" name="meeting-answer" type="radio" value="request-meeting" checked={answer === 'request-meeting'} onChange={() => selectAnswer('request-meeting')} />
+                      <input className="govuk-radios__input" id="meeting-request" name="meeting-answer" type="radio" value="No, I would like a pre-application meeting" checked={answer === 'No, I would like a pre-application meeting'} onChange={() => selectAnswer('No, I would like a pre-application meeting')} />
                       <label className="govuk-label govuk-radios__label" htmlFor="meeting-request">No, I would like a pre-application meeting</label>
                     </div>
                     <div className="govuk-radios__item">
-                      <input className="govuk-radios__input" id="meeting-not-needed" name="meeting-answer" type="radio" value="not-needed" checked={answer === 'not-needed'} aria-controls="meeting-reason-panel" aria-expanded={answer === 'not-needed'} onChange={() => selectAnswer('not-needed')} />
-                      <label className="govuk-label govuk-radios__label" htmlFor="meeting-not-needed">No, I don't need this meeting</label>
+                      <input className="govuk-radios__input" id="meeting-not-needed" name="meeting-answer" type="radio" value="No, I don’t need this meeting" checked={answer === 'No, I don’t need this meeting'} aria-controls="meeting-reason-panel" aria-expanded={answer === 'No, I don’t need this meeting'} onChange={() => selectAnswer('No, I don’t need this meeting')} />
+                      <label className="govuk-label govuk-radios__label" htmlFor="meeting-not-needed">No, I don’t need this meeting</label>
                     </div>
-                    {answer === 'not-needed' && (
+                    {answer === 'No, I don’t need this meeting' && (
                       <div className="govuk-radios__conditional" id="meeting-reason-panel">
                         <div className={`govuk-form-group${reasonError ? ' govuk-form-group--error' : ''}`}>
-                          <label className="govuk-label" htmlFor="meeting-reason">Tell us why you don't need this meeting</label>
+                          <label className="govuk-label" htmlFor="meeting-reason">Tell us why you don’t need this meeting</label>
                           {reasonError && <p className="govuk-error-message" id="meeting-reason-error"><span className="govuk-visually-hidden">Error:</span> {error}</p>}
-                          <textarea className={`govuk-textarea${reasonError ? ' govuk-textarea--error' : ''}`} id="meeting-reason" name="meeting-reason" rows={5} maxLength={4000} aria-describedby={`meeting-reason-hint${reasonError ? ' meeting-reason-error' : ''}`} value={reason} onChange={event => {
+                          <textarea className={`govuk-textarea${reasonError ? ' govuk-textarea--error' : ''}`} id="meeting-reason" name="meeting-reason" rows={5} maxLength={REASON_MAX_LENGTH} aria-describedby={`meeting-reason-hint${reasonError ? ' meeting-reason-error' : ''}`} value={reason} onChange={event => {
                             setReason(event.target.value);
                             if (reasonError) { setReasonError(false); setError(''); }
                           }} />
-                          <div className="govuk-hint" id="meeting-reason-hint">You can enter up to 4,000 characters</div>
+                          <div className="govuk-hint govuk-visually-hidden" id="meeting-reason-hint">
+                            You can enter up to {REASON_MAX_LENGTH.toLocaleString('en-GB')} characters
+                          </div>
+                          <div className="govuk-hint govuk-character-count__message govuk-character-count__status" aria-hidden="true">
+                            {reasonCharacterCount}
+                          </div>
+                          <div className="govuk-character-count__sr-status govuk-visually-hidden" aria-live="polite">
+                            {reasonCharacterCount}
+                          </div>
                         </div>
                       </div>
                     )}
