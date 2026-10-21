@@ -1,4 +1,5 @@
 import React from 'react';
+import type { WithdrawalRequest } from '../types';
 import { SummaryCard } from '../../NWL/CheckYourAnswers/components';
 import { SummaryRow } from '../../NWL/CheckYourAnswers/types';
 import { getApplicationStatusLabel, getApplicationStatusTagClass } from '../../../constants/status';
