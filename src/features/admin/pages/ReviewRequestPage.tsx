@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useReviewRequest, useReviewRequestNavigation } from '../../../hooks';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
 import {
@@ -12,6 +12,8 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ReviewRequestPage: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
+  const [searchParams] = useSearchParams();
+  const organisationId = searchParams.get('organisationId') || undefined;
   // Debug logging handled by logger utility in useReviewRequest hook
   const {
     requestData,
@@ -26,7 +28,7 @@ const ReviewRequestPage: React.FC = () => {
     cancelRejection,
     updateRejectReason,
     setShowRejectReason
-  } = useReviewRequest(requestId || '');
+  } = useReviewRequest(requestId || '', organisationId);
 
   const {
     navigateToDashboard,
@@ -85,6 +87,7 @@ const ReviewRequestPage: React.FC = () => {
     return (
       <>
                 <div className="govuk-width-container">
+            {errors.length > 0 && <ErrorSummary errors={errors} />}
             <h1 className="govuk-heading-l">Request not found</h1>
             <p className="govuk-body">The requested access request could not be found.</p>
                   </div>

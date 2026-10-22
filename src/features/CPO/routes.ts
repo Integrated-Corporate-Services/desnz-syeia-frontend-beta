@@ -45,3 +45,11 @@ const backendRoutePaths = new Set([
 export const cpoRoutes = cpoPageRoutes.map(route =>
     backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });
 // export const cpoRoutes = cpoPageRoutes;
+// Backend-wired pages (the pre-application meeting) keep real sign-in and the application access check.
+// To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
+const backendRoutePaths = new Set([
+    `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
+    `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
+]);
+export const cpoRoutes = cpoPageRoutes.map(route =>
+    backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });
