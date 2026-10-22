@@ -40,6 +40,7 @@ const backendRoutePaths = new Set([
     `${CPO_BASE_URL}/:applicationId/notice-requirements`,
     `${CPO_BASE_URL}/:applicationId/record-notices`,
     `${CPO_BASE_URL}/:applicationId/record-notices/:noticeStep`,
+    `${CPO_BASE_URL}/:applicationId/check-and-submit`,
 ]);
 export const cpoRoutes = cpoPageRoutes.map(route =>
     backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });
