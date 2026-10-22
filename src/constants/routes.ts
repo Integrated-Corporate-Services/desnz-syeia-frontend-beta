@@ -165,6 +165,7 @@ import ChangeWorkAddressPage from '../features/YourDetails/pages/ChangeWorkAddre
 import ChangeAgencyNamePage from '../features/YourDetails/pages/ChangeAgencyNamePage';
 import ChangeOrganisationsPage from '../features/YourDetails/pages/ChangeOrganisationsPage';
 import ChangeOrganisationsConfirmationPage from '../features/YourDetails/pages/ChangeOrganisationsConfirmationPage';
+import AdditionalPaymentPage from '../features/Payments/pages/AdditionalPaymentPage';
 
 const FIR_ROUTES: RouteConfig[] = [
     {
@@ -254,6 +255,12 @@ const FIR_ROUTES: RouteConfig[] = [
 ];
 
 export const ROUTE_CONFIG: RouteConfig[] = [
+    ...['', '/invoice', '/payment-method', '/bank-transfer', '/proof', '/result', '/processing'].map(step => ({
+        path: `${S37_BASE_URL}/:applicationId/additional-payments/:requestId${step}`,
+        component: AdditionalPaymentPage,
+        auth: true,
+        layout: true,
+    })),
     ...(isFirFeatureDisabled() ? [] : FIR_ROUTES),
     {
         path: '/admin/reporting',
