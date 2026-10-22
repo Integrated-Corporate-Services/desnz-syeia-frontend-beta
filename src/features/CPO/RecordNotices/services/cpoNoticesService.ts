@@ -7,7 +7,7 @@ async function readResponse(response: Response): Promise<NoticesResponse> {
     const body = await response.json().catch(() => ({}));
     throw new Error(response.status === 400 && typeof body.message === 'string'
       ? body.message : response.status === 401 ? 'Your session has expired. Sign in again.'
-        : response.status === 403 ? 'You do not have permission to update this application.'
+        : response.status === 403 ? 'You do not have permission to access this application.'
           : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
             : 'Unable to load or save your publicity record. Try again.');
   }
