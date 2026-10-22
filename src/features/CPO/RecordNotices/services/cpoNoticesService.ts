@@ -29,7 +29,7 @@ export const cpoNoticesService = {
     }
     if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
     return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/notices`), {
-      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
+      method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ step, answers, saveForLater }),
     }));
   },

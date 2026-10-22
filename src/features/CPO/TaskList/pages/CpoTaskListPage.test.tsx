@@ -40,8 +40,6 @@ it('shows the reference title and the saved progress on the task list', async ()
 });
 
 it('unlocks application review when all seven prerequisites are complete', async () => {
-  seedApplication('application-id', {
-    progress: completed(Object.values(CPO_SUBSECTIONS).filter(subsection => subsection !== CPO_SUBSECTIONS.CHECK_AND_SUBMIT)),
   vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(
     completed(Object.values(CPO_SUBSECTIONS).filter(subsection => subsection !== CPO_SUBSECTIONS.CHECK_AND_SUBMIT)),
   );
