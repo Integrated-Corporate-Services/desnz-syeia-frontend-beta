@@ -31,6 +31,7 @@ import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../Application
 import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
 import { isFirFeatureDisabled } from '../../../../utils/disabledFormTypes';
 import { ApplicationReassignmentLinks } from '../../../ApplicationReassignment/components/ApplicationReassignmentLinks';
+import { AdditionalPaymentSummary } from '../../../Payments/AdditionalPaymentSummary';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -129,6 +130,8 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                     </button>
                 </div>
             )}
+
+            <AdditionalPaymentSummary applicationId={applicationId} baseUrl={NWL_BASE_URL} />
 
             <ReviewApplicationInfoCard
                 desnzRef={data.desnzRef}
