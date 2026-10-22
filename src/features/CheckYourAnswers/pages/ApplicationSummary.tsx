@@ -55,8 +55,13 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
 import { useAssignmentHistory } from '../../ApplicationReassignment/hooks/useAssignmentHistory';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
+import type { AuthUser } from '../../../types/auth';
 
 const ApplicationSummary: React.FC = () => {
+  const { user } = useAuthUserContext();
+  const isPolicyReadOnly = useApplicationReadOnly(undefined, user as AuthUser);
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
   const navigate = useNavigate();
   const params = useParams();
@@ -85,6 +90,7 @@ const ApplicationSummary: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPolicyReadOnly) return;
 
     if (!declarationConfirmed) {
       // setValidationError(
@@ -155,7 +161,7 @@ const ApplicationSummary: React.FC = () => {
 
   const [allSectionsCompleted, setAllSectionsCompleted] = useState(false);
 
-  const [permissions, setPermissions] = useState<{
+  const [apiPermissions, setPermissions] = useState<{
     canView: boolean;
     canEdit: boolean;
     canDelete: boolean;
@@ -163,6 +169,9 @@ const ApplicationSummary: React.FC = () => {
     canDownload: boolean;
     canWithdraw: boolean;
   } | null>(null);
+  const permissions = isPolicyReadOnly && apiPermissions
+    ? { ...apiPermissions, canEdit: false, canDelete: false, canSubmit: false, canWithdraw: false }
+    : apiPermissions;
 
   const [parishes, setParishes] = useState<Parish[]>([]);
 

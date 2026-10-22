@@ -13,7 +13,7 @@ interface UseNetworkOperatorFormReturn {
   setErrors: (errors: string[]) => void;
   showErrorSummary: boolean;
   setShowErrorSummary: (show: boolean) => void;
-  validateForm: () => boolean;
+  validateForm: (options: ApplicationParty[]) => boolean;
   handleOperatorChange: (
     selectedName: string,
     options: ApplicationParty[]
@@ -29,10 +29,13 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
   const [errors, setErrors] = useState<string[]>([]);
   const [showErrorSummary, setShowErrorSummary] = useState(false);
 
-  const validateForm = useCallback((): boolean => {
+  const validateForm = useCallback((options: ApplicationParty[]): boolean => {
     const newErrors: string[] = [];
 
-    if (!selectedOrgName.trim()) {
+    if (!selectedOrgName.trim() || !selectedOrganisation?.person_id || !options.some(
+      option => option.person_id === selectedOrganisation.person_id &&
+        option.organisation_id === selectedOrganisation.organisation_id
+    )) {
       newErrors.push(FORM_ERRORS.MISSING_OPERATOR);
     }
 
@@ -44,7 +47,7 @@ export const useNetworkOperatorForm = (): UseNetworkOperatorFormReturn => {
     setShowErrorSummary(newErrors.length > 0);
 
     return newErrors.length === 0;
-  }, [networkOperatorRef, selectedOrgName]);
+  }, [networkOperatorRef, selectedOrgName, selectedOrganisation]);
 
   const handleOperatorChange = useCallback(
     (selectedName: string, options: ApplicationParty[]) => {

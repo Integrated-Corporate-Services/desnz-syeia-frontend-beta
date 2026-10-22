@@ -144,7 +144,7 @@ const NetworkOperatorDetails: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!validateForm(filteredOptions)) {
       return;
     }
 

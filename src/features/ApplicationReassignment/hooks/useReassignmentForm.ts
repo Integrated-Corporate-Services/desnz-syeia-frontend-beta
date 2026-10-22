@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { isReassignmentTerminal } from '../constants/reassignment';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { ROLES } from '../../../constants/roles';
 import type {
     AssignmentDetails,
     EligibleAssignee,
@@ -8,6 +10,7 @@ import type {
 } from '../types/applicationReassignment';
 
 export function useReassignmentForm(applicationId: string, status: string | null) {
+    const { user } = useAuthUserContext();
     const terminal = isReassignmentTerminal(status);
     const [loaded, setLoaded] = useState<{
         applicationId: string;
@@ -48,7 +51,10 @@ export function useReassignmentForm(applicationId: string, status: string | null
         };
     }, [applicationId, terminal]);
 
-    const data = loaded?.applicationId === applicationId ? loaded : null;
+    const currentData = loaded?.applicationId === applicationId ? loaded : null;
+    const data = currentData && user?.role === ROLES.SUPERUSER
+        ? { ...currentData, assignees: currentData.assignees.filter(assignee => assignee.user_id !== user.user_id) }
+        : currentData;
     const selected = data?.assignees.find((assignee) => assignee.user_id === selectedId);
     const changeSearch = (value: string) => {
         setSearch(value);

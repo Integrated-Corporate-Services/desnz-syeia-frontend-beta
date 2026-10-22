@@ -81,9 +81,12 @@ describe('application reassignment confirmation', () => {
     });
 
     it.each([
-        ['FURTHER_INFORMATION_REQUESTED', true],
-        ['DECISION_ISSUED', false],
-    ])('shows the outstanding request only for FIR (%s)', async (status, showRequest) => {
+        ['FURTHER_INFORMATION_REQUESTED', true, 'APPLICANT_TEAM_COORDINATOR'],
+        ['DECISION_ISSUED', false, 'APPLICANT_TEAM_COORDINATOR'],
+        ['DRAFT', false, 'SUPERUSER'],
+        ['SUBMITTED', false, 'SUPERUSER'],
+    ])('allows reassignment for status %s (FIR warning %s, role %s)', async (status, showRequest, role) => {
+        mockUseAuthUserContext.mockReturnValue({ user: { role } });
         renderFlow(status);
         fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), {
             target: { value: 'Sam' },
@@ -207,6 +210,17 @@ describe('application reassignment confirmation', () => {
         expect(await screen.findByRole('alert')).toHaveFocus();
         expect(screen.getByText('Selected user is no longer eligible')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Reassign now' })).toBeEnabled();
+    });
+
+    it('does not offer the acting Superuser as an applicant owner even if returned by a stale endpoint', async () => {
+        mockUseAuthUserContext.mockReturnValue({ user: { role: 'SUPERUSER', user_id: assigneeId } });
+        renderFlow('DRAFT');
+        fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), {
+            target: { value: 'Sam' },
+        });
+        expect(screen.getByText('No matching contacts found.')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+        expect(applicationApiService.reassignApplication).not.toHaveBeenCalled();
     });
 
     it('announces an empty contact search and keeps continue disabled', async () => {

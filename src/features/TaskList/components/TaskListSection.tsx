@@ -16,7 +16,7 @@ interface TaskListSectionProps {
   idx: number;
   applicationId?: string;
   applicationStatus?: string;
-  isAdmin?: boolean;
+  isReadOnly?: boolean;
   submitting: boolean;
   handleSubmit: () => void;
   statusClass: (status: string) => string;
@@ -27,13 +27,13 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
   idx,
   applicationId,
   applicationStatus,
-  isAdmin = false,
+  isReadOnly = false,
   submitting,
   handleSubmit,
   statusClass,
 }) => {
   const isSubmitted = applicationStatus?.toLowerCase() === 'submitted';
-  const canEdit = !isSubmitted || isAdmin;
+  const canEdit = !isSubmitted && !isReadOnly;
 
   return (
     <div className="govuk-!-margin-top-8">
@@ -70,7 +70,17 @@ const TaskListSection: React.FC<TaskListSectionProps> = ({
                     </button>
                   </div>
                 ) : applicationId ? (
-                  item.name === 'Route' ? (
+                  !canEdit ? (
+                    <Link
+                      id={`s37-task-link-${idx}-${itemIndex}`}
+                      className="govuk-link govuk-!-font-weight-bold"
+                      to={`/s-37/${applicationId}/application-summary`}
+                      aria-labelledby={`s37-task-heading-${idx} s37-task-link-${idx}-${itemIndex}`}
+                      aria-describedby={`s37-task-status-${idx}-${itemIndex}`}
+                    >
+                      {item.name}
+                    </Link>
+                  ) : item.name === 'Route' ? (
                     <RouteEntry applicationId={applicationId}>
                       <Link 
                         id={`s37-task-link-${idx}-${itemIndex}`}

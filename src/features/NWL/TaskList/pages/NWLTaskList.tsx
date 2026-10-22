@@ -7,6 +7,9 @@ import { NWL_SUBSECTIONS, getStatusClass, getStatusText, getSubsectionStatus } f
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { progressApiService } from '../../../../services/progressApiService';
 import { createLogger } from '../../../../utils/logger';
+import { useAuthUserContext } from '../../../../context/AuthUserContext';
+import { useApplicationReadOnly } from '../../../../hooks/usePreventEditSubmitted';
+import type { AuthUser } from '../../../../types/auth';
 
 const logger = createLogger('NWLTaskList');
 
@@ -15,6 +18,8 @@ const NWLTaskList: React.FC = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [application, setApplication] = useState<any>(null);
+	const { user } = useAuthUserContext();
+	const isReadOnly = useApplicationReadOnly(application, user as AuthUser);
 	const [progress, setProgress] = useState<any>(null);
 	const [orgName, setOrgName] = useState('');
 	const [submitting] = useState(false);
@@ -105,12 +110,13 @@ const NWLTaskList: React.FC = () => {
 
 	const renderTask = (subsectionName: string, content: React.ReactNode) => {
 		const statusId = `nwl-task-status-${subsectionName.toLowerCase().replace(/\s+/g, '-')}`;
-		const contentElement = React.isValidElement<{ 'aria-describedby'?: string; className?: string }>(content)
+		const contentElement = React.isValidElement<{ 'aria-describedby'?: string; className?: string; to?: string }>(content)
 			? content
 			: null;
 		const isTaskLink = contentElement?.type === Link;
 		const describedContent = contentElement
 			? React.cloneElement(contentElement, {
+				...(isReadOnly && isTaskLink ? { to: `${NWL_BASE_URL}/${appId}/application-summary` } : {}),
 				'aria-describedby': statusId,
 				className: isTaskLink
 					? `${contentElement.props.className ?? ''} govuk-task-list__link`.trim()
@@ -134,7 +140,7 @@ const NWLTaskList: React.FC = () => {
 					<div className="govuk-grid-column-two-thirds">
 						<span className="govuk-caption-l">{orgName || 'Organisation'}</span>
 						<h1 className="govuk-heading-l">Necessary wayleave consent application</h1>
-						<p className="govuk-hint">Complete the following sections in order to create and submit your application</p>
+						<p className="govuk-hint">{isReadOnly ? 'You can view the information but cannot make changes.' : 'Complete the following sections in order to create and submit your application'}</p>
 
 						<div className="govuk-!-margin-top-8">
 						<h2 className="govuk-heading-m govuk-!-margin-bottom-4">1. Applicant details</h2>
@@ -209,7 +215,7 @@ const NWLTaskList: React.FC = () => {
 						</ul>
 					</div>
 
-					<div className="govuk-!-margin-top-6">
+					{!isReadOnly && <div className="govuk-!-margin-top-6">
 						<button
 							className="govuk-button govuk-button--warning"
 							type="button"
@@ -218,7 +224,7 @@ const NWLTaskList: React.FC = () => {
 						>
 							Delete application
 						</button>
-					</div>
+					</div>}
 					</div>
 				</div>
 					</div>	</>	);
