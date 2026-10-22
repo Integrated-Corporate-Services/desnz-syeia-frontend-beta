@@ -43,6 +43,7 @@ import { ApplicationDeleteConfirmationPage } from '../../pages/ApplicationDelete
 import { ApplicationDeleteSuccessPage } from '../../pages/ApplicationDeleteSuccessPage';
 import { CheckYourAnswersPage as NWLCheckYourAnswersPage } from './CheckYourAnswers';
 import PaymentAmountPage from '../Payments/pages/PaymentAmountPage';
+import AdditionalPaymentPage from '../Payments/pages/AdditionalPaymentPage';
 import InvoiceGenerationPage from '../Payments/pages/InvoiceGenerationPage';
 import InvoiceDownloadPage from '../Payments/pages/InvoiceDownloadPage';
 import InvoiceGenerationErrorPage from '../Payments/pages/InvoiceGenerationErrorPage';
@@ -470,6 +471,12 @@ export const nwlWithdrawalRoutes = [
 ];
 
 export const nwlPaymentRoutes = [
+    ...['', '/invoice', '/payment-method', '/bank-transfer', '/proof', '/result', '/processing'].map(step => ({
+        path: `${NWL_BASE_URL}/:applicationId/additional-payments/:requestId${step}`,
+        component: AdditionalPaymentPage,
+        auth: true,
+        layout: true,
+    })),
     {
         path: `${NWL_BASE_URL}/:applicationId/pay-and-submit`,
         component: PaymentAmountPage,
