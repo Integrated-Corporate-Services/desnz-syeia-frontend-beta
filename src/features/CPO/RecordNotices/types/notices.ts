@@ -10,7 +10,6 @@ export interface InspectionAddress {
   county?: string;
   postcode: string;
   from: string;
-  legacyAddress?: string;
 }
 
 export interface NoticeAnswer {

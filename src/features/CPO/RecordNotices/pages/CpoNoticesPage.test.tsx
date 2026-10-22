@@ -37,7 +37,7 @@ describe('CPO notices journey', () => {
     vi.restoreAllMocks(); vi.clearAllMocks(); upload.pending = false; upload.busy = false; upload.scanErrors = []; upload.files = ['new-file'];
     stored = { canEdit: true, reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', documents: [], record: {
       requirements: { acknowledged: true },
-      inspection: { address: 'Network House', from: '2026-10-07', until: '2026-11-09' },
+      inspection: { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '2026-10-07' }] },
       online: { url: 'https://example.gov.uk/order', from: '2026-10-07', until: '2026-11-09' },
       website: { url: 'https://example.gov.uk/notice', liveDate: '2026-10-07' },
       site: { completionDate: '2026-10-07', evidence: [] }, people: { completionDate: '2026-10-19', evidence: [] }, newspapers: { evidence: [] },
@@ -78,13 +78,13 @@ describe('CPO notices journey', () => {
     renderStep(step); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith(`/cpo/app/record-notices/${next}`));
   });
-  it('preserves the saved legacy inspection address and provides Change links', async () => {
+  it('renders a structured inspection address and provides Change links', async () => {
     renderStep('inspection'); await ready();
     expect(screen.getByText('Network House')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Change inspection address 1' })).toHaveAttribute('href', expect.stringContaining('/inspection-address?id='));
   });
   it('links incomplete date errors to the date input and focuses the summary', async () => {
-    stored.record.inspection = { address: 'Network House', from: '', until: '' };
+    stored.record.inspection = { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '' }] };
     renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     expect(screen.getByRole('alert')).toHaveFocus();
     expect(screen.getByRole('link', { name: 'Enter an availability date for every inspection address' })).toHaveAttribute('href', '#inspection-heading');
@@ -96,7 +96,7 @@ describe('CPO notices journey', () => {
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'website', expect.objectContaining({ liveDate: '2026-10-14' }), false));
   });
   it('saves partial forms for later without completing the section', async () => {
-    stored.record.inspection = { address: '', from: '', until: '' };
+    stored.record.inspection = { format: 'reference', addresses: [] };
     renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/application-dashboard'));
     expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'inspection', expect.objectContaining({ format: 'reference', addresses: [] }), true);
@@ -191,7 +191,9 @@ describe('CPO notices journey', () => {
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'newspapers', expect.objectContaining({ evidence: [{ fileId: 'second-file', date: '2026-10-15' }, { fileId: 'first-file', date: '2026-10-08' }] }), false));
   });
   it('saves an edited availability date and returns to the inspection list', async () => {
-    renderStep('inspection-date', '?id=00000000-0000-4000-8000-000000000001');
+    const addressId = crypto.randomUUID();
+    stored.record.inspection = { format: 'reference', addresses: [{ id: addressId, line1: 'Network House', line2: '', townCity: 'London', county: '', postcode: 'SW1A 1AA', from: '2026-10-07' }] };
+    renderStep('inspection-date', '?id=' + addressId);
     await waitFor(() => expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled());
     setDate('inspection-date', '8');
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));

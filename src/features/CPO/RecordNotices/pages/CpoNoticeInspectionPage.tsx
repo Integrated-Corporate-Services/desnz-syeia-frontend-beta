@@ -62,7 +62,7 @@ const CpoNoticeInspectionPage = () => {
     if (problems.length) { setErrors(problems); return; }
     setSaving(true); setErrors([]);
     try {
-      const savedAddress = addressPage ? { ...address, line1: address.line1.trim(), line2: address.line2.trim(), townCity: address.townCity.trim(), county: (address.county || '').trim(), postcode: address.postcode.trim().toUpperCase(), legacyAddress: '' } : address;
+      const savedAddress = addressPage ? { ...address, line1: address.line1.trim(), line2: address.line2.trim(), townCity: address.townCity.trim(), county: (address.county || '').trim(), postcode: address.postcode.trim().toUpperCase() } : address;
       const addresses = addressPage || datePage ? list.some(item => item.id === address.id)
         ? list.map(item => item.id === address.id ? savedAddress : item) : [...list, savedAddress] : list;
       await cpoNoticesService.save(applicationId, 'inspection', { ...data?.record.inspection, format: 'reference', addresses }, later || addressPage || datePage);

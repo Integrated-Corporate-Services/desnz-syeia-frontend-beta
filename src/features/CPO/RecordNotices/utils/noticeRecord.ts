@@ -1,10 +1,8 @@
 import type { InspectionAddress, NoticeAnswer } from '../types/notices';
 
-export const inspectionAddresses = (answer?: NoticeAnswer): InspectionAddress[] => answer?.addresses ?? (answer?.address ? [{
-  id: '00000000-0000-4000-8000-000000000001', line1: answer.address, line2: '', townCity: '', county: '', postcode: '', from: answer.from || '', legacyAddress: answer.address,
-}] : []);
+export const inspectionAddresses = (answer?: NoticeAnswer): InspectionAddress[] => answer?.addresses ?? [];
 
-export const inspectionAddressText = (address: InspectionAddress) => address.legacyAddress || [address.line1, address.line2, address.townCity, address.county, address.postcode].filter(Boolean).join(', ');
+export const inspectionAddressText = (address: InspectionAddress) => [address.line1, address.line2, address.townCity, address.county, address.postcode].filter(Boolean).join(', ');
 
 export const noticeDateText = (value?: string | null) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value))
   ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : 'Not recorded';

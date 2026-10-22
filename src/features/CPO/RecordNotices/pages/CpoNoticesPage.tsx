@@ -7,23 +7,13 @@ import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { deleteDocument } from '../../../../services/s3ApiService';
 import DateInput from '../components/DateInput';
 import { cpoNoticesService } from '../services/cpoNoticesService';
-import { NOTICE_CATEGORIES, NOTICE_STEPS } from '../constants/noticesConstants';
+import { NOTICE_CATEGORIES, NOTICE_HEADINGS, NOTICE_LABELS, NOTICE_STEPS } from '../constants/noticesConstants';
 import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../types/notices';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
 import CpoNoticeInspectionPage from './CpoNoticeInspectionPage';
 import { inspectionAddresses, inspectionAddressText, noticeDateText, publicationDateForFile } from '../utils/noticeRecord';
 
-const HEADINGS: Record<NoticeStep, string> = {
-  requirements: 'What your public notices must include', inspection: 'Record order inspection addresses',
-  online: 'Enter the website address', newspapers: 'Record the newspaper notices',
-  website: 'Record the website notice', site: 'Record the site notices', people: 'Upload a statement of service (optional)', check: 'Check public notices',
-};
-const LABELS: Partial<Record<NoticeStep, string>> = {
-  requirements: 'Notice requirements',
-  inspection: 'Inspection addresses', online: 'Enter the website address', newspapers: 'Record the newspaper notices',
-  website: 'Website notice', site: 'Record the site notices', people: 'Statement of service', check: 'Public notices',
-};
 const formatDate = (value?: string) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value))
   ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : 'Not recorded';
 const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
@@ -148,15 +138,15 @@ const CpoNoticesFormPage: React.FC = () => {
     return <>{data.documents.filter(file => file.category === NOTICE_CATEGORIES[target]).map(file => <p className="govuk-!-margin-bottom-1" key={file.file_id}><a className="govuk-link" href="#notices-heading" onClick={event => { event.preventDefault(); void downloadS3FileOnSameTab(file.s3_key, file.file_id, applicationId, file.document_id).catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download the document. Try again.' }])); }}>{file.filename}</a><br />{target === 'newspapers' ? 'Published' : target === 'site' ? 'Displayed' : 'Served'} {formatDate(saved.evidence?.find(item => item.fileId === file.file_id)?.date || saved.completionDate)}</p>)}{!saved.evidence?.length && (target === 'people' ? 'Not provided' : 'Not recorded')}</>;
   };
   return <>
-    <PageTitle title={`${errors.length ? 'Error: ' : ''}${HEADINGS[step]}`} />
+    <PageTitle title={`${errors.length ? 'Error: ' : ''}${NOTICE_HEADINGS[step]}`} />
     <div className="govuk-width-container cpo-document-uploads cpo-notices-reference">
     <Link className="govuk-back-link govuk-!-margin-bottom-6" to={step === 'check' && fromApplicationReview ? `${CPO_BASE_URL}/${applicationId}/check-and-submit` : backUrl}>Back</Link>
     <div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
       {!!errors.length && <div className="govuk-error-summary" ref={summaryRef} tabIndex={-1} role="alert" aria-labelledby="notices-error-title"><h2 className="govuk-error-summary__title" id="notices-error-title">There is a problem</h2><div className="govuk-error-summary__body"><ul className="govuk-list govuk-error-summary__list">{errors.map((error, index) => <li key={index}><a href={`#${error.id}`}>{error.message}</a></li>)}</ul></div></div>}
-      <span className="govuk-caption-l">Record your notices</span><h1 className="govuk-heading-l" id="notices-heading" ref={headingRef} tabIndex={-1}>{HEADINGS[step]}</h1>
+      <span className="govuk-caption-l">Record your notices</span><h1 className="govuk-heading-l" id="notices-heading" ref={headingRef} tabIndex={-1}>{NOTICE_HEADINGS[step]}</h1>
       {loading && <p className="govuk-body" role="status">Loading publicity record...</p>}
       {!loading && !editable && <p className="govuk-body">You can view this publicity record but cannot change it.</p>}
-      <form noValidate onSubmit={(event) => { event.preventDefault(); void submit(false); }}><fieldset className="govuk-fieldset" disabled={blocked}><legend className="govuk-visually-hidden">{HEADINGS[step]}</legend>
+      <form noValidate onSubmit={(event) => { event.preventDefault(); void submit(false); }}><fieldset className="govuk-fieldset" disabled={blocked}><legend className="govuk-visually-hidden">{NOTICE_HEADINGS[step]}</legend>
         {step === 'requirements' && <>
           <p className="govuk-body govuk-!-margin-bottom-0">Every notice must include the:</p><ul className="govuk-list govuk-list--bullet">
             <li>the DESNZ reference for this application: {data.reference || 'Not yet assigned'}</li>
@@ -244,7 +234,7 @@ const CpoNoticesFormPage: React.FC = () => {
         {step === 'check' && <>
           <dl className="govuk-summary-list">
             {inspectionAddresses(data.record.inspection).map((address, index) => <div className="govuk-summary-list__row" key={address.id}><dt className="govuk-summary-list__key">Inspection address {index + 1}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{inspectionAddressText(address)}<br />Available from {noticeDateText(address.from)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/inspection?from=${fromApplicationReview ? 'application-review' : 'check'}`}>Change<span className="govuk-visually-hidden"> inspection address {index + 1}</span></Link></dd></div>)}
-            {NOTICE_STEPS.filter(target => !['check', 'requirements', 'inspection'].includes(target)).map(target => <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{LABELS[target]}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{reviewValue(target)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'application-review' : 'check'}`}>Change<span className="govuk-visually-hidden"> {LABELS[target]?.toLowerCase()}</span></Link></dd></div>)}
+            {NOTICE_STEPS.filter(target => !['check', 'requirements', 'inspection'].includes(target)).map(target => <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{NOTICE_LABELS[target]}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{reviewValue(target)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'application-review' : 'check'}`}>Change<span className="govuk-visually-hidden"> {NOTICE_LABELS[target]?.toLowerCase()}</span></Link></dd></div>)}
           </dl>
         </>}
         {editable && <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void submit(true)}>Save for later</button></div>}
