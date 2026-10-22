@@ -126,7 +126,7 @@ const CpoNoticesFormPage: React.FC = () => {
     {errorFor('notice-location') && <p className="govuk-error-message" id="notice-location-error">{errorFor('notice-location')}</p>}
     <input className={`govuk-input${errorFor('notice-location') ? ' govuk-input--error' : ''}`} id="notice-location" type={key === 'url' ? 'url' : 'text'} maxLength={key === 'url' ? 2000 : 1000} aria-describedby={errorFor('notice-location') ? 'notice-location-error' : undefined} value={answer[key] || ''} onChange={(event) => update(key, event.target.value)} />
   </div>;
-  const dateInput = (key: 'from' | 'until' | 'liveDate' | 'completionDate' | 'firstDate' | 'secondDate', label: string) => <DateInput id={key} label={label} value={answer[key]} onChange={(value) => update(key, value)} error={errorFor(`${key}-day`)} />;
+  const dateInput = (key: 'from' | 'until' | 'liveDate' | 'completionDate' | 'firstDate' | 'secondDate', label: string, example?: string) => <DateInput id={key} label={label} example={example} value={answer[key]} onChange={(value) => update(key, value)} error={errorFor(`${key}-day`)} />;
   const removeDocument = async (documentId: string, fileId: string) => {
     if (blocked) return;
     setSaving(true); setErrors([]);
@@ -175,11 +175,51 @@ const CpoNoticesFormPage: React.FC = () => {
         {step === 'website' && <><p className="govuk-body">Keep the notice available on an appropriate public website for at least 21 days up to and including the final day for objections.</p>{textInput('Web address of the notice', 'url')}{dateInput('liveDate', 'Date the notice went live')}</>}
         {category && <>
           {step === 'newspapers' ? <><p className="govuk-body">The public notice must be published in a local newspaper that circulates in the area where the land is located for 2 consecutive weeks.</p><p className="govuk-body">Enter the date it appeared each week and upload copies of the newspaper pages.</p></> : step === 'site' ? <><p className="govuk-body">Site notices are displayed on or near the affected land where people can read them.</p><p className="govuk-body govuk-!-margin-bottom-0">You only need to:</p><ul className="govuk-list govuk-list--bullet"><li>upload 1 copy of the site notice</li><li>enter the most recent date you put up a notice</li></ul></> : <p className="govuk-body">You can upload a statement of service confirming you have served a notice to every person named in the order. You do not need to list all their names.</p>}
-          {!!documents.length && <div className="govuk-!-margin-bottom-6"><h2 className="govuk-heading-s">Documents uploaded</h2><ul className="govuk-task-list cpo-notice-documents">{documents.map((file, index) => {
-            const savedDate = answer.evidence?.find(item => item.fileId === file.file_id)?.date;
-            const entryDate = step === 'newspapers' && documents.length === 2 ? publicationDateForFile(file.file_id, index, answer, data.record.newspapers) : answer.completionDate || savedDate;
-            return <li className="govuk-task-list__item" key={file.file_id}><div className="govuk-task-list__name-and-hint" style={{ overflowWrap: 'anywhere' }}><a className="govuk-link" href="#notices-heading" onClick={(event) => { event.preventDefault(); void downloadS3FileOnSameTab(file.s3_key, file.file_id, applicationId, file.document_id).catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download this document. Try again.' }])); }}>{file.filename}</a>{(entryDate || (step === 'newspapers' && documents.length > 2)) && <div className="govuk-task-list__hint">{step === 'newspapers' ? 'Published ' : step === 'people' ? 'Served ' : ''}{entryDate ? formatDate(entryDate) : 'Date not recorded'}{editable && step === 'newspapers' && documents.length > 2 && <><br /><button className="govuk-link cpo-notice-text-action" type="button" onClick={() => setEditingDate(editingDate === file.file_id ? '' : file.file_id)}>Change date<span className="govuk-visually-hidden"> for {file.filename}</span></button></>}</div>}{editable && step === 'newspapers' && documents.length > 2 && (editingDate === file.file_id || !savedDate) && <DateInput id={`evidence-${file.file_id}`} label={`Date for ${file.filename}`} value={savedDate} onChange={value => setAnswer(current => ({ ...current, evidence: [...(current.evidence || []).filter(item => item.fileId !== file.file_id), { fileId: file.file_id, date: value }] }))} />}</div>{editable && <div className="govuk-task-list__status"><button className="govuk-link cpo-notice-text-action" type="button" onClick={() => void removeDocument(file.document_id, file.file_id)}>Delete<span className="govuk-visually-hidden"> {file.filename}</span></button></div>}</li>;
-          })}</ul></div>}
+          {!!documents.length && <div className="govuk-!-margin-bottom-6">
+            <h2 className="govuk-heading-s">Documents uploaded</h2>
+            <ul className={'govuk-task-list cpo-notice-documents' + (step === 'site' ? ' cpo-notice-documents--site' : '')}>
+              {documents.map((file, index) => {
+                const savedDate = answer.evidence?.find(item => item.fileId === file.file_id)?.date;
+                const entryDate = step === 'newspapers' && documents.length === 2 ? publicationDateForFile(file.file_id, index, answer, data.record.newspapers) : answer.completionDate || savedDate;
+                const needsPerFileDate = step === 'newspapers' && documents.length > 2;
+                return <li className="govuk-task-list__item" key={file.file_id}>
+                  <div className="govuk-task-list__name-and-hint" style={{ overflowWrap: 'anywhere' }}>
+                    <a className="govuk-link" href="#notices-heading" onClick={(event) => {
+                      event.preventDefault();
+                      void downloadS3FileOnSameTab(file.s3_key, file.file_id, applicationId, file.document_id)
+                        .catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download this document. Try again.' }]));
+                    }}>{file.filename}</a>
+                  </div>
+                  <div className="govuk-task-list__hint cpo-notice-documents__date">
+                    {(entryDate || needsPerFileDate) && <>
+                      {step === 'newspapers' ? 'Published ' : step === 'people' ? 'Served ' : ''}
+                      {entryDate ? formatDate(entryDate) : 'Date not recorded'}
+                      {editable && needsPerFileDate && <>
+                        <br />
+                        <button className="govuk-link cpo-notice-text-action" type="button" onClick={() => setEditingDate(editingDate === file.file_id ? '' : file.file_id)}>
+                          Change date<span className="govuk-visually-hidden"> for {file.filename}</span>
+                        </button>
+                      </>}
+                    </>}
+                    {editable && needsPerFileDate && (editingDate === file.file_id || !savedDate) && <DateInput
+                      id={'evidence-' + file.file_id}
+                      label={'Date for ' + file.filename}
+                      value={savedDate}
+                      onChange={value => setAnswer(current => ({
+                        ...current,
+                        evidence: [...(current.evidence || []).filter(item => item.fileId !== file.file_id), { fileId: file.file_id, date: value }],
+                      }))}
+                    />}
+                  </div>
+                  {editable && <div className="govuk-task-list__status">
+                    <button className="govuk-link cpo-notice-text-action" type="button" onClick={() => void removeDocument(file.document_id, file.file_id)}>
+                      Delete<span className="govuk-visually-hidden"> {file.filename}</span>
+                    </button>
+                  </div>}
+                </li>;
+              })}
+            </ul>
+          </div>}
           {editable && <>
             {errors.filter((error) => error.id === 'file-upload-input').map((error, index) => <p className="govuk-error-message" key={index} id={`upload-error-${index}`}>{error.message}</p>)}
             <FileUpload key={step} ref={uploadRef} title={step === 'newspapers' ? 'Upload copies of the newspaper pages' : step === 'site' ? 'Upload evidence of site notices' : 'Upload a statement of service (optional)'} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`}
@@ -199,7 +239,7 @@ const CpoNoticesFormPage: React.FC = () => {
               onDeleteFile={(id) => { setData((current) => ({ ...current, documents: current.documents.filter((file) => file.file_id !== id) })); setAnswer((current) => ({ ...current, evidence: (current.evidence || []).filter((item) => item.fileId !== id) })); }}
               onValidationErrors={(messages) => { setFileErrors(messages); setErrors(messages.map((message) => ({ id: 'file-upload-input', message }))); }} />
           </>}
-          {step === 'newspapers' ? <>{dateInput('firstDate', 'First date it appeared')}{dateInput('secondDate', 'Second date it appeared')}</> : dateInput('completionDate', step === 'site' ? 'Enter the date you displayed the most recent notice' : 'Enter the date the last person was served a notice (optional)')}
+          {step === 'newspapers' ? <>{dateInput('firstDate', 'First date it appeared')}{dateInput('secondDate', 'Second date it appeared', '3 4 2026')}</> : dateInput('completionDate', step === 'site' ? 'Enter the date you displayed the most recent notice' : 'Enter the date the last person was served a notice (optional)')}
         </>}
         {step === 'check' && <>
           <dl className="govuk-summary-list">
