@@ -24,8 +24,8 @@ export const useManageUsersNavigation = () => {
     navigate(`/admin/manage-user/${userId}`);
   };
 
-  const navigateToReviewRequest = (accessRequestId: string) => {
-    navigate(`/admin/review-request/${accessRequestId}`);
+  const navigateToReviewRequest = (accessRequestId: string, organisationId: string) => {
+    navigate(`/admin/review-request/${accessRequestId}?organisationId=${encodeURIComponent(organisationId)}`);
   };
 
   return {

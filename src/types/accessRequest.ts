@@ -4,6 +4,7 @@ export interface AccessRequest {
   first_name: string;
   last_name: string;
   email: string;
+  organisation_id: string;
   organisation_name?: string;
   is_agent: boolean;
   agency_name?: string;
