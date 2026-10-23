@@ -113,18 +113,15 @@ describe('application reassignment confirmation', () => {
                 screen.queryByText(/A further information request is still outstanding/)
             ).not.toBeInTheDocument();
 
+        expect(screen.queryByLabelText('Reason for reassignment')).not.toBeInTheDocument();
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
         const reassignButton = screen.getByRole('button', { name: 'Reassign now' });
-        expect(reassignButton).toBeDisabled();
-        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
-            target: { value: 'Covering the current assignee’s absence' },
-        });
         expect(reassignButton).toBeEnabled();
         fireEvent.click(reassignButton);
         await waitFor(() =>
             expect(applicationApiService.reassignApplication).toHaveBeenCalledWith(
                 applicationId,
-                assigneeId,
-                'Covering the current assignee’s absence'
+                assigneeId
             )
         );
         expect(await screen.findByText('Application reassigned')).toBeInTheDocument();
@@ -185,9 +182,6 @@ describe('application reassignment confirmation', () => {
         expect(screen.getByRole('radio', { name: 'Sam Okoro - sam@example.com' })).toBeChecked();
         fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
         expect(screen.getByRole('heading', { name: 'Check before you reassign' })).toHaveFocus();
-        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
-            target: { value: 'Covering absence' },
-        });
         const button = screen.getByRole('button', { name: 'Reassign now' });
         fireEvent.click(button);
         fireEvent.click(button);
@@ -206,9 +200,6 @@ describe('application reassignment confirmation', () => {
         });
         fireEvent.click(await screen.findByText('Sam Okoro - sam@example.com'));
         fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
-            target: { value: 'Covering absence' },
-        });
         fireEvent.click(screen.getByRole('button', { name: 'Reassign now' }));
         expect(await screen.findByRole('alert')).toHaveFocus();
         expect(screen.getByText('Selected user is no longer eligible')).toBeInTheDocument();
