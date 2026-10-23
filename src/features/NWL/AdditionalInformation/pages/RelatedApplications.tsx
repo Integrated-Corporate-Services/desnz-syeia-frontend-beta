@@ -33,7 +33,7 @@ const logger = createLogger('RelatedApplications');
 const RelatedApplications: React.FC = () => {
   const { appId, additionalInformationData } = useAdditionalInformationData();
   const { errors, setErrors, validateRadioSelection, validateRelatedApplicationsDetails } = useFormValidation();
-  const { navigateToOtherImportantInformation, navigateToTaskList } = useAdditionalInformationNavigation(appId);
+  const { navigateToOtherImportantInformation } = useAdditionalInformationNavigation(appId);
   const { updateProgress } = useNWLProgress(appId);
 
   const [hasRelatedApplications, setHasRelatedApplications] = useState<string>('');

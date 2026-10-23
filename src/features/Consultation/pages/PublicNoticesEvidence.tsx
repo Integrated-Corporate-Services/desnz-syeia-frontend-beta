@@ -203,8 +203,6 @@ const PublicNoticesEvidence: React.FC = () => {
     }
 
     try {
-      let newlyUploadedFiles: UploadedFile[] = [];
-      let newlyUploadedDocuments: ApplicationDocument[] = [];
       
       if (fileUploadRef.current) {
         log.debug('[PublicNoticesEvidence] Uploading pending files to S3', { pendingFilesCount: pendingFiles.length });
@@ -218,8 +216,6 @@ const PublicNoticesEvidence: React.FC = () => {
           }
           return;
         }
-        newlyUploadedFiles = result.uploadedFiles;
-        newlyUploadedDocuments = result.applicationDocuments;
         log.info('[PublicNoticesEvidence] Pending files uploaded successfully');
       }
 
