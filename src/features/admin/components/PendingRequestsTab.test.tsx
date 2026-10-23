@@ -15,6 +15,22 @@ const props = {
   currentPage: 1, totalPages: 1, handlePageChange: vi.fn(),
 };
 
+describe('PendingRequestsTab wording (SYEIA-2703)', () => {
+  const noRequests = { ...props, pendingRequests: [], paginatedRequests: [], navigateToReviewRequest: vi.fn() };
+
+  it('Ultrasuperusers see "Access requests" and "No access requests."', () => {
+    render(<PendingRequestsTab {...noRequests} isSuperUser />);
+    expect(screen.getByRole('heading', { name: 'Access requests' })).toBeInTheDocument();
+    expect(screen.getAllByText('No access requests.').length).toBeGreaterThan(0);
+  });
+
+  it('team coordinators keep the pending wording', () => {
+    render(<PendingRequestsTab {...noRequests} />);
+    expect(screen.getByRole('heading', { name: 'Pending access requests' })).toBeInTheDocument();
+    expect(screen.getAllByText('No pending access requests.').length).toBeGreaterThan(0);
+  });
+});
+
 describe('pending access requests for the same agent', () => {
   it('passes the organisation for every desktop and mobile review action', () => {
     const review = vi.fn();

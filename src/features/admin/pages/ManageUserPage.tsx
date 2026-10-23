@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import { ROLES } from '../../../constants/roles';
@@ -10,12 +10,15 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const ManageUserPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
+  const location = useLocation();
   const { users, loading } = useManageUsers();
+  // Pages that link here (e.g. the team coordinators list) pass `from` so Back returns to them
+  const backPath = (location.state as { from?: string } | null)?.from ?? '/admin/user-management?tab=active-users';
 
   const user = users.find(u => u.id === userId);
 
   useBreadcrumb(
-    <Link to="/admin/user-management?tab=active-users" className="govuk-back-link">
+    <Link to={backPath} className="govuk-back-link">
       Back
     </Link>
   );

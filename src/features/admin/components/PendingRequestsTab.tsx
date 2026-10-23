@@ -23,6 +23,7 @@ interface PendingRequestsTabProps {
   currentPage: number;
   totalPages: number;
   handlePageChange: (page: number) => void;
+  isSuperUser?: boolean;
 }
 
 const formatDate = (dateString: string) => {
@@ -41,11 +42,14 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
   navigateToReviewRequest,
   currentPage,
   totalPages,
-  handlePageChange
+  handlePageChange,
+  isSuperUser = false
 }) => {
+  const heading = isSuperUser ? 'Access requests' : 'Pending access requests';
+  const emptyMessage = isSuperUser ? 'No access requests.' : 'No pending access requests.';
   return (
     <div className="govuk-tabs__panel">
-      <h2 className="govuk-heading-m">Pending access requests</h2>
+      <h2 className="govuk-heading-m">{heading}</h2>
       
       <div className="govuk-grid-row govuk-!-margin-bottom-4">
         <div className="govuk-grid-column-two-thirds">
@@ -83,7 +87,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
               {paginatedRequests.length === 0 ? (
                 <tr className="govuk-table__row">
                   <td className="govuk-table__cell" colSpan={5}>
-                    <p className="govuk-body">No pending access requests.</p>
+                    <p className="govuk-body">{emptyMessage}</p>
                   </td>
                 </tr>
               ) : (
@@ -126,7 +130,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
           {/* Mobile card view */}
           <div className="user-card-list" role="list" aria-label="Pending requests list">
             {paginatedRequests.length === 0 ? (
-              <p className="govuk-body">No pending access requests.</p>
+              <p className="govuk-body">{emptyMessage}</p>
             ) : (
               paginatedRequests.map((request) => (
                 <div key={`card-${request.access_request_id}-${request.organisation_id}`} className="user-card" role="listitem">

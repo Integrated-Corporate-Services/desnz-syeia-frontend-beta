@@ -42,7 +42,7 @@ const UserManagementDashboard: React.FC = () => {
             <h1 className="govuk-heading-l">User Management Dashboard</h1>
             <p className="govuk-body-m">
               {isSuperUser
-                ? "Manage access request and users across all Distribution Network Operators."
+                ? "Manage all applicant organisations, access requests and users."
                 : "Manage access request and users for your Organisation"}
             </p>
 
@@ -51,6 +51,7 @@ const UserManagementDashboard: React.FC = () => {
               organisationsEnabled={dnoTeamCoordinatorsOrganisationsEnabled}
               pendingCount={pendingRequests.length}
               onTabChange={handleTabChange}
+              isSuperUser={isSuperUser}
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
@@ -102,6 +103,7 @@ const UserManagementDashboard: React.FC = () => {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                isSuperUser={isSuperUser}
               />
             </div>
           </div>

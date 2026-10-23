@@ -7,7 +7,12 @@ export const useAccessConfirmationNavigation = () => {
     navigate("/admin/user-management");
   };
 
+  const navigateToPendingRequests = () => {
+    navigate("/admin/user-management?tab=pending-requests");
+  };
+
   return {
     navigateToDashboard,
+    navigateToPendingRequests,
   };
 };

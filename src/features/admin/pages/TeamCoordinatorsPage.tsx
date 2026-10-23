@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { useTeamCoordinators, useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
@@ -7,30 +7,36 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
 const TeamCoordinatorsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
-  const navigate = useNavigate();
 
   const { organisation, loading: orgLoading } = useOrganisation(organisationId);
   const { coordinators, loading: coordLoading, error } = useTeamCoordinators(organisationId);
 
   const loading = orgLoading || coordLoading;
+  const settingsPath = `/admin/organisation/${organisationId}/settings`;
 
   useBreadcrumb(
-    <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
+    <Link to={settingsPath} className="govuk-back-link">
       Back
     </Link>
   );
 
-  const handleSave = () => {
-    // Navigate back to settings page
-    navigate(`/admin/organisation/${organisationId}/settings`);
-  };
+  const sortedCoordinators = useMemo(
+    () =>
+      coordinators
+        .map((coordinator) => ({
+          ...coordinator,
+          fullName: `${coordinator.first_name} ${coordinator.last_name}`.trim(),
+        }))
+        .sort((a, b) => a.fullName.localeCompare(b.fullName, 'en-GB', { sensitivity: 'base' })),
+    [coordinators]
+  );
 
   if (loading) {
     return (
       <>
-                <div className="govuk-width-container">
-                      <LoadingSkeleton type="table" />
-                  </div>
+        <div className="govuk-width-container">
+          <LoadingSkeleton type="table" />
+        </div>
       </>
     );
   }
@@ -38,8 +44,8 @@ const TeamCoordinatorsPage: React.FC = () => {
   if (error) {
     return (
       <>
-                <div className="govuk-width-container">
-                    <div className="govuk-grid-row">
+        <div className="govuk-width-container">
+          <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
@@ -51,82 +57,63 @@ const TeamCoordinatorsPage: React.FC = () => {
               </div>
             </div>
           </div>
-              </div>
+        </div>
       </>
     );
   }
 
   return (
     <>
-      <PageTitle title="Team coordinators" />
-            <div className="govuk-width-container">
-                <div className="govuk-grid-row">
-          <div className="govuk-grid-column-full">
-            <h1 className="govuk-heading-l govuk-!-margin-top-6">Team coordinators</h1>
-
-            <h2 className="govuk-heading-m govuk-!-margin-top-6">Coordinators for {organisation?.organisation_name}</h2>
+      <PageTitle title="Manage team coordinators" />
+      <div className="govuk-width-container">
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            {organisation?.organisation_name && (
+              <span className="govuk-caption-xl govuk-!-margin-top-6">{organisation.organisation_name}</span>
+            )}
+            <h1 className="govuk-heading-xl">Manage team coordinators ({sortedCoordinators.length})</h1>
 
             <p className="govuk-body">
-              Manage the people who coordinate access requests and user management for this organisation.
+              Manage the team coordinators who review access requests and manage users for this organisation.
             </p>
-
-            <h3 className="govuk-heading-m govuk-!-margin-top-6">
-              Current coordinators ({coordinators.length})
-            </h3>
 
             <table className="govuk-table">
               <thead className="govuk-table__head">
                 <tr className="govuk-table__row">
-                  <th scope="col" className="govuk-table__header">Name</th>
+                  <th scope="col" className="govuk-table__header">Full name</th>
                   <th scope="col" className="govuk-table__header">Email address</th>
-                  <th scope="col" className="govuk-table__header">Location</th>
-                  <th scope="col" className="govuk-table__header">Actions</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Action</th>
                 </tr>
               </thead>
               <tbody className="govuk-table__body">
-                {coordinators.length === 0 ? (
+                {sortedCoordinators.length === 0 ? (
                   <tr className="govuk-table__row">
-                    <td className="govuk-table__cell" colSpan={4}>
+                    <td className="govuk-table__cell" colSpan={3}>
                       No team coordinators found
                     </td>
                   </tr>
                 ) : (
-                  coordinators.map((coordinator) => (
+                  sortedCoordinators.map((coordinator) => (
                     <tr key={coordinator.user_id} className="govuk-table__row">
-                      <td className="govuk-table__cell">
-                        {coordinator.first_name} {coordinator.last_name}
-                      </td>
+                      <td className="govuk-table__cell">{coordinator.fullName}</td>
                       <td className="govuk-table__cell">{coordinator.email}</td>
-                      <td className="govuk-table__cell">{coordinator.phone_number || 'Not specified'}</td>
-                      <td className="govuk-table__cell">
+                      <td className="govuk-table__cell govuk-table__cell--numeric">
                         <Link
-                          to={`/admin/organisations/${organisationId}/team-coordinators/${coordinator.user_id}`}
                           className="govuk-link"
+                          to={`/admin/manage-user/${coordinator.user_id}`}
+                          state={{ from: `/admin/organisations/${organisationId}/team-coordinators` }}
                         >
-                          Edit
+                          Manage<span className="govuk-visually-hidden"> {coordinator.fullName}</span>
                         </Link>
-                        {' '}
-                        <a href="#" className="govuk-link">
-                          Delete
-                        </a>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
-
-            <button
-              type="button"
-              className="govuk-button govuk-!-margin-top-4"
-              style={{ backgroundColor: '#00703c' }}
-              onClick={handleSave}
-            >
-              Save and continue
-            </button>
           </div>
         </div>
-          </div>
+      </div>
     </>
   );
 };

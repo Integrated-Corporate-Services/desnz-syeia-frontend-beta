@@ -68,8 +68,6 @@ const ManageOrganisationSettingsPage: React.FC = () => {
               </div>
             )}
 
-            <h2 className="govuk-heading-m govuk-!-margin-top-6">Organisation details</h2>
-
             <dl className="govuk-summary-list organisation-details__summary-list">
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">
@@ -125,6 +123,11 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                   ) : (
                     'No team coordinators'
                   )}
+                </dd>
+                <dd className="govuk-summary-list__actions">
+                  <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/team-coordinators`}>
+                    Change<span className="govuk-visually-hidden"> team coordinators</span>
+                  </Link>
                 </dd>
               </div>
             </dl>
