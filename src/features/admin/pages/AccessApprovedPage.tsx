@@ -2,14 +2,30 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAccessConfirmationNavigation } from '../../../hooks';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { useIsSuperUser } from '../../../hooks/useIsSuperUser';
 
 const AccessApprovedPage: React.FC = () => {
   const location = useLocation();
-  const { navigateToDashboard } = useAccessConfirmationNavigation();
+  const { navigateToDashboard, navigateToPendingRequests } = useAccessConfirmationNavigation();
+  const isSuperUser = useIsSuperUser();
 
   const state = location.state as { userName?: string; userEmail?: string } | null;
   const userName = state?.userName || 'the applicant';
   const userEmail = state?.userEmail || '';
+
+  useBreadcrumb(
+    <a
+      href="#"
+      className="govuk-back-link"
+      onClick={(e) => {
+        e.preventDefault();
+        navigateToPendingRequests();
+      }}
+    >
+      Back
+    </a>
+  );
 
   const handleReturnToDashboard = () => {
     navigateToDashboard();
@@ -41,7 +57,7 @@ const AccessApprovedPage: React.FC = () => {
 
         <div className="govuk-inset-text">
           <p className="govuk-body">
-            The user will appear in your active users list and can start using the service immediately.
+            The user will appear in your {isSuperUser ? 'Active' : 'active'} users list and can start using the service immediately.
           </p>
         </div>
 
