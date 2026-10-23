@@ -245,6 +245,18 @@ describe('application reassignment confirmation', () => {
         ).toBeInTheDocument();
     });
 
+    it('wraps the reassignment history link in a body paragraph so following links are spaced', () => {
+        render(
+            <MemoryRouter initialEntries={[`/s-37/${applicationId}/application-summary`]}>
+                <ApplicationReassignmentLinks applicationId={applicationId} status="Draft" />
+            </MemoryRouter>
+        );
+
+        const historyLink = screen.getByRole('link', { name: 'View reassignment history' });
+        expect(historyLink.parentElement?.tagName).toBe('P');
+        expect(historyLink.parentElement).toHaveClass('govuk-body');
+    });
+
     it('renders nothing and makes no requests when manual reassignment is disabled', () => {
         mockIsManualReassignmentEnabled.mockReturnValue(false);
         render(

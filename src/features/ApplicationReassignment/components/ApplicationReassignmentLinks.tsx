@@ -37,9 +37,11 @@ function ReassignmentLinksContent({
                 </p>
             )}
             {lastActor && <p className="govuk-body">Last reassigned by {lastActor}</p>}
-            <Link className="govuk-link" to={`${base}/reassignment-history`}>
-                View reassignment history
-            </Link>
+            <p className="govuk-body">
+                <Link className="govuk-link" to={`${base}/reassignment-history`}>
+                    View reassignment history
+                </Link>
+            </p>
         </div>
     );
 }
