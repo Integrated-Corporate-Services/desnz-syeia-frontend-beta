@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider, useBreadcrumbContext } from '../../../context/BreadcrumbContext';
@@ -35,7 +35,7 @@ function renderRoute(path: string, element: React.ReactNode) {
   );
 }
 
-describe('reassignment page breadcrumb accessibility', () => {
+describe('reassignment page back links', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseAuthUserContext.mockReturnValue({ user: { role: 'SUPERUSER' } });
@@ -46,25 +46,43 @@ describe('reassignment page breadcrumb accessibility', () => {
     });
   });
 
-  it('provides an accessible history breadcrumb with an application-summary link', async () => {
+  it('shows a Back link to the application summary on the history page', async () => {
     renderRoute(`/s-37/${applicationId}/reassignment-history`, <ReassignmentHistoryPage />);
-    const breadcrumb = await screen.findByRole('navigation', { name: 'Breadcrumb' });
-    expect(within(breadcrumb).getByRole('link', { name: 'Application summary' })).toHaveAttribute(
+    expect(await screen.findByRole('link', { name: 'Back' })).toHaveAttribute(
       'href', `/s-37/${applicationId}/application-summary`,
     );
-    expect(within(breadcrumb).getByText('Reassignment history')).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument();
   });
 
-  it('provides an accessible reassignment breadcrumb after loading the application', async () => {
+  it('shows a Back link to the application summary on the reassign page', async () => {
     renderRoute(`/s-37/${applicationId}/reassign`, <ReassignmentPage />);
-    const breadcrumb = await screen.findByRole('navigation', { name: 'Breadcrumb' });
-    expect(within(breadcrumb).getByRole('link', { name: 'Application summary' })).toHaveAttribute(
+    expect(await screen.findByRole('link', { name: 'Back' })).toHaveAttribute(
       'href', `/s-37/${applicationId}/application-summary`,
     );
-    expect(within(breadcrumb).getByText('Reassign application')).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument();
     await waitFor(() => expect(applicationApiService.getApplicationById).toHaveBeenCalledWith(applicationId));
     const heading = await screen.findByRole('heading', { name: 'Who do you want to reassign this application to?' });
     expect(heading.closest('.govuk-grid-column-three-quarters')).not.toBeNull();
     expect(heading.closest('.govuk-grid-column-three-quarters')?.parentElement).toHaveClass('govuk-grid-row');
+  });
+
+  it('returns from the check page to the choose step via Back', async () => {
+    vi.mocked(applicationApiService.getEligibleAssignees).mockResolvedValue([
+      { user_id: 'u-1', first_name: 'Sam', last_name: 'Okoro', email: 'sam@example.com', is_agent: false },
+    ]);
+    renderRoute(`/s-37/${applicationId}/reassign`, <ReassignmentPage />);
+    fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), { target: { value: 'Sam' } });
+    fireEvent.click(await screen.findByText('Sam Okoro - sam@example.com'));
+    fireEvent.click(screen.getByText('Continue'));
+    expect(await screen.findByRole('heading', { name: 'Check before you reassign' })).toBeInTheDocument();
+
+    const back = screen.getByRole('link', { name: 'Back' });
+    expect(back).toHaveAttribute('href', `/s-37/${applicationId}/reassign`);
+    fireEvent.click(back);
+
+    expect(await screen.findByRole('heading', { name: 'Who do you want to reassign this application to?' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute(
+      'href', `/s-37/${applicationId}/application-summary`,
+    );
   });
 });
