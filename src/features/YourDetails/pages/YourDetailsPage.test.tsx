@@ -8,6 +8,9 @@ import { SUCCESS_BANNER_KEY } from '../constants/yourDetails';
 import * as yourDetailsService from '../services/yourDetailsService';
 
 const navigateMock = vi.fn();
+vi.mock('../../../context/AuthUserContext', () => ({
+  useAuthUserContext: () => ({ user: { is_agent: true } }),
+}));
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
@@ -62,7 +65,11 @@ describe('YourDetailsPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Your details' })).toBeInTheDocument();
+      const heading = screen.getByRole('heading', { name: 'Your details' });
+      expect(heading).toBeInTheDocument();
+      const contentColumn = heading.closest('.govuk-grid-column-three-quarters');
+      expect(contentColumn).not.toBeNull();
+      expect(contentColumn?.parentElement).toHaveClass('govuk-grid-row');
     });
 
     expect(screen.getByText('Ms Alex Smith')).toBeInTheDocument();
