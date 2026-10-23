@@ -70,10 +70,9 @@ const ServiceNavigation = () => {
 
     // Check if user has admin role (DTC, Tech Admin, or Superuser)
     const isAdmin =
-        user &&
-        ((user as AuthUser)?.role === ROLES.SUPERUSER ||
-            (user as AuthUser)?.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
-            (user as AuthUser)?.role === ROLES.TECH_ADMIN);
+        user.role === ROLES.SUPERUSER ||
+        user.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
+        user.role === ROLES.TECH_ADMIN;
 
     return (
         <nav className="rcc-service-nav" aria-label="Service navigation">

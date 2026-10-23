@@ -14,7 +14,7 @@ interface FirResponseFormProps {
 }
 
 export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocuments }) => {
-  const { applicationId, requestId, requestPath, location } = useFirRoute();
+  const { applicationId, requestId, requestPath } = useFirRoute();
   const { request, error, setError } = useFirRequest(applicationId, requestId);
   const navigate = useNavigate();
   const { selectedCategories, clearSelectedCategories } = useFirSelectedCategories(applicationId, requestId);
