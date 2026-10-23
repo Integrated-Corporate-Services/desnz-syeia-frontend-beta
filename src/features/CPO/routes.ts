@@ -33,10 +33,12 @@ const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`, component: CpoPreSubmissionMeetingConfirmationPage, auth: true, layout: true },
 ];
 
-// LOCAL (frontend-only) MODE: no sign-in or backend access check, so the pages open with the backend off.
-// Backend-wired pages (the pre-application meeting) keep real sign-in and the application access check.
-// To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
+// LOCAL (frontend-only) MODE: keep backend-connected routes authenticated; open the remaining pages without auth or access checks.
 const backendRoutePaths = new Set([
+    `${CPO_BASE_URL}/:applicationId/notice-requirements`,
+    `${CPO_BASE_URL}/:applicationId/record-notices`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/:noticeStep`,
+    `${CPO_BASE_URL}/:applicationId/check-and-submit`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
 ]);

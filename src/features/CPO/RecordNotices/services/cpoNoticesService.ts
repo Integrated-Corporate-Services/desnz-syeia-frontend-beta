@@ -7,7 +7,7 @@ async function readResponse(response: Response): Promise<NoticesResponse> {
     const body = await response.json().catch(() => ({}));
     throw new Error(response.status === 400 && typeof body.message === 'string'
       ? body.message : response.status === 401 ? 'Your session has expired. Sign in again.'
-        : response.status === 403 ? 'You do not have permission to update this application.'
+        : response.status === 403 ? 'You do not have permission to access this application.'
           : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
             : 'Unable to load or save your publicity record. Try again.');
   }
@@ -29,7 +29,7 @@ export const cpoNoticesService = {
     }
     if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
     return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/notices`), {
-      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
+      method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ step, answers, saveForLater }),
     }));
   },

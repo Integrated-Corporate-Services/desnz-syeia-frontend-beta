@@ -7,9 +7,9 @@ export interface InspectionAddress {
   line1: string;
   line2: string;
   townCity: string;
+  county?: string;
   postcode: string;
   from: string;
-  legacyAddress?: string;
 }
 
 export interface NoticeAnswer {

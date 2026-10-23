@@ -1,11 +1,8 @@
 import { CPO_SUBSECTIONS, CPO_TASK_SECTIONS } from '../constants/cpoTaskListConstants';
 import type { CpoProgressItem, CpoTaskStatus } from '../types/cpoTaskList';
 
-export const buildProgressByTask = (progress: CpoProgressItem[], application: any): Map<string, string> =>
-  new Map(progress.map(item => [item.subsection_name,
-    item.subsection_name === CPO_SUBSECTIONS.RECORD_NOTICES && item.status.toLowerCase() === 'completed'
-      && (application?.cpo_publicity?.requirements?.acknowledged !== true || application?.cpo_publicity?.check?.confirmed !== true)
-      ? 'Not completed' : item.status]));
+export const buildProgressByTask = (progress: CpoProgressItem[]): Map<string, string> =>
+  new Map(progress.map(item => [item.subsection_name, item.status]));
 
 export const areAllOtherTasksCompleted = (progressByTask: Map<string, string>): boolean =>
   CPO_TASK_SECTIONS.flatMap((section) => section.tasks)

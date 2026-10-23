@@ -7,7 +7,7 @@ import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { InspectionAddress, NoticesResponse } from '../types/notices';
 import { inspectionAddresses, inspectionAddressText, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
 
-const emptyAddress = (): InspectionAddress => ({ id: crypto.randomUUID(), line1: '', line2: '', townCity: '', postcode: '', from: '' });
+const emptyAddress = (): InspectionAddress => ({ id: crypto.randomUUID(), line1: '', line2: '', townCity: '', county: '', postcode: '', from: '' });
 type FormError = { id: string; message: string };
 
 const CpoNoticeInspectionPage = () => {
@@ -30,7 +30,8 @@ const CpoNoticeInspectionPage = () => {
   const datePage = noticeStep === 'inspection-date';
   const heading = addressPage ? 'Enter an address where the order and maps can be inspected'
     : datePage ? 'Enter the date the order and maps were made available for inspection at this address' : 'Record order inspection addresses';
-  const blocked = loading || saving || !data || data.canEdit === false;
+  const canEdit = Boolean(data && data.canEdit !== false);
+  const blocked = loading || saving || !canEdit;
   const back = addressPage || datePage ? `${base}/inspection${returnQuery}` : params.get('from') ? `${base}/check${returnQuery}` : `${base}/requirements`;
 
   useEffect(() => {
@@ -61,7 +62,7 @@ const CpoNoticeInspectionPage = () => {
     if (problems.length) { setErrors(problems); return; }
     setSaving(true); setErrors([]);
     try {
-      const savedAddress = addressPage ? { ...address, line1: address.line1.trim(), line2: address.line2.trim(), townCity: address.townCity.trim(), postcode: address.postcode.trim().toUpperCase(), legacyAddress: '' } : address;
+      const savedAddress = addressPage ? { ...address, line1: address.line1.trim(), line2: address.line2.trim(), townCity: address.townCity.trim(), county: (address.county || '').trim(), postcode: address.postcode.trim().toUpperCase() } : address;
       const addresses = addressPage || datePage ? list.some(item => item.id === address.id)
         ? list.map(item => item.id === address.id ? savedAddress : item) : [...list, savedAddress] : list;
       await cpoNoticesService.save(applicationId, 'inspection', { ...data?.record.inspection, format: 'reference', addresses }, later || addressPage || datePage);
@@ -79,10 +80,10 @@ const CpoNoticeInspectionPage = () => {
     catch { setErrors([{ id: 'inspection-heading', message: 'Unable to remove the address. Try again.' }]); }
     finally { setSaving(false); }
   };
-  const field = (id: 'line1' | 'line2' | 'townCity' | 'postcode', label: string, width = '') => <div className={`govuk-form-group${errors.some(error => error.id === id) ? ' govuk-form-group--error' : ''}`}>
+  const field = (id: 'line1' | 'line2' | 'townCity' | 'county' | 'postcode', label: string, width = '') => <div className={`govuk-form-group${errors.some(error => error.id === id) ? ' govuk-form-group--error' : ''}`}>
     <label className="govuk-label" htmlFor={id}>{label}</label>
     {errors.filter(error => error.id === id).map(error => <p className="govuk-error-message" id={`${id}-error`} key={id}><span className="govuk-visually-hidden">Error:</span> {error.message}</p>)}
-    <input className={`govuk-input${errors.some(error => error.id === id) ? ' govuk-input--error' : ''} ${width}`} id={id} value={address[id]} autoComplete={id === 'line1' ? 'address-line1' : id === 'line2' ? 'address-line2' : id === 'townCity' ? 'address-level2' : 'postal-code'} maxLength={id === 'postcode' ? 10 : id === 'townCity' ? 200 : 250} aria-describedby={errors.some(error => error.id === id) ? `${id}-error` : undefined} onChange={event => setAddress(current => ({ ...current, [id]: event.target.value }))} />
+    <input className={`govuk-input${errors.some(error => error.id === id) ? ' govuk-input--error' : ''} ${width}`} id={id} value={address[id] || ''} autoComplete={id === 'line1' ? 'address-line1' : id === 'line2' ? 'address-line2' : id === 'townCity' ? 'address-level2' : id === 'county' ? 'address-level1' : 'postal-code'} maxLength={id === 'postcode' ? 10 : (id === 'townCity' || id === 'county') ? 200 : 250} aria-describedby={errors.some(error => error.id === id) ? `${id}-error` : undefined} onChange={event => setAddress(current => ({ ...current, [id]: event.target.value }))} />
   </div>;
   return <>
     <PageTitle title={errors.length ? `Error: ${heading}` : heading} />
@@ -93,16 +94,20 @@ const CpoNoticeInspectionPage = () => {
       {data?.canEdit === false && <p className="govuk-body">You can view these inspection addresses but cannot change them.</p>}
       <form noValidate onSubmit={event => { event.preventDefault(); void save(false); }}><fieldset className="govuk-fieldset" disabled={blocked}>
         <legend className="govuk-visually-hidden">{heading}</legend>
-        {addressPage ? <>{field('line1', 'Address line 1')}{field('line2', 'Address line 2 (optional)')}{field('townCity', 'Town or city', 'govuk-input--width-20')}{field('postcode', 'Postcode', 'govuk-input--width-10')}</>
+        {addressPage ? <>{field('line1', 'Address line 1')}{field('line2', 'Address line 2 (optional)')}{field('townCity', 'Town or city', 'govuk-input--width-20')}{field('county', 'County (optional)', 'govuk-input--width-20')}{field('postcode', 'Postcode', 'govuk-input--width-10')}</>
           : datePage ? <><p className="govuk-body">{inspectionAddressText(address)}</p><DateInput id="inspection-date" hideLabel label="Available to inspect from" value={address.from} onChange={from => setAddress(current => ({ ...current, from }))} error={errors.find(error => error.id === 'inspection-date-day')?.message} /></>
             : <><p className="govuk-body">Your public notices must list at least one place where people can inspect the order and maps.</p>
-              {list.map((item, index) => <section className="govuk-summary-card govuk-!-margin-bottom-4" key={item.id}><div className="govuk-summary-card__title-wrapper"><h2 className="govuk-summary-card__title">Inspection address {index + 1}</h2>{data?.canEdit !== false && <button type="button" className="govuk-link cpo-notice-text-action" onClick={() => void remove(item.id)}>Remove<span className="govuk-visually-hidden"> inspection address {index + 1}</span></button>}</div><div className="govuk-summary-card__content"><dl className="govuk-summary-list">
-                <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Address</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{inspectionAddressText(item)}</dd>{data?.canEdit !== false && <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={entryUrl('inspection-address', item.id)}>Change<span className="govuk-visually-hidden"> inspection address {index + 1}</span></Link></dd>}</div>
-                <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Available to inspect from</dt><dd className="govuk-summary-list__value">{noticeDateText(item.from)}</dd>{data?.canEdit !== false && <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={entryUrl('inspection-date', item.id)}>Change<span className="govuk-visually-hidden"> availability date for inspection address {index + 1}</span></Link></dd>}</div>
+              {list.map((item, index) => <section className="govuk-summary-card govuk-!-margin-bottom-4" key={item.id}><div className="govuk-summary-card__title-wrapper"><h2 className="govuk-summary-card__title">Inspection address {index + 1}</h2>{canEdit && <button type="button" className="govuk-link cpo-notice-text-action" onClick={() => void remove(item.id)}>Remove<span className="govuk-visually-hidden"> inspection address {index + 1}</span></button>}</div><div className="govuk-summary-card__content"><dl className="govuk-summary-list">
+                <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Address</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{inspectionAddressText(item)}</dd>{canEdit && <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={entryUrl('inspection-address', item.id)}>Change<span className="govuk-visually-hidden"> inspection address {index + 1}</span></Link></dd>}</div>
+                <div className="govuk-summary-list__row"><dt className="govuk-summary-list__key">Available to inspect from</dt><dd className="govuk-summary-list__value">{noticeDateText(item.from)}</dd>{canEdit && <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={entryUrl('inspection-date', item.id)}>Change<span className="govuk-visually-hidden"> availability date for inspection address {index + 1}</span></Link></dd>}</div>
               </dl></div></section>)}
-              {data?.canEdit !== false && <Link className="govuk-button govuk-button--secondary" to={`${base}/inspection-address${returnQuery}`}>Add an address</Link>}
+              {canEdit && <Link className={`govuk-button${list.length ? ' govuk-button--secondary' : ''}`} to={`${base}/inspection-address${returnQuery}`}>Add an address</Link>}
             </>}
-        {data?.canEdit !== false && <div className="govuk-button-group"><button className="govuk-button" type="submit">{addressPage || datePage ? 'Continue' : 'Save and continue'}</button>{!addressPage && !datePage && <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button>}</div>}
+        {canEdit && (addressPage || datePage
+          ? <div className="govuk-button-group"><button className="govuk-button" type="submit">Continue</button></div>
+          : list.length === 0
+            ? <div className="govuk-!-margin-top-2"><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>
+            : <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>)}
       </fieldset></form>
     </div></div></div>
   </>;
