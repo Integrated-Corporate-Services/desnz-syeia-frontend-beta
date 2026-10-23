@@ -16,7 +16,6 @@ export function useReassignmentForm(applicationId: string, status: string | null
     } | null>(null);
     const [selectedId, setSelectedId] = useState('');
     const [search, setSearch] = useState('');
-    const [justification, setJustification] = useState('');
     const [confirming, setConfirming] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -29,7 +28,6 @@ export function useReassignmentForm(applicationId: string, status: string | null
         setLoaded(null);
         setSelectedId('');
         setSearch('');
-        setJustification('');
         setConfirming(false);
         setError(null);
         if (terminal) return;
@@ -60,16 +58,12 @@ export function useReassignmentForm(applicationId: string, status: string | null
     };
 
     const submit = async (): Promise<ReassignmentSuccess | null> => {
-        if (!selected || !justification.trim() || terminal || pending.current) return null;
+        if (!selected || terminal || pending.current) return null;
         pending.current = true;
         setSubmitting(true);
         setError(null);
         try {
-            await applicationApiService.reassignApplication(
-                applicationId,
-                selected.user_id,
-                justification.trim()
-            );
+            await applicationApiService.reassignApplication(applicationId, selected.user_id);
             if (currentApplicationId.current !== applicationId) return null;
             return {
                 reference: data?.details.application_reference || applicationId,
@@ -96,8 +90,6 @@ export function useReassignmentForm(applicationId: string, status: string | null
         search,
         changeSearch,
         selectAssignee,
-        justification,
-        setJustification,
         confirming,
         setConfirming,
         submitting,
