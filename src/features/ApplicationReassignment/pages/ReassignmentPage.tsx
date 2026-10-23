@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { applicationApiService } from '../../../services/applicationApiService';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
@@ -57,19 +57,28 @@ export function ReassignmentPage() {
         hasReassignmentRole(getUserRole(user)) &&
         Boolean(state.status) &&
         !isReassignmentTerminal(state.status);
+    const [backToChoose, setBackToChoose] = useState<(() => void) | null>(null);
+    const handleConfirmingChange = useCallback(
+        (back: (() => void) | null) => setBackToChoose(() => back),
+        [],
+    );
     useBreadcrumb(
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            <ol className="govuk-breadcrumbs__list">
-                <li className="govuk-breadcrumbs__list-item">
-                    <Link className="govuk-breadcrumbs__link" to={`${base}/application-summary`}>
-                        Application summary
-                    </Link>
-                </li>
-                <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                    Reassign application
-                </li>
-            </ol>
-        </nav>,
+        backToChoose ? (
+            <a
+                href={`${base}/reassign`}
+                className="govuk-back-link"
+                onClick={(event) => {
+                    event.preventDefault();
+                    backToChoose();
+                }}
+            >
+                Back
+            </a>
+        ) : (
+            <Link className="govuk-back-link" to={`${base}/application-summary`}>
+                Back
+            </Link>
+        ),
     );
     return (
         <div className="govuk-width-container">
@@ -93,6 +102,7 @@ export function ReassignmentPage() {
                                     <ApplicationReassignment
                                         applicationId={applicationId}
                                         status={state.status}
+                                        onConfirmingChange={handleConfirmingChange}
                                     />
                                 )
                             ))}
