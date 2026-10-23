@@ -20,13 +20,13 @@ const ROLE_OPTIONS: RoleOption[] = [
   {
     value: ROLES.APPLICANT_USER,
     description:
-      "Can create and edit their own applications, and view the team's submitted applications.",
+      "Can create, edit and submit their own applications, and view their organisation's applications.",
   },
   {
     value: ROLES.APPLICANT_TEAM_COORDINATOR,
     label: 'Team coordinator',
     description:
-      'A person who create and edit their own applications, and can manage team members and view all applications submitted by the team.',
+      'Can manage access for all users and create, edit and submit all applications for their organisation.',
   },
 ];
 
@@ -124,7 +124,7 @@ const ChangeUserRolePage: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="Which role applies to this user?" />
+      <PageTitle title="Choose a role for this user" />
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -135,7 +135,7 @@ const ChangeUserRolePage: React.FC = () => {
             <div className="govuk-form-group">
               <fieldset className="govuk-fieldset" aria-describedby={error ? 'user-role-error' : undefined}>
                 <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
-                  <h1 className="govuk-fieldset__heading">Which role applies to this user?</h1>
+                  <h1 className="govuk-fieldset__heading">Choose a role for this user</h1>
                 </legend>
 
                 {error && (
