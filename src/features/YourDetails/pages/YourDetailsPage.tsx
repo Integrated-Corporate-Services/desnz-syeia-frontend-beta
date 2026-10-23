@@ -72,6 +72,8 @@ const YourDetailsPage: React.FC = () => {
     <>
             <PageTitle title="Your details" />
             <div className="govuk-width-container">
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-three-quarters">
               {successFieldName && (
           <div className="govuk-notification-banner govuk-notification-banner--success govuk-!-margin-bottom-6" role="alert">
             <div className="govuk-notification-banner__header">
@@ -198,6 +200,8 @@ const YourDetailsPage: React.FC = () => {
             </p>
           </>
         )}
+          </div>
+        </div>
           </div>
     </>
   );
