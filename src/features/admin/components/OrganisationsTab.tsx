@@ -47,7 +47,7 @@ export const OrganisationsTab: React.FC<OrganisationsTabProps> = ({
               <th scope="col" className="govuk-table__header">Organisation name</th>
               <th scope="col" className="govuk-table__header">Team coordinators</th>
               <th scope="col" className="govuk-table__header">Organisation address</th>
-              <th scope="col" className="govuk-table__header">Action(s)</th>
+              <th scope="col" className="govuk-table__header">Action</th>
             </tr>
           </thead>
           <tbody className="govuk-table__body">
