@@ -4,11 +4,8 @@ import PageTitle from '../../../../components/PageTitle';
 import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
-// LOCAL MODE: everything but the applicant sections is read from the CPO store. Restore the commented imports/calls below for the backend.
-import { useCpoStore } from '../../store/useCpoStore';
-import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
-// import { applicationApiService } from '../../../../services/applicationApiService';
-// import { progressApiService } from '../../../../services/progressApiService';
+import { applicationApiService } from '../../../../services/applicationApiService';
+import { progressApiService } from '../../../../services/progressApiService';
 import { cpoOrderDetailsService } from '../../OrderDetails/services/cpoOrderDetailsService';
 import { RELATED_TYPE_LABELS } from '../../OrderDetails/constants/orderDetailsConstants';
 import type { OrderDetailsResponse, OrderDocument } from '../../OrderDetails/types/orderDetails';
@@ -26,7 +23,7 @@ interface ReviewApplication {
   type: string;
   status: string;
   pre_submission_meeting_requested?: boolean | null;
-  pre_submission_meeting_answer?: 'had-meeting' | 'request-meeting' | 'not-needed' | null;
+  pre_submission_meeting_answer?: 'Yes, I’ve had this meeting' | 'No, I would like a pre-application meeting' | 'No, I don’t need this meeting' | null;
   pre_submission_meeting_reason?: string;
   additional_contact?: string | string[];
   permissions?: { canEdit?: boolean; canDownload?: boolean };
@@ -73,15 +70,13 @@ const CpoCheckYourAnswersPage: React.FC = () => {
   useEffect(() => {
     let active = true;
     setLoading(true); setError(''); setData(null);
-    syncApplicantFromBackend(applicationId, true).then(() => Promise.all([
-      Promise.resolve().then(() => useCpoStore.getState().getApplication(applicationId)),
+    Promise.all([
+      applicationApiService.getApplicationById(applicationId),
       cpoOrderDetailsService.get(applicationId),
       cpoOrderDocumentsService.get(applicationId),
       cpoNoticesService.get(applicationId),
-      Promise.resolve().then(() => useCpoStore.getState().getProgress(applicationId)),
-      // applicationApiService.getApplicationById(applicationId),
-      // progressApiService.fetchApplicationProgress(applicationId),
-    ])).then(([application, order, documents, notices, progress]) => {
+      progressApiService.fetchApplicationProgress(applicationId),
+    ]).then(([application, order, documents, notices, progress]) => {
       if (application.type !== 'CPO') throw new Error('Compulsory purchase order application not found');
       if (active) setData({ application, order, documents, notices, progress });
     }).catch((failure) => { if (active) setError(failure instanceof Error ? failure.message : 'Unable to load your answers. Try again.'); })
@@ -136,10 +131,10 @@ const CpoCheckYourAnswersPage: React.FC = () => {
           {row('Email address', party?.contact_person_email || 'Not answered', 'applicant-details')}
           {row('Phone number', party?.contact_person_phone || 'Not answered', 'applicant-details')}
           {row('Additional contacts', contacts.join('\n') || 'None added', 'applicant-details')}
-          {row('Have you had a pre-application meeting?', data.application.pre_submission_meeting_answer === 'had-meeting' ? "Yes, I've had this meeting"
-            : data.application.pre_submission_meeting_answer === 'request-meeting' || data.application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
-              : data.application.pre_submission_meeting_answer === 'not-needed' || data.application.pre_submission_meeting_requested === false ? "No, I don't need this meeting" : 'Not answered', 'pre-submission-meeting')}
-          {data.application.pre_submission_meeting_answer === 'not-needed' && row("Why you don't need this meeting", data.application.pre_submission_meeting_reason || 'Not answered', 'pre-submission-meeting')}
+          {row('Have you had a pre-application meeting?', data.application.pre_submission_meeting_answer === 'Yes, I’ve had this meeting' ? "Yes, I’ve had this meeting"
+            : data.application.pre_submission_meeting_answer === 'No, I would like a pre-application meeting' || data.application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
+              : data.application.pre_submission_meeting_answer === 'No, I don’t need this meeting' || data.application.pre_submission_meeting_requested === false ? "No, I don’t need this meeting" : 'Not answered', 'pre-submission-meeting')}
+          {data.application.pre_submission_meeting_answer === 'No, I don’t need this meeting' && row("Why you don’t need this meeting", data.application.pre_submission_meeting_reason || 'Not answered', 'pre-submission-meeting')}
         </dl>
         <h2 className="govuk-heading-m govuk-!-margin-top-8">Order details</h2>
         <dl className="govuk-summary-list">

@@ -111,6 +111,7 @@ export const FIELD_LABELS = {
   
   // Consultation fields
   CONSULTEE_STATUS: 'Status',
+  CONSULTATION_REQUEST_DOCUMENT: 'Consultation request document',
   DATE_CONSULTATION_REQUEST: 'Date of consultation request',
   EVIDENCE_REQUEST: 'Evidence of request',
   CONSULTEE_CONTACT_NAME: 'Consultee contact name',
@@ -166,7 +167,9 @@ export const BUTTON_LABELS = {
   SAVE_AND_CONTINUE: 'Save and continue',
   PAY_AND_SUBMIT: 'Pay and submit application',
   SUBMIT_WITHDRAWAL: 'Submit withdrawal request',
-  SUBMITTING: 'Submitting...'
+  SUBMITTING: 'Submitting...',
+  DOWNLOAD_SUMMARY_PDF: 'Download the application summary only (PDF)',
+  DOWNLOADING: 'Downloading...'
 } as const;
 
 // Withdrawal page labels

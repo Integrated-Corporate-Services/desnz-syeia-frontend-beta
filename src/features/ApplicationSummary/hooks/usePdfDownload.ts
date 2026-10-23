@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { downloadApplicationPackage, downloadApplicationPdf } from '../services/pdfService';
+import type { SummaryPdfFormType } from '../services/pdfService';
 
 interface UsePdfDownloadResult {
   isDownloading: boolean;
   isDownloadingPdf: boolean;
   isDownloadingPackage: boolean;
   error: string | null;
-  downloadPdf: (applicationId: string) => Promise<void>;
+  downloadPdf: (applicationId: string, formType?: SummaryPdfFormType) => Promise<void>;
   downloadPackage: (applicationId: string) => Promise<void>;
   packageSizeLabel: string | null;
   clearError: () => void;
@@ -25,11 +26,11 @@ export const usePdfDownload = (): UsePdfDownloadResult => {
   const [error, setError] = useState<string | null>(null);
   const [packageSizeLabel, setPackageSizeLabel] = useState<string | null>(null);
 
-  const downloadPdf = async (applicationId: string) => {
+  const downloadPdf = async (applicationId: string, formType: SummaryPdfFormType = 'NWL') => {
     try {
       setIsDownloadingPdf(true);
       setError(null);
-      await downloadApplicationPdf(applicationId);
+      await downloadApplicationPdf(applicationId, formType);
     } catch (err: any) {
       const errorMessage = err?.message || 'Failed to download PDF. Please try again.';
       setError(errorMessage);

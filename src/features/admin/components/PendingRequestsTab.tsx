@@ -8,6 +8,7 @@ interface AccessRequest {
   first_name: string;
   last_name: string;
   email: string;
+  organisation_id: string;
   organisation_name?: string;
   is_agent: boolean;
   requested_at: string;
@@ -18,7 +19,7 @@ interface PendingRequestsTabProps {
   requestsError: string;
   requestsLoading: boolean;
   paginatedRequests: AccessRequest[];
-  navigateToReviewRequest: (id: string) => void;
+  navigateToReviewRequest: (id: string, organisationId: string) => void;
   currentPage: number;
   totalPages: number;
   handlePageChange: (page: number) => void;
@@ -87,7 +88,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
                 </tr>
               ) : (
                 paginatedRequests.map((request) => (
-                  <tr key={request.access_request_id} className="govuk-table__row">
+                  <tr key={`${request.access_request_id}-${request.organisation_id}`} className="govuk-table__row">
                     <td className="govuk-table__cell">
                       <strong>{request.first_name} {request.last_name}</strong>
                     </td>
@@ -110,7 +111,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();
-                          navigateToReviewRequest(request.access_request_id);
+                          navigateToReviewRequest(request.access_request_id, request.organisation_id);
                         }}
                       >
                         Review
@@ -128,7 +129,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
               <p className="govuk-body">No pending access requests.</p>
             ) : (
               paginatedRequests.map((request) => (
-                <div key={`card-${request.access_request_id}`} className="user-card" role="listitem">
+                <div key={`card-${request.access_request_id}-${request.organisation_id}`} className="user-card" role="listitem">
                   <div className="user-card__header">
                     <div className="user-card__name">{request.first_name} {request.last_name}</div>
                     <div className="user-card__status">
@@ -155,7 +156,7 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        navigateToReviewRequest(request.access_request_id);
+                        navigateToReviewRequest(request.access_request_id, request.organisation_id);
                       }}
                     >
                       Review
