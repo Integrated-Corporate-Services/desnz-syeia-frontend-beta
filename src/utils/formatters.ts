@@ -27,6 +27,23 @@ export const formatDateTime = (dateString: string): string => {
   });
 };
 
+/**
+ * Format date with time as "19 October 2026 at 11:55am"
+ * (12-hour clock, lowercase am/pm, no leading zero on the hour).
+ */
+export const formatDateAtTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  const day = date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const suffix = hours >= 12 ? 'pm' : 'am';
+  return `${day} at ${hours % 12 || 12}:${minutes}${suffix}`;
+};
+
 // Application type normalization utilities
 /**
  * Type mapping configuration

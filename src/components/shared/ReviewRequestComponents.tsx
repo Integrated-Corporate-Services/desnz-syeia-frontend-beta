@@ -1,6 +1,7 @@
 // Components for reviewing access requests
 import React from 'react';
 import '../../styles/RelatedContent.css';
+import { formatDateAtTime } from '../../utils/formatters';
 
 interface RequestData {
   access_request_id: string;
@@ -15,20 +16,10 @@ interface RequestData {
 
 interface ApplicantDetailsProps {
   requestData: RequestData;
+  isSuperUser?: boolean;
 }
 
-export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData }) => {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
+export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData, isSuperUser = false }) => {
   return (
     <dl className="govuk-summary-list govuk-!-margin-bottom-6">
       <div className="govuk-summary-list__row">
@@ -51,7 +42,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData 
       </div>
 
       <div className="govuk-summary-list__row">
-        <dt className="govuk-summary-list__key">Applicant type</dt>
+        <dt className="govuk-summary-list__key">{isSuperUser ? 'Agent or employee' : 'Applicant type'}</dt>
         <dd className="govuk-summary-list__value">
           {/* TODO: Replace inline styles with GOV.UK Design System tag modifiers */}
           <strong
@@ -74,9 +65,9 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData 
       )}
 
       <div className="govuk-summary-list__row">
-        <dt className="govuk-summary-list__key">Request submitted</dt>
+        <dt className="govuk-summary-list__key">Requested on</dt>
         <dd className="govuk-summary-list__value">
-          {formatDate(requestData.requested_at)}
+          {formatDateAtTime(requestData.requested_at)}
         </dd>
       </div>
     </dl>
@@ -176,7 +167,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       onClick={onReject}
       disabled={processing}
     >
-      Reject request
+      Reject access
     </button>
   </div>
 );

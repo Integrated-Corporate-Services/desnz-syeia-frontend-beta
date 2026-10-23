@@ -8,6 +8,10 @@ export const useReviewRequestNavigation = () => {
     navigate('/admin/user-management');
   };
 
+  const navigateToPendingRequests = () => {
+    navigate('/admin/user-management?tab=pending-requests');
+  };
+
   const navigateToAccessApproved = (userDetails: UserDetails) => {
     navigate('/admin/access-approved', {
       state: {
@@ -28,6 +32,7 @@ export const useReviewRequestNavigation = () => {
 
   return {
     navigateToDashboard,
+    navigateToPendingRequests,
     navigateToAccessApproved,
     navigateToAccessDenied
   };
