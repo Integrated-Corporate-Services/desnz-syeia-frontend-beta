@@ -6,7 +6,7 @@ import SensitiveAreaBanner from '../components/SensitiveAreaBanner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
-import { ROLES } from '../../../constants/roles';
+import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { createLogger } from '../../../utils/logger';
 import PageTitle from '../../../components/PageTitle';
@@ -19,7 +19,6 @@ const TaskList: React.FC = () => {
   const { user } = useAuthUserContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const isAdmin = (user as AuthUser)?.role === ROLES.SUPERUSER;
   const applicationId = useGetApplicationId();
 
   // Use the hook to get sections from useTaskListData
@@ -33,6 +32,7 @@ const TaskList: React.FC = () => {
     showSensitiveAreaPopup,
     statusClass,
   } = useTaskListData();
+  const isReadOnly = useApplicationReadOnly(application, user as AuthUser);
 
   // Determine the base URL from the current path
   const getBaseUrl = () => {
@@ -67,9 +67,7 @@ const TaskList: React.FC = () => {
           </div>
           <div className="govuk-notification-banner__content">
             <p className="govuk-notification-banner__heading">
-              {isAdmin 
-                ? 'This application has been submitted. As an admin, you can still edit the application.'
-                : 'This application has been submitted and can no longer be edited or deleted.'}
+              This application has been submitted and can no longer be edited or deleted.
             </p>
           </div>
         </div>
@@ -86,10 +84,8 @@ const TaskList: React.FC = () => {
               <span className="govuk-caption-l">{application.operator_name || application.application_party?.organisation_name || ''}</span>
               <h1 className="govuk-heading-l govuk-!-margin-top-2 govuk-!-margin-bottom-2">{application.type === 'S37' ? 'Section 37' : application.type} application</h1>
               <p className="govuk-body" style={{ color: '#505a5f' }}>
-                {application.status?.toLowerCase() === 'submitted' 
-                  ? (isAdmin 
-                      ? 'This application has been submitted. As an admin, you can still make changes if needed.'
-                      : 'This application has been submitted. You can view the information but cannot make changes.')
+                {isReadOnly
+                  ? 'You can view the information but cannot make changes.'
                   : 'Complete the following sections in order to create and submit your application'}
               </p>
             </div>
@@ -103,7 +99,7 @@ const TaskList: React.FC = () => {
               idx={idx}
               applicationId={application?.application_id}
               applicationStatus={application?.status}
-              isAdmin={isAdmin}
+              isReadOnly={isReadOnly}
               submitting={submitting}
               handleSubmit={handleSubmit}
               statusClass={statusClass}
@@ -111,7 +107,7 @@ const TaskList: React.FC = () => {
           ))}
           
           {/* Delete application button - positioned at the end */}
-          {application && (application.status?.toLowerCase() !== 'submitted' || isAdmin) && (
+          {application && !isReadOnly && (
             <div className="govuk-!-margin-top-6">
               <button 
                 className="govuk-button govuk-button--warning"

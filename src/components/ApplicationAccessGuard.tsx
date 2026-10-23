@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
+import { useAuthUserContext } from '../context/AuthUserContext';
+import { ROLES } from '../constants/roles';
 import { applicationApiService } from '../services/applicationApiService';
 import { isAccessDeniedError } from '../utils/errorMapper';
 import NotFoundContent from '../features/NotFound/NotFoundContent';
@@ -10,6 +12,8 @@ interface ApplicationAccessGuardProps {
 
 const ApplicationAccessGuard: React.FC<ApplicationAccessGuardProps> = ({ children }) => {
   const { applicationId } = useParams<{ applicationId: string }>();
+  const { pathname } = useLocation();
+  const { user } = useAuthUserContext();
   const [status, setStatus] = useState<'checking' | 'allowed' | 'denied'>('checking');
 
   useEffect(() => {
@@ -52,6 +56,15 @@ const ApplicationAccessGuard: React.FC<ApplicationAccessGuardProps> = ({ childre
 
   if (status === 'denied') {
     return <NotFoundContent />;
+  }
+
+  if (user?.role === ROLES.SUPERUSER && applicationId && /^\/(s-37|nwl)\//i.test(pathname)) {
+    const basePath = pathname.split('/').slice(0, 3).join('/');
+    const page = pathname.slice(basePath.length).replace(/\/+$/, '').toLowerCase();
+    const allowedPages = ['/task-list', '/application-summary', '/reassign', '/reassignment-history', '/further-information-requests'];
+    if (!allowedPages.includes(page)) {
+      return <Navigate to={`${basePath}/application-summary`} replace />;
+    }
   }
 
   return <>{children}</>;

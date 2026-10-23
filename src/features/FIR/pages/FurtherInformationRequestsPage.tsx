@@ -7,6 +7,9 @@ import { useFirRoute } from '../hooks';
 import { getFurtherInformationRequest, getFurtherInformationRequests } from '../services';
 import type { FurtherInformationRequest } from '../types';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
+import type { AuthUser } from '../../../types/auth';
 
 const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
@@ -76,6 +79,8 @@ const RequestCard: React.FC<{
 );
 
 export const FurtherInformationRequestsPage: React.FC = () => {
+  const { user } = useAuthUserContext();
+  const isPolicyReadOnly = useApplicationReadOnly(undefined, user as AuthUser);
   const { applicationId, requestPath } = useFirRoute();
   const [requests, setRequests] = useState<FurtherInformationRequest[]>([]);
   const [error, setError] = useState('');
@@ -115,7 +120,7 @@ export const FurtherInformationRequestsPage: React.FC = () => {
           key={request.furtherInformationRequestId}
           request={request}
           title={`Further information request ${openRequests.length - index}`}
-          action={<Link className="govuk-button" to={`${requestPath}/${request.furtherInformationRequestId}/respond`}>Provide information</Link>}
+          action={!isPolicyReadOnly && <Link className="govuk-button" to={`${requestPath}/${request.furtherInformationRequestId}/respond`}>Provide information</Link>}
         />
       ))}
       {completedRequests.length > 0 && <>

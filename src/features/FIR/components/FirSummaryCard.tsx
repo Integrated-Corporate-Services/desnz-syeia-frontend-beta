@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { getFurtherInformationRequests } from '../services';
 import type { FurtherInformationRequest } from '../types';
 import { createLogger } from '../../../utils/logger';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { useApplicationReadOnly } from '../../../hooks/usePreventEditSubmitted';
+import type { AuthUser } from '../../../types/auth';
 
 const logger = createLogger('FirSummaryCard');
 
@@ -19,6 +22,8 @@ const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
 }).format(new Date(date));
 
 export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, basePath }) => {
+  const { user } = useAuthUserContext();
+  const isPolicyReadOnly = useApplicationReadOnly(undefined, user as AuthUser);
   const [requests, setRequests] = useState<FurtherInformationRequest[]>([]);
 
   useEffect(() => {
@@ -77,7 +82,7 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
               </dl>
             </div>
           </section>
-          <Link className="govuk-button" to={`${basePath}/${openRequest.furtherInformationRequestId}/respond`}>Provide information</Link>
+          {!isPolicyReadOnly && <Link className="govuk-button" to={`${basePath}/${openRequest.furtherInformationRequestId}/respond`}>Provide information</Link>}
         </>
       )}
       <p><Link className="govuk-link" to={basePath}>View all information requests</Link></p>

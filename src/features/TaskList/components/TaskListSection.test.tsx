@@ -1,9 +1,53 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import TaskListSection from './TaskListSection';
 
 describe('TaskListSection', () => {
+  it.each([
+    ['DRAFT', true, false],
+    ['SUBMITTED', true, false],
+    ['DRAFT', false, true],
+    ['SUBMITTED', false, false],
+  ])('controls submission for status %s and read-only %s', (status, isReadOnly, canSubmit) => {
+    const handleSubmit = vi.fn();
+    render(
+      <MemoryRouter>
+        <TaskListSection
+          section={{ title: 'Submit', items: [{ name: 'Submit application', status: 'Ready', link: '' }] }}
+          idx={0}
+          applicationId="app-1"
+          applicationStatus={status}
+          isReadOnly={isReadOnly}
+          submitting={false}
+          handleSubmit={handleSubmit}
+          statusClass={() => 'govuk-tag'}
+        />
+      </MemoryRouter>,
+    );
+    const button = screen.getByRole('button', { name: 'Submit application' });
+    expect(button).toHaveProperty('disabled', !canSubmit);
+    fireEvent.click(button);
+    expect(handleSubmit).toHaveBeenCalledTimes(canSubmit ? 1 : 0);
+  });
+
+  it('routes read-only task links to the summary', () => {
+    render(
+      <MemoryRouter>
+        <TaskListSection
+          section={{ title: 'Project', items: [{ name: 'Route', status: 'Completed', link: '/edit-route' }] }}
+          idx={0}
+          applicationId="app-1"
+          isReadOnly
+          submitting={false}
+          handleSubmit={vi.fn()}
+          statusClass={() => 'govuk-tag'}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/s-37/app-1/application-summary');
+  });
+
   it('renders tasks as a list with statuses associated with their links', () => {
     const { container } = render(
       <MemoryRouter>
