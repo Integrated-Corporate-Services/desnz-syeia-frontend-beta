@@ -21,11 +21,12 @@ export const useReviewRequestNavigation = () => {
     });
   };
 
-  const navigateToAccessDenied = (userDetails: UserDetails) => {
+  const navigateToAccessDenied = (userDetails: UserDetails, rejectionReason?: string) => {
     navigate('/admin/access-denied', {
       state: {
         userName: userDetails.userName,
-        userEmail: userDetails.userEmail
+        userEmail: userDetails.userEmail,
+        rejectionReason
       }
     });
   };

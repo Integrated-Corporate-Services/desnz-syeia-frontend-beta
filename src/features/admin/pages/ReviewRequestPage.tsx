@@ -69,7 +69,7 @@ const ReviewRequestPage: React.FC = () => {
       rejectRequest(() => navigateToAccessDenied({
         userName: fullName,
         userEmail: userEmail
-      }));
+      }, rejectReason.trim()));
     }
   };
 
