@@ -88,8 +88,6 @@ import AccessRequestSubmittedPage from '../features/SignIn/AccessRequestSubmitte
 import ReviewRequestPage from '../features/admin/pages/ReviewRequestPage';
 import AccessApprovedPage from '../features/admin/pages/AccessApprovedPage';
 import AccessDeniedPage from '../features/admin/pages/AccessDeniedPage';
-import AddUserPage from '../features/admin/pages/AddUserPage';
-import UserCreatedPage from '../features/admin/pages/UserCreatedPage';
 import AccessRevokedPage from '../features/admin/pages/AccessRevokedPage';
 import RevokeUserAccessPage from '../features/admin/pages/RevokeUserAccessPage';
 import UserAccessRevokedPage from '../features/auth/pages/UserAccessRevokedPage';

@@ -133,7 +133,6 @@ const ReviewDocumentsPage: React.FC = () => {
     setApiError(null);
 
     let newlyUploadedFiles: UploadedFile[] = [];
-    let newlyUploadedDocuments: ApplicationDocument[] = [];
 
     if (fileUploadRef.current) {
       try {
@@ -144,7 +143,6 @@ const ReviewDocumentsPage: React.FC = () => {
           return;
         }
         newlyUploadedFiles = result.uploadedFiles;
-        newlyUploadedDocuments = result.applicationDocuments;
       } catch (err: any) {
         setApiError('Failed to upload files. Please try again.');
         window.scrollTo({ top: 0, behavior: 'smooth' });

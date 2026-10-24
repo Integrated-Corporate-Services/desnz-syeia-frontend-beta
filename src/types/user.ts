@@ -4,6 +4,8 @@ export interface User {
   fullName: string;
   email: string;
   organisation: string;
+  organisationIds?: string[];
+  organisationMemberships?: Array<{ organisationId: string; organisationName: string; role: string }>;
   role: string;
   status: string;
   lastLogin: string | null;
