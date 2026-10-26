@@ -18,7 +18,7 @@ const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/network-operator-contact-details`, component: NetworkOperatorContactDetails, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/task-list`, component: CpoTaskListPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/delete-confirmation`, component: ApplicationDeleteConfirmationPage, auth: true, layout: true },
-    { path: `${CPO_BASE_URL}/:applicationId/delete-success`, component: ApplicationDeleteSuccessPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/delete-success`, component: ApplicationDeleteSuccessPage, auth: true, layout: true, accessGuard: false },
     { path: `${CPO_BASE_URL}/:applicationId/:taskSlug`, component: CpoTaskUnavailablePage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-details`, component: CpoOrderDetailsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/notice-requirements`, component: CpoNoticeRequirementsPage, auth: true, layout: true },

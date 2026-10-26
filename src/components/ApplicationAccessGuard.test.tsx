@@ -55,6 +55,27 @@ describe('Superuser applicant route permissions', () => {
     expect(await screen.findByText('Application page')).toBeInTheDocument();
   });
 
+  it.each(['s-37', 'nwl'])('preserves the %s information-request listing', async type => {
+    renderApplication(type, 'further-information-requests');
+    expect(await screen.findByText('Application page')).toBeInTheDocument();
+  });
+
+  it.each(['s-37', 'nwl'])('blocks %s information-request response subroutes', async type => {
+    const form = renderApplication(type, 'further-information-requests/request-1/respond');
+    expect(await screen.findByText('Read-only summary')).toBeInTheDocument();
+    expect(form).not.toHaveBeenCalled();
+  });
+
+  it('keeps only CPO deletion success authenticated without an application existence check', async () => {
+    const { cpoRoutes } = await import('../features/CPO/routes');
+    const success = cpoRoutes.find(route => route.path.endsWith('/delete-success'));
+    expect(success).toMatchObject({ auth: true, accessGuard: false });
+    for (const route of cpoRoutes.filter(route => route !== success)) {
+      expect(route.auth).toBe(true);
+      expect(route.accessGuard).not.toBe(false);
+    }
+  }, 30000);
+
   it.each(['s-37', 'nwl', 'cpo'])('preserves the %s read-only view', async type => {
     renderApplication(type, type === 'cpo' ? 'task-list' : 'application-summary');
     expect(await screen.findByText('Read-only summary')).toBeInTheDocument();
