@@ -11,18 +11,9 @@ export function ReassignmentHistoryPage() {
     const base = getAssignmentBasePath(pathname);
     const { details, error, loading } = useAssignmentHistory(applicationId);
     useBreadcrumb(
-        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
-            <ol className="govuk-breadcrumbs__list">
-                <li className="govuk-breadcrumbs__list-item">
-                    <Link className="govuk-breadcrumbs__link" to={`${base}/application-summary`}>
-                        Application summary
-                    </Link>
-                </li>
-                <li className="govuk-breadcrumbs__list-item" aria-current="page">
-                    Reassignment history
-                </li>
-            </ol>
-        </nav>,
+        <Link className="govuk-back-link" to={`${base}/application-summary`}>
+            Back
+        </Link>,
     );
     return (
         <div className="govuk-width-container">

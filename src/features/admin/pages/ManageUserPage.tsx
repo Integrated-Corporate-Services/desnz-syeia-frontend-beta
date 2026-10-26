@@ -97,7 +97,10 @@ const ManageUserPage: React.FC = () => {
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">Role</dt>
                 <dd className="govuk-summary-list__value">{formatRole(user.role)}</dd>
-                {isManageUserRoleChangeEnabled() && (user.role === ROLES.APPLICANT_USER || user.role === ROLES.APPLICANT_TEAM_COORDINATOR) && (
+                {isManageUserRoleChangeEnabled() && (user.role === ROLES.APPLICANT_USER || user.role === ROLES.APPLICANT_TEAM_COORDINATOR ||
+                  users.some(candidate => candidate.id === userId && candidate.organisationMemberships?.some(
+                    membership => membership.role === ROLES.APPLICANT_USER || membership.role === ROLES.APPLICANT_TEAM_COORDINATOR
+                  ))) && (
                   <dd className="govuk-summary-list__actions">
                     <Link className="govuk-link" to={`/admin/manage-user/${userId}/change-role`}>
                       Change<span className="govuk-visually-hidden"> role</span>

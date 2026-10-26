@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { applicationApiService } from '../../../services/applicationApiService';
@@ -85,6 +85,11 @@ describe('application reassignment confirmation', () => {
         ['DECISION_ISSUED', false],
     ])('shows the outstanding request only for FIR (%s)', async (status, showRequest) => {
         renderFlow(status);
+        expect(
+            await screen.findByText(
+                'S3700004 is currently assigned to Priya Nair. Choose a new applicant contact person from the list below to reassign the application to them.'
+            )
+        ).toBeInTheDocument();
         fireEvent.change(await screen.findByLabelText('Choose a new applicant contact'), {
             target: { value: 'Sam' },
         });
@@ -92,6 +97,11 @@ describe('application reassignment confirmation', () => {
         fireEvent.click(screen.getByText('Continue'));
 
         expect(screen.getByText('Check before you reassign')).toBeInTheDocument();
+        expect(
+            screen.getByText(
+                'The new assignee will become the contact person for this application and we will use their name, email address and telephone number for all future correspondence. We will email all relevant contacts to tell them about this reassignment.'
+            )
+        ).toBeInTheDocument();
         expect(screen.getByText('S3700004')).toBeInTheDocument();
         expect(screen.getByText('Priya Nair')).toBeInTheDocument();
         if (showRequest)
@@ -103,18 +113,15 @@ describe('application reassignment confirmation', () => {
                 screen.queryByText(/A further information request is still outstanding/)
             ).not.toBeInTheDocument();
 
+        expect(screen.queryByLabelText('Reason for reassignment')).not.toBeInTheDocument();
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
         const reassignButton = screen.getByRole('button', { name: 'Reassign now' });
-        expect(reassignButton).toBeDisabled();
-        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
-            target: { value: 'Covering the current assignee’s absence' },
-        });
         expect(reassignButton).toBeEnabled();
         fireEvent.click(reassignButton);
         await waitFor(() =>
             expect(applicationApiService.reassignApplication).toHaveBeenCalledWith(
                 applicationId,
-                assigneeId,
-                'Covering the current assignee’s absence'
+                assigneeId
             )
         );
         expect(await screen.findByText('Application reassigned')).toBeInTheDocument();
@@ -152,15 +159,11 @@ describe('application reassignment confirmation', () => {
         );
 
         expect(await screen.findByText('03.06.2026, 11:34')).toBeInTheDocument();
-        const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
-        expect(within(breadcrumb).getByRole('link', { name: 'Application summary' })).toHaveAttribute(
+        expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute(
             'href',
             `/s37/${applicationId}/application-summary`,
         );
-        expect(within(breadcrumb).getByText('Reassignment history')).toHaveAttribute(
-            'aria-current',
-            'page',
-        );
+        expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).not.toBeInTheDocument();
         expect(
             screen.getByText('Reassigned from Priya Nair to Sam Okoro by DESNZ Coordinator.')
         ).toBeInTheDocument();
@@ -179,9 +182,6 @@ describe('application reassignment confirmation', () => {
         expect(screen.getByRole('radio', { name: 'Sam Okoro - sam@example.com' })).toBeChecked();
         fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
         expect(screen.getByRole('heading', { name: 'Check before you reassign' })).toHaveFocus();
-        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
-            target: { value: 'Covering absence' },
-        });
         const button = screen.getByRole('button', { name: 'Reassign now' });
         fireEvent.click(button);
         fireEvent.click(button);
@@ -200,9 +200,6 @@ describe('application reassignment confirmation', () => {
         });
         fireEvent.click(await screen.findByText('Sam Okoro - sam@example.com'));
         fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
-        fireEvent.change(screen.getByLabelText('Reason for reassignment'), {
-            target: { value: 'Covering absence' },
-        });
         fireEvent.click(screen.getByRole('button', { name: 'Reassign now' }));
         expect(await screen.findByRole('alert')).toHaveFocus();
         expect(screen.getByText('Selected user is no longer eligible')).toBeInTheDocument();

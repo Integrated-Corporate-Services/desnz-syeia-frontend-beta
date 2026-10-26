@@ -16,7 +16,7 @@ export const applicationApiService = {
     return response.json();
   },
 
-  reassignApplication: async (applicationId: string, newAssigneeId: string, justification: string) => {
+  reassignApplication: async (applicationId: string, newAssigneeId: string) => {
     let csrfHeaders = getCsrfHeaders();
     if (!csrfHeaders['X-CSRF-Token']) {
       await fetchCsrfToken();
@@ -29,7 +29,7 @@ export const applicationApiService = {
       method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json", "X-Correlation-ID": generateCorrelationId(), ...csrfHeaders },
-      body: JSON.stringify({ new_assignee_id: newAssigneeId, justification }),
+      body: JSON.stringify({ new_assignee_id: newAssigneeId }),
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
