@@ -6,7 +6,7 @@ outside this repository's scope.
 
 ## Deployment
 
-Deploy the companion backend and its V1.40 migration first. Existing session,
+Deploy the companion backend and its V1.41 additional-payments migration first. Existing session,
 CSRF, API-origin and upload/scanner configuration applies. There is no new
 frontend feature flag. The backend must return an empty request list for
 applications without additional payments. Its integration guide documents the
