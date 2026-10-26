@@ -1,10 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useReassignmentForm } from '../hooks/useReassignmentForm';
-import {
-    REASSIGNMENT_JUSTIFICATION_LIMIT,
-    normalizeAssignmentStatus,
-} from '../constants/reassignment';
+import { normalizeAssignmentStatus } from '../constants/reassignment';
 import { getAssignmentBasePath } from '../utils/reassignment';
 import { AssigneeSearch } from './AssigneeSearch';
 import { ReassignmentError } from './ReassignmentError';
@@ -123,30 +120,11 @@ export function ApplicationReassignment({
                             request to the new assignee.
                         </div>
                     )}
-                    <div className="govuk-form-group">
-                        <label className="govuk-label" htmlFor="reassignment-justification">
-                            Reason for reassignment
-                        </label>
-                        <div className="govuk-hint" id="reassignment-justification-hint">
-                            This reason will be recorded in the reassignment history.
-                        </div>
-                        <textarea
-                            className="govuk-textarea"
-                            id="reassignment-justification"
-                            name="justification"
-                            rows={4}
-                            maxLength={REASSIGNMENT_JUSTIFICATION_LIMIT}
-                            required
-                            aria-describedby="reassignment-justification-hint"
-                            value={form.justification}
-                            onChange={(event) => form.setJustification(event.target.value)}
-                        />
-                    </div>
                     <div className="govuk-button-group">
                         <button
                             className="govuk-button"
                             type="submit"
-                            disabled={form.submitting || !form.justification.trim()}
+                            disabled={form.submitting}
                         >
                             Reassign now
                         </button>

@@ -32,6 +32,14 @@ class UserService {
           "Unknown",
         email: user.email,
         organisation: user.organisation_name || "",
+        organisationIds: user.organisation_ids || [],
+        organisationMemberships: (user.organisation_memberships || []).map((membership: {
+          organisation_id: string; organisation_name: string; role: string;
+        }) => ({
+          organisationId: membership.organisation_id,
+          organisationName: membership.organisation_name,
+          role: membership.role,
+        })),
         role: user.role,
         status: user.status,
         lastLogin: user.last_login_at,
