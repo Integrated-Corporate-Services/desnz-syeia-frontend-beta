@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import DateInput from '../components/DateInput';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
@@ -10,9 +10,9 @@ import { inspectionAddresses, inspectionAddressText, noticeDateText, validNotice
 const emptyAddress = (): InspectionAddress => ({ id: crypto.randomUUID(), line1: '', line2: '', townCity: '', county: '', postcode: '', from: '' });
 type FormError = { id: string; message: string };
 
-const CpoNoticeInspectionPage = () => {
+const CpoNoticeInspectionPage: React.FC = () => {
   const applicationId = useCpoApplicationId();
-  const { noticeStep = 'inspection' } = useParams();
+  const noticeStep = 'inspection' as string;
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const base = `/cpo/${applicationId}/record-notices`;

@@ -9,7 +9,7 @@ import { CpoTaskListPage, CpoTaskUnavailablePage } from './TaskList';
 import { CpoOrderDetailsPage } from './OrderDetails';
 import { CpoExecutiveSummaryPage } from './ExecutiveSummary';
 import { CpoOrderDocumentsPage } from './OrderDocuments';
-import { CpoNoticesPage } from './RecordNotices';
+import { CpoNoticesPage, CpoNoticeRequirementsPage, CpoNoticeInspectionPage, CpoNoticeInspectionAddressPage, CpoNoticeInspectionDatePage, CpoNoticeOnlinePage, CpoNoticeWebsitePage, CpoNoticeNewspapersPage, CpoNoticeSitePage, CpoNoticePeoplePage, CpoNoticeCheckPage } from './RecordNotices';
 import { CpoCheckYourAnswersPage } from './CheckAndSubmitApplication';
 
 const cpoPageRoutes = [
@@ -21,8 +21,18 @@ const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/delete-success`, component: ApplicationDeleteSuccessPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/:taskSlug`, component: CpoTaskUnavailablePage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-details`, component: CpoOrderDetailsPage, auth: true, layout: true },
-    { path: `${CPO_BASE_URL}/:applicationId/notice-requirements`, component: CpoNoticesPage, auth: true, layout: true },
-    { path: `${CPO_BASE_URL}/:applicationId/record-notices`, component: CpoNoticesPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/notice-requirements`, component: CpoNoticeRequirementsPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices`, component: CpoNoticeRequirementsPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/requirements`, component: CpoNoticeRequirementsPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/inspection`, component: CpoNoticeInspectionPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/inspection-address`, component: CpoNoticeInspectionAddressPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/inspection-date`, component: CpoNoticeInspectionDatePage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/online`, component: CpoNoticeOnlinePage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/website`, component: CpoNoticeWebsitePage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/newspapers`, component: CpoNoticeNewspapersPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/site`, component: CpoNoticeSitePage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/people`, component: CpoNoticePeoplePage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/record-notices/check`, component: CpoNoticeCheckPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/record-notices/:noticeStep`, component: CpoNoticesPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/check-and-submit`, component: CpoCheckYourAnswersPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-documents`, component: CpoOrderDocumentsPage, auth: true, layout: true },
@@ -37,6 +47,16 @@ const cpoPageRoutes = [
 const backendRoutePaths = new Set([
     `${CPO_BASE_URL}/:applicationId/notice-requirements`,
     `${CPO_BASE_URL}/:applicationId/record-notices`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/requirements`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/inspection`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/inspection-address`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/inspection-date`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/online`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/website`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/newspapers`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/site`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/people`,
+    `${CPO_BASE_URL}/:applicationId/record-notices/check`,
     `${CPO_BASE_URL}/:applicationId/record-notices/:noticeStep`,
     `${CPO_BASE_URL}/:applicationId/check-and-submit`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
