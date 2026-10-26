@@ -86,7 +86,7 @@ const CpoCheckYourAnswersPage: React.FC = () => {
   useEffect(() => { if (error) summaryRef.current?.focus(); }, [error]);
   useEffect(() => { if (!loading && !error) headingRef.current?.focus(); }, [loading, error]);
   const canEdit = data?.application.status.toLowerCase() === 'draft' && data.application.permissions?.canEdit === true
-    && data.order.canEdit !== false && data.documents.canEdit !== false && data.notices.canEdit !== false;
+    && data.order.canEdit !== false && data.documents.canEdit !== false;
   const canDownload = data?.application.permissions?.canDownload === true;
   const changeUrl = (path: string) => `${base}/${path}?from=application-review`;
   const row = (label: string, value: React.ReactNode, path: string) => <div className="govuk-summary-list__row" key={label}>

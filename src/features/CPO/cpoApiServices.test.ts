@@ -35,13 +35,13 @@ const apiCases = [
   },
   {
     path: 'notices',
-    method: 'POST',
+    method: 'PUT',
     get: () => cpoNoticesService.get('app-1'),
     save: () => cpoNoticesService.save('app-1', 'requirements', { acknowledged: true }, true),
     body: { step: 'requirements', answers: { acknowledged: true }, saveForLater: true },
     response: {
       record: { requirements: { acknowledged: true } }, documents: [], reference: 'CPO00001',
-      objectionsEmail: 'objections@example.gov.uk', finalObjectionDate: '2026-11-05', canEdit: true,
+      objectionsEmail: 'objections@example.gov.uk', finalObjectionDate: '2026-11-05',
     },
   },
 ];
