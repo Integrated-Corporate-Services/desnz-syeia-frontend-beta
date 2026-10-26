@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
 import { deleteDocument } from '../../../../services/s3ApiService';
-import CpoNoticesPage from './CpoNoticesPage';
+import CpoNoticesPage from '../pages/CpoNoticesPage';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { NoticesResponse } from '../types/notices';
 import type { FileUploadProps } from '../../../../components/FileUpload';
@@ -146,7 +146,7 @@ describe('CPO notices journey', () => {
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
   });
   it('removes the document through the existing API and saves the updated evidence list', async () => {
-    stored.documents = [{ document_id: 'doc', file_id: 'file', category: 'CPO_NEWSPAPER_NOTICES', filename: 'notice.pdf' } as NoticesResponse['documents'][number]];
+    stored.documents = [{ document_id: 'doc', file_id: 'file', category: 'CPO_NEWSPAPER_NOTICES', filename: 'notice.pdf', s3_key: 'path/notice.pdf' } as NoticesResponse['documents'][number]];
     stored.record.newspapers = { evidence: [{ fileId: 'file', date: '2026-10-07' }] };
     renderStep('newspapers'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Delete notice.pdf' }));
     await waitFor(() => expect(deleteDocument).toHaveBeenCalledWith('doc'));
@@ -196,7 +196,7 @@ describe('CPO notices journey', () => {
   });
   it('recovers registered newspaper files that have no saved evidence entries', async () => {
     stored.record.newspapers = { firstDate: '2026-10-07', secondDate: '2026-10-14' };
-    stored.documents = ['first-file', 'second-file'].map(file_id => ({ file_id, document_id: file_id, filename: `${file_id}.pdf`, category: 'CPO_NEWSPAPER_NOTICES' } as NoticesResponse['documents'][number]));
+    stored.documents = ['first-file', 'second-file'].map(file_id => ({ file_id, document_id: file_id, filename: `${file_id}.pdf`, category: 'CPO_NEWSPAPER_NOTICES', s3_key: `${file_id}.pdf` } as NoticesResponse['documents'][number]));
     renderStep('newspapers'); await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'newspapers', expect.objectContaining({ evidence: [{ fileId: 'first-file', date: '2026-10-07' }, { fileId: 'second-file', date: '2026-10-14' }] }), false));
@@ -209,7 +209,7 @@ describe('CPO notices journey', () => {
   it('refreshes immediately uploaded notice files without losing unsaved publication dates', async () => {
     renderStep('newspapers'); await ready();
     setDate('firstDate', '8'); setDate('secondDate', '15');
-    stored.documents = ['first-file', 'second-file'].map(file_id => ({ file_id, document_id: file_id, filename: `${file_id}.pdf`, category: 'CPO_NEWSPAPER_NOTICES' } as NoticesResponse['documents'][number]));
+    stored.documents = ['first-file', 'second-file'].map(file_id => ({ file_id, document_id: file_id, filename: `${file_id}.pdf`, category: 'CPO_NEWSPAPER_NOTICES', s3_key: `${file_id}.pdf` } as NoticesResponse['documents'][number]));
     act(() => { upload.props?.onUploaded?.([], []); });
     await screen.findByRole('link', { name: 'first-file.pdf' });
     expect(document.getElementById('firstDate-day')).toHaveValue('8');

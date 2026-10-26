@@ -224,7 +224,7 @@ const CpoNoticesFormPage: React.FC = () => {
                 }).finally(() => setRefreshingUploads(false));
               }}
               showDocumentsHeading={false}
-              uploadedFiles={documents.map((file) => ({ id: file.file_id, storageProvider: 'aws_s3', s3Key: file.s3_key, bucketName: '', virtualFolder: file.s3_key.split('/').slice(0, -1).join('/'), filename: file.filename, fileContentType: file.file_content_type, fileSizeBytes: file.file_size_bytes, uploadedAtTimestamp: file.uploaded_at_timestamp }))}
+              uploadedFiles={documents.map((file) => ({ id: file.file_id, storageProvider: 'aws_s3', s3Key: file.s3_key ?? '', bucketName: '', virtualFolder: file.s3_key ? file.s3_key.split('/').slice(0, -1).join('/') : '', filename: file.filename, fileContentType: file.file_content_type, fileSizeBytes: file.file_size_bytes, uploadedAtTimestamp: file.uploaded_at_timestamp }))}
               applicationDocuments={documents.map((file) => ({ documentId: file.document_id, applicationId, fileId: file.file_id, category, addedBy: file.added_by, addedAt: file.added_at }))}
               onDeleteFile={(id) => { setData((current) => ({ ...current, documents: current.documents.filter((file) => file.file_id !== id) })); setAnswer((current) => ({ ...current, evidence: (current.evidence || []).filter((item) => item.fileId !== id) })); }}
               onValidationErrors={(messages) => { setFileErrors(messages); setErrors(messages.map((message) => ({ id: 'file-upload-input', message }))); }} />
