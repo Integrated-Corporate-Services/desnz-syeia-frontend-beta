@@ -7,13 +7,9 @@ import { BreadcrumbProvider, useBreadcrumbContext } from '../../../context/Bread
 
 const navigateToDashboard = vi.fn();
 const navigateToPendingRequests = vi.fn();
-let isSuperUser = true;
 
 vi.mock('../../../hooks', () => ({
   useAccessConfirmationNavigation: () => ({ navigateToDashboard, navigateToPendingRequests }),
-}));
-vi.mock('../../../hooks/useIsSuperUser', () => ({
-  useIsSuperUser: () => isSuperUser,
 }));
 
 const BreadcrumbOutlet = () => {
@@ -34,11 +30,9 @@ const renderPage = () =>
 describe('AccessApprovedPage (SYEIA-2721)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    isSuperUser = true;
   });
 
-  it.each([true, false])('Back link returns to the Access requests tab (superuser: %s)', (superUser) => {
-    isSuperUser = superUser;
+  it('Back link returns to the Access requests tab', () => {
     renderPage();
     const back = screen.getByRole('link', { name: 'Back' });
     expect(back).toHaveClass('govuk-back-link');
@@ -53,14 +47,8 @@ describe('AccessApprovedPage (SYEIA-2721)', () => {
     expect(navigateToDashboard).toHaveBeenCalledTimes(1);
   });
 
-  it('Ultrasuperuser sees "Active users list" with a capital A', () => {
+  it('shows "Active users list" with a capital A for every role', () => {
     renderPage();
     expect(screen.getByText(/in your Active users list/)).toBeInTheDocument();
-  });
-
-  it('Team coordinator keeps "active users list"', () => {
-    isSuperUser = false;
-    renderPage();
-    expect(screen.getByText(/in your active users list/)).toBeInTheDocument();
   });
 });
