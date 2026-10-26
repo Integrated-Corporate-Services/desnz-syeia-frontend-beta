@@ -1,6 +1,5 @@
 import { SUPERUSER, APPLICANT_TEAM_COORDINATOR } from '../../../utils/roleUtils';
 
-export const REASSIGNMENT_JUSTIFICATION_LIMIT = 2000;
 const TERMINAL_STATUSES = new Set([
     'COMPLETED',
     'WITHDRAWN',

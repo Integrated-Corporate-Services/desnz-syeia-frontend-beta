@@ -26,7 +26,6 @@ describe('applicationApiService.reassignApplication', () => {
     await expect(applicationApiService.reassignApplication(
       '11111111-1111-1111-1111-111111111111',
       '22222222-2222-2222-2222-222222222222',
-      'Covering absence',
     )).rejects.toThrow('Unable to obtain CSRF token');
 
     expect(mockFetchCsrfToken).toHaveBeenCalledOnce();
@@ -36,13 +35,14 @@ describe('applicationApiService.reassignApplication', () => {
   it('shows the nested operational backend error message', async () => {
     mockGetCsrfHeaders.mockReturnValue({ 'X-CSRF-Token': 'token' });
     vi.mocked(fetch).mockResolvedValue({ ok: false, json: async () => ({ error: { message: 'Selected user is not eligible for this application' } }) } as Response);
-    await expect(applicationApiService.reassignApplication('application', 'assignee', 'Covering absence')).rejects.toThrow('Selected user is not eligible for this application');
+    await expect(applicationApiService.reassignApplication('application', 'assignee')).rejects.toThrow('Selected user is not eligible for this application');
     expect(fetch).toHaveBeenCalledWith('/api/applications/application/assignment', expect.objectContaining({ method: 'PATCH', headers: expect.objectContaining({ 'X-CSRF-Token': 'token', 'X-Correlation-ID': 'test-correlation-id' }) }));
+    expect(JSON.parse(vi.mocked(fetch).mock.calls[0][1]!.body as string)).toEqual({ new_assignee_id: 'assignee' });
   });
 
   it('shows a meaningful fallback when the failed response is not JSON', async () => {
     mockGetCsrfHeaders.mockReturnValue({ 'X-CSRF-Token': 'token' });
     vi.mocked(fetch).mockResolvedValue({ ok: false, json: async () => { throw new Error('Invalid JSON'); } } as unknown as Response);
-    await expect(applicationApiService.reassignApplication('application', 'assignee', 'Covering absence')).rejects.toThrow('Unable to reassign application. Try again later.');
+    await expect(applicationApiService.reassignApplication('application', 'assignee')).rejects.toThrow('Unable to reassign application. Try again later.');
   });
 });
