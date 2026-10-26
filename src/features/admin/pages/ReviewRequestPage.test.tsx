@@ -7,7 +7,6 @@ import { BreadcrumbProvider, useBreadcrumbContext } from '../../../context/Bread
 
 const navigateToPendingRequests = vi.fn();
 const navigateToDashboard = vi.fn();
-let isSuperUser = true;
 
 vi.mock('../../../hooks', () => ({
   useReviewRequest: () => ({
@@ -23,7 +22,6 @@ vi.mock('../../../hooks', () => ({
     navigateToDashboard, navigateToPendingRequests, navigateToAccessApproved: vi.fn(), navigateToAccessDenied: vi.fn(),
   }),
 }));
-vi.mock('../../../hooks/useIsSuperUser', () => ({ useIsSuperUser: () => isSuperUser }));
 
 const BreadcrumbOutlet = () => {
   const { breadcrumb } = useBreadcrumbContext();
@@ -45,26 +43,16 @@ const renderPage = () =>
 describe('ReviewRequestPage (SYEIA-2720)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    isSuperUser = true;
   });
 
-  it('Ultrasuperuser sees the design intro and "Agent or employee"', () => {
+  it('shows the design intro and "Agent or employee" for every role', () => {
     renderPage();
     expect(screen.getByText("Review the applicant's details before approving or rejecting this request.")).toBeInTheDocument();
     expect(screen.getByText('Agent or employee')).toBeInTheDocument();
+    expect(screen.queryByText('Applicant type')).not.toBeInTheDocument();
   });
 
-  it('Team coordinator keeps the existing intro and "Applicant type"', () => {
-    isSuperUser = false;
-    renderPage();
-    expect(
-      screen.getByText("Review the applicant's details before deciding whether to approve or reject this request.")
-    ).toBeInTheDocument();
-    expect(screen.getByText('Applicant type')).toBeInTheDocument();
-  });
-
-  it.each([true, false])('uses the shared labels for all roles (superuser: %s)', (superUser) => {
-    isSuperUser = superUser;
+  it('uses the shared labels', () => {
     renderPage();
     expect(screen.getByText('Requested on')).toBeInTheDocument();
     expect(screen.getByText('19 October 2026 at 11:55am')).toBeInTheDocument();

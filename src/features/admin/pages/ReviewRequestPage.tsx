@@ -9,13 +9,11 @@ import {
 } from '../../../components/shared/ReviewRequestComponents';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
-import { useIsSuperUser } from '../../../hooks/useIsSuperUser';
 
 const ReviewRequestPage: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
   const [searchParams] = useSearchParams();
   const organisationId = searchParams.get('organisationId') || undefined;
-  const isSuperUser = useIsSuperUser();
   // Debug logging handled by logger utility in useReviewRequest hook
   const {
     requestData,
@@ -110,12 +108,10 @@ const ReviewRequestPage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <p className="govuk-body">
-              {isSuperUser
-                ? "Review the applicant's details before approving or rejecting this request."
-                : "Review the applicant's details before deciding whether to approve or reject this request."}
+              Review the applicant's details before approving or rejecting this request.
             </p>
 
-            <ApplicantDetails requestData={requestData} isSuperUser={isSuperUser} />
+            <ApplicantDetails requestData={requestData} />
 
             {showRejectReason ? (
               <RejectionReasonForm

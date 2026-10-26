@@ -16,10 +16,9 @@ interface RequestData {
 
 interface ApplicantDetailsProps {
   requestData: RequestData;
-  isSuperUser?: boolean;
 }
 
-export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData, isSuperUser = false }) => {
+export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData }) => {
   return (
     <dl className="govuk-summary-list govuk-!-margin-bottom-6">
       <div className="govuk-summary-list__row">
@@ -42,7 +41,7 @@ export const ApplicantDetails: React.FC<ApplicantDetailsProps> = ({ requestData,
       </div>
 
       <div className="govuk-summary-list__row">
-        <dt className="govuk-summary-list__key">{isSuperUser ? 'Agent or employee' : 'Applicant type'}</dt>
+        <dt className="govuk-summary-list__key">Agent or employee</dt>
         <dd className="govuk-summary-list__value">
           {/* TODO: Replace inline styles with GOV.UK Design System tag modifiers */}
           <strong

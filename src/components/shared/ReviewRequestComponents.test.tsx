@@ -21,14 +21,8 @@ describe('ApplicantDetails (SYEIA-2720)', () => {
     expect(screen.getByText('19 October 2026 at 11:55am')).toBeInTheDocument();
   });
 
-  it('keeps "Applicant type" for team coordinators', () => {
+  it('uses "Agent or employee" for every role', () => {
     render(<ApplicantDetails requestData={requestData} />);
-    expect(screen.getByText('Applicant type')).toBeInTheDocument();
-    expect(screen.queryByText('Agent or employee')).not.toBeInTheDocument();
-  });
-
-  it('uses "Agent or employee" for Ultrasuperusers', () => {
-    render(<ApplicantDetails requestData={requestData} isSuperUser />);
     expect(screen.getByText('Agent or employee')).toBeInTheDocument();
     expect(screen.queryByText('Applicant type')).not.toBeInTheDocument();
     expect(screen.getByText('Employee')).toBeInTheDocument();
