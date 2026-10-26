@@ -1,0 +1,1 @@
+export { useCpoApplicationId, useApplicationId } from './useCpoApplicationId';
