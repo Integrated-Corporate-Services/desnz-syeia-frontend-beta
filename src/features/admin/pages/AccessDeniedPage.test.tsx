@@ -7,13 +7,9 @@ import { BreadcrumbProvider, useBreadcrumbContext } from '../../../context/Bread
 
 const navigateToDashboard = vi.fn();
 const navigateToPendingRequests = vi.fn();
-let isSuperUser = true;
 
 vi.mock('../../../hooks', () => ({
   useAccessConfirmationNavigation: () => ({ navigateToDashboard, navigateToPendingRequests }),
-}));
-vi.mock('../../../hooks/useIsSuperUser', () => ({
-  useIsSuperUser: () => isSuperUser,
 }));
 
 const BreadcrumbOutlet = () => {
@@ -37,12 +33,10 @@ const NO_REASON_STATE = { userName: 'Jane Austen', userEmail: 'jane@example.com'
 describe('AccessDeniedPage (SYEIA-2723)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    isSuperUser = true;
   });
 
   describe('all roles', () => {
-    it.each([true, false])('shows "What happens next" once and no grey "Rejected" box (superuser: %s)', (superUser) => {
-      isSuperUser = superUser;
+    it('shows "What happens next" once and no grey "Rejected" box', () => {
       renderPage(STATE);
       expect(screen.getAllByRole('heading', { name: 'What happens next' })).toHaveLength(1);
       expect(screen.queryByText('Rejected')).not.toBeInTheDocument();
@@ -50,15 +44,13 @@ describe('AccessDeniedPage (SYEIA-2723)', () => {
       expect(screen.getAllByText(/submit a new request/)).toHaveLength(1);
     });
 
-    it.each([true, false])('shows who was notified (superuser: %s)', (superUser) => {
-      isSuperUser = superUser;
+    it('shows who was notified', () => {
       renderPage(STATE);
       expect(screen.getByText(/Jane Austen has been notified/)).toBeInTheDocument();
       expect(screen.getByText('jane@example.com')).toBeInTheDocument();
     });
 
-    it.each([true, false])('Back link returns to the Access requests tab (superuser: %s)', (superUser) => {
-      isSuperUser = superUser;
+    it('Back link returns to the Access requests tab', () => {
       renderPage(STATE);
       screen.getByRole('link', { name: 'Back' }).click();
       expect(navigateToPendingRequests).toHaveBeenCalledTimes(1);
@@ -72,7 +64,7 @@ describe('AccessDeniedPage (SYEIA-2723)', () => {
     });
   });
 
-  describe('Ultrasuperuser', () => {
+  describe('What happens next (same for every role)', () => {
     it('follows the design: the email sentence, then the reason entered, then what the user can do', () => {
       renderPage(STATE);
       expect(
@@ -97,25 +89,4 @@ describe('AccessDeniedPage (SYEIA-2723)', () => {
     });
   });
 
-  describe('Team coordinator', () => {
-    beforeEach(() => {
-      isSuperUser = false;
-    });
-
-    it('keeps the SYEIA-959 wording with the reason as plain text', () => {
-      renderPage(STATE);
-      expect(screen.getByText('Not a Team Coordinator')).toBeInTheDocument();
-      expect(screen.getByText('This reason has been included in the email sent to the applicant.')).toBeInTheDocument();
-      expect(
-        screen.getByText('If Jane Austen believes the decision is incorrect, they can contact you directly or submit a new request.')
-      ).toBeInTheDocument();
-      expect(screen.queryByText(/for this reason:/)).not.toBeInTheDocument();
-    });
-
-    it('omits the reason sentences after a page refresh', () => {
-      renderPage(NO_REASON_STATE);
-      expect(screen.queryByText(/This reason has been included/)).not.toBeInTheDocument();
-      expect(screen.getByText(/believes the decision is incorrect/)).toBeInTheDocument();
-    });
-  });
 });
