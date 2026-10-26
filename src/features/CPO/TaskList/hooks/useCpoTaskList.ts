@@ -24,7 +24,7 @@ export const useCpoTaskList = (applicationId: string) => {
     return () => { active = false; };
   }, [applicationId]);
 
-  const progressByTask = useMemo(() => buildProgressByTask(progress, application), [progress, application]);
+  const progressByTask = useMemo(() => buildProgressByTask(progress), [progress]);
   const statusOf = (subsection: string): CpoTaskStatus => getTaskStatus(subsection, progressByTask);
 
   return { application, loading, error, statusOf };

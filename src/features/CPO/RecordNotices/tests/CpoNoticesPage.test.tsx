@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
 import { deleteDocument } from '../../../../services/s3ApiService';
-import CpoNoticesPage from './CpoNoticesPage';
+import CpoNoticesPage from '../pages/CpoNoticesPage';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { NoticesResponse } from '../types/notices';
 import type { FileUploadProps } from '../../../../components/FileUpload';
@@ -35,9 +35,9 @@ const setDate = (id: string, day = '7', month = '10', year = '2026') => {
 describe('CPO notices journey', () => {
   beforeEach(() => {
     vi.restoreAllMocks(); vi.clearAllMocks(); upload.pending = false; upload.busy = false; upload.scanErrors = []; upload.files = ['new-file'];
-    stored = { canEdit: true, reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', documents: [], record: {
+    stored = { reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', documents: [], record: {
       requirements: { acknowledged: true },
-      inspection: { address: 'Network House', from: '2026-10-07', until: '2026-11-09' },
+      inspection: { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '2026-10-07' }] },
       online: { url: 'https://example.gov.uk/order', from: '2026-10-07', until: '2026-11-09' },
       website: { url: 'https://example.gov.uk/notice', liveDate: '2026-10-07' },
       site: { completionDate: '2026-10-07', evidence: [] }, people: { completionDate: '2026-10-19', evidence: [] }, newspapers: { evidence: [] },
@@ -78,13 +78,13 @@ describe('CPO notices journey', () => {
     renderStep(step); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith(`/cpo/app/record-notices/${next}`));
   });
-  it('preserves the saved legacy inspection address and provides Change links', async () => {
+  it('renders a structured inspection address and provides Change links', async () => {
     renderStep('inspection'); await ready();
     expect(screen.getByText('Network House')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Change inspection address 1' })).toHaveAttribute('href', expect.stringContaining('/inspection-address?id='));
   });
   it('links incomplete date errors to the date input and focuses the summary', async () => {
-    stored.record.inspection = { address: 'Network House', from: '', until: '' };
+    stored.record.inspection = { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '' }] };
     renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     expect(screen.getByRole('alert')).toHaveFocus();
     expect(screen.getByRole('link', { name: 'Enter an availability date for every inspection address' })).toHaveAttribute('href', '#inspection-heading');
@@ -96,7 +96,7 @@ describe('CPO notices journey', () => {
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'website', expect.objectContaining({ liveDate: '2026-10-14' }), false));
   });
   it('saves partial forms for later without completing the section', async () => {
-    stored.record.inspection = { address: '', from: '', until: '' };
+    stored.record.inspection = { format: 'reference', addresses: [] };
     renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/application-dashboard'));
     expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'inspection', expect.objectContaining({ format: 'reference', addresses: [] }), true);
@@ -139,12 +139,6 @@ describe('CPO notices journey', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/task-list'));
   });
-  it('does not offer save or upload controls in view-only mode', async () => {
-    stored.canEdit = false; renderStep('newspapers');
-    await screen.findByText('You can view this publicity record but cannot change it.');
-    expect(screen.queryByRole('button', { name: 'Save and continue' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Upload document' })).not.toBeInTheDocument();
-  });
   it('disables saves and focuses the summary when loading fails', async () => {
     vi.mocked(cpoNoticesService.get).mockRejectedValue(new Error('Unable to load publicity'));
     renderStep('inspection'); await screen.findByRole('alert');
@@ -152,7 +146,7 @@ describe('CPO notices journey', () => {
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
   });
   it('removes the document through the existing API and saves the updated evidence list', async () => {
-    stored.documents = [{ document_id: 'doc', file_id: 'file', category: 'CPO_NEWSPAPER_NOTICES', filename: 'notice.pdf' } as NoticesResponse['documents'][number]];
+    stored.documents = [{ document_id: 'doc', file_id: 'file', category: 'CPO_NEWSPAPER_NOTICES', filename: 'notice.pdf', s3_key: 'path/notice.pdf' } as NoticesResponse['documents'][number]];
     stored.record.newspapers = { evidence: [{ fileId: 'file', date: '2026-10-07' }] };
     renderStep('newspapers'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Delete notice.pdf' }));
     await waitFor(() => expect(deleteDocument).toHaveBeenCalledWith('doc'));
@@ -191,7 +185,9 @@ describe('CPO notices journey', () => {
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'newspapers', expect.objectContaining({ evidence: [{ fileId: 'second-file', date: '2026-10-15' }, { fileId: 'first-file', date: '2026-10-08' }] }), false));
   });
   it('saves an edited availability date and returns to the inspection list', async () => {
-    renderStep('inspection-date', '?id=00000000-0000-4000-8000-000000000001');
+    const addressId = crypto.randomUUID();
+    stored.record.inspection = { format: 'reference', addresses: [{ id: addressId, line1: 'Network House', line2: '', townCity: 'London', county: '', postcode: 'SW1A 1AA', from: '2026-10-07' }] };
+    renderStep('inspection-date', '?id=' + addressId);
     await waitFor(() => expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled());
     setDate('inspection-date', '8');
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
@@ -200,7 +196,7 @@ describe('CPO notices journey', () => {
   });
   it('recovers registered newspaper files that have no saved evidence entries', async () => {
     stored.record.newspapers = { firstDate: '2026-10-07', secondDate: '2026-10-14' };
-    stored.documents = ['first-file', 'second-file'].map(file_id => ({ file_id, document_id: file_id, filename: `${file_id}.pdf`, category: 'CPO_NEWSPAPER_NOTICES' } as NoticesResponse['documents'][number]));
+    stored.documents = ['first-file', 'second-file'].map(file_id => ({ file_id, document_id: file_id, filename: `${file_id}.pdf`, category: 'CPO_NEWSPAPER_NOTICES', s3_key: `${file_id}.pdf` } as NoticesResponse['documents'][number]));
     renderStep('newspapers'); await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'newspapers', expect.objectContaining({ evidence: [{ fileId: 'first-file', date: '2026-10-07' }, { fileId: 'second-file', date: '2026-10-14' }] }), false));
@@ -213,7 +209,7 @@ describe('CPO notices journey', () => {
   it('refreshes immediately uploaded notice files without losing unsaved publication dates', async () => {
     renderStep('newspapers'); await ready();
     setDate('firstDate', '8'); setDate('secondDate', '15');
-    stored.documents = ['first-file', 'second-file'].map(file_id => ({ file_id, document_id: file_id, filename: `${file_id}.pdf`, category: 'CPO_NEWSPAPER_NOTICES' } as NoticesResponse['documents'][number]));
+    stored.documents = ['first-file', 'second-file'].map(file_id => ({ file_id, document_id: file_id, filename: `${file_id}.pdf`, category: 'CPO_NEWSPAPER_NOTICES', s3_key: `${file_id}.pdf` } as NoticesResponse['documents'][number]));
     act(() => { upload.props?.onUploaded?.([], []); });
     await screen.findByRole('link', { name: 'first-file.pdf' });
     expect(document.getElementById('firstDate-day')).toHaveValue('8');

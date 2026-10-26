@@ -4,7 +4,7 @@ export { CpoPreSubmissionMeetingPage, CpoPreSubmissionMeetingConfirmationPage } 
 export { CpoOrderDetailsPage } from './OrderDetails';
 export { CpoExecutiveSummaryPage } from './ExecutiveSummary';
 export { CpoOrderDocumentsPage } from './OrderDocuments';
-export { CpoNoticesPage } from './RecordNotices';
+export { CpoNoticesPage, CpoNoticeRequirementsPage, CpoNoticeInspectionPage, CpoNoticeInspectionAddressPage, CpoNoticeInspectionDatePage, CpoNoticeOnlinePage, CpoNoticeWebsitePage, CpoNoticeNewspapersPage, CpoNoticeSitePage, CpoNoticePeoplePage, CpoNoticeCheckPage } from './RecordNotices';
 export { CpoCheckYourAnswersPage } from './CheckAndSubmitApplication';
 export { CpoTaskListPage, CpoTaskUnavailablePage } from './TaskList';
 export { CPOWhoIsApplying } from './WhoIsApplying';
