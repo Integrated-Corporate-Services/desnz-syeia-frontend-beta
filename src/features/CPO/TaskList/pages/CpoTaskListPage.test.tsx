@@ -6,7 +6,9 @@ import { applicationApiService } from '../../../../services/applicationApiServic
 import { progressApiService } from '../../../../services/progressApiService';
 import CpoTaskListPage from './CpoTaskListPage';
 import { CPO_SUBSECTIONS } from '../constants/cpoTaskListConstants';
+import { useAuthUserContext } from '../../../../context/AuthUserContext';
 
+vi.mock('../../../../context/AuthUserContext', () => ({ useAuthUserContext: vi.fn() }));
 vi.mock('../../../../components/PageTitle', () => ({ default: () => null }));
 vi.mock('../../../../services/applicationApiService', () => ({ applicationApiService: { getApplicationById: vi.fn() } }));
 vi.mock('../../../../services/progressApiService', () => ({ progressApiService: { fetchApplicationProgress: vi.fn() } }));
@@ -16,6 +18,7 @@ const completed = (subsections: string[]) => subsections.map(subsection_name => 
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(useAuthUserContext).mockReturnValue({ user: { role: 'APPLICANT_USER' } } as ReturnType<typeof useAuthUserContext>);
   vi.mocked(applicationApiService.getApplicationById).mockResolvedValue({ type: 'CPO' });
   vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue([]);
 });
@@ -37,6 +40,15 @@ it('shows the reference title and the saved progress on the task list', async ()
   expect(screen.getByRole('link', { name: 'Executive summary' }).closest('li')).toHaveTextContent('Not completed');
   expect(screen.getByRole('link', { name: 'Order documents' }).closest('li')).toHaveTextContent('Completed');
   expect(screen.getByText('Cannot start yet')).toBeInTheDocument();
+});
+
+it('shows Superusers task status without edit links or delete controls', async () => {
+  vi.mocked(useAuthUserContext).mockReturnValue({ user: { role: 'SUPERUSER' } } as ReturnType<typeof useAuthUserContext>);
+  renderPage();
+  expect(await screen.findByRole('heading', { name: 'Compulsory purchase order' })).toBeInTheDocument();
+  expect(screen.getByText('Order details')).toBeInTheDocument();
+  expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Delete application' })).not.toBeInTheDocument();
 });
 
 it('unlocks application review when all seven prerequisites are complete', async () => {

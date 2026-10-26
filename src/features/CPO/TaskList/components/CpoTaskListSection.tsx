@@ -9,9 +9,10 @@ type Props = {
   sectionIndex: number;
   applicationId: string;
   statusOf: (subsection: string) => CpoTaskStatus;
+  readOnly?: boolean;
 };
 
-const CpoTaskListSection: React.FC<Props> = ({ section, sectionIndex, applicationId, statusOf }) => (
+const CpoTaskListSection: React.FC<Props> = ({ section, sectionIndex, applicationId, statusOf, readOnly = false }) => (
   <section className="govuk-!-margin-top-8">
     <h2 className="govuk-heading-m govuk-!-margin-bottom-4">
       {sectionIndex + 1}. {section.title}
@@ -21,7 +22,7 @@ const CpoTaskListSection: React.FC<Props> = ({ section, sectionIndex, applicatio
       {section.tasks.map((task, taskIndex) => {
         const status = statusOf(task.subsection);
         const isBlocked = status === 'Cannot start yet';
-        const taskUrl = task.slug ? `${CPO_BASE_URL}/${applicationId}/${task.slug}` : undefined;
+        const taskUrl = task.slug && !readOnly ? `${CPO_BASE_URL}/${applicationId}/${task.slug}` : undefined;
 
         return (
           <li key={task.subsection} className={`govuk-task-list__item${taskUrl && !isBlocked ? ' govuk-task-list__item--with-link' : ''}`}>
