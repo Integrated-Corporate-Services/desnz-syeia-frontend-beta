@@ -671,7 +671,7 @@ const ApplicationSummary: React.FC = () => {
 
             {/* Withdraw application button - only show if user has withdraw permission and no pending withdrawal request */}
             {permissions?.canWithdraw && !permissions?.canEdit && !withdrawalRequest && (
-              <div className="govuk-button-group">
+              <div className="govuk-button-group govuk-!-margin-top-6">
                 <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
