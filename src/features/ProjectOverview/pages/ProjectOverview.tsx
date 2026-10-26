@@ -18,7 +18,7 @@ import AccessibleSelect from "../../../components/commonFormFields/AccessibleSel
 
 import { getRelatedFieldAnchorIds, filterErrorLinksByAnchors } from '../validations';
 import { ProjectOverviewModel } from '../../../types/projectOverview';
-import { UploadedFile, ApplicationDocument } from '../../../types/fileUpload';
+import { UploadedFile } from '../../../types/fileUpload';
 import { useAuthUser } from '../../../hooks/useAuthUser';
 import { FILE_CATEGORIES } from "../../../constants/fileCategoryConstants";
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';

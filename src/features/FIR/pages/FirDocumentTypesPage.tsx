@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FirErrorSummary, FirRequestDetails } from '../components';
 import { NWL_FIR_CATEGORY_GROUPS, S37_FIR_CATEGORY_GROUPS, FIR_CATEGORY_LABELS, FIR_MESSAGES } from '../constants/fir.constants';
@@ -46,7 +46,7 @@ export const FirDocumentTypesPage: React.FC = () => {
         <form onSubmit={submit} noValidate>
           <fieldset className="govuk-fieldset">
             <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
-              {request && <span className="govuk-caption-l">{request.desnzRef}</span>}
+              <span className="govuk-caption-l">{request.desnzRef}</span>
               <h1 className="govuk-fieldset__heading">Select the type of documents you will provide</h1>
             </legend>
             <p className="govuk-hint">You can select more than one type of document.</p>
