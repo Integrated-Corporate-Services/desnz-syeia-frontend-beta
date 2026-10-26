@@ -29,6 +29,11 @@ vi.mock('../../ApplicationReassignment/components/ReassignmentSuccessBanner', ()
 vi.mock('../../FIR/components/FirSummaryCard', () => ({ FirSummaryCard: () => null }));
 vi.mock('../../../components/SensitiveAreaCheckMap', () => ({ default: () => null }));
 vi.mock('../component/S37SummaryPdfDownloadLink', () => ({ S37SummaryPdfDownloadLink: () => null }));
+vi.mock('../../Payments/AdditionalPaymentSummary', () => ({
+  AdditionalPaymentSummary: ({ applicationId, baseUrl }: { applicationId: string; baseUrl: string }) => (
+    <div data-testid="additional-payments" data-application-id={applicationId} data-base-url={baseUrl} />
+  ),
+}));
 
 const APP_ID = '8b6d9149-4cdf-4ba8-99a5-281d2411db13';
 const LPA_FORM = {
@@ -73,6 +78,13 @@ const card = async (title: string) => {
 describe('S37 Application summary: LPA consultation request document', () => {
   beforeEach(() => {
     vi.mocked(downloadS3FileOnSameTab).mockReset();
+  });
+
+  it('includes additional payment requests without initial payment details', async () => {
+    await renderPage([]);
+    const payments = await screen.findByTestId('additional-payments');
+    expect(payments).toHaveAttribute('data-application-id', APP_ID);
+    expect(payments).toHaveAttribute('data-base-url', '/s-37');
   });
 
   it('shows the LPA consultation form link between Status and Date of consultation request, and downloads it', async () => {
