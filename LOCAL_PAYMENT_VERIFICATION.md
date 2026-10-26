@@ -29,7 +29,7 @@ underlying application sections; they are for payment UI checks only.
 | 2457: independent S37/NWL summary requests | Real API lists four requests per application; both summaries show four after the S37 integration fix. |
 | 2457: amounts, dates and payment action | GBP 1,250.00, 8 September 2026 and request descriptions render; exactly one payment action for the unpaid request. |
 | 2457: payment-required screen | NWL displays GBP 1,250.00, matching item/total, Generate invoice and return-to-summary action. |
-| 2457: invoice generation/download | BLOCKED: real POST invoice returned 502. CLEAN_BUCKET is not configured; invoice storage requires it. No invoice became available. |
+| 2457: invoice generation/download | PASSED on the NWL fixture after configuring the existing dev clean bucket locally. Generated INV01/NWL92364; authenticated download returned 200, application/pdf, 1258 bytes and a valid %PDF- header. Initial attempt returned 502 before configuration. |
 | 2457: card checkout, success/failure/cancellation and retry | Not completed in browser; blocked behind invoice generation. Existing automated provider/lifecycle tests are not live sandbox evidence. |
 | 2457: BACS choice, proof upload and confirmation | Not completed end to end; storage/scanner setup and invoice are required. Automated optional-evidence and lifecycle checks exist. |
 | 2457: paid/processing receipts | Seeded S37 paid and NWL processing requests render the expected amount, status and next-step text. Invoice shows Not available because fixtures lack one. Not proof of reconciliation or card success. |
@@ -63,8 +63,13 @@ Retested in the real browser: four cards and one payment action.
 
 ## Remaining gates
 
-Configure approved non-production CLEAN_BUCKET and IAM access, then verify a real
-PDF download and repeat card/BACS flows. Evidence needs the real upload and clean
+The local launcher now sets CLEAN_BUCKET to the existing development clean bucket;
+the existing development SSO role successfully uploaded and downloaded the invoice.
+No bucket or IAM policy was created or changed. Notify and automatic migrations
+remained disabled during restart. After generation the application remained
+SUBMITTED and the request NOT_PAID. The seeded receipt fixtures still lack invoices.
+
+Repeat card/BACS flows using the generated invoice. Evidence needs the real upload and clean
 scan pipeline. Confirm the Pay key is the intended sandbox credential before
 checkout. Test assigned approved-agent and unauthorized sessions. Exercise request
 creation/withdrawal, bells, Notify delivery to an approved test mailbox, finance
