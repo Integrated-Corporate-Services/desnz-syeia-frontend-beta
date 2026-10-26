@@ -6,7 +6,6 @@ interface TabNavigationProps {
   organisationsEnabled: boolean;
   pendingCount: number;
   onTabChange: (tab: 'organisations' | 'active-users' | 'pending-requests') => void;
-  isSuperUser?: boolean;
   style?: React.CSSProperties;
 }
 
@@ -15,13 +14,12 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   organisationsEnabled,
   pendingCount,
   onTabChange,
-  isSuperUser = false,
   style
 }) => {
   const tabs: { value: TabNavigationProps['activeTab']; label: string }[] = [
     ...(organisationsEnabled ? [{ value: 'organisations' as const, label: 'Organisations' }] : []),
     { value: 'active-users' as const, label: 'Active users' },
-    { value: 'pending-requests' as const, label: `${isSuperUser ? "Access requests" : "Pending access requests"} (${pendingCount})` },
+    { value: 'pending-requests' as const, label: `Access requests (${pendingCount})` },
   ];
 
   /**

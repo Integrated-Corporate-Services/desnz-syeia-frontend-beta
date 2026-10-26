@@ -51,7 +51,6 @@ const UserManagementDashboard: React.FC = () => {
               organisationsEnabled={dnoTeamCoordinatorsOrganisationsEnabled}
               pendingCount={pendingRequests.length}
               onTabChange={handleTabChange}
-              isSuperUser={isSuperUser}
               style={{ marginTop: "0", marginBottom: "0", width: "100%" }}
             />
 
@@ -103,7 +102,6 @@ const UserManagementDashboard: React.FC = () => {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
-                isSuperUser={isSuperUser}
               />
             </div>
           </div>

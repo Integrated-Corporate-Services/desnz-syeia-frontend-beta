@@ -18,16 +18,11 @@ const props = {
 describe('PendingRequestsTab wording (SYEIA-2703)', () => {
   const noRequests = { ...props, pendingRequests: [], paginatedRequests: [], navigateToReviewRequest: vi.fn() };
 
-  it('Ultrasuperusers see "Access requests" and "No access requests."', () => {
-    render(<PendingRequestsTab {...noRequests} isSuperUser />);
+  it('shows "Access requests" and "No access requests." for every role', () => {
+    render(<PendingRequestsTab {...noRequests} />);
     expect(screen.getByRole('heading', { name: 'Access requests' })).toBeInTheDocument();
     expect(screen.getAllByText('No access requests.').length).toBeGreaterThan(0);
-  });
-
-  it('team coordinators keep the pending wording', () => {
-    render(<PendingRequestsTab {...noRequests} />);
-    expect(screen.getByRole('heading', { name: 'Pending access requests' })).toBeInTheDocument();
-    expect(screen.getAllByText('No pending access requests.').length).toBeGreaterThan(0);
+    expect(screen.queryByText('No pending access requests.')).not.toBeInTheDocument();
   });
 });
 

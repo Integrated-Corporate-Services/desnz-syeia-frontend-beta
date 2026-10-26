@@ -23,7 +23,6 @@ interface PendingRequestsTabProps {
   currentPage: number;
   totalPages: number;
   handlePageChange: (page: number) => void;
-  isSuperUser?: boolean;
 }
 
 const formatDate = (dateString: string) => {
@@ -42,11 +41,10 @@ export const PendingRequestsTab: React.FC<PendingRequestsTabProps> = ({
   navigateToReviewRequest,
   currentPage,
   totalPages,
-  handlePageChange,
-  isSuperUser = false
+  handlePageChange
 }) => {
-  const heading = isSuperUser ? 'Access requests' : 'Pending access requests';
-  const emptyMessage = isSuperUser ? 'No access requests.' : 'No pending access requests.';
+  const heading = 'Access requests';
+  const emptyMessage = 'No access requests.';
   return (
     <div className="govuk-tabs__panel">
       <h2 className="govuk-heading-m">{heading}</h2>

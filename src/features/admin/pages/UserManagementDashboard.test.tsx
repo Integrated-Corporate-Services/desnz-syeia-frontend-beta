@@ -38,18 +38,18 @@ describe('UserManagementDashboard wording (SYEIA-2703)', () => {
     isSuperUser = true;
   });
 
-  it('Ultrasuperusers see the design description, tab label and tab heading', () => {
+  it('Ultrasuperusers see the all-organisations description and the Access requests tab', () => {
     renderPage();
     expect(screen.getByText('Manage all applicant organisations, access requests and users.')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Access requests (0)' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Access requests' })).toBeInTheDocument();
   });
 
-  it('team coordinators keep their existing wording', () => {
+  it('team coordinators see their own organisation description and the same Access requests tab', () => {
     isSuperUser = false;
     renderPage();
     expect(screen.getByText('Manage access request and users for your Organisation')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Pending access requests (0)' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Pending access requests' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Access requests (0)' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Access requests' })).toBeInTheDocument();
   });
 });
