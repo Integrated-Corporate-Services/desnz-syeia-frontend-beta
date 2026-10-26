@@ -21,6 +21,7 @@ const CpoNoticeInspectionPage = () => {
   const [data, setData] = useState<NoticesResponse | null>(null);
   const [address, setAddress] = useState<InspectionAddress>(emptyAddress);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormError[]>([]);
   const summary = useRef<HTMLDivElement>(null);
@@ -30,20 +31,20 @@ const CpoNoticeInspectionPage = () => {
   const datePage = noticeStep === 'inspection-date';
   const heading = addressPage ? 'Enter an address where the order and maps can be inspected'
     : datePage ? 'Enter the date the order and maps were made available for inspection at this address' : 'Record order inspection addresses';
-  const canEdit = Boolean(data && data.canEdit !== false);
-  const blocked = loading || saving || !canEdit;
+  const canEdit = true;
+  const blocked = loading || saving || loadFailed || !canEdit;
   const back = addressPage || datePage ? `${base}/inspection${returnQuery}` : params.get('from') ? `${base}/check${returnQuery}` : `${base}/requirements`;
 
   useEffect(() => {
     let active = true;
-    setLoading(true); setErrors([]); setData(null);
+    setLoading(true); setLoadFailed(false); setErrors([]); setData(null);
     cpoNoticesService.get(applicationId).then(result => {
       if (!active) return;
       const saved = inspectionAddresses(result.record.inspection).find(item => item.id === params.get('id'));
       if (params.get('id') && !saved) throw new Error('Inspection address not found. Return to the address list.');
       if (datePage && !saved) throw new Error('Add an inspection address before entering its date.');
       setData(result); setAddress(saved || emptyAddress());
-    }).catch(() => { if (active) setErrors([{ id: 'inspection-heading', message: 'Unable to load inspection addresses. Return to the address list or refresh the page.' }]); })
+    }).catch(() => { if (active) { setLoadFailed(true); setErrors([{ id: 'inspection-heading', message: 'Unable to load inspection addresses. Return to the address list or refresh the page.' }]); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [applicationId, noticeStep, params.get('id')]);
@@ -91,7 +92,6 @@ const CpoNoticeInspectionPage = () => {
       {!!errors.length && <div className="govuk-error-summary" ref={summary} role="alert" tabIndex={-1}><h2 className="govuk-error-summary__title">There is a problem</h2><div className="govuk-error-summary__body"><ul className="govuk-list govuk-error-summary__list">{errors.map(error => <li key={error.id}><a href={`#${error.id}`}>{error.message}</a></li>)}</ul></div></div>}
       <span className="govuk-caption-l">Record your notices</span><h1 className="govuk-heading-l" id="inspection-heading" ref={headingRef} tabIndex={-1}>{heading}</h1>
       {loading && <p className="govuk-body" role="status">Loading inspection addresses...</p>}
-      {data?.canEdit === false && <p className="govuk-body">You can view these inspection addresses but cannot change them.</p>}
       <form noValidate onSubmit={event => { event.preventDefault(); void save(false); }}><fieldset className="govuk-fieldset" disabled={blocked}>
         <legend className="govuk-visually-hidden">{heading}</legend>
         {addressPage ? <>{field('line1', 'Address line 1')}{field('line2', 'Address line 2 (optional)')}{field('townCity', 'Town or city', 'govuk-input--width-20')}{field('county', 'County (optional)', 'govuk-input--width-20')}{field('postcode', 'Postcode', 'govuk-input--width-10')}</>
@@ -105,9 +105,7 @@ const CpoNoticeInspectionPage = () => {
             </>}
         {canEdit && (addressPage || datePage
           ? <div className="govuk-button-group"><button className="govuk-button" type="submit">Continue</button></div>
-          : list.length === 0
-            ? <div className="govuk-!-margin-top-2"><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>
-            : <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>)}
+          : <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>)}
       </fieldset></form>
     </div></div></div>
   </>;

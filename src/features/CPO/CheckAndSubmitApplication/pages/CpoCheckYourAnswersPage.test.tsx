@@ -32,7 +32,7 @@ describe('CPO check your answers', () => {
     vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(completedProgress);
     vi.spyOn(cpoOrderDetailsService, 'get').mockResolvedValue({ canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'North Ridge CPO', purpose: 'Acquire land and rights', includesSpecialLand: false, hasRelatedApplications: false }, documents: [file('executive-summary.docx')] });
     vi.spyOn(cpoOrderDocumentsService, 'get').mockResolvedValue({ canEdit: true, orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }] });
-    vi.spyOn(cpoNoticesService, 'get').mockResolvedValue({ canEdit: true, reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', record: { newspapers: { evidence: [{ fileId: 'notice.pdf', date: '2026-10-14' }] }, site: { completionDate: '2026-10-07' }, people: { completionDate: '2026-10-19' } }, documents: [{ ...file('notice.pdf'), category: 'CPO_NEWSPAPER_NOTICES' }] });
+    vi.spyOn(cpoNoticesService, 'get').mockResolvedValue({ reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', record: { newspapers: { evidence: [{ fileId: 'notice.pdf', date: '2026-10-14' }] }, site: { completionDate: '2026-10-07' }, people: { completionDate: '2026-10-19' } }, documents: [{ ...file('notice.pdf'), category: 'CPO_NEWSPAPER_NOTICES' }] });
   });
   it('renders four sections with actual answers, filenames and dates', async () => {
     renderPage(); await ready();
@@ -54,7 +54,7 @@ describe('CPO check your answers', () => {
     expect(screen.getByText('Discussed with the case officer.')).toBeInTheDocument();
   });
   it('pairs newspaper dates by file ID rather than array order', async () => {
-    vi.mocked(cpoNoticesService.get).mockResolvedValue({ canEdit: true, reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: null,
+    vi.mocked(cpoNoticesService.get).mockResolvedValue({ reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: null,
       record: { newspapers: { evidence: [{ fileId: 'second.pdf', date: '2026-10-14' }, { fileId: 'first.pdf', date: '2026-10-07' }] } },
       documents: [{ ...file('first.pdf'), category: 'CPO_NEWSPAPER_NOTICES' }, { ...file('second.pdf'), category: 'CPO_NEWSPAPER_NOTICES' }] });
     renderPage(); await ready();

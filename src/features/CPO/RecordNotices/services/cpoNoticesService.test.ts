@@ -14,7 +14,7 @@ describe('cpoNoticesService', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('GETs the publicity record with credentials and fills missing fields', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ record: { online: { url: 'https://example.gov.uk' } }, canEdit: false }));
+    const fetchMock = vi.fn().mockResolvedValue(json({ record: { online: { url: 'https://example.gov.uk' } } }));
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await cpoNoticesService.get('app-1');
@@ -22,12 +22,12 @@ describe('cpoNoticesService', () => {
     expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/notices');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
     expect(result).toEqual({
-      record: { online: { url: 'https://example.gov.uk' } }, documents: [], reference: '', objectionsEmail: '', finalObjectionDate: null, canEdit: false,
+      record: { online: { url: 'https://example.gov.uk' } }, documents: [], reference: '', objectionsEmail: '', finalObjectionDate: null,
     });
   });
 
   it('PUTs the step, answers and saveForLater with the CSRF token', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ record: {}, documents: [], canEdit: true }));
+    const fetchMock = vi.fn().mockResolvedValue(json({ record: {}, documents: [] }));
     vi.stubGlobal('fetch', fetchMock);
 
     await cpoNoticesService.save('app-1', 'online', { format: 'reference', url: 'https://example.gov.uk' }, true);

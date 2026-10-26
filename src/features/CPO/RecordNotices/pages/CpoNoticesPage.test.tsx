@@ -35,7 +35,7 @@ const setDate = (id: string, day = '7', month = '10', year = '2026') => {
 describe('CPO notices journey', () => {
   beforeEach(() => {
     vi.restoreAllMocks(); vi.clearAllMocks(); upload.pending = false; upload.busy = false; upload.scanErrors = []; upload.files = ['new-file'];
-    stored = { canEdit: true, reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', documents: [], record: {
+    stored = { reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', documents: [], record: {
       requirements: { acknowledged: true },
       inspection: { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '2026-10-07' }] },
       online: { url: 'https://example.gov.uk/order', from: '2026-10-07', until: '2026-11-09' },
@@ -138,12 +138,6 @@ describe('CPO notices journey', () => {
     expect(screen.getByRole('link', { name: 'Change enter the website address' })).toHaveAttribute('href', '/cpo/app/record-notices/online?from=check');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/task-list'));
-  });
-  it('does not offer save or upload controls in view-only mode', async () => {
-    stored.canEdit = false; renderStep('newspapers');
-    await screen.findByText('You can view this publicity record but cannot change it.');
-    expect(screen.queryByRole('button', { name: 'Save and continue' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Upload document' })).not.toBeInTheDocument();
   });
   it('disables saves and focuses the summary when loading fails', async () => {
     vi.mocked(cpoNoticesService.get).mockRejectedValue(new Error('Unable to load publicity'));

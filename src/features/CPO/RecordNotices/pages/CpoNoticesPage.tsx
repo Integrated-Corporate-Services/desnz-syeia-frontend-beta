@@ -43,7 +43,7 @@ const CpoNoticesFormPage: React.FC = () => {
   const summaryRef = useRef<HTMLDivElement>(null);
   const category = NOTICE_CATEGORIES[step];
   const documents = data.documents.filter((file) => file.category === category);
-  const editable = data.canEdit !== false;
+  const editable = true;
   const blocked = loading || loadFailed || saving || refreshingUploads || !editable;
   const errorFor = (id: string) => errors.find((error) => error.id === id)?.message;
   const update = (key: keyof NoticeAnswer, value: string) => setAnswer((current) => ({ ...current, [key]: value }));
@@ -104,7 +104,7 @@ const CpoNoticesFormPage: React.FC = () => {
       if (step === 'newspapers' && nextAnswer.evidence?.length === 2) nextAnswer.evidence = nextAnswer.evidence.map((entry, index) => ({ ...entry, date: publicationDateForFile(entry.fileId, index, nextAnswer, data.record.newspapers) }));
       if (step === 'site' || step === 'people') nextAnswer.evidence = nextAnswer.evidence?.map(entry => ({ ...entry, date: entry.date || nextAnswer.completionDate || '' }));
       const result = await cpoNoticesService.save(applicationId, step, nextAnswer, saveForLater);
-      setData({ ...result, canEdit: data.canEdit }); setAnswer(nextAnswer);
+      setData({ ...result }); setAnswer(nextAnswer);
       if (saveForLater) { navigate('/application-dashboard'); return; }
       if (step === 'check') navigate(`${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
       else navigate(`${base}/${searchParams.get('from') === 'check' || fromApplicationReview ? 'check' : step === 'website' ? 'site' : NOTICE_STEPS[NOTICE_STEPS.indexOf(step) + 1]}${fromApplicationReview ? '?from=application-review' : ''}`);
@@ -126,7 +126,7 @@ const CpoNoticesFormPage: React.FC = () => {
       setAnswer(nextAnswer);
       setData((current) => ({ ...current, documents: current.documents.filter((file) => file.file_id !== fileId) }));
       const result = await cpoNoticesService.save(applicationId, step, nextAnswer, true);
-      setData({ ...result, canEdit: data.canEdit }); setFileErrors([]);
+      setData({ ...result }); setFileErrors([]);
     } catch (failure) { setErrors([{ id: 'file-upload-input', message: failure instanceof Error ? failure.message : 'Unable to delete the document. Try again.' }]); }
     finally { setSaving(false); }
   };

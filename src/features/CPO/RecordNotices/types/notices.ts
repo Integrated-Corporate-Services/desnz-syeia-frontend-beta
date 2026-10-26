@@ -34,5 +34,4 @@ export interface NoticesResponse {
   reference: string;
   objectionsEmail: string;
   finalObjectionDate: string | null;
-  canEdit?: boolean;
 }

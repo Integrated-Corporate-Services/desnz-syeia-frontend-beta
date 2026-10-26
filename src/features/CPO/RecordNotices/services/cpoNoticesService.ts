@@ -5,16 +5,20 @@ import type { NoticeAnswer, NoticeStep, NoticesResponse } from '../types/notices
 async function readResponse(response: Response): Promise<NoticesResponse> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(response.status === 400 && typeof body.message === 'string'
+    const message = response.status === 400 && typeof body.message === 'string'
       ? body.message : response.status === 401 ? 'Your session has expired. Sign in again.'
         : response.status === 403 ? 'You do not have permission to access this application.'
-          : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
-            : 'Unable to load or save your publicity record. Try again.');
+          : response.status === 404 ? 'Unable to load or save your publicity record. The requested record was not found.'
+            : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
+              : 'Unable to load or save your publicity record. Try again.';
+    const error = new Error(message) as Error & { status?: number };
+    error.status = response.status;
+    throw error;
   }
   const result: NoticesResponse = await response.json();
   return {
     record: result.record || {}, documents: result.documents || [], reference: result.reference || '',
-    objectionsEmail: result.objectionsEmail || '', finalObjectionDate: result.finalObjectionDate ?? null, canEdit: result.canEdit,
+    objectionsEmail: result.objectionsEmail || '', finalObjectionDate: result.finalObjectionDate ?? null,
   };
 }
 
