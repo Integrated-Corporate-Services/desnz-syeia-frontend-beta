@@ -1,6 +1,7 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useMatch } from 'react-router-dom';
 import { useAuthUserContext } from '../context/AuthUserContext';
+import { ROLES } from '../constants/roles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,6 +10,10 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { authenticated, loading, user } = useAuthUserContext();
   const location = useLocation();
+  const chooseApplication = useMatch('/choose-application');
+  const s37Creation = useMatch('/s-37/who-is-applying');
+  const nwlCreation = useMatch('/nwl/who-is-applying');
+  const cpoCreation = useMatch('/cpo/who-is-applying');
 
   if (loading) {
     return (
@@ -31,6 +36,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // Check if user status is INACTIVE - redirect to access revoked page
   if (user?.status === 'INACTIVE') {
     return <Navigate to="/access-revoked" replace />;
+  }
+
+  if (user?.role === ROLES.SUPERUSER && (chooseApplication || s37Creation || nwlCreation || cpoCreation)) {
+    return <Navigate to="/application-dashboard" replace />;
   }
 
   return <>{children}</>;

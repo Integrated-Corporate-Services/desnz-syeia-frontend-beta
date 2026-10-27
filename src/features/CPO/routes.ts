@@ -18,7 +18,7 @@ const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/network-operator-contact-details`, component: NetworkOperatorContactDetails, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/task-list`, component: CpoTaskListPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/delete-confirmation`, component: ApplicationDeleteConfirmationPage, auth: true, layout: true },
-    { path: `${CPO_BASE_URL}/:applicationId/delete-success`, component: ApplicationDeleteSuccessPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/delete-success`, component: ApplicationDeleteSuccessPage, auth: true, layout: true, accessGuard: false },
     { path: `${CPO_BASE_URL}/:applicationId/:taskSlug`, component: CpoTaskUnavailablePage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-details`, component: CpoOrderDetailsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/notice-requirements`, component: CpoNoticeRequirementsPage, auth: true, layout: true },
@@ -43,24 +43,4 @@ const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`, component: CpoPreSubmissionMeetingConfirmationPage, auth: true, layout: true },
 ];
 
-// LOCAL (frontend-only) MODE: keep backend-connected routes authenticated; open the remaining pages without auth or access checks.
-const backendRoutePaths = new Set([
-    `${CPO_BASE_URL}/:applicationId/notice-requirements`,
-    `${CPO_BASE_URL}/:applicationId/record-notices`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/requirements`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/inspection`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/inspection-address`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/inspection-date`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/online`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/website`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/newspapers`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/site`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/people`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/check`,
-    `${CPO_BASE_URL}/:applicationId/record-notices/:noticeStep`,
-    `${CPO_BASE_URL}/:applicationId/check-and-submit`,
-    `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
-    `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
-]);
-export const cpoRoutes = cpoPageRoutes.map(route =>
-    backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });
+export const cpoRoutes = cpoPageRoutes;
