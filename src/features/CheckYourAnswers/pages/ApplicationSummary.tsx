@@ -56,7 +56,7 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
 import { useAssignmentHistory } from '../../ApplicationReassignment/hooks/useAssignmentHistory';
-import { AdditionalPaymentSummary } from '../../Payments/AdditionalPaymentSummary';
+import { AdditionalPaymentSummary } from '../../Payments/components/AdditionalPaymentSummary';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
