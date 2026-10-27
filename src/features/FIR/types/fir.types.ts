@@ -9,7 +9,7 @@ export interface FirDocument {
 export interface FurtherInformationRequest {
   furtherInformationRequestId: string;
   applicationId: string;
-  recipientType: 'APPLICANT' | 'OBJECTOR';
+  recipientType: string | null;
   requestText: string;
   createdAt: string;
   deadlineAt: string;

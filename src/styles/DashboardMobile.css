@@ -16,6 +16,27 @@
    pushing the Action(s) column off-layout (limits are now also enforced
    at input/API level, see ChangeOrganisationAddressPage/organisationsController)
    ========================================================================== */
+.organisations-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.organisations-table .govuk-table__header:nth-child(1) { width: 25%; }
+.organisations-table .govuk-table__header:nth-child(2) { width: 27%; }
+.organisations-table .govuk-table__header:nth-child(3) { width: 33%; }
+.organisations-table .govuk-table__header:nth-child(4) { width: 15%; }
+
+/* One coordinator per line */
+.organisations-table__coordinator {
+  display: block;
+}
+
+/* Fixed columns: long organisation names, coordinator names and addresses wrap instead of overflowing */
+.organisations-table .govuk-table__cell:not(:last-child),
+.organisations-table .govuk-table__header:not(:last-child) {
+  overflow-wrap: anywhere;
+}
+
 .organisations-table .govuk-table__cell:nth-child(3),
 .organisations-table .govuk-table__header:nth-child(3) {
   max-width: 320px;
