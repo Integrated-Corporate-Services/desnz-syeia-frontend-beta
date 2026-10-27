@@ -37,6 +37,13 @@ export default function AdditionalPaymentPage() {
   const [retry, setRetry] = useState(0);
   const upload = useRef<FileUploadHandle>(null);
   const errorSummary = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setFileErrors([]);
+    setFiles([]);
+    setTransaction('');
+    setConfirmed(false);
+  }, [applicationId, requestId]);
   const generating = busy && (step === 'required' || step === 'invoice');
 
   useBreadcrumb(generating ? null : <nav className="govuk-breadcrumbs" aria-label="Breadcrumb"><ol className="govuk-breadcrumbs__list"><li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to="/application-dashboard">Applications</Link></li><li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={summary}>Application summary</Link></li></ol></nav>);
