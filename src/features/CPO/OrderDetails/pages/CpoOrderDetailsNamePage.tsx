@@ -26,7 +26,7 @@ type Props = { fixedStep?: OrderStep };
 const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   const orderStep = 'name';
   const applicationId = useCpoApplicationId();
-  const step: OrderStep = 'name';
+  const step = 'name' as OrderStep;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fromApplicationReview = searchParams.get('from') === 'application-review';
