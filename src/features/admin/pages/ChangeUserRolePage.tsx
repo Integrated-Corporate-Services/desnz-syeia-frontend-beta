@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
@@ -36,6 +36,9 @@ const FIRST_ROLE_FIELD_ID = `user-role-${ROLE_OPTIONS[0].value}`;
 const ChangeUserRolePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  // Keep the Manage user page's own Back destination (e.g. the team coordinators list)
+  const from = (useLocation().state as { from?: string } | null)?.from;
+  const returnState = from ? { state: { from } } : undefined;
   const { users, loading } = useManageUsers();
   const user = users.find(u => u.id === userId);
   const { user: actor } = useAuthUserContext();
@@ -83,7 +86,7 @@ const ChangeUserRolePage: React.FC = () => {
 
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigate(`/admin/manage-user/${userId}`);
+    navigate(`/admin/manage-user/${userId}`, returnState);
   };
 
   useBreadcrumb(
@@ -117,7 +120,7 @@ const ChangeUserRolePage: React.FC = () => {
     try {
       const response = await userService.updateUserRole(userId, effectiveRole, organisationId);
       if (response.success) {
-        navigate(`/admin/manage-user/${userId}`);
+        navigate(`/admin/manage-user/${userId}`, returnState);
       } else {
         setError(response.message || 'Failed to update user role');
       }

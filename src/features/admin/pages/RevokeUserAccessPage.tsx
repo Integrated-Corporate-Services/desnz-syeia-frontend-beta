@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import { useManageUsersNavigation } from '../../../hooks/useManageUsersNavigation';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
@@ -11,6 +11,8 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  // Keep the Manage user page's own Back destination (e.g. the team coordinators list)
+  const from = (useLocation().state as { from?: string } | null)?.from;
   const { users, loading, confirmRevokeAccess } = useManageUsers();
   const { navigateToAccessRevoked, navigateToDashboard } = useManageUsersNavigation();
   const [processing, setProcessing] = useState(false);
@@ -19,7 +21,7 @@ const RevokeUserAccessPage: React.FC = () => {
 
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigate(`/admin/manage-user/${userId}`);
+    navigate(`/admin/manage-user/${userId}`, from ? { state: { from } } : undefined);
   };
 
   useBreadcrumb(
