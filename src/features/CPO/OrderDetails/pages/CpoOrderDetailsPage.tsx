@@ -59,7 +59,7 @@ const CpoOrderDetailsPage: React.FC = () => {
     setAddAnother(null);
     cpoOrderDetailsService.get(applicationId).then((result) => {
       if (!active) return;
-      setDetails(result.details);
+      setDetails({ ...EMPTY_ORDER_DETAILS, ...result.details });
       setCanEdit(result.canEdit !== false);
       const entry = editId ? result.details.relatedApplications.find((item) => item.id === editId) : undefined;
       if (editId && !entry) throw new Error('Related application not found. Return to the related applications list.');
@@ -156,16 +156,16 @@ const CpoOrderDetailsPage: React.FC = () => {
         savedStep = 'related-applications-list';
       }
       const result = await cpoOrderDetailsService.save(applicationId, savedStep, changes, saveForLater);
-      setDetails(result.details);
+      setDetails({ ...EMPTY_ORDER_DETAILS, ...result.details });
       if (saveForLater) { navigate('/application-dashboard'); return; }
       if (fromOrderDocuments && ['special-land', 'exchange-land'].includes(step)) {
-        navigate(step === 'special-land' && result.details.includesSpecialLand && result.details.exchangeLand === null
+        navigate(step === 'special-land' && result.details.includesSpecialLand === true && result.details.exchangeLand === null
           ? `${base}/exchange-land?${searchParams.toString()}` : documentsUrl);
         return;
       }
-      let next = nextOrderStep(step, result.details, addAnother);
+      let next = nextOrderStep(step, { ...EMPTY_ORDER_DETAILS, ...result.details }, addAnother);
       if (fromCheck && !['related-applications', 'add-related-application', 'related-applications-list', 'check'].includes(step)) {
-        next = step === 'special-land' && result.details.includesSpecialLand && result.details.exchangeLand === null ? 'exchange-land' : 'check';
+        next = step === 'special-land' && result.details.includesSpecialLand === true && result.details.exchangeLand === null ? 'exchange-land' : 'check';
       }
       const returnQuery = fromApplicationReview ? '?from=application-review' : fromCheck && next !== 'check' ? '?from=check' : '';
       navigate(next ? `${base}/${next}${returnQuery}` : `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);

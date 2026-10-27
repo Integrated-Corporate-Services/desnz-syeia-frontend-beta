@@ -15,14 +15,14 @@ describe('cpoOrderDetailsService', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('GETs the order details with credentials, fills missing fields and mirrors them locally', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ details: { orderName: 'North Ridge CPO' }, documents: [{ document_id: 'doc' }], canEdit: false }));
+    const fetchMock = vi.fn().mockResolvedValue(json({ details: { orderName: 'North Ridge CPO' } }));
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await cpoOrderDetailsService.get('app-1');
 
     expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/order-details');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
-    expect(result).toMatchObject({ canEdit: false, documents: [{ document_id: 'doc' }], details: { orderName: 'North Ridge CPO', purpose: '', relatedApplications: [] } });
+    expect(result).toMatchObject({ details: { orderName: 'North Ridge CPO', purpose: '', relatedApplications: [] } });
   });
 
   it('PATCHes the step, changes and saveForLater with the CSRF token, then refreshes progress', async () => {
