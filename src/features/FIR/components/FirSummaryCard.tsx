@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { getFurtherInformationRequests } from '../services';
 import type { FurtherInformationRequest } from '../types';
 import { createLogger } from '../../../utils/logger';
-import { useAuthUserContext } from '../../../context/AuthUserContext';
-import { ROLES } from '../../../constants/roles';
 
 const logger = createLogger('FirSummaryCard');
 
@@ -21,7 +19,6 @@ const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
 }).format(new Date(date));
 
 export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, basePath }) => {
-  const { user } = useAuthUserContext();
   const [requests, setRequests] = useState<FurtherInformationRequest[]>([]);
 
   useEffect(() => {
@@ -80,7 +77,7 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
               </dl>
             </div>
           </section>
-          {user?.role !== ROLES.SUPERUSER && <Link className="govuk-button" to={`${basePath}/${openRequest.furtherInformationRequestId}/respond`}>Provide information</Link>}
+          <Link className="govuk-button" to={`${basePath}/${openRequest.furtherInformationRequestId}/respond`}>Provide information</Link>
         </>
       )}
       <p><Link className="govuk-link" to={basePath}>View all information requests</Link></p>
