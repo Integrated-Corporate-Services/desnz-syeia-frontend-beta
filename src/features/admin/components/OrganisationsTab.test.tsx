@@ -28,7 +28,11 @@ describe('OrganisationsTab', () => {
     expect(screen.getByRole('columnheader', { name: 'Action' })).toBeInTheDocument();
     expect(screen.queryByRole('columnheader', { name: 'Action(s)' })).not.toBeInTheDocument();
     expect(screen.getByText('SSE Networks')).toBeInTheDocument();
-    expect(screen.getByText('Jane Austen, Leo Tolstoy, Bob Mortimer')).toBeInTheDocument();
+    const coordinators = ['Jane Austen,', 'Leo Tolstoy,', 'Bob Mortimer'].map((name) => screen.getByText(name));
+    coordinators.forEach((coordinator) => {
+      expect(coordinator).toHaveClass('organisations-table__coordinator');
+    });
+    expect(coordinators[0].parentElement).toBe(coordinators[1].parentElement);
     expect(
       screen.getByText('1 Washington Street, Riverside Park, Worcester, Worcestershire, WR1 1NL')
     ).toBeInTheDocument();

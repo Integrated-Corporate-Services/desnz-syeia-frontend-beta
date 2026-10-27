@@ -77,10 +77,7 @@ describe('ManageOrganisationSettingsPage', () => {
       'jane.austen@sse.com,leo.tolstoy@sse.com,bob.mortimer@sse.co.uk'
     );
     expect(coordinatorsRow).not.toHaveTextContent('Jane Austen');
-    expect(within(coordinatorsRow as HTMLElement).getByRole('link', { name: 'Change team coordinators' })).toHaveAttribute(
-      'href',
-      '/admin/organisations/organisation-123/team-coordinators'
-    );
+    expect(within(coordinatorsRow as HTMLElement).queryByRole('link')).not.toBeInTheDocument();
 
     expect(screen.queryByText('Approved domains')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();

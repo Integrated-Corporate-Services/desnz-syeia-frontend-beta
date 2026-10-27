@@ -64,7 +64,11 @@ export const OrganisationsTab: React.FC<OrganisationsTabProps> = ({
                   <td className="govuk-table__cell"><strong>{org.organisation_name}</strong></td>
                   <td className="govuk-table__cell">
                     {org.team_coordinators?.length
-                      ? org.team_coordinators.join(', ')
+                      ? org.team_coordinators.map((name, index, names) => (
+                          <span key={`${name}-${index}`} className="organisations-table__coordinator">
+                            {index < names.length - 1 ? `${name},` : name}
+                          </span>
+                        ))
                       : ADMIN_COMMON_CONSTANTS.NOT_APPLICABLE}
                   </td>
                   <td className="govuk-table__cell">
