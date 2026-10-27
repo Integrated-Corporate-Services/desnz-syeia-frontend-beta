@@ -55,6 +55,19 @@ describe('Superuser applicant route permissions', () => {
     expect(await screen.findByText('Application page')).toBeInTheDocument();
   });
 
+  it('preserves the standalone S37 overview map', async () => {
+    renderApplication('s-37', 'route-map-only');
+    expect(await screen.findByText('Application page')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['nwl', 'route-map-only'], ['cpo', 'route-map-only'], ['s-37', 'route-map-only/edit'],
+  ])('does not broaden the map exemption to %s/%s', async (type, page) => {
+    const form = renderApplication(type, page);
+    expect(await screen.findByText('Read-only summary')).toBeInTheDocument();
+    expect(form).not.toHaveBeenCalled();
+  });
+
   it.each(['s-37', 'nwl'])('preserves the %s information-request listing', async type => {
     renderApplication(type, 'further-information-requests');
     expect(await screen.findByText('Application page')).toBeInTheDocument();

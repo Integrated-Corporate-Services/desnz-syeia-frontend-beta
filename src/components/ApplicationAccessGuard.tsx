@@ -63,6 +63,7 @@ const ApplicationAccessGuard: React.FC<ApplicationAccessGuardProps> = ({ childre
     const page = pathname.slice(basePath.length).replace(/\/+$/, '').toLowerCase();
     const summaryPage = /^\/cpo\//i.test(pathname) ? '/task-list' : '/application-summary';
     const allowedPages = [summaryPage, '/reassign', '/reassignment-history'];
+    if (/^\/s-37\//i.test(pathname)) allowedPages.push('/route-map-only');
     if (/^\/(s-37|nwl)\//i.test(pathname)) allowedPages.push('/further-information-requests');
     if (!allowedPages.includes(page)) {
       return <Navigate to={`${basePath}${summaryPage}`} replace />;
