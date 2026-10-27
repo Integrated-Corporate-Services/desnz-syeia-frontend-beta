@@ -7,6 +7,8 @@ import { useFirRoute } from '../hooks';
 import { getFurtherInformationRequest, getFurtherInformationRequests } from '../services';
 import type { FurtherInformationRequest } from '../types';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { ROLES } from '../../../constants/roles';
 
 const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
@@ -77,6 +79,7 @@ const RequestCard: React.FC<{
 
 export const FurtherInformationRequestsPage: React.FC = () => {
   const { applicationId, requestPath } = useFirRoute();
+  const { user } = useAuthUserContext();
   const [requests, setRequests] = useState<FurtherInformationRequest[]>([]);
   const [error, setError] = useState('');
 
@@ -115,7 +118,7 @@ export const FurtherInformationRequestsPage: React.FC = () => {
           key={request.furtherInformationRequestId}
           request={request}
           title={`Further information request ${openRequests.length - index}`}
-          action={<Link className="govuk-button" to={`${requestPath}/${request.furtherInformationRequestId}/respond`}>Provide information</Link>}
+          action={user?.role !== ROLES.SUPERUSER && <Link className="govuk-button" to={`${requestPath}/${request.furtherInformationRequestId}/respond`}>Provide information</Link>}
         />
       ))}
       {completedRequests.length > 0 && <>

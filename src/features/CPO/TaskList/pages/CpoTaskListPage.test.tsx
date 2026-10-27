@@ -63,11 +63,11 @@ it('unlocks application review when all seven prerequisites are complete', async
   expect(screen.getAllByRole('link', { name: 'Record your notices' })).toHaveLength(1);
 });
 
-it('keeps completed notices unfinished until requirements are acknowledged and reviewed', async () => {
+it('uses authoritative saved notice progress when all prerequisites are complete', async () => {
   vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(completed(Object.values(CPO_SUBSECTIONS)));
   renderPage();
-  expect((await screen.findByRole('link', { name: 'Record your notices' })).closest('li')).toHaveTextContent('Not completed');
-  expect(screen.getByText('Cannot start yet')).toBeInTheDocument();
+  expect((await screen.findByRole('link', { name: 'Record your notices' })).closest('li')).toHaveTextContent('Completed');
+  expect(screen.getByRole('link', { name: 'Check and submit your application' })).toBeInTheDocument();
 });
 
 it('does not show misleading task statuses after a task-list load failure', async () => {

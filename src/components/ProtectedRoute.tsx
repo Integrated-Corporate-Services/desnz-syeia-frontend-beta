@@ -1,5 +1,5 @@
 import React from 'react';
-import { matchPath, Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useMatch } from 'react-router-dom';
 import { useAuthUserContext } from '../context/AuthUserContext';
 import { ROLES } from '../constants/roles';
 
@@ -10,6 +10,10 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { authenticated, loading, user } = useAuthUserContext();
   const location = useLocation();
+  const chooseApplication = useMatch('/choose-application');
+  const s37Creation = useMatch('/s-37/who-is-applying');
+  const nwlCreation = useMatch('/nwl/who-is-applying');
+  const cpoCreation = useMatch('/cpo/who-is-applying');
 
   if (loading) {
     return (
@@ -34,9 +38,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/access-revoked" replace />;
   }
 
-  if (user?.role === ROLES.SUPERUSER && [
-    '/choose-application', '/s-37/who-is-applying', '/nwl/who-is-applying', '/cpo/who-is-applying',
-  ].some(path => matchPath(path, location.pathname))) {
+  if (user?.role === ROLES.SUPERUSER && (chooseApplication || s37Creation || nwlCreation || cpoCreation)) {
     return <Navigate to="/application-dashboard" replace />;
   }
 
