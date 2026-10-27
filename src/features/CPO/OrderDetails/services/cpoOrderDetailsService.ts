@@ -12,7 +12,7 @@ async function readResponse(response: Response): Promise<OrderDetailsResponse> {
         : response.status === 403 ? 'You do not have permission to update this application.'
           : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
             : 'Unable to load or save order details. Try again.';
-    throw new Error(message);
+    throw Object.assign(new Error(message), { status: response.status });
   }
   const result: OrderDetailsResponse = await response.json();
   return { details: { ...EMPTY_ORDER_DETAILS, ...result.details }, documents: result.documents || [], canEdit: result.canEdit };
