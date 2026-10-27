@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../../styles/TabNavigation.css';
+import { TAB_NAVIGATION_CONSTANTS } from '../constants/userManagementConstants';
 
 interface TabNavigationProps {
   activeTab: 'organisations' | 'active-users' | 'pending-requests';
@@ -17,9 +18,9 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   style
 }) => {
   const tabs: { value: TabNavigationProps['activeTab']; label: string }[] = [
-    ...(organisationsEnabled ? [{ value: 'organisations' as const, label: 'Organisations' }] : []),
-    { value: 'active-users' as const, label: 'Active users' },
-    { value: 'pending-requests' as const, label: `Access requests (${pendingCount})` },
+    ...(organisationsEnabled ? [{ value: 'organisations' as const, label: TAB_NAVIGATION_CONSTANTS.ORGANISATIONS }] : []),
+    { value: 'active-users' as const, label: TAB_NAVIGATION_CONSTANTS.ACTIVE_USERS },
+    { value: 'pending-requests' as const, label: TAB_NAVIGATION_CONSTANTS.ACCESS_REQUESTS(pendingCount) },
   ];
 
   /**

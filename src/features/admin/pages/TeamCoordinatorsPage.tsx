@@ -4,6 +4,7 @@ import { useTeamCoordinators, useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { TEAM_COORDINATORS_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 
 const TeamCoordinatorsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -16,7 +17,7 @@ const TeamCoordinatorsPage: React.FC = () => {
 
   useBreadcrumb(
     <Link to={settingsPath} className="govuk-back-link">
-      Back
+      {ADMIN_COMMON_CONSTANTS.BACK}
     </Link>
   );
 
@@ -49,7 +50,7 @@ const TeamCoordinatorsPage: React.FC = () => {
             <div className="govuk-grid-column-two-thirds">
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
-                  There is a problem
+                  {ADMIN_COMMON_CONSTANTS.ERROR_SUMMARY_TITLE}
                 </h2>
                 <div className="govuk-error-summary__body">
                   <p className="govuk-body">{error}</p>
@@ -64,17 +65,17 @@ const TeamCoordinatorsPage: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="Manage team coordinators" />
+      <PageTitle title={TEAM_COORDINATORS_CONSTANTS.TITLE} />
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {organisation?.organisation_name && (
               <span className="govuk-caption-l govuk-!-margin-top-6">{organisation.organisation_name}</span>
             )}
-            <h1 className="govuk-heading-l">Manage team coordinators ({sortedCoordinators.length})</h1>
+            <h1 className="govuk-heading-l">{TEAM_COORDINATORS_CONSTANTS.HEADING(sortedCoordinators.length)}</h1>
 
             <p className="govuk-body">
-              Manage the team coordinators who review access requests and manage users for this organisation.
+              {TEAM_COORDINATORS_CONSTANTS.INTRO}
             </p>
           </div>
         </div>
@@ -84,16 +85,16 @@ const TeamCoordinatorsPage: React.FC = () => {
             <table className="govuk-table">
               <thead className="govuk-table__head">
                 <tr className="govuk-table__row">
-                  <th scope="col" className="govuk-table__header">Full name</th>
-                  <th scope="col" className="govuk-table__header">Email address</th>
-                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">Action</th>
+                  <th scope="col" className="govuk-table__header">{TEAM_COORDINATORS_CONSTANTS.TABLE_HEADERS.FULL_NAME}</th>
+                  <th scope="col" className="govuk-table__header">{TEAM_COORDINATORS_CONSTANTS.TABLE_HEADERS.EMAIL_ADDRESS}</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">{TEAM_COORDINATORS_CONSTANTS.TABLE_HEADERS.ACTION}</th>
                 </tr>
               </thead>
               <tbody className="govuk-table__body">
                 {sortedCoordinators.length === 0 ? (
                   <tr className="govuk-table__row">
                     <td className="govuk-table__cell" colSpan={3}>
-                      No team coordinators found
+                      {TEAM_COORDINATORS_CONSTANTS.NO_COORDINATORS}
                     </td>
                   </tr>
                 ) : (
@@ -107,7 +108,7 @@ const TeamCoordinatorsPage: React.FC = () => {
                           to={`/admin/manage-user/${coordinator.user_id}`}
                           state={{ from: `/admin/organisations/${organisationId}/team-coordinators`, organisationId }}
                         >
-                          Manage<span className="govuk-visually-hidden"> {coordinator.fullName}</span>
+                          {TEAM_COORDINATORS_CONSTANTS.MANAGE}<span className="govuk-visually-hidden"> {coordinator.fullName}</span>
                         </Link>
                       </td>
                     </tr>

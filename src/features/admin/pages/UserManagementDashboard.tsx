@@ -6,6 +6,7 @@ import { ActiveUsersTab } from "../components/ActiveUsersTab";
 import { PendingRequestsTab } from "../components/PendingRequestsTab";
 import "../../../styles/DashboardMobile.css";
 import PageTitle from "../../../components/PageTitle";
+import { USER_MANAGEMENT_DASHBOARD_CONSTANTS } from "../constants/userManagementConstants";
 
 const UserManagementDashboard: React.FC = () => {
   const {
@@ -35,15 +36,15 @@ const UserManagementDashboard: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="User management dashboard" />
+      <PageTitle title={USER_MANAGEMENT_DASHBOARD_CONSTANTS.PAGE_TITLE} />
             <div className="govuk-width-container user-management-dashboard">
               <div className="govuk-grid-row">
           <div className="govuk-grid-column-full">
-            <h1 className="govuk-heading-l">User Management Dashboard</h1>
+            <h1 className="govuk-heading-l">{USER_MANAGEMENT_DASHBOARD_CONSTANTS.HEADING}</h1>
             <p className="govuk-body-m">
               {isSuperUser
-                ? "Manage all applicant organisations, access requests and users."
-                : "Manage access request and users for your Organisation"}
+                ? USER_MANAGEMENT_DASHBOARD_CONSTANTS.INTRO_SUPERUSER
+                : USER_MANAGEMENT_DASHBOARD_CONSTANTS.INTRO_TEAM_COORDINATOR}
             </p>
 
             <TabNavigation

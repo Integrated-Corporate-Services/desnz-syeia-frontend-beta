@@ -7,6 +7,7 @@ import { ROLES } from '../../../constants/roles';
 import { formatUserRoleLabel } from '../../../utils/roleUtils';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { REVOKE_USER_ACCESS_CONSTANTS, USER_DETAILS_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -31,7 +32,7 @@ const RevokeUserAccessPage: React.FC = () => {
       className="govuk-back-link"
       onClick={handleBack}
     >
-      Back
+      {ADMIN_COMMON_CONSTANTS.BACK}
     </a>
   );
 
@@ -53,7 +54,7 @@ const RevokeUserAccessPage: React.FC = () => {
   }
 
   const formatLastLogin = (lastLogin: string | null) => {
-    if (!lastLogin) return 'Never';
+    if (!lastLogin) return USER_DETAILS_CONSTANTS.LAST_LOGIN_NEVER;
     const date = new Date(lastLogin);
     return date.toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -74,10 +75,10 @@ const RevokeUserAccessPage: React.FC = () => {
                 <div className="govuk-width-container">
                       <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
               <h2 className="govuk-error-summary__title" id="error-summary-title">
-                User not found
+                {ADMIN_COMMON_CONSTANTS.USER_NOT_FOUND_TITLE}
               </h2>
               <div className="govuk-error-summary__body">
-                <p className="govuk-body">The user you are trying to revoke access for could not be found.</p>
+                <p className="govuk-body">{REVOKE_USER_ACCESS_CONSTANTS.NOT_FOUND_MESSAGE}</p>
               </div>
             </div>
             <a
@@ -85,7 +86,7 @@ const RevokeUserAccessPage: React.FC = () => {
               className="govuk-link"
               onClick={handleBack}
             >
-              Return to user management
+              {ADMIN_COMMON_CONSTANTS.RETURN_TO_USER_MANAGEMENT}
             </a>
                   </div>
       </>
@@ -94,51 +95,51 @@ const RevokeUserAccessPage: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="Revoke access" />
+      <PageTitle title={REVOKE_USER_ACCESS_CONSTANTS.TITLE} />
             <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-l">Revoke access</h1>
+            <h1 className="govuk-heading-l">{REVOKE_USER_ACCESS_CONSTANTS.TITLE}</h1>
 
             <p className="govuk-body">
-              This action cannot be undone. This user will no longer be able to coordinate access requests for this organisation and will no longer be able to submit applications on the organisation's behalf.
+              {REVOKE_USER_ACCESS_CONSTANTS.WARNING}
             </p>
 
             <dl className="govuk-summary-list govuk-!-margin-bottom-6">
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Full name</dt>
+                <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.FULL_NAME}</dt>
                 <dd className="govuk-summary-list__value">{user.fullName}</dd>
               </div>
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Organisation</dt>
+                <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.ORGANISATION}</dt>
                 <dd className="govuk-summary-list__value">{user.organisation}</dd>
               </div>
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Email address</dt>
+                <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.EMAIL_ADDRESS}</dt>
                 <dd className="govuk-summary-list__value">{user.email}</dd>
               </div>
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Phone number</dt>
-                <dd className="govuk-summary-list__value">{user.phone || '-'}</dd>
+                <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.PHONE_NUMBER}</dt>
+                <dd className="govuk-summary-list__value">{user.phone || USER_DETAILS_CONSTANTS.NOT_PROVIDED}</dd>
               </div>
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Role</dt>
+                <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.ROLE}</dt>
                 <dd className="govuk-summary-list__value">{formatRole(user.role)}</dd>
               </div>
               {user.role === ROLES.APPLICANT_AGENT && (
                 <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Agency name</dt>
-                  <dd className="govuk-summary-list__value">{user.agencyName || '-'}</dd>
+                  <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.AGENCY_NAME}</dt>
+                  <dd className="govuk-summary-list__value">{user.agencyName || USER_DETAILS_CONSTANTS.NOT_PROVIDED}</dd>
                 </div>
               )}
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Status</dt>
+                <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.STATUS}</dt>
                 <dd className="govuk-summary-list__value">
-                  <strong className="govuk-tag govuk-tag--green">Active</strong>
+                  <strong className="govuk-tag govuk-tag--green">{USER_DETAILS_CONSTANTS.STATUS_ACTIVE}</strong>
                 </dd>
               </div>
               <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Last login</dt>
+                <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.LAST_LOGIN}</dt>
                 <dd className="govuk-summary-list__value">
                   {formatLastLogin(user.lastLogin)}
                 </dd>
@@ -151,7 +152,7 @@ const RevokeUserAccessPage: React.FC = () => {
               onClick={handleRevokeAccess}
               disabled={processing}
             >
-              {processing ? 'Revoking access...' : 'Revoke access'}
+              {processing ? REVOKE_USER_ACCESS_CONSTANTS.REVOKING : REVOKE_USER_ACCESS_CONSTANTS.TITLE}
             </button>
 
             <p className="govuk-body">
@@ -163,7 +164,7 @@ const RevokeUserAccessPage: React.FC = () => {
                   navigateToDashboard();
                 }}
               >
-                Return to dashboard
+                {ADMIN_COMMON_CONSTANTS.RETURN_TO_DASHBOARD}
               </a>
             </p>
           </div>
