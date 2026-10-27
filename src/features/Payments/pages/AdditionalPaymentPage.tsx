@@ -66,7 +66,10 @@ export default function AdditionalPaymentPage() {
         }
         if (active) setPayment(result);
       } catch (reason) {
-        if (active) setError(reason instanceof Error ? reason.message : 'We could not load this additional payment. Please try again.');
+        if (active) {
+          setPayment(null);
+          setError(reason instanceof Error ? reason.message : 'We could not load this additional payment. Please try again.');
+        }
       } finally { if (active) setLoading(false); }
     }
     void load();
