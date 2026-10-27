@@ -6,14 +6,10 @@ import { CPO_TASK_SECTIONS } from '../constants/cpoTaskListConstants';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import { useCpoTaskList } from '../hooks/useCpoTaskList';
 import CpoTaskListSection from '../components/CpoTaskListSection';
-import { useAuthUserContext } from '../../../../context/AuthUserContext';
-import { ROLES } from '../../../../constants/roles';
 
 const CpoTaskListPage: React.FC = () => {
   const applicationId = useCpoApplicationId();
   const navigate = useNavigate();
-  const { user } = useAuthUserContext();
-  const readOnly = user?.role === ROLES.SUPERUSER;
   const { application, loading, error, statusOf } = useCpoTaskList(applicationId);
   const errorSummary = useRef<HTMLDivElement>(null);
 
@@ -34,9 +30,9 @@ const CpoTaskListPage: React.FC = () => {
               {application?.application_party?.organisation_name || application?.operator_name || ''}
             </span>
             <h1 className="govuk-heading-l">{applicationTitle}</h1>
-            {!readOnly && <p className="govuk-body">
+            <p className="govuk-body">
               Complete the following sections in order to create and submit your application.
-            </p>}
+            </p>
 
             {CPO_TASK_SECTIONS.map((section, sectionIndex) => (
               <CpoTaskListSection
@@ -45,13 +41,12 @@ const CpoTaskListPage: React.FC = () => {
                 sectionIndex={sectionIndex}
                 applicationId={applicationId}
                 statusOf={statusOf}
-                readOnly={readOnly}
               />
             ))}
             </>}
           </div>
         </div>
-        {!readOnly && <div className="govuk-grid-row">
+        <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <button
               className="govuk-button govuk-button--warning"
@@ -62,7 +57,7 @@ const CpoTaskListPage: React.FC = () => {
               Delete application
             </button>
           </div>
-        </div>}
+        </div>
       </div>
     </>
   );
