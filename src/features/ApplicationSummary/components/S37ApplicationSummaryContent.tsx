@@ -11,7 +11,7 @@ import { ApplicationReviewSummaryData } from '../types/reviewSummary';
 import { WithdrawalRequest } from '../types';
 import { SummaryWithdrawButton } from './SummaryWithdrawButton';
 import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
-import { AdditionalPaymentSummary } from '../../Payments/AdditionalPaymentSummary';
+import { AdditionalPaymentSummary } from '../../Payments/components/AdditionalPaymentSummary';
 
 interface S37ApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;

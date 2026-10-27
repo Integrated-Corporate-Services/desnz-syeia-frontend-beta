@@ -628,10 +628,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       );
 
       const message = err instanceof Error ? err.message : 'Failed to upload files. Please try again.';
-      onValidationErrorsRef.current?.([message]);
+      if (onValidationErrorsRef.current) {
+        onValidationErrorsRef.current([message]);
+      }
 
       logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
-      return { uploadedFiles: [], applicationDocuments: [], scanErrors: [message] };
+      return { uploadedFiles: [], applicationDocuments: [], scanErrors: uploadEndpoints ? [message] : [] };
     } finally {
       setIsScanning(false);
     }

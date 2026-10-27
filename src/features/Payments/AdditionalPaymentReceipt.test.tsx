@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { AdditionalPaymentReceipt } from './AdditionalPaymentReceipt';
+import { AdditionalPaymentReceipt } from './components/AdditionalPaymentReceipt';
 import type { AdditionalPaymentRequest } from '../../services/additionalPaymentsService';
 
 const payment: AdditionalPaymentRequest = {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AdditionalPaymentRequest, downloadAdditionalInvoice } from '../../services/additionalPaymentsService';
+import { AdditionalPaymentRequest, downloadAdditionalInvoice } from '../../../services/additionalPaymentsService';
 
 export function AdditionalInvoiceLink({ payment, className = 'govuk-link', children }: { payment: AdditionalPaymentRequest; className?: string; children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);

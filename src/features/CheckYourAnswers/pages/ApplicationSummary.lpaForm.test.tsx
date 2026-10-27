@@ -29,7 +29,7 @@ vi.mock('../../ApplicationReassignment/components/ReassignmentSuccessBanner', ()
 vi.mock('../../FIR/components/FirSummaryCard', () => ({ FirSummaryCard: () => null }));
 vi.mock('../../../components/SensitiveAreaCheckMap', () => ({ default: () => null }));
 vi.mock('../component/S37SummaryPdfDownloadLink', () => ({ S37SummaryPdfDownloadLink: () => null }));
-vi.mock('../../Payments/AdditionalPaymentSummary', () => ({
+vi.mock('../../Payments/components/AdditionalPaymentSummary', () => ({
   AdditionalPaymentSummary: ({ applicationId, baseUrl }: { applicationId: string; baseUrl: string }) => (
     <div data-testid="additional-payments" data-application-id={applicationId} data-base-url={baseUrl} />
   ),
