@@ -52,7 +52,7 @@ describe('TeamCoordinatorsPage (SYEIA-2745)', () => {
 
   it('shows the organisation caption, heading with count and intro', () => {
     renderPage();
-    expect(screen.getByText('SSE Networks')).toHaveClass('govuk-caption-xl');
+    expect(screen.getByText('SSE Networks')).toHaveClass('govuk-caption-l');
     expect(screen.getByRole('heading', { level: 1, name: 'Manage team coordinators (3)' })).toBeInTheDocument();
     expect(
       screen.getByText('Manage the team coordinators who review access requests and manage users for this organisation.')

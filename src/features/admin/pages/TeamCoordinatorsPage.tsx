@@ -69,14 +69,18 @@ const TeamCoordinatorsPage: React.FC = () => {
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             {organisation?.organisation_name && (
-              <span className="govuk-caption-xl govuk-!-margin-top-6">{organisation.organisation_name}</span>
+              <span className="govuk-caption-l govuk-!-margin-top-6">{organisation.organisation_name}</span>
             )}
-            <h1 className="govuk-heading-xl">Manage team coordinators ({sortedCoordinators.length})</h1>
+            <h1 className="govuk-heading-l">Manage team coordinators ({sortedCoordinators.length})</h1>
 
             <p className="govuk-body">
               Manage the team coordinators who review access requests and manage users for this organisation.
             </p>
+          </div>
+        </div>
 
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-full">
             <table className="govuk-table">
               <thead className="govuk-table__head">
                 <tr className="govuk-table__row">
