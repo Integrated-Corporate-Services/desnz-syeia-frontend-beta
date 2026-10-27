@@ -6,7 +6,7 @@ outside this repository's scope.
 
 ## Deployment
 
-Deploy the companion backend and its V1.41 additional-payments migration first. Existing session,
+Deploy the companion backend and its V1.42 additional-payments migration first. Existing session,
 CSRF, API-origin and upload/scanner configuration applies. There is no new
 frontend feature flag. The backend must return an empty request list for
 applications without additional payments. Its integration guide documents the
@@ -20,10 +20,13 @@ Routes are beneath
 These routes never invoke application submission. Invoice references and
 amounts come from the backend, not initial-fee calculation or router state.
 
-An unpaid provider result does not establish failure. The result screen permits
-retry only when backend verification returns `card_outcome: FAILED`. Pending
-or unavailable verification offers a status check instead. Request withdrawal
-removes payment actions, with server-side checks authoritative for stale tabs.
+An unpaid provider result does not establish failure. Unpaid requests are checked
+on page entry and again before payment mutations. Existing non-failed card
+attempts offer a status check; retry requires `card_outcome: FAILED`. An omitted
+card outcome does not indicate a pending attempt on ordinary payment pages.
+The result screen still requires confirmed failure before retrying. Request
+withdrawal removes payment actions, with backend idempotency and status checks
+remaining authoritative for stale tabs and concurrent requests.
 
 Evidence is optional. Uploads use request-scoped presign/confirm endpoints and
 the existing file scanner. Include the confirmed clean file IDs with BACS
