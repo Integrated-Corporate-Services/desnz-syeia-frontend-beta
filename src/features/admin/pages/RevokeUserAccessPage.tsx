@@ -8,6 +8,7 @@ import { formatUserRoleLabel } from '../../../utils/roleUtils';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { REVOKE_USER_ACCESS_CONSTANTS, USER_DETAILS_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
+import { findUserForOrganisation } from '../utils/findUserForOrganisation';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -19,7 +20,7 @@ const RevokeUserAccessPage: React.FC = () => {
   const { navigateToAccessRevoked, navigateToDashboard } = useManageUsersNavigation();
   const [processing, setProcessing] = useState(false);
 
-  const user = users.find(u => u.id === userId);
+  const user = findUserForOrganisation(users, userId, organisationId);
 
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();

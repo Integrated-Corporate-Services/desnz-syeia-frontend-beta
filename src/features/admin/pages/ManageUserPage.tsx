@@ -8,6 +8,7 @@ import { isManageUserRoleChangeEnabled } from '../../../config/appConfig';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { MANAGE_USER_CONSTANTS, USER_DETAILS_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
+import { findUserForOrganisation } from '../utils/findUserForOrganisation';
 
 const ManageUserPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -19,7 +20,7 @@ const ManageUserPage: React.FC = () => {
   const actionState = from ? { from, organisationId } : undefined;
   const backPath = from ?? '/admin/user-management?tab=active-users';
 
-  const user = users.find(u => u.id === userId);
+  const user = findUserForOrganisation(users, userId, organisationId);
 
   useBreadcrumb(
     <Link to={backPath} className="govuk-back-link">
