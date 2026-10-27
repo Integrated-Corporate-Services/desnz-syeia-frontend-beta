@@ -11,8 +11,9 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-  // Keep the Manage user page's own Back destination (e.g. the team coordinators list)
-  const from = (useLocation().state as { from?: string } | null)?.from;
+  // Keep the Manage user page's own Back destination (e.g. the team coordinators list), and the
+  // organisation that list shows, so the revoke targets that membership rather than the signed-in user's
+  const { from, organisationId } = (useLocation().state as { from?: string; organisationId?: string } | null) ?? {};
   const { users, loading, confirmRevokeAccess } = useManageUsers();
   const { navigateToAccessRevoked, navigateToDashboard } = useManageUsersNavigation();
   const [processing, setProcessing] = useState(false);
@@ -21,7 +22,7 @@ const RevokeUserAccessPage: React.FC = () => {
 
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigate(`/admin/manage-user/${userId}`, from ? { state: { from } } : undefined);
+    navigate(`/admin/manage-user/${userId}`, from ? { state: { from, organisationId } } : undefined);
   };
 
   useBreadcrumb(
@@ -37,7 +38,7 @@ const RevokeUserAccessPage: React.FC = () => {
   const handleRevokeAccess = async () => {
     if (!userId) return;
     setProcessing(true);
-    await confirmRevokeAccess(userId, navigateToAccessRevoked);
+    await confirmRevokeAccess(userId, navigateToAccessRevoked, organisationId);
     setProcessing(false);
   };
 

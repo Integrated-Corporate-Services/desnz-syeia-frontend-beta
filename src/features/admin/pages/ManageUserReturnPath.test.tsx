@@ -12,9 +12,10 @@ const user = {
   role: 'APPLICANT_USER', lastLogin: null, organisationIds: ['org-a'],
   organisationMemberships: [{ organisationId: 'org-a', organisationName: 'Network A', role: 'APPLICANT_USER' }],
 };
+const revoke = vi.hoisted(() => vi.fn());
 vi.mock('../../../config/appConfig', () => ({ isManageUserRoleChangeEnabled: () => true }));
 vi.mock('../../../hooks/useManageUsers', () => ({
-  useManageUsers: () => ({ users: [user], loading: false, confirmRevokeAccess: vi.fn() }),
+  useManageUsers: () => ({ users: [user], loading: false, confirmRevokeAccess: revoke }),
 }));
 vi.mock('../../../hooks/useManageUsersNavigation', () => ({
   useManageUsersNavigation: () => ({ navigateToAccessRevoked: vi.fn(), navigateToDashboard: vi.fn() }),
@@ -26,10 +27,10 @@ vi.mock('../../../context/AuthUserContext', () => ({
 const LIST = '/admin/organisations/org-a/team-coordinators';
 function List() { return <div>Coordinator list:{useLocation().pathname}</div>; }
 
-function mount() {
+function mount(state: Record<string, string> = { from: LIST }) {
   return render(
     <BreadcrumbProvider>
-      <MemoryRouter initialEntries={[{ pathname: '/admin/manage-user/u1', state: { from: LIST } }]}>
+      <MemoryRouter initialEntries={[{ pathname: '/admin/manage-user/u1', state }]}>
         <Breadcrumb />
         <Routes>
           <Route path="/admin/manage-user/:userId" element={<ManageUserPage />} />
@@ -62,6 +63,13 @@ describe('Manage user keeps the coordinator list return path (PR #588 review)', 
     expect(await screen.findByRole('link', { name: 'Revoke access' })).toBeInTheDocument();
     back();
     expect(await screen.findByText(`Coordinator list:${LIST}`)).toBeInTheDocument();
+  });
+
+  it('Revoke access targets the organisation from the coordinator list', async () => {
+    mount({ from: LIST, organisationId: 'org-b' });
+    fireEvent.click(screen.getByRole('link', { name: 'Revoke access' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Revoke access' }));
+    expect(revoke).toHaveBeenCalledWith('u1', expect.any(Function), 'org-b');
   });
 
   it('Revoke access, then Back, then Back returns to the coordinator list', async () => {

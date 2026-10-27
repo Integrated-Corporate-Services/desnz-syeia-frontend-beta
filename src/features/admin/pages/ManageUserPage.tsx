@@ -13,7 +13,9 @@ const ManageUserPage: React.FC = () => {
   const location = useLocation();
   const { users, loading } = useManageUsers();
   // Pages that link here (e.g. the team coordinators list) pass `from` so Back returns to them
-  const from = (location.state as { from?: string } | null)?.from;
+  // The team coordinators list also passes its organisation, so Revoke access targets that membership
+  const { from, organisationId } = (location.state as { from?: string; organisationId?: string } | null) ?? {};
+  const actionState = from ? { from, organisationId } : undefined;
   const backPath = from ?? '/admin/user-management?tab=active-users';
 
   const user = users.find(u => u.id === userId);
@@ -103,7 +105,7 @@ const ManageUserPage: React.FC = () => {
                     membership => membership.role === ROLES.APPLICANT_USER || membership.role === ROLES.APPLICANT_TEAM_COORDINATOR
                   ))) && (
                   <dd className="govuk-summary-list__actions">
-                    <Link className="govuk-link" to={`/admin/manage-user/${userId}/change-role`} state={from ? { from } : undefined}>
+                    <Link className="govuk-link" to={`/admin/manage-user/${userId}/change-role`} state={actionState}>
                       Change<span className="govuk-visually-hidden"> role</span>
                     </Link>
                   </dd>
@@ -135,7 +137,7 @@ const ManageUserPage: React.FC = () => {
               <p className="govuk-body">
                 <Link 
                   to={`/admin/revoke-user/${userId}`}
-                  state={from ? { from } : undefined}
+                  state={actionState}
                   className="govuk-link"
                 >
                   Revoke access

@@ -101,7 +101,7 @@ const TeamCoordinatorsPage: React.FC = () => {
                         <Link
                           className="govuk-link"
                           to={`/admin/manage-user/${coordinator.user_id}`}
-                          state={{ from: `/admin/organisations/${organisationId}/team-coordinators` }}
+                          state={{ from: `/admin/organisations/${organisationId}/team-coordinators`, organisationId }}
                         >
                           Manage<span className="govuk-visually-hidden"> {coordinator.fullName}</span>
                         </Link>

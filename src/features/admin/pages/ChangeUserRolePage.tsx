@@ -37,8 +37,10 @@ const ChangeUserRolePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   // Keep the Manage user page's own Back destination (e.g. the team coordinators list)
-  const from = (useLocation().state as { from?: string } | null)?.from;
-  const returnState = from ? { state: { from } } : undefined;
+  const listState = useLocation().state as { from?: string; organisationId?: string } | null;
+  const returnState = listState?.from
+    ? { state: { from: listState.from, organisationId: listState.organisationId } }
+    : undefined;
   const { users, loading } = useManageUsers();
   const user = users.find(u => u.id === userId);
   const { user: actor } = useAuthUserContext();
@@ -96,7 +98,7 @@ const ChangeUserRolePage: React.FC = () => {
   );
 
   if (!isManageUserRoleChangeEnabled()) {
-    return <Navigate to={`/admin/manage-user/${userId}`} state={from ? { from } : undefined} replace />;
+    return <Navigate to={`/admin/manage-user/${userId}`} state={returnState?.state} replace />;
   }
 
   const handleSaveChanges = async () => {
@@ -157,7 +159,7 @@ const ChangeUserRolePage: React.FC = () => {
 
   const canChangeRole = memberships.length > 0 || ROLE_OPTIONS.some(option => option.value === user.role);
   if (!canChangeRole) {
-    return <Navigate to={`/admin/manage-user/${userId}`} state={from ? { from } : undefined} replace />;
+    return <Navigate to={`/admin/manage-user/${userId}`} state={returnState?.state} replace />;
   }
 
   return (
@@ -255,7 +257,7 @@ const ChangeUserRolePage: React.FC = () => {
             </button>
 
             <p className="govuk-body">
-              <Link to={`/admin/manage-user/${userId}`} state={from ? { from } : undefined} className="govuk-link">
+              <Link to={`/admin/manage-user/${userId}`} state={returnState?.state} className="govuk-link">
                 Return to manage user
               </Link>
             </p>
