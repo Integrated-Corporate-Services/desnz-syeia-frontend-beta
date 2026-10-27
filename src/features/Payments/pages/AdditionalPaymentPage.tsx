@@ -150,7 +150,20 @@ export default function AdditionalPaymentPage() {
   } else if (step === 'invoice') {
     title = 'Your invoice'; content = payment.invoice ? <><p className="govuk-body">Your invoice number is:<br /><strong>{payment.invoice.invoice_number}</strong></p><p className="govuk-body"><AdditionalInvoiceLink payment={payment} className="govuk-button govuk-button--secondary">Download invoice (PDF)</AdditionalInvoiceLink></p><div className="govuk-button-group">{button('Continue to payment', () => navigate(`${root}/payment-method`))}</div></> : <><p className="govuk-body">Generate an invoice for this additional payment before continuing.</p>{button('Generate invoice', () => void invoice())}</>;
   } else if (step === 'payment-method') {
-    title = 'Choose payment method'; content = <><p className="govuk-body">You must pay <strong>{amount}</strong> to settle this additional payment invoice.</p><p className="govuk-body">You will be redirected to a secure page to pay by credit or debit card.</p><p className="govuk-body">This is the fastest way to pay and helps avoid any delays when processing your application.</p><Details id="additional-bank-transfer" summary="I cannot pay by card and need another way to pay"><p className="govuk-body">If you cannot pay by credit or debit card, you can pay by bank transfer (BACS).</p><p className="govuk-body">Your additional payment's status will show as 'Processing additional payment' until we have reconciled your payment.</p><button className="govuk-button govuk-button--secondary" disabled={busy || !actionable} onClick={() => navigate(`${root}/bank-transfer`)}>Pay by bank transfer</button></Details>{button(busy ? 'Processing...' : 'Pay by card', () => void card())}</>;
+    title = 'Choose payment method';
+    content = (
+      <>
+        <p className="govuk-body">You must pay <strong>{amount}</strong> to settle this additional payment invoice.</p>
+        <p className="govuk-body">You will be redirected to a secure page to pay by credit or debit card.</p>
+        <p className="govuk-body">This is the fastest way to pay and helps avoid any delays when processing your application.</p>
+        <Details id="additional-bank-transfer" summary="I cannot pay by card and need another way to pay">
+          <p className="govuk-body">If you cannot pay by credit or debit card, you can pay by bank transfer (BACS).</p>
+          <p className="govuk-body">Your additional payment's status will show as 'Processing additional payment' until we have reconciled your payment.</p>
+          <button className="govuk-button govuk-button--secondary" disabled={busy || !actionable} onClick={() => navigate(`${root}/bank-transfer`)}>Pay by bank transfer</button>
+        </Details>
+        {button(busy ? 'Processing...' : 'Pay by card', () => void card())}
+      </>
+    );
   } else if (step === 'result') {
     title = 'The payment was unsuccessful'; content = <><div className="govuk-notification-banner"><div className="govuk-notification-banner__header"><h2 className="govuk-notification-banner__title">Important</h2></div><div className="govuk-notification-banner__content"><h1 className="govuk-notification-banner__heading">The payment was unsuccessful</h1></div></div><p className="govuk-body">No money has been taken from your account.</p><p className="govuk-body">Payments can fail if:</p><ul className="govuk-list govuk-list--bullet"><li>your card details were incorrect</li><li>your card has expired</li><li>your card type is not accepted</li><li>your bank declined the payment</li><li>there was a temporary problem with the payment service</li></ul><h2 className="govuk-heading-m">What happens next</h2><p className="govuk-body">You can try to pay by card again or return to your application summary. The additional payment request stays open until it is paid. Contact your bank if the payment fails again.</p>{button(busy ? 'Processing...' : 'Pay by card', () => void card())}</>;
   } else if (step === 'bank-transfer') {
