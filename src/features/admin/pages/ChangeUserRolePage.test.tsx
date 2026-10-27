@@ -92,6 +92,28 @@ describe('organisation-scoped role changes', () => {
     vi.mocked(userService.updateUserRole).mockResolvedValue({ success: false, message: 'Insufficient permissions' }); mount();
     fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
     expect(await screen.findAllByText('Insufficient permissions')).toHaveLength(2);
-    expect(screen.getByRole('heading', { name: 'Which role applies to this user?' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Choose a role for this user' })).toBeInTheDocument();
+  });
+});
+
+describe('ChangeUserRolePage content (SYEIA-2731)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks(); state.actor = { role: 'SUPERUSER', organisation_id: 'superusers-own-org' };
+    state.users = [target()];
+  });
+  it('uses the design heading', () => {
+    mount();
+    expect(screen.getByRole('heading', { level: 1, name: 'Choose a role for this user' })).toBeInTheDocument();
+    expect(screen.queryByText('Which role applies to this user?')).not.toBeInTheDocument();
+  });
+  it('shows the design descriptions for both roles', () => {
+    mount();
+    expect(
+      screen.getByText("Can create, edit and submit their own applications, and view their organisation's applications.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Can manage access for all users and create, edit and submit all applications for their organisation.')
+    ).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Team coordinator' })).toBeInTheDocument();
   });
 });

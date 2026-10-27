@@ -73,7 +73,9 @@ export const useManageUsers = () => {
 
   const confirmRevokeAccess = async (
     userId: string,
-    onSuccess: (data: { userName: string; userEmail: string }) => void
+    onSuccess: (data: { userName: string; userEmail: string }) => void,
+    // Organisation of the membership to revoke; defaults to the signed-in user's organisation
+    organisationId?: string
   ) => {
     const user = users.find((u) => u.id === userId);
     if (user) {
@@ -81,7 +83,7 @@ export const useManageUsers = () => {
         const response = await userService.suspendUser(
           userId,
           "Access revoked by administrator",
-          userOrganisationId
+          organisationId ?? userOrganisationId
         );
         if (response.success) {
           // Reload users to reflect the change

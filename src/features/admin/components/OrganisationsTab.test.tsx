@@ -25,6 +25,8 @@ describe('OrganisationsTab', () => {
     );
 
     expect(screen.getByText('1 result')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Action' })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Action(s)' })).not.toBeInTheDocument();
     expect(screen.getByText('SSE Networks')).toBeInTheDocument();
     expect(screen.getByText('Jane Austen, Leo Tolstoy, Bob Mortimer')).toBeInTheDocument();
     expect(

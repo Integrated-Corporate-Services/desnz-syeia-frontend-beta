@@ -15,6 +15,17 @@ const props = {
   currentPage: 1, totalPages: 1, handlePageChange: vi.fn(),
 };
 
+describe('PendingRequestsTab wording (SYEIA-2703)', () => {
+  const noRequests = { ...props, pendingRequests: [], paginatedRequests: [], navigateToReviewRequest: vi.fn() };
+
+  it('shows "Access requests" and "No access requests." for every role', () => {
+    render(<PendingRequestsTab {...noRequests} />);
+    expect(screen.getByRole('heading', { name: 'Access requests' })).toBeInTheDocument();
+    expect(screen.getAllByText('No access requests.').length).toBeGreaterThan(0);
+    expect(screen.queryByText('No pending access requests.')).not.toBeInTheDocument();
+  });
+});
+
 describe('pending access requests for the same agent', () => {
   it('passes the organisation for every desktop and mobile review action', () => {
     const review = vi.fn();

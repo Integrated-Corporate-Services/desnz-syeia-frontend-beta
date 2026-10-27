@@ -4,6 +4,7 @@ import { useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { MANAGE_ORGANISATION_SETTINGS_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 import './ManageOrganisationSettingsPage.css';
 
 const ManageOrganisationSettingsPage: React.FC = () => {
@@ -13,7 +14,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
   const updatedSection = (location.state as { updatedSection?: string } | null)?.updatedSection;
 
   useBreadcrumb(
-    <Link to="/admin/user-management" className="govuk-back-link">Back</Link>
+    <Link to="/admin/user-management" className="govuk-back-link">{ADMIN_COMMON_CONSTANTS.BACK}</Link>
   );
 
   if (loading) {
@@ -34,10 +35,10 @@ const ManageOrganisationSettingsPage: React.FC = () => {
             <div className="govuk-grid-column-two-thirds">
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
-                  There is a problem
+                  {ADMIN_COMMON_CONSTANTS.ERROR_SUMMARY_TITLE}
                 </h2>
                 <div className="govuk-error-summary__body">
-                  <p className="govuk-body">{error || 'Organisation not found'}</p>
+                  <p className="govuk-body">{error || MANAGE_ORGANISATION_SETTINGS_CONSTANTS.ORGANISATION_NOT_FOUND}</p>
                 </div>
               </div>
             </div>
@@ -49,45 +50,43 @@ const ManageOrganisationSettingsPage: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="Manage organisation" />
+      <PageTitle title={MANAGE_ORGANISATION_SETTINGS_CONSTANTS.TITLE} />
             <div className="govuk-width-container">
                 <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-l govuk-!-margin-top-6">Manage organisation</h1>
+            <h1 className="govuk-heading-l govuk-!-margin-top-6">{MANAGE_ORGANISATION_SETTINGS_CONSTANTS.TITLE}</h1>
 
             {updatedSection && (
               <div className="govuk-notification-banner govuk-notification-banner--success" role="alert">
                 <div className="govuk-notification-banner__header">
-                  <h2 className="govuk-notification-banner__title">Success</h2>
+                  <h2 className="govuk-notification-banner__title">{MANAGE_ORGANISATION_SETTINGS_CONSTANTS.SUCCESS}</h2>
                 </div>
                 <div className="govuk-notification-banner__content">
                   <p className="govuk-notification-banner__heading">
-                    Organisation {updatedSection} updated
+                    {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.UPDATED(updatedSection)}
                   </p>
                 </div>
               </div>
             )}
 
-            <h2 className="govuk-heading-m govuk-!-margin-top-6">Organisation details</h2>
-
             <dl className="govuk-summary-list organisation-details__summary-list">
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">
-                  Organisation name
+                  {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.ORGANISATION_NAME}
                 </dt>
                 <dd className="govuk-summary-list__value">
                   {organisation.organisation_name}
                 </dd>
                 <dd className="govuk-summary-list__actions">
                   <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/change-name`}>
-                    Change<span className="govuk-visually-hidden"> organisation name</span>
+                    {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE}<span className="govuk-visually-hidden">{MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE_NAME_HIDDEN}</span>
                   </Link>
                 </dd>
               </div>
 
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">
-                  Organisation address
+                  {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.ORGANISATION_ADDRESS}
                 </dt>
                 <dd className="govuk-summary-list__value">
                   {organisation.address_line1 ? (
@@ -99,19 +98,19 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                       {organisation.postcode}
                     </>
                   ) : (
-                    'Not available'
+                    MANAGE_ORGANISATION_SETTINGS_CONSTANTS.ADDRESS_NOT_AVAILABLE
                   )}
                 </dd>
                 <dd className="govuk-summary-list__actions">
                   <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/change-address`}>
-                    Change<span className="govuk-visually-hidden"> organisation address</span>
+                    {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE}<span className="govuk-visually-hidden">{MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE_ADDRESS_HIDDEN}</span>
                   </Link>
                 </dd>
               </div>
 
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">
-                  Team coordinators
+                  {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.TEAM_COORDINATORS}
                 </dt>
                 <dd className="govuk-summary-list__value">
                   {organisation.team_coordinator_emails?.length ? (
@@ -123,14 +122,19 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                       </React.Fragment>
                     ))
                   ) : (
-                    'No team coordinators'
+                    MANAGE_ORGANISATION_SETTINGS_CONSTANTS.NO_TEAM_COORDINATORS
                   )}
+                </dd>
+                <dd className="govuk-summary-list__actions">
+                  <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/team-coordinators`}>
+                    {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE}<span className="govuk-visually-hidden">{MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE_TEAM_COORDINATORS_HIDDEN}</span>
+                  </Link>
                 </dd>
               </div>
             </dl>
 
             <Link to="/admin/user-management" className="govuk-link govuk-link--no-visited-state">
-              Return to dashboard
+              {ADMIN_COMMON_CONSTANTS.RETURN_TO_DASHBOARD}
             </Link>
           </div>
         </div>

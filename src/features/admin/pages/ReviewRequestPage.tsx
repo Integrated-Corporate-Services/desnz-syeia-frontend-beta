@@ -9,6 +9,7 @@ import {
 } from '../../../components/shared/ReviewRequestComponents';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { REVIEW_REQUEST_PAGE_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 
 const ReviewRequestPage: React.FC = () => {
   const { requestId } = useParams<{ requestId: string }>();
@@ -31,19 +32,19 @@ const ReviewRequestPage: React.FC = () => {
   } = useReviewRequest(requestId || '', organisationId);
 
   const {
-    navigateToDashboard,
+    navigateToPendingRequests,
     navigateToAccessApproved,
     navigateToAccessDenied
   } = useReviewRequestNavigation();
 
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigateToDashboard();
+    navigateToPendingRequests();
   };
 
   useBreadcrumb(
     <a href="#" className="govuk-back-link" onClick={handleBackClick}>
-      Back
+      {ADMIN_COMMON_CONSTANTS.BACK}
     </a>
   );
 
@@ -67,7 +68,7 @@ const ReviewRequestPage: React.FC = () => {
       rejectRequest(() => navigateToAccessDenied({
         userName: fullName,
         userEmail: userEmail
-      }));
+      }, rejectReason.trim()));
     }
   };
 
@@ -76,7 +77,7 @@ const ReviewRequestPage: React.FC = () => {
       <>
                 <div className="govuk-width-container">
           <div className="govuk-body">
-            <p>Loading request details...</p>
+            <p>{REVIEW_REQUEST_PAGE_CONSTANTS.LOADING}</p>
           </div>
               </div>
       </>
@@ -88,8 +89,8 @@ const ReviewRequestPage: React.FC = () => {
       <>
                 <div className="govuk-width-container">
             {errors.length > 0 && <ErrorSummary errors={errors} />}
-            <h1 className="govuk-heading-l">Request not found</h1>
-            <p className="govuk-body">The requested access request could not be found.</p>
+            <h1 className="govuk-heading-l">{REVIEW_REQUEST_PAGE_CONSTANTS.NOT_FOUND_TITLE}</h1>
+            <p className="govuk-body">{REVIEW_REQUEST_PAGE_CONSTANTS.NOT_FOUND_MESSAGE}</p>
                   </div>
       </>
     );
@@ -97,18 +98,18 @@ const ReviewRequestPage: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="Review access request" />
+      <PageTitle title={REVIEW_REQUEST_PAGE_CONSTANTS.TITLE} />
             <div className="govuk-width-container">
         {errors.length > 0 && (
           <ErrorSummary errors={errors} />
         )}
 
-        <h1 className="govuk-heading-l">Review access request</h1>
+        <h1 className="govuk-heading-l">{REVIEW_REQUEST_PAGE_CONSTANTS.TITLE}</h1>
 
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <p className="govuk-body">
-              Review the applicant's details before deciding whether to approve or reject this request.
+              {REVIEW_REQUEST_PAGE_CONSTANTS.INTRO}
             </p>
 
             <ApplicantDetails requestData={requestData} />

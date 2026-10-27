@@ -2,14 +2,29 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAccessConfirmationNavigation } from '../../../hooks';
 import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { ACCESS_APPROVED_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 
 const AccessApprovedPage: React.FC = () => {
   const location = useLocation();
-  const { navigateToDashboard } = useAccessConfirmationNavigation();
+  const { navigateToDashboard, navigateToPendingRequests } = useAccessConfirmationNavigation();
 
   const state = location.state as { userName?: string; userEmail?: string } | null;
-  const userName = state?.userName || 'the applicant';
+  const userName = state?.userName || ACCESS_APPROVED_CONSTANTS.DEFAULT_USER_NAME;
   const userEmail = state?.userEmail || '';
+
+  useBreadcrumb(
+    <a
+      href="#"
+      className="govuk-back-link"
+      onClick={(e) => {
+        e.preventDefault();
+        navigateToPendingRequests();
+      }}
+    >
+      {ADMIN_COMMON_CONSTANTS.BACK}
+    </a>
+  );
 
   const handleReturnToDashboard = () => {
     navigateToDashboard();
@@ -17,31 +32,31 @@ const AccessApprovedPage: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="Access granted" />
+      <PageTitle title={ACCESS_APPROVED_CONSTANTS.TITLE} />
             <div className="govuk-width-container">
               <div className="govuk-panel govuk-panel--confirmation">
           <h1 className="govuk-panel__title">
-            Access granted
+            {ACCESS_APPROVED_CONSTANTS.TITLE}
           </h1>
           <div className="govuk-panel__body">
-            {userName} can now sign in and use the service<br/>
+            {ACCESS_APPROVED_CONSTANTS.PANEL_BODY(userName)}<br/>
             <strong>{userEmail}</strong>
           </div>
         </div>
 
-        <h2 className="govuk-heading-m">What happens next</h2>
+        <h2 className="govuk-heading-m">{ACCESS_APPROVED_CONSTANTS.WHAT_HAPPENS_NEXT}</h2>
 
         <p className="govuk-body">
-          We have sent an email to {userName} to let them know their access request has been approved.
+          {ACCESS_APPROVED_CONSTANTS.EMAIL_SENT(userName)}
         </p>
 
         <p className="govuk-body">
-          They can now sign in to the service using their GOV.UK One Login account.
+          {ACCESS_APPROVED_CONSTANTS.SIGN_IN_INFO}
         </p>
 
         <div className="govuk-inset-text">
           <p className="govuk-body">
-            The user will appear in your active users list and can start using the service immediately.
+            {ACCESS_APPROVED_CONSTANTS.ACTIVE_USERS_INFO}
           </p>
         </div>
 
@@ -51,7 +66,7 @@ const AccessApprovedPage: React.FC = () => {
           onClick={handleReturnToDashboard}
           data-module="govuk-button"
         >
-          Return to dashboard
+          {ADMIN_COMMON_CONSTANTS.RETURN_TO_DASHBOARD}
         </button>
           </div>
     </>

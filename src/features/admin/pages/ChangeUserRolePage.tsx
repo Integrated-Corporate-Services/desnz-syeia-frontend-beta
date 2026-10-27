@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useManageUsers } from '../../../hooks/useManageUsers';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
@@ -10,6 +10,7 @@ import userService from '../../../services/userService';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { CHANGE_USER_ROLE_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 
 interface RoleOption {
   value: string;
@@ -20,14 +21,12 @@ interface RoleOption {
 const ROLE_OPTIONS: RoleOption[] = [
   {
     value: ROLES.APPLICANT_USER,
-    description:
-      "Can create and edit their own applications, and view the team's submitted applications.",
+    description: CHANGE_USER_ROLE_CONSTANTS.USER_ROLE_DESCRIPTION,
   },
   {
     value: ROLES.APPLICANT_TEAM_COORDINATOR,
-    label: 'Team coordinator',
-    description:
-      'A person who create and edit their own applications, and can manage team members and view all applications submitted by the team.',
+    label: CHANGE_USER_ROLE_CONSTANTS.TEAM_COORDINATOR_LABEL,
+    description: CHANGE_USER_ROLE_CONSTANTS.TEAM_COORDINATOR_ROLE_DESCRIPTION,
   },
 ];
 
@@ -36,6 +35,11 @@ const FIRST_ROLE_FIELD_ID = `user-role-${ROLE_OPTIONS[0].value}`;
 const ChangeUserRolePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  // Keep the Manage user page's own Back destination (e.g. the team coordinators list)
+  const listState = useLocation().state as { from?: string; organisationId?: string } | null;
+  const returnState = listState?.from
+    ? { state: { from: listState.from, organisationId: listState.organisationId } }
+    : undefined;
   const { users, loading } = useManageUsers();
   const user = users.find(u => u.id === userId);
   const { user: actor } = useAuthUserContext();
@@ -83,17 +87,17 @@ const ChangeUserRolePage: React.FC = () => {
 
   const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigate(`/admin/manage-user/${userId}`);
+    navigate(`/admin/manage-user/${userId}`, returnState);
   };
 
   useBreadcrumb(
     <a href="#" className="govuk-back-link" onClick={handleBackClick}>
-      Back
+      {ADMIN_COMMON_CONSTANTS.BACK}
     </a>
   );
 
   if (!isManageUserRoleChangeEnabled()) {
-    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
+    return <Navigate to={`/admin/manage-user/${userId}`} state={returnState?.state} replace />;
   }
 
   const handleSaveChanges = async () => {
@@ -101,14 +105,14 @@ const ChangeUserRolePage: React.FC = () => {
     setOrganisationError(null);
     if (!organisationId || (isSuperUser && !membership)) {
       setOrganisationError(memberships.length > 1
-        ? 'Select an organisation'
-        : 'Organisation details could not be loaded. Return to user management and try again.');
+        ? CHANGE_USER_ROLE_CONSTANTS.SELECT_ORGANISATION
+        : CHANGE_USER_ROLE_CONSTANTS.ORGANISATION_LOAD_ERROR);
       return;
     }
     const allowedRoles = new Set(ROLE_OPTIONS.map(o => o.value));
 
     if (!userId || !effectiveRole || !allowedRoles.has(effectiveRole)) {
-      setError('Select a role');
+      setError(CHANGE_USER_ROLE_CONSTANTS.SELECT_ROLE);
       return;
     }
 
@@ -117,9 +121,9 @@ const ChangeUserRolePage: React.FC = () => {
     try {
       const response = await userService.updateUserRole(userId, effectiveRole, organisationId);
       if (response.success) {
-        navigate(`/admin/manage-user/${userId}`);
+        navigate(`/admin/manage-user/${userId}`, returnState);
       } else {
-        setError(response.message || 'Failed to update user role');
+        setError(response.message || CHANGE_USER_ROLE_CONSTANTS.UPDATE_ROLE_FAILED);
       }
     } finally {
       setSaving(false);
@@ -139,14 +143,14 @@ const ChangeUserRolePage: React.FC = () => {
       <div className="govuk-width-container">
         <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert">
           <h2 className="govuk-error-summary__title" id="error-summary-title">
-            User not found
+            {ADMIN_COMMON_CONSTANTS.USER_NOT_FOUND_TITLE}
           </h2>
           <div className="govuk-error-summary__body">
-            <p className="govuk-body">The user you are trying to manage could not be found.</p>
+            <p className="govuk-body">{CHANGE_USER_ROLE_CONSTANTS.NOT_FOUND_MESSAGE}</p>
           </div>
         </div>
         <Link to="/admin/user-management" className="govuk-link">
-          Return to user management
+          {ADMIN_COMMON_CONSTANTS.RETURN_TO_USER_MANAGEMENT}
         </Link>
       </div>
     );
@@ -154,12 +158,12 @@ const ChangeUserRolePage: React.FC = () => {
 
   const canChangeRole = memberships.length > 0 || ROLE_OPTIONS.some(option => option.value === user.role);
   if (!canChangeRole) {
-    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
+    return <Navigate to={`/admin/manage-user/${userId}`} state={returnState?.state} replace />;
   }
 
   return (
     <>
-      <PageTitle title="Which role applies to this user?" />
+      <PageTitle title={CHANGE_USER_ROLE_CONSTANTS.TITLE} />
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -171,12 +175,12 @@ const ChangeUserRolePage: React.FC = () => {
             )}
             {isSuperUser && memberships.length !== 1 && (
               <div className={organisationError ? 'govuk-form-group govuk-form-group--error' : 'govuk-form-group'}>
-                <label className="govuk-label" htmlFor="role-organisation">Organisation</label>
+                <label className="govuk-label" htmlFor="role-organisation">{CHANGE_USER_ROLE_CONSTANTS.ORGANISATION_LABEL}</label>
                 <div id="role-organisation-hint" className="govuk-hint">
-                  Choose the organisation where this user's role should change.
+                  {CHANGE_USER_ROLE_CONSTANTS.ORGANISATION_HINT}
                 </div>
                 {organisationError && <p id="role-organisation-error" className="govuk-error-message">
-                  <span className="govuk-visually-hidden">Error:</span> {organisationError}
+                  <span className="govuk-visually-hidden">{ADMIN_COMMON_CONSTANTS.ERROR_PREFIX}</span> {organisationError}
                 </p>}
                 <select id="role-organisation" className="govuk-select" value={selectedOrganisation}
                   aria-describedby={'role-organisation-hint' + (organisationError ? ' role-organisation-error' : '')}
@@ -186,7 +190,7 @@ const ChangeUserRolePage: React.FC = () => {
                     setSelectedRole(undefined);
                     setError(null);
                   }} disabled={saving}>
-                  <option value="">Select an organisation</option>
+                  <option value="">{CHANGE_USER_ROLE_CONSTANTS.SELECT_ORGANISATION}</option>
                   {memberships.map(item => <option key={item.organisationId} value={item.organisationId}>
                     {item.organisationName}
                   </option>)}
@@ -197,12 +201,12 @@ const ChangeUserRolePage: React.FC = () => {
             <div className="govuk-form-group">
               <fieldset className="govuk-fieldset" aria-describedby={error ? 'user-role-error' : undefined}>
                 <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
-                  <h1 className="govuk-fieldset__heading">Which role applies to this user?</h1>
+                  <h1 className="govuk-fieldset__heading">{CHANGE_USER_ROLE_CONSTANTS.TITLE}</h1>
                 </legend>
 
                 {error && (
                   <p id="user-role-error" className="govuk-error-message">
-                    <span className="govuk-visually-hidden">Error:</span> {error}
+                    <span className="govuk-visually-hidden">{ADMIN_COMMON_CONSTANTS.ERROR_PREFIX}</span> {error}
                   </p>
                 )}
 
@@ -248,12 +252,12 @@ const ChangeUserRolePage: React.FC = () => {
               onClick={handleSaveChanges}
               disabled={saving}
             >
-              Save changes
+              {CHANGE_USER_ROLE_CONSTANTS.SAVE_CHANGES}
             </button>
 
             <p className="govuk-body">
-              <Link to={`/admin/manage-user/${userId}`} className="govuk-link">
-                Return to manage user
+              <Link to={`/admin/manage-user/${userId}`} state={returnState?.state} className="govuk-link">
+                {CHANGE_USER_ROLE_CONSTANTS.RETURN_TO_MANAGE_USER}
               </Link>
             </p>
           </div>

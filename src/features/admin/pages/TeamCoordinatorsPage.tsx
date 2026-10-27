@@ -1,36 +1,43 @@
-import React from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { useTeamCoordinators, useOrganisation } from '../../../hooks';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { TEAM_COORDINATORS_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 
 const TeamCoordinatorsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
-  const navigate = useNavigate();
 
   const { organisation, loading: orgLoading } = useOrganisation(organisationId);
   const { coordinators, loading: coordLoading, error } = useTeamCoordinators(organisationId);
 
   const loading = orgLoading || coordLoading;
+  const settingsPath = `/admin/organisation/${organisationId}/settings`;
 
   useBreadcrumb(
-    <Link to={`/admin/organisation/${organisationId}/settings`} className="govuk-back-link">
-      Back
+    <Link to={settingsPath} className="govuk-back-link">
+      {ADMIN_COMMON_CONSTANTS.BACK}
     </Link>
   );
 
-  const handleSave = () => {
-    // Navigate back to settings page
-    navigate(`/admin/organisation/${organisationId}/settings`);
-  };
+  const sortedCoordinators = useMemo(
+    () =>
+      coordinators
+        .map((coordinator) => ({
+          ...coordinator,
+          fullName: `${coordinator.first_name} ${coordinator.last_name}`.trim(),
+        }))
+        .sort((a, b) => a.fullName.localeCompare(b.fullName, 'en-GB', { sensitivity: 'base' })),
+    [coordinators]
+  );
 
   if (loading) {
     return (
       <>
-                <div className="govuk-width-container">
-                      <LoadingSkeleton type="table" />
-                  </div>
+        <div className="govuk-width-container">
+          <LoadingSkeleton type="table" />
+        </div>
       </>
     );
   }
@@ -38,12 +45,12 @@ const TeamCoordinatorsPage: React.FC = () => {
   if (error) {
     return (
       <>
-                <div className="govuk-width-container">
-                    <div className="govuk-grid-row">
+        <div className="govuk-width-container">
+          <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">
-                  There is a problem
+                  {ADMIN_COMMON_CONSTANTS.ERROR_SUMMARY_TITLE}
                 </h2>
                 <div className="govuk-error-summary__body">
                   <p className="govuk-body">{error}</p>
@@ -51,82 +58,67 @@ const TeamCoordinatorsPage: React.FC = () => {
               </div>
             </div>
           </div>
-              </div>
+        </div>
       </>
     );
   }
 
   return (
     <>
-      <PageTitle title="Team coordinators" />
-            <div className="govuk-width-container">
-                <div className="govuk-grid-row">
-          <div className="govuk-grid-column-full">
-            <h1 className="govuk-heading-l govuk-!-margin-top-6">Team coordinators</h1>
-
-            <h2 className="govuk-heading-m govuk-!-margin-top-6">Coordinators for {organisation?.organisation_name}</h2>
+      <PageTitle title={TEAM_COORDINATORS_CONSTANTS.TITLE} />
+      <div className="govuk-width-container">
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            {organisation?.organisation_name && (
+              <span className="govuk-caption-l govuk-!-margin-top-6">{organisation.organisation_name}</span>
+            )}
+            <h1 className="govuk-heading-l">{TEAM_COORDINATORS_CONSTANTS.HEADING(sortedCoordinators.length)}</h1>
 
             <p className="govuk-body">
-              Manage the people who coordinate access requests and user management for this organisation.
+              {TEAM_COORDINATORS_CONSTANTS.INTRO}
             </p>
+          </div>
+        </div>
 
-            <h3 className="govuk-heading-m govuk-!-margin-top-6">
-              Current coordinators ({coordinators.length})
-            </h3>
-
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-full">
             <table className="govuk-table">
               <thead className="govuk-table__head">
                 <tr className="govuk-table__row">
-                  <th scope="col" className="govuk-table__header">Name</th>
-                  <th scope="col" className="govuk-table__header">Email address</th>
-                  <th scope="col" className="govuk-table__header">Location</th>
-                  <th scope="col" className="govuk-table__header">Actions</th>
+                  <th scope="col" className="govuk-table__header">{TEAM_COORDINATORS_CONSTANTS.TABLE_HEADERS.FULL_NAME}</th>
+                  <th scope="col" className="govuk-table__header">{TEAM_COORDINATORS_CONSTANTS.TABLE_HEADERS.EMAIL_ADDRESS}</th>
+                  <th scope="col" className="govuk-table__header govuk-table__header--numeric">{TEAM_COORDINATORS_CONSTANTS.TABLE_HEADERS.ACTION}</th>
                 </tr>
               </thead>
               <tbody className="govuk-table__body">
-                {coordinators.length === 0 ? (
+                {sortedCoordinators.length === 0 ? (
                   <tr className="govuk-table__row">
-                    <td className="govuk-table__cell" colSpan={4}>
-                      No team coordinators found
+                    <td className="govuk-table__cell" colSpan={3}>
+                      {TEAM_COORDINATORS_CONSTANTS.NO_COORDINATORS}
                     </td>
                   </tr>
                 ) : (
-                  coordinators.map((coordinator) => (
+                  sortedCoordinators.map((coordinator) => (
                     <tr key={coordinator.user_id} className="govuk-table__row">
-                      <td className="govuk-table__cell">
-                        {coordinator.first_name} {coordinator.last_name}
-                      </td>
+                      <td className="govuk-table__cell">{coordinator.fullName}</td>
                       <td className="govuk-table__cell">{coordinator.email}</td>
-                      <td className="govuk-table__cell">{coordinator.phone_number || 'Not specified'}</td>
-                      <td className="govuk-table__cell">
+                      <td className="govuk-table__cell govuk-table__cell--numeric">
                         <Link
-                          to={`/admin/organisations/${organisationId}/team-coordinators/${coordinator.user_id}`}
                           className="govuk-link"
+                          to={`/admin/manage-user/${coordinator.user_id}`}
+                          state={{ from: `/admin/organisations/${organisationId}/team-coordinators`, organisationId }}
                         >
-                          Edit
+                          {TEAM_COORDINATORS_CONSTANTS.MANAGE}<span className="govuk-visually-hidden"> {coordinator.fullName}</span>
                         </Link>
-                        {' '}
-                        <a href="#" className="govuk-link">
-                          Delete
-                        </a>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
-
-            <button
-              type="button"
-              className="govuk-button govuk-!-margin-top-4"
-              style={{ backgroundColor: '#00703c' }}
-              onClick={handleSave}
-            >
-              Save and continue
-            </button>
           </div>
         </div>
-          </div>
+      </div>
     </>
   );
 };
