@@ -33,7 +33,7 @@ describe('cpoOrderDetailsService', () => {
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('/api/applications/app-1/order-details');
-    expect(init).toMatchObject({ method: 'PATCH', credentials: 'include' });
+    expect(init).toMatchObject({ method: 'POST', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({ step: 'name', changes: { orderName: 'North Ridge CPO' }, saveForLater: false });
     expect(result.details.purpose).toBe('Acquire rights');

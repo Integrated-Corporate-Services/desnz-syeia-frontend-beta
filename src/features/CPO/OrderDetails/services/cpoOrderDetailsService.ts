@@ -29,7 +29,7 @@ export const cpoOrderDetailsService = {
     }
     if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
     return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/order-details`), {
-      method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
+      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ step, changes, saveForLater }),
     }));
   },
