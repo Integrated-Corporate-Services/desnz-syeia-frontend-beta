@@ -21,10 +21,12 @@ const COPY: Record<OrderStep, { heading: string; hint?: string }> = {
 };
 const emptyRelated = (): RelatedApplication => ({ id: crypto.randomUUID(), type: '', otherType: '', reference: '', siteAddress: '', relationship: '' });
 
-const CpoOrderDetailsPage: React.FC = () => {
+type Props = { fixedStep?: OrderStep };
+
+const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   const { orderStep = 'name' } = useParams();
   const applicationId = useCpoApplicationId();
-  const step: OrderStep = ORDER_STEPS.includes(orderStep as OrderStep) ? orderStep as OrderStep : 'name';
+  const step: OrderStep = fixedStep ?? (ORDER_STEPS.includes(orderStep as OrderStep) ? orderStep as OrderStep : 'name');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fromApplicationReview = searchParams.get('from') === 'application-review';
