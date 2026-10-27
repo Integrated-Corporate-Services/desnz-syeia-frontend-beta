@@ -33,7 +33,7 @@ import { APPLICATION_SUMMARY_CONSTANTS as CONSTANTS } from '../../../Application
 import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
 import { isFirFeatureDisabled } from '../../../../utils/disabledFormTypes';
 import { ApplicationReassignmentLinks } from '../../../ApplicationReassignment/components/ApplicationReassignmentLinks';
-import { AdditionalPaymentSummary } from '../../../Payments/AdditionalPaymentSummary';
+import { AdditionalPaymentSummary } from '../../../Payments/components/AdditionalPaymentSummary';
 
 interface NWLApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
