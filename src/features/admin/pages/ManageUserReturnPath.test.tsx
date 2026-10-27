@@ -55,6 +55,15 @@ describe('Manage user keeps the coordinator list return path (PR #588 review)', 
     expect(await screen.findByText(`Coordinator list:${LIST}`)).toBeInTheDocument();
   });
 
+  it('Change role, then Return to manage user, then Back returns to the coordinator list', async () => {
+    mount();
+    fireEvent.click(screen.getByRole('link', { name: /Change/ }));
+    fireEvent.click(await screen.findByRole('link', { name: 'Return to manage user' }));
+    expect(await screen.findByRole('link', { name: 'Revoke access' })).toBeInTheDocument();
+    back();
+    expect(await screen.findByText(`Coordinator list:${LIST}`)).toBeInTheDocument();
+  });
+
   it('Revoke access, then Back, then Back returns to the coordinator list', async () => {
     mount();
     fireEvent.click(screen.getByRole('link', { name: 'Revoke access' }));

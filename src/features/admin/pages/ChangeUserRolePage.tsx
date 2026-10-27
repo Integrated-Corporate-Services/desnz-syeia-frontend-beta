@@ -96,7 +96,7 @@ const ChangeUserRolePage: React.FC = () => {
   );
 
   if (!isManageUserRoleChangeEnabled()) {
-    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
+    return <Navigate to={`/admin/manage-user/${userId}`} state={from ? { from } : undefined} replace />;
   }
 
   const handleSaveChanges = async () => {
@@ -157,7 +157,7 @@ const ChangeUserRolePage: React.FC = () => {
 
   const canChangeRole = memberships.length > 0 || ROLE_OPTIONS.some(option => option.value === user.role);
   if (!canChangeRole) {
-    return <Navigate to={`/admin/manage-user/${userId}`} replace />;
+    return <Navigate to={`/admin/manage-user/${userId}`} state={from ? { from } : undefined} replace />;
   }
 
   return (
@@ -255,7 +255,7 @@ const ChangeUserRolePage: React.FC = () => {
             </button>
 
             <p className="govuk-body">
-              <Link to={`/admin/manage-user/${userId}`} className="govuk-link">
+              <Link to={`/admin/manage-user/${userId}`} state={from ? { from } : undefined} className="govuk-link">
                 Return to manage user
               </Link>
             </p>
