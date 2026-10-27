@@ -33,28 +33,29 @@ export default function AdditionalPaymentPage() {
   const [transaction, setTransaction] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [verified, setVerified] = useState(false);
-  const [cardOutcome, setCardOutcome] = useState<'PENDING' | 'FAILED' | 'SUCCEEDED'>('PENDING');
+  const [cardOutcome, setCardOutcome] = useState<'PENDING' | 'FAILED' | 'SUCCEEDED'>();
   const [retry, setRetry] = useState(0);
   const upload = useRef<FileUploadHandle>(null);
   const errorSummary = useRef<HTMLDivElement>(null);
+  const generating = busy && (step === 'required' || step === 'invoice');
 
-  useBreadcrumb(<nav className="govuk-breadcrumbs" aria-label="Breadcrumb"><ol className="govuk-breadcrumbs__list"><li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to="/application-dashboard">Applications</Link></li><li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={summary}>Application summary</Link></li></ol></nav>);
+  useBreadcrumb(generating ? null : <nav className="govuk-breadcrumbs" aria-label="Breadcrumb"><ol className="govuk-breadcrumbs__list"><li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to="/application-dashboard">Applications</Link></li><li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={summary}>Application summary</Link></li></ol></nav>);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setVerified(false);
-    setCardOutcome('PENDING');
+    setCardOutcome(undefined);
     setError('');
     async function load() {
       try {
         let result = await getAdditionalPayment(applicationId, requestId);
-        if (step === 'result') {
+        if (step === 'result' || result.status === 'NOT_PAID') {
           const key = `additional-payment:${applicationId}:${requestId}`;
-          const paymentId = new URLSearchParams(location.search).get('payment_id') || sessionStorage.getItem(key) || undefined;
+          const paymentId = step === 'result' ? new URLSearchParams(location.search).get('payment_id') || sessionStorage.getItem(key) || undefined : undefined;
           const status = await verifyAdditionalPayment(applicationId, requestId, paymentId);
           result = { ...result, status: status.status, payment_reference: status.payment_reference || result.payment_reference };
-          if (active) { setVerified(true); setCardOutcome(status.card_outcome || 'PENDING'); }
+          if (active) { setVerified(true); setCardOutcome(status.card_outcome); }
         }
         if (active) setPayment(result);
       } catch (reason) {
@@ -73,9 +74,15 @@ export default function AdditionalPaymentPage() {
     setBusy(true);
     setError('');
     try {
-      const latest = await getAdditionalPayment(applicationId, requestId);
+      let latest = await getAdditionalPayment(applicationId, requestId);
       setPayment(latest);
       if (latest.status !== 'NOT_PAID') throw new Error(latest.status === 'WITHDRAWN' ? 'This additional payment request has been withdrawn. No payment can be made.' : 'This additional payment is already paid or being processed. Return to the application summary.');
+      const status = await verifyAdditionalPayment(applicationId, requestId);
+      latest = { ...latest, status: status.status, payment_reference: status.payment_reference || latest.payment_reference };
+      setPayment(latest);
+      setVerified(true);
+      setCardOutcome(status.card_outcome);
+      if (latest.status !== 'NOT_PAID' || status.card_outcome && status.card_outcome !== 'FAILED' || step === 'result' && status.card_outcome !== 'FAILED') return;
       if (!validAdditionalAmount(latest.amount_pence)) throw new Error('Payment amount is not available. Return to the application summary and try again.');
       await action();
     } catch (reason) {
@@ -119,26 +126,26 @@ export default function AdditionalPaymentPage() {
   }
 
   const amount = payment ? additionalPaymentAmount(payment.amount_pence) : 'Amount unavailable';
-  const actionable = payment?.status === 'NOT_PAID' && validAdditionalAmount(payment.amount_pence);
+  const pending = payment?.status === 'NOT_PAID' && (cardOutcome !== undefined && cardOutcome !== 'FAILED' || step === 'result' && (!verified || cardOutcome !== 'FAILED'));
+  const actionable = payment?.status === 'NOT_PAID' && verified && !pending && validAdditionalAmount(payment.amount_pence);
   const completed = payment?.status === 'PAID' || payment?.status === 'PROCESSING';
-  const generating = busy && step === 'required' && actionable;
   const failed = !loading && verified && step === 'result' && payment?.status === 'NOT_PAID' && cardOutcome === 'FAILED';
   const back = <Link className="govuk-button govuk-button--secondary" to={summary}>{completed ? 'View application summary' : failed ? 'Return to application summary' : 'Back to application summary'}</Link>;
   const button = (label: string, onClick: () => void, disabled = !actionable) => <div className="govuk-button-group"><button type="button" className="govuk-button" disabled={busy || disabled} aria-busy={busy} onClick={onClick}>{label}</button>{back}</div>;
-  const groupedActions = !loading && payment?.status === 'NOT_PAID' && (step !== 'result' && step !== 'processing' || failed);
+  const groupedActions = !loading && !pending && payment?.status === 'NOT_PAID' && (step !== 'result' && step !== 'processing' || failed);
   let title = 'Payment required';
   let content;
   if (loading) { title = step === 'result' ? 'Checking your payment...' : 'Loading additional payment...'; }
   else if (!payment) content = <button className="govuk-button" onClick={() => setRetry(value => value + 1)}>Try again</button>;
   else if (payment.status === 'WITHDRAWN') {
     title = 'Request withdrawn'; content = <p className="govuk-body">This additional payment request has been withdrawn. You do not need to make this payment.</p>;
-  } else if (step === 'result' && (!verified || payment.status === 'NOT_PAID' && cardOutcome !== 'FAILED')) {
+  } else if (pending) {
     title = 'We could not confirm your payment'; content = <><p className="govuk-body">Your payment has not yet been confirmed. Check its status before trying to pay again.</p><button className="govuk-button" onClick={() => setRetry(value => value + 1)}>Check payment status</button></>;
   } else if (payment.status === 'PAID') {
     title = 'Payment received'; content = <AdditionalPaymentReceipt payment={payment} />;
   } else if (payment.status === 'PROCESSING') {
     title = 'Processing additional payment'; content = <AdditionalPaymentReceipt payment={payment} />;
-  } else if (busy && step === 'required') {
+  } else if (generating) {
     title = 'Generating invoice...'; content = <><div className="govuk-notification-banner"><div className="govuk-notification-banner__header"><h2 className="govuk-notification-banner__title">Important</h2></div><div className="govuk-notification-banner__content"><p className="govuk-notification-banner__heading">Please do not close this window or navigate away from this page while we generate your invoice.</p></div></div><div className="hods-loading-spinner" role="status"><div className="hods-loading-spinner__spinner" aria-hidden="true" /><div className="hods-loading-spinner__content"><h1 className="govuk-heading-m">Generating invoice...</h1></div></div></>;
   } else if (step === 'invoice') {
     title = 'Your invoice'; content = payment.invoice ? <><p className="govuk-body">Your invoice number is:<br /><strong>{payment.invoice.invoice_number}</strong></p><p className="govuk-body"><AdditionalInvoiceLink payment={payment} className="govuk-button govuk-button--secondary">Download invoice (PDF)</AdditionalInvoiceLink></p><div className="govuk-button-group">{button('Continue to payment', () => navigate(`${root}/payment-method`))}</div></> : <><p className="govuk-body">Generate an invoice for this additional payment before continuing.</p>{button('Generate invoice', () => void invoice())}</>;
