@@ -112,7 +112,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 <dt className="govuk-summary-list__key">
                   {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.TEAM_COORDINATORS}
                 </dt>
-                <dd className="govuk-summary-list__value">
+                <dd className="govuk-summary-list__value organisation-details__coordinators">
                   {organisation.team_coordinator_emails?.length ? (
                     organisation.team_coordinator_emails.map((email, index) => (
                       <React.Fragment key={email}>
@@ -125,17 +125,21 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                     MANAGE_ORGANISATION_SETTINGS_CONSTANTS.NO_TEAM_COORDINATORS
                   )}
                 </dd>
+                {/* Change link hidden for now
                 <dd className="govuk-summary-list__actions">
                   <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/team-coordinators`}>
                     {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE}<span className="govuk-visually-hidden">{MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE_TEAM_COORDINATORS_HIDDEN}</span>
                   </Link>
                 </dd>
+                */}
               </div>
             </dl>
 
-            <Link to="/admin/user-management" className="govuk-link govuk-link--no-visited-state">
-              {ADMIN_COMMON_CONSTANTS.RETURN_TO_DASHBOARD}
-            </Link>
+            <p className="govuk-body govuk-!-margin-bottom-9">
+              <Link to="/admin/user-management" className="govuk-link govuk-link--no-visited-state">
+                {ADMIN_COMMON_CONSTANTS.RETURN_TO_DASHBOARD}
+              </Link>
+            </p>
           </div>
         </div>
           </div>
