@@ -3,8 +3,9 @@ import { additionalPaymentStatusText } from './AdditionalPaymentSummary';
 
 export function AdditionalPaymentReceipt({ payment }: { payment: AdditionalPaymentRequest }) {
   const processing = payment.status === 'PROCESSING';
+  const bankTransfer = payment.payment_method === 'BACS';
   const rows = [
-    { label: processing ? 'Transaction number' : 'Reference number', value: processing ? payment.transaction_reference || 'Not provided' : payment.payment_reference || 'Not available' },
+    { label: bankTransfer ? 'Transaction number' : 'Reference number', value: bankTransfer ? payment.transaction_reference || 'Not provided' : payment.payment_reference || 'Not available' },
     { label: 'Invoice number', value: payment.invoice?.invoice_number || 'Not available' },
     { label: 'Total amount', value: additionalPaymentAmount(payment.amount_pence) },
     { label: 'Payment status', value: additionalPaymentStatusText[payment.status] },
