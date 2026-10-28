@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
-import CpoOrderDocumentsPage from './CpoOrderDocumentsPage';
+import CpoOrderDocumentsPage from '../pages/CpoOrderDocumentsPage';
 import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES } from '../constants/orderDocumentsConstants';
 import type { CpoDocument, OrderDocumentsResponse } from '../types/orderDocuments';
