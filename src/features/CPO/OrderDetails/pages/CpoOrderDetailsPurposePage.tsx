@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
-import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { cpoOrderDetailsService, nextOrderStep } from '../services/cpoOrderDetailsService';
 import { COPY, EMPTY_ORDER_DETAILS, ORDER_STEPS, RELATED_TYPE_LABELS, emptyRelated } from '../constants/orderDetailsConstants';
@@ -33,11 +32,6 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   const errorSummary = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const base = `${CPO_BASE_URL}/${applicationId}/order-details`;
-  const taskListUrl = `${CPO_BASE_URL}/${applicationId}/task-list`;
-  useBreadcrumb(<div className="govuk-breadcrumbs"><ol className="govuk-breadcrumbs__list">
-    <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={taskListUrl}>Task list</Link></li>
-    <li className="govuk-breadcrumbs__list-item">Order details</li>
-  </ol></div>);
   const heading = step === 'related-applications-list'
     ? `You have added ${details.relatedApplications.length} related application${details.relatedApplications.length === 1 ? '' : 's'}`
     : COPY[step].heading;

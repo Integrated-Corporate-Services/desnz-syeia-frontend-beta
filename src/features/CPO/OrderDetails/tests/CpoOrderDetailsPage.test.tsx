@@ -2,7 +2,6 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
 import CpoOrderDetailsPage from '../pages/CpoOrderDetailsPage';
 import { cpoOrderDetailsService } from '../services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS } from '../constants/orderDetailsConstants';
@@ -21,9 +20,9 @@ const entry: RelatedApplication = {
 };
 let stored: OrderDetails;
 const renderStep = (step = 'name', query = '') => render(
-  <BreadcrumbProvider><MemoryRouter initialEntries={[`/cpo/application-id/order-details/${step}${query}`]}>
+  <MemoryRouter initialEntries={[`/cpo/application-id/order-details/${step}${query}`]}>
     <Routes><Route path="/cpo/:applicationId/order-details/:orderStep" element={<CpoOrderDetailsPage />} /></Routes>
-  </MemoryRouter></BreadcrumbProvider>
+  </MemoryRouter>
 );
 const ready = () => waitFor(() => expect(screen.getByRole('button', { name: 'Save and continue' })).toBeEnabled());
 
