@@ -10,7 +10,7 @@ import { CpoOrderDetailsPage } from './OrderDetails';
 import { CpoExecutiveSummaryPage } from './ExecutiveSummary';
 import { CpoOrderDocumentsPage } from './OrderDocuments';
 import { CpoNoticesPage, CpoNoticeRequirementsPage, CpoNoticeInspectionPage, CpoNoticeInspectionAddressPage, CpoNoticeInspectionDatePage, CpoNoticeOnlinePage, CpoNoticeWebsitePage, CpoNoticeNewspapersPage, CpoNoticeSitePage, CpoNoticePeoplePage, CpoNoticeCheckPage } from './RecordNotices';
-import { CpoCheckYourAnswersPage } from './CheckAndSubmitApplication';
+import { CpoApplicationSubmittedPage, CpoCheckYourAnswersPage } from './CheckAndSubmitApplication';
 
 const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/who-is-applying`, component: CPOWhoIsApplying, auth: true, layout: true },
@@ -35,6 +35,9 @@ const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/record-notices/check`, component: CpoNoticeCheckPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/record-notices/:noticeStep`, component: CpoNoticesPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/check-and-submit`, component: CpoCheckYourAnswersPage, auth: true, layout: true },
+    // The applications dashboard links every draft to check-your-answers.
+    { path: `${CPO_BASE_URL}/:applicationId/check-your-answers`, component: CpoCheckYourAnswersPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/application-submitted`, component: CpoApplicationSubmittedPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-documents`, component: CpoOrderDocumentsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-documents/:documentStep`, component: CpoOrderDocumentsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-details/executive-summary`, component: CpoExecutiveSummaryPage, auth: true, layout: true },
@@ -59,6 +62,8 @@ const backendRoutePaths = new Set([
     `${CPO_BASE_URL}/:applicationId/record-notices/check`,
     `${CPO_BASE_URL}/:applicationId/record-notices/:noticeStep`,
     `${CPO_BASE_URL}/:applicationId/check-and-submit`,
+    `${CPO_BASE_URL}/:applicationId/check-your-answers`,
+    `${CPO_BASE_URL}/:applicationId/application-submitted`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
 ]);

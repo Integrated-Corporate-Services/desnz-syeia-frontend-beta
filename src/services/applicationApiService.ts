@@ -6,6 +6,19 @@ import type { AssignmentDetails, EligibleAssignee } from '../features/Applicatio
 
 const logger = createLogger('application-api');
 
+export interface IncompleteSection {
+  key: string;
+  label: string;
+}
+
+/** Thrown when submit fails; a CPO application that is not finished also lists its incomplete sections. */
+export class SubmitApplicationError extends Error {
+  constructor(public readonly status: number, public readonly incompleteSections: IncompleteSection[] = []) {
+    super("Failed to submit application");
+    this.name = "SubmitApplicationError";
+  }
+}
+
 export const applicationApiService = {
   getEligibleAssignees: async (applicationId: string): Promise<EligibleAssignee[]> => {
     const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/eligible-assignees`), {
@@ -126,6 +139,7 @@ export const applicationApiService = {
   },
 
   submitApplication: async (applicationId: string, correlationId?: string) => {
+    if (!getCsrfHeaders()['X-CSRF-Token']) await fetchCsrfToken();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "X-Correlation-ID": correlationId || generateCorrelationId(),
@@ -140,7 +154,8 @@ export const applicationApiService = {
       },
     );
     if (!res.ok) {
-      throw new Error("Failed to submit application");
+      const body = await res.json().catch(() => null);
+      throw new SubmitApplicationError(res.status, body?.incompleteSections ?? []);
     }
     return res.json();
   },
