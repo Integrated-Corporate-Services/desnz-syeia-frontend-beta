@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
-import { applicationApiService } from '../../../../services/applicationApiService';
-import { progressApiService } from '../../../../services/progressApiService';
-import { cpoOrderDetailsService } from '../../OrderDetails/services/cpoOrderDetailsService';
 import type { OrderDetailsResponse } from '../../OrderDetails/types/orderDetails';
-import { cpoOrderDocumentsService } from '../../OrderDocuments/services/cpoOrderDocumentsService';
 import type { OrderDocumentsResponse } from '../../OrderDocuments/types/orderDocuments';
-import { cpoNoticesService } from '../../RecordNotices/services/cpoNoticesService';
 import type { NoticesResponse } from '../../RecordNotices/types/notices';
+import { cpoReviewService } from '../services/cpoReviewService';
 
 export type PreSubmissionMeetingAnswer =
   | 'Yes, I’ve had this meeting'
@@ -45,7 +41,7 @@ export interface CpoAnswers {
   progress: { subsection_name: string; status: string }[];
 }
 
-/** Loads the latest saved answers for every CPO section. Any failed read leaves no partial data. */
+/** Loads the latest saved answers for every CPO section from the application review. A failed read leaves no partial data. */
 export const useCpoApplicationAnswers = (applicationId: string) => {
   const [data, setData] = useState<CpoAnswers | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,15 +51,8 @@ export const useCpoApplicationAnswers = (applicationId: string) => {
   useEffect(() => {
     let active = true;
     setLoading(true); setError(''); setData(null);
-    Promise.all([
-      applicationApiService.getApplicationById(applicationId),
-      cpoOrderDetailsService.get(applicationId),
-      cpoOrderDocumentsService.get(applicationId),
-      cpoNoticesService.get(applicationId),
-      progressApiService.fetchApplicationProgress(applicationId),
-    ]).then(([application, order, documents, notices, progress]) => {
-      if (application.type !== 'CPO') throw new Error('Compulsory purchase order application not found');
-      if (active) setData({ application, order, documents, notices, progress });
+    cpoReviewService.get(applicationId).then((answers) => {
+      if (active) setData(answers);
     }).catch((failure) => { if (active) setError(failure instanceof Error ? failure.message : 'Unable to load your answers. Try again.'); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
