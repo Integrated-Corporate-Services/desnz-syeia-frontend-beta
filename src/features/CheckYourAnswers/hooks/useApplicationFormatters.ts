@@ -16,7 +16,9 @@ export const useApplicationFormatters = () => {
       's37': 'Overhead lines (S37)',
       's-37': 'Overhead lines (S37)',
       'NWL': 'Necessary wayleaves',
-      'nwl': 'Necessary wayleaves'
+      'nwl': 'Necessary wayleaves',
+      'CPO': 'Compulsory purchase order (CPO)',
+      'cpo': 'Compulsory purchase order (CPO)'
     };
     return typeMap[formType || 'S37'] || 'Overhead lines (S37)';
   }, []);
