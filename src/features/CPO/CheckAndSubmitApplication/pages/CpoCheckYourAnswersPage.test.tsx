@@ -5,12 +5,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { applicationApiService, SubmitApplicationError } from '../../../../services/applicationApiService';
-import { progressApiService } from '../../../../services/progressApiService';
-import { cpoOrderDetailsService } from '../../OrderDetails/services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS } from '../../OrderDetails/constants/orderDetailsConstants';
-import { cpoOrderDocumentsService } from '../../OrderDocuments/services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES } from '../../OrderDocuments/constants/orderDocumentsConstants';
-import { cpoNoticesService } from '../../RecordNotices/services/cpoNoticesService';
 import { CPO_SUBSECTIONS } from '../../TaskList/constants/cpoTaskListConstants';
 import CpoCheckYourAnswersPage from './CpoCheckYourAnswersPage';
 
@@ -18,9 +14,8 @@ vi.mock('../../../../components/PageTitle', () => ({ default: () => null }));
 vi.mock('../../../../utils/s3DownloadUtil', () => ({ downloadS3FileOnSameTab: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('../../../../services/applicationApiService', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../../services/applicationApiService')>();
-  return { ...actual, applicationApiService: { getApplicationById: vi.fn(), submitApplication: vi.fn() } };
+  return { ...actual, applicationApiService: { getApplicationReview: vi.fn(), submitApplication: vi.fn() } };
 });
-vi.mock('../../../../services/progressApiService', () => ({ progressApiService: { fetchApplicationProgress: vi.fn() } }));
 
 const renderPage = () => render(<BreadcrumbProvider><MemoryRouter initialEntries={['/cpo/app/check-and-submit']}><Routes>
   <Route path="/cpo/:applicationId/check-and-submit" element={<CpoCheckYourAnswersPage />} />
@@ -37,7 +32,28 @@ const application = (overrides: Record<string, unknown> = {}) => ({
   application_party: { organisation_name: 'National Grid Electricity Distribution', contact_person_name: 'Alex Smith', contact_person_line1: '72 Guild Street', contact_person_city: 'London', contact_person_postcode: 'SE23 6FH', contact_person_email: 'alex.smith@example.co.uk', contact_person_phone: '07123 456789', additional_contact: 'ops.team@ngeld.co.uk' },
   ...overrides,
 }) as any;
-const mockApplication = (value: unknown) => vi.mocked(applicationApiService.getApplicationById).mockResolvedValue(value);
+type Answers = { application: any; order: any; documents: any; notices: any; progress: { subsection_name: string; status: string }[] };
+let answers: Answers;
+const mockApplication = (value: unknown) => { answers.application = value; };
+const inCategory = (documents: any[], ...categories: string[]) => documents.filter((document) => categories.includes(document.category));
+/** The GET /review payload the backend's cpoReviewPayloadBuilder returns for these answers. */
+const review = ({ application: saved, order, documents, notices: savedNotices, progress }: Answers) => ({
+  applicationId: 'app', status: saved.status, desnzRef: saved.desnz_ref ?? null, formType: saved.type, permissions: saved.permissions,
+  metadata: { schemaVersion: 1, source: 'SYEIA' },
+  sections: {
+    applicantDetails: { applicationParty: saved.application_party ?? null, operatorRef: saved.operator_ref ?? null },
+    preSubmissionMeeting: { answer: saved.pre_submission_meeting_answer ?? null, requested: saved.pre_submission_meeting_requested ?? null, reason: saved.pre_submission_meeting_reason ?? null, requestedAt: null, completedAt: null },
+    orderDetails: order.details,
+    executiveSummary: { documents: order.documents, canEdit: order.canEdit },
+    orderDocuments: {
+      order: inCategory(documents.documents, DOCUMENT_CATEGORIES.order, DOCUMENT_CATEGORIES.maps),
+      reasons: inCategory(documents.documents, DOCUMENT_CATEGORIES.reasons),
+      additional: inCategory(documents.documents, DOCUMENT_CATEGORIES.additional),
+      canEdit: documents.canEdit,
+    },
+    notices: savedNotices, progress, incompleteSections: [], payment: null,
+  },
+});
 const completedProgress = Object.values(CPO_SUBSECTIONS).map((subsection_name) => ({ subsection_name, status: 'Completed' }));
 const notices = (overrides: Record<string, unknown> = {}) => ({
   reference: 'CPO000001', objectionsEmail: '', finalObjectionDate: null,
@@ -56,11 +72,14 @@ const notices = (overrides: Record<string, unknown> = {}) => ({
 describe('CPO check your answers', () => {
   beforeEach(() => {
     vi.restoreAllMocks(); vi.clearAllMocks();
-    mockApplication(application());
-    vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(completedProgress);
-    vi.spyOn(cpoOrderDetailsService, 'get').mockResolvedValue({ canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'Compulsory purchase order', purpose: 'To acquire land and rights' }, documents: [file('executive-summary.docx')] });
-    vi.spyOn(cpoOrderDocumentsService, 'get').mockResolvedValue({ canEdit: true, orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }, { ...file('reasons.pdf'), category: DOCUMENT_CATEGORIES.reasons }] });
-    vi.spyOn(cpoNoticesService, 'get').mockResolvedValue(notices());
+    answers = {
+      application: application(),
+      progress: completedProgress,
+      order: { canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'Compulsory purchase order', purpose: 'To acquire land and rights' }, documents: [file('executive-summary.docx')] },
+      documents: { canEdit: true, orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }, { ...file('reasons.pdf'), category: DOCUMENT_CATEGORIES.reasons }] },
+      notices: notices(),
+    };
+    vi.mocked(applicationApiService.getApplicationReview).mockImplementation(async () => review(answers));
   });
 
   it('shows the caption, heading and each section of the design', async () => {
@@ -133,7 +152,7 @@ describe('CPO check your answers', () => {
   });
 
   it('does not offer a download while a virus check is running', async () => {
-    vi.mocked(cpoOrderDocumentsService.get).mockResolvedValue({ orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order, scan_status: 'PENDING' }] });
+    answers.documents = { orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order, scan_status: 'PENDING' }] };
     renderPage(); await ready();
     expect(screen.queryByRole('link', { name: 'order.pdf' })).not.toBeInTheDocument();
     expect(screen.getByText(/Virus check not complete/)).toBeInTheDocument();
@@ -163,7 +182,7 @@ describe('CPO check your answers', () => {
   });
 
   it('names each incomplete section and does not submit', async () => {
-    vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(completedProgress.filter((item) => item.subsection_name !== CPO_SUBSECTIONS.ORDER_DOCUMENTS));
+    answers.progress = completedProgress.filter((item) => item.subsection_name !== CPO_SUBSECTIONS.ORDER_DOCUMENTS);
     renderPage(); await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Submit application' }));
     const summary = await screen.findByRole('alert');
@@ -173,7 +192,7 @@ describe('CPO check your answers', () => {
   });
 
   it('treats unconfirmed notices as incomplete', async () => {
-    vi.mocked(cpoNoticesService.get).mockResolvedValue(notices({ record: { ...notices().record, check: { confirmed: false } } }));
+    answers.notices = notices({ record: { ...notices().record, check: { confirmed: false } } });
     renderPage(); await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Submit application' }));
     expect(await screen.findByRole('link', { name: 'Complete the record your notices section' })).toHaveAttribute('href', '/cpo/app/record-notices');
@@ -194,11 +213,17 @@ describe('CPO check your answers', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Your application could not be submitted. Try again.');
   });
 
-  it('shows an error summary rather than partial data when any read fails', async () => {
-    vi.mocked(cpoNoticesService.get).mockRejectedValue(new Error('Unable to load publicity record'));
+  it('shows an error summary rather than partial data when the review cannot be loaded', async () => {
+    vi.mocked(applicationApiService.getApplicationReview).mockRejectedValue(new Error('Failed to fetch application review'));
     renderPage(); await screen.findByRole('alert'); await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus());
     expect(screen.queryByRole('heading', { name: 'Order details' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+  });
+
+  it('loads every answer from the application review in one request', async () => {
+    renderPage(); await ready();
+    expect(applicationApiService.getApplicationReview).toHaveBeenCalledTimes(1);
+    expect(applicationApiService.getApplicationReview).toHaveBeenCalledWith('app');
   });
 
   it('rejects another application type', async () => {
