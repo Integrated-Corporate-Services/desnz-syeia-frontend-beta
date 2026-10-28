@@ -1,12 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cpoOrderDocumentsService } from './cpoOrderDocumentsService';
+import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
 
 vi.mock('../../../../utils/apiConfig', () => ({ buildBackendUrl: (path: string) => path }));
 vi.mock('../../../../utils/csrf', () => ({
   getCsrfHeaders: () => ({ 'X-CSRF-Token': 'test-token' }),
   fetchCsrfToken: vi.fn(),
 }));
-
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
 describe('cpoOrderDocumentsService', () => {

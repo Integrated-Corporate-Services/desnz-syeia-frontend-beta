@@ -6,7 +6,6 @@ export type UploadStep = Exclude<DocumentStep, 'check'>;
 export interface CpoDocument extends OrderDocument {
   category: string;
 }
-
 export interface OrderDocumentsResponse {
   orderDetails: Partial<OrderDetails>;
   documents: CpoDocument[];
