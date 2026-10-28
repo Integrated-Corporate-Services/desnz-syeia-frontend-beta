@@ -13,25 +13,25 @@ describe('cpoOrderDocumentsService', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('GETs the documents with credentials and adds the land answers from the local store', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [{ document_id: 'doc' }], canEdit: false }));
+    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [{ document_id: 'doc' }] }));
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await cpoOrderDocumentsService.get('app-1');
 
     expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/order-documents');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
-    expect(result).toEqual({ orderDetails: {}, documents: [{ document_id: 'doc' }], canEdit: false });
+    expect(result).toEqual({ orderDetails: {}, documents: [{ document_id: 'doc' }] });
   });
 
   it('PUTs the step without a confirmation outside the check step, then refreshes progress', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [], canEdit: true }));
+    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [] }));
     vi.stubGlobal('fetch', fetchMock);
 
     await cpoOrderDocumentsService.save('app-1', 'order', false, null);
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('/api/applications/app-1/order-documents');
-    expect(init).toMatchObject({ method: 'POST', credentials: 'include' });
+    expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({ step: 'order', saveForLater: false });
   });

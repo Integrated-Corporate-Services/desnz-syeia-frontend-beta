@@ -54,7 +54,7 @@ const CpoOrderDocumentsPage: React.FC = () => {
   const errorSummary = useRef<HTMLDivElement>(null);
   const base = `${CPO_BASE_URL}/${applicationId}/order-documents`;
   const heading = step === 'check' ? 'Check order documents' : COPY[step].heading;
-  const editable = data.canEdit !== false;
+  const editable = true;
   const category = step === 'check' ? '' : DOCUMENT_CATEGORIES[step];
   const pageDocuments = data.documents.filter(document => step !== 'check' && DOCUMENT_GROUP_CATEGORIES[step].includes(document.category));
   const backUrl = fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
@@ -96,7 +96,7 @@ const CpoOrderDocumentsPage: React.FC = () => {
         if (result.scanErrors.length) { setErrors(result.scanErrors.map((message) => ({ id: 'file-upload-input', message }))); return; }
       }
       const result = await cpoOrderDocumentsService.save(applicationId, step, saveForLater, step === 'check' ? !saveForLater : null);
-      setData((current) => ({ ...result, canEdit: current.canEdit }));
+      setData((current) => result);
       if (saveForLater) { navigate('/application-dashboard'); return; }
       const next = fromCheck ? 'check' : DOCUMENT_STEPS[DOCUMENT_STEPS.indexOf(step) + 1];
       navigate(step === 'check' ? `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}` : `${base}/${next}${fromApplicationReview ? '?from=application-review' : ''}`);
@@ -141,7 +141,7 @@ const CpoOrderDocumentsPage: React.FC = () => {
             {errors.filter((error) => error.id === 'file-upload-input').map((error, index) => <p className="govuk-error-message" id={`documents-upload-error-${index}`} key={index}><span className="govuk-visually-hidden">Error:</span> {error.message}</p>)}
             {editable ? <FileUpload key={step} ref={uploadRef} title={COPY[step].uploadTitle} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`}
               uploadImmediately
-              uploadedFiles={pageDocuments.map((document) => ({ id: document.file_id, storageProvider: document.storage_provider, s3Key: document.s3_key, bucketName: document.bucket_name, virtualFolder: document.virtual_folder, filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp, scanStatus: document.scan_status, scanResult: document.scan_result }))}
+              uploadedFiles={pageDocuments.map((document) => ({ id: document.file_id, storageProvider: 'aws_s3', s3Key: document.s3_key, bucketName: '', virtualFolder: document.s3_key ? document.s3_key.split('/').slice(0, -1).join('/') : '', filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp }))}
               applicationDocuments={pageDocuments.map((document) => ({ documentId: document.document_id, applicationId, fileId: document.file_id, category, subCategory: step.toUpperCase(), addedBy: document.added_by, addedAt: document.added_at }))}
               onUploaded={refreshDocuments} onDeleteFile={(id) => setData((current) => ({ ...current, documents: current.documents.filter((document) => document.file_id !== id) }))}
               onValidationErrors={(messages) => { setFileErrors(messages); setErrors(messages.map((message) => ({ id: 'file-upload-input', message }))); }} /> : readOnlyDocuments(pageDocuments)}

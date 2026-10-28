@@ -5,14 +5,18 @@ import type { DocumentStep, OrderDocumentsResponse } from '../types/orderDocumen
 async function readResponse(response: Response): Promise<OrderDocumentsResponse> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(response.status === 400 && typeof body.message === 'string'
+    const message = response.status === 400 && typeof body.message === 'string'
       ? body.message : response.status === 401 ? 'Your session has expired. Sign in again.'
         : response.status === 403 ? 'You do not have permission to update this application.'
-          : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
-            : 'Unable to load or save order documents. Try again.');
+          : response.status === 404 ? 'Order documents not found.'
+            : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
+              : 'Unable to load or save order documents. Try again.';
+    const error = new Error(message) as Error & { status?: number };
+    error.status = response.status;
+    throw error;
   }
   const result: OrderDocumentsResponse = await response.json();
-  return { orderDetails: result.orderDetails || {}, documents: result.documents || [], canEdit: result.canEdit };
+  return { orderDetails: result.orderDetails || {}, documents: result.documents || [] };
 }
 
 export const cpoOrderDocumentsService = {
@@ -26,8 +30,8 @@ export const cpoOrderDocumentsService = {
     }
     if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
     return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/order-documents`), {
-      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
-      body: JSON.stringify({ step, saveForLater, ...(step === 'check' ? { confirmed } : {}) }),
+      method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify({ step, saveForLater, ...(step === 'check' ? { confirmed: confirmed === true } : {}) }),
     }));
   },
 };

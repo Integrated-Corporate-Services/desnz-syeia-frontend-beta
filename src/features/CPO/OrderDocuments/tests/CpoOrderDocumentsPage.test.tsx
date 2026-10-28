@@ -26,10 +26,9 @@ vi.mock('../../../../components/FileUpload', async () => {
 });
 
 const document = (category: string, filename: string): CpoDocument => ({
-  id: filename, document_id: filename, application_id: 'application-id', file_id: filename, category,
-  filename, s3_key: filename, bucket_name: 'test', virtual_folder: category, storage_provider: 'S3',
-  file_content_type: 'application/pdf', file_size_bytes: 100, uploaded_at_timestamp: '2026-10-07T00:00:00Z',
-  added_by: 'user', added_at: '2026-10-07T00:00:00Z', scan_status: 'COMPLETED', scan_result: 'CLEAN',
+  document_id: filename, application_id: 'application-id', file_id: filename, category,
+  filename, s3_key: filename, file_content_type: 'application/pdf', file_size_bytes: 100, uploaded_at_timestamp: '2026-10-07T00:00:00Z',
+  added_by: 'user', added_at: '2026-10-07T00:00:00Z',
 });
 let stored: OrderDocumentsResponse;
 const renderStep = (step = 'order', query = '') => render(
@@ -45,7 +44,7 @@ describe('CPO order documents journey', () => {
     vi.clearAllMocks();
     uploadState.busy = false;
     uploadState.errors = [];
-    stored = { canEdit: true, orderDetails: { includesSpecialLand: false }, documents: [
+    stored = { orderDetails: { includesSpecialLand: false }, documents: [
       document(DOCUMENT_CATEGORIES.order, 'order.pdf'), document(DOCUMENT_CATEGORIES.order, 'order-copy.pdf'),
       document(DOCUMENT_CATEGORIES.maps, 'maps.pdf'), document(DOCUMENT_CATEGORIES.maps, 'maps-copy.pdf'),
       document(DOCUMENT_CATEGORIES.reasons, 'reasons.pdf'),
@@ -161,13 +160,6 @@ describe('CPO order documents journey', () => {
     renderStep();
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Unable to load'));
     await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus());
-    expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
-  });
-  it('does not show upload or delete controls for view-only access', async () => {
-    stored.canEdit = false;
-    renderStep();
-    await screen.findByText('You can view these documents but cannot change them.');
-    expect(screen.queryByRole('button', { name: /Delete/ })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
   });
   it('matches the reference guidance and Back navigation', async () => {
