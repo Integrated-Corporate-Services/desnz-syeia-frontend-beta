@@ -74,7 +74,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 <dt className="govuk-summary-list__key">
                   {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.ORGANISATION_NAME}
                 </dt>
-                <dd className="govuk-summary-list__value">
+                <dd className="govuk-summary-list__value govuk-!-text-break-word">
                   {organisation.organisation_name}
                 </dd>
                 <dd className="govuk-summary-list__actions">
@@ -88,7 +88,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 <dt className="govuk-summary-list__key">
                   {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.ORGANISATION_ADDRESS}
                 </dt>
-                <dd className="govuk-summary-list__value">
+                <dd className="govuk-summary-list__value govuk-!-text-break-word">
                   {organisation.address_line1 ? (
                     <>
                       {organisation.address_line1}<br />
@@ -108,11 +108,11 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 </dd>
               </div>
 
-              <div className="govuk-summary-list__row">
+              <div className="govuk-summary-list__row govuk-summary-list__row--no-actions">
                 <dt className="govuk-summary-list__key">
                   {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.TEAM_COORDINATORS}
                 </dt>
-                <dd className="govuk-summary-list__value organisation-details__coordinators">
+                <dd className="govuk-summary-list__value govuk-!-text-break-word">
                   {organisation.team_coordinator_emails?.length ? (
                     organisation.team_coordinator_emails.map((email, index) => (
                       <React.Fragment key={email}>
