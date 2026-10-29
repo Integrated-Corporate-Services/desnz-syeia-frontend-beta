@@ -74,5 +74,6 @@ const backendRoutePaths = new Set([
 // Backend-wired pages (Order details) keep real sign-in and the application access check.
 // Backend-wired pages (Order documents) keep real sign-in and the application access check.
 // To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
-export const cpoRoutes = cpoPageRoutes.map(route =>
-    backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });
+export const cpoRoutes = cpoPageRoutes.map((route) => {
+    return backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false };
+});
