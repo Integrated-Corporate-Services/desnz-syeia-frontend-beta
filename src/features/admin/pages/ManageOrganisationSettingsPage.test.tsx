@@ -93,5 +93,10 @@ describe('ManageOrganisationSettingsPage', () => {
       'govuk-link--no-visited-state'
     );
     expect(document.querySelector('.organisation-details__summary-list')).toBeInTheDocument();
+    // SYEIA-2764: long values wrap inside the value column (GOV.UK text-break-word)
+    document.querySelectorAll('.govuk-summary-list__value').forEach((value) => {
+      expect(value).toHaveClass('govuk-!-text-break-word');
+    });
+    expect(coordinatorsRow).toHaveClass('govuk-summary-list__row--no-actions');
   });
 });
