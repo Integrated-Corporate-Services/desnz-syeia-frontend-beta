@@ -27,4 +27,9 @@
     flex: none;
     width: 20%;
   }
+
+  /* Rows without a Change link (team coordinators) use the full width up to where the Change links end (SYEIA-2764) */
+  .organisation-details__summary-list .govuk-summary-list__row--no-actions::after {
+    display: none;
+  }
 }
