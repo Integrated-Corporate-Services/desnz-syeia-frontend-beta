@@ -2,11 +2,6 @@
   border-top: 1px solid #b1b4b6;
 }
 
-/* No actions column on this row, so the emails take the rest of the row */
-.organisation-details__coordinators {
-  overflow-wrap: anywhere;
-}
-
 /* Table cells share column widths across rows, so rows are flex here to let one row differ */
 @media (min-width: 40.0625em) {
   .organisation-details__summary-list {
@@ -24,10 +19,17 @@
 
   .organisation-details__summary-list .govuk-summary-list__value {
     flex: 1;
+    /* lets govuk-!-text-break-word wrap long values inside the flex row (SYEIA-2764) */
+    min-width: 0;
   }
 
   .organisation-details__summary-list .govuk-summary-list__actions {
     flex: none;
     width: 20%;
+  }
+
+  /* Rows without a Change link (team coordinators) use the full width up to where the Change links end (SYEIA-2764) */
+  .organisation-details__summary-list .govuk-summary-list__row--no-actions::after {
+    display: none;
   }
 }
