@@ -5,6 +5,7 @@ import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { cpoOrderDetailsService, nextOrderStep } from '../services/cpoOrderDetailsService';
 import { COPY, EMPTY_ORDER_DETAILS, ORDER_STEPS, RELATED_TYPE_LABELS, emptyRelated } from '../constants/orderDetailsConstants';
 import type { OrderDetails, OrderStep, RelatedApplication, RelatedType } from '../types/orderDetails';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
 
@@ -40,6 +41,8 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   const backUrl = fromOrderDocuments ? documentsUrl : fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
     : step === 'purpose' ? base : step === 'check' ? `${base}/purpose${fromApplicationReview ? '?from=application-review' : ''}`
       : `${CPO_BASE_URL}/${applicationId}/task-list`;
+
+  useBreadcrumb(<Link className="govuk-back-link" to={backUrl}>Back</Link>);
 
   useEffect(() => {
     let active = true;
@@ -172,7 +175,6 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${heading}`} />
     <div className="govuk-width-container cpo-order-details">
-    <Link className="govuk-back-link govuk-!-margin-bottom-6" to={backUrl}>Back</Link>
     <div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
       {errors.length > 0 && <div className="govuk-error-summary" role="alert" tabIndex={-1} ref={errorSummary} aria-labelledby="order-error-title">
         <h2 className="govuk-error-summary__title" id="order-error-title">There is a problem</h2>

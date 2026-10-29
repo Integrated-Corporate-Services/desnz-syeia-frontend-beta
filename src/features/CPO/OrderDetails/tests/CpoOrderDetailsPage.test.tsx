@@ -6,6 +6,7 @@ import CpoOrderDetailsPage from '../pages/CpoOrderDetailsPage';
 import { cpoOrderDetailsService } from '../services/cpoOrderDetailsService';
 import { EMPTY_ORDER_DETAILS } from '../constants/orderDetailsConstants';
 import type { OrderDetails, RelatedApplication } from '../types/orderDetails';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../../context/BreadcrumbContext';
 
 const navigateMock = vi.fn();
 vi.mock('../../../../components/PageTitle', () => ({ default: () => null }));
@@ -19,10 +20,17 @@ const entry: RelatedApplication = {
   reference: 'EN010145', siteAddress: 'Peartree Hill', relationship: 'Same project',
 };
 let stored: OrderDetails;
+const BreadcrumbOutlet = () => {
+  const { breadcrumb } = useBreadcrumbContext();
+  return <>{breadcrumb}</>;
+};
 const renderStep = (step = 'name', query = '') => render(
-  <MemoryRouter initialEntries={[`/cpo/application-id/order-details/${step}${query}`]}>
-    <Routes><Route path="/cpo/:applicationId/order-details/:orderStep" element={<CpoOrderDetailsPage />} /></Routes>
-  </MemoryRouter>
+  <BreadcrumbProvider>
+    <MemoryRouter initialEntries={[`/cpo/application-id/order-details/${step}${query}`]}>
+      <BreadcrumbOutlet />
+      <Routes><Route path="/cpo/:applicationId/order-details/:orderStep" element={<CpoOrderDetailsPage />} /></Routes>
+    </MemoryRouter>
+  </BreadcrumbProvider>
 );
 const ready = () => waitFor(() => expect(screen.getByRole('button', { name: 'Save and continue' })).toBeEnabled());
 
