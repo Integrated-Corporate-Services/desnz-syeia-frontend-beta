@@ -61,6 +61,11 @@ const backendRoutePaths = new Set([
     `${CPO_BASE_URL}/:applicationId/check-and-submit`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
+    `${CPO_BASE_URL}/:applicationId/order-details`,
+    `${CPO_BASE_URL}/:applicationId/order-details/:orderStep`,
 ]);
+// LOCAL (frontend-only) MODE: no sign-in or backend access check, so the pages open with the backend off.
+// Backend-wired pages (Order details) keep real sign-in and the application access check.
+// To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
 export const cpoRoutes = cpoPageRoutes.map(route =>
     backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });
