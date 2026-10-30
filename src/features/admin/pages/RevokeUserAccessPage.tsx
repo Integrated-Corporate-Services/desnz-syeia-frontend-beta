@@ -16,11 +16,25 @@ const RevokeUserAccessPage: React.FC = () => {
   // Keep the Manage user page's own Back destination (e.g. the team coordinators list), and the
   // organisation that list shows, so the revoke targets that membership rather than the signed-in user's
   const { from, organisationId } = (useLocation().state as { from?: string; organisationId?: string } | null) ?? {};
-  const { users, loading, confirmRevokeAccess } = useManageUsers();
+  const { users, loading, error, userRole, userOrganisationId, confirmRevokeAccess } = useManageUsers();
   const { navigateToAccessRevoked, navigateToDashboard } = useManageUsersNavigation();
   const [processing, setProcessing] = useState(false);
 
-  const user = findUserForOrganisation(users, userId, organisationId);
+  const memberships = [...new Map(users.filter(candidate => candidate.id === userId).flatMap(candidate =>
+    candidate.organisationMemberships?.length ? candidate.organisationMemberships :
+      candidate.organisationIds?.length === 1 ? [{
+        organisationId: candidate.organisationIds[0],
+        organisationName: candidate.organisation,
+        role: candidate.role,
+      }] : []
+  ).map(membership => [membership.organisationId, membership])).values()];
+  const [selection, setSelection] = useState({ userId, organisationId: '' });
+  const [organisationError, setOrganisationError] = useState('');
+  const selectedOrganisation = selection.userId === userId ? selection.organisationId : '';
+  const targetOrganisationId = organisationId || selectedOrganisation ||
+    (userRole !== ROLES.SUPERUSER ? userOrganisationId : undefined) ||
+    (memberships.length === 1 ? memberships[0].organisationId : undefined);
+  const user = findUserForOrganisation(users, userId, targetOrganisationId);
 
   const handleBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -39,9 +53,18 @@ const RevokeUserAccessPage: React.FC = () => {
 
   const handleRevokeAccess = async () => {
     if (!userId) return;
+    if (!targetOrganisationId || !memberships.some(item => item.organisationId === targetOrganisationId)) {
+      setOrganisationError('Select the organisation whose access you want to revoke');
+      document.getElementById('revoke-organisation')?.focus();
+      return;
+    }
+    setOrganisationError('');
     setProcessing(true);
-    await confirmRevokeAccess(userId, navigateToAccessRevoked, organisationId);
-    setProcessing(false);
+    try {
+      await confirmRevokeAccess(userId, navigateToAccessRevoked, targetOrganisationId);
+    } finally {
+      setProcessing(false);
+    }
   };
 
   if (loading) {
@@ -102,6 +125,24 @@ const RevokeUserAccessPage: React.FC = () => {
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">{REVOKE_USER_ACCESS_CONSTANTS.TITLE}</h1>
 
+            {(organisationError || error) && (
+              <div className="govuk-error-summary" role="alert" aria-labelledby="revoke-error-title" tabIndex={-1}>
+                <h2 className="govuk-error-summary__title" id="revoke-error-title">There is a problem</h2>
+                <div className="govuk-error-summary__body"><p className="govuk-body">{organisationError || error}</p></div>
+              </div>
+            )}
+            {memberships.length > 1 && !organisationId && userRole === ROLES.SUPERUSER && (
+              <div className={organisationError ? 'govuk-form-group govuk-form-group--error' : 'govuk-form-group'}>
+                <label className="govuk-label" htmlFor="revoke-organisation">Organisation</label>
+                {organisationError && <p className="govuk-error-message" id="revoke-organisation-error">{organisationError}</p>}
+                <select id="revoke-organisation" className="govuk-select" value={selectedOrganisation}
+                  aria-describedby={organisationError ? 'revoke-organisation-error' : undefined}
+                  onChange={event => { setSelection({ userId, organisationId: event.target.value }); setOrganisationError(''); }}>
+                  <option value="">Select an organisation</option>
+                  {memberships.map(item => <option key={item.organisationId} value={item.organisationId}>{item.organisationName}</option>)}
+                </select>
+              </div>
+            )}
             <p className="govuk-body">
               {REVOKE_USER_ACCESS_CONSTANTS.WARNING}
             </p>

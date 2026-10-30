@@ -22,10 +22,10 @@ const aggregated: User = {
   organisationMemberships: [...rowA.organisationMemberships!, ...rowB.organisationMemberships!],
 };
 
-const mocks = vi.hoisted(() => ({ users: [] as unknown[], revoke: vi.fn() }));
+const mocks = vi.hoisted(() => ({ users: [] as unknown[], revoke: vi.fn(), error: '' }));
 vi.mock('../../../config/appConfig', () => ({ isManageUserRoleChangeEnabled: () => true }));
 vi.mock('../../../hooks/useManageUsers', () => ({
-  useManageUsers: () => ({ users: mocks.users, loading: false, confirmRevokeAccess: mocks.revoke }),
+  useManageUsers: () => ({ users: mocks.users, loading: false, error: mocks.error, userRole: 'SUPERUSER', confirmRevokeAccess: mocks.revoke }),
 }));
 vi.mock('../../../hooks/useManageUsersNavigation', () => ({
   useManageUsersNavigation: () => ({ navigateToAccessRevoked: vi.fn(), navigateToDashboard: vi.fn() }),
@@ -91,5 +91,32 @@ describe('Manage user without a chosen organisation', () => {
     mocks.users = [rowA, rowB];
     mount('/admin/manage-user/u1', { from: LIST, organisationId: 'org-z' });
     expect(shown('Organisation')).toBe('Network A');
+  });
+});
+
+
+describe('Superuser revoke from the main dashboard', () => {
+  beforeEach(() => { mocks.revoke.mockReset(); mocks.error = ''; });
+  it('uses the target single membership without navigation state', () => {
+    mocks.users = [rowB];
+    mount('/admin/revoke-user/u1');
+    fireEvent.click(screen.getByRole('button', { name: 'Revoke access' }));
+    expect(mocks.revoke).toHaveBeenCalledWith('u1', expect.any(Function), 'org-b');
+  });
+  it('requires an organisation choice for multiple memberships, then revokes only that choice', () => {
+    mocks.users = [aggregated];
+    mount('/admin/revoke-user/u1');
+    fireEvent.click(screen.getByRole('button', { name: 'Revoke access' }));
+    expect(mocks.revoke).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Select the organisation');
+    fireEvent.change(screen.getByRole('combobox', { name: 'Organisation' }), { target: { value: 'org-b' } });
+    expect(shown('Organisation')).toBe('Network B');
+    fireEvent.click(screen.getByRole('button', { name: 'Revoke access' }));
+    expect(mocks.revoke).toHaveBeenCalledWith('u1', expect.any(Function), 'org-b');
+  });
+  it('shows an API error on the revoke page', () => {
+    mocks.users = [rowB]; mocks.error = 'User does not belong to this organisation';
+    mount('/admin/revoke-user/u1');
+    expect(screen.getByRole('alert')).toHaveTextContent(mocks.error);
   });
 });
