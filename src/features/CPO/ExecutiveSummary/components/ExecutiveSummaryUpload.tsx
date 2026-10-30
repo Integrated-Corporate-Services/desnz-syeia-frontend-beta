@@ -20,7 +20,7 @@ const ExecutiveSummaryUpload = forwardRef<FileUploadHandle, Props>(({ applicatio
     subCategory={EXECUTIVE_SUMMARY_SUBCATEGORY}
     prefix={`${applicationId}/${EXECUTIVE_SUMMARY_CATEGORY}`}
     uploadImmediately
-    uploadedFiles={documents.map((document) => ({ id: document.file_id, storageProvider: document.storage_provider, s3Key: document.s3_key, bucketName: document.bucket_name, virtualFolder: document.virtual_folder, filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp, scanStatus: document.scan_status, scanResult: document.scan_result }))}
+    uploadedFiles={documents.map((document) => ({ id: document.file_id, storageProvider: 'aws_s3', s3Key: document.s3_key, bucketName: '', virtualFolder: document.s3_key ? document.s3_key.split('/').slice(0, -1).join('/') : '', filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp }))}
     applicationDocuments={documents.map((document) => ({ documentId: document.document_id, applicationId, fileId: document.file_id, category: EXECUTIVE_SUMMARY_CATEGORY, subCategory: EXECUTIVE_SUMMARY_SUBCATEGORY, addedBy: document.added_by, addedAt: document.added_at }))}
     onValidationErrors={onValidationErrors}
     onDeleteFile={onDeleteFile}
