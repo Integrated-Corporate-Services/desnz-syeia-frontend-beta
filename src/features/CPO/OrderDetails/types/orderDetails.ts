@@ -1,5 +1,4 @@
 import type { ScanResult, ScanStatus } from '../../../../types/fileUpload';
-
 export type OrderStep = 'name' | 'purpose' | 'special-land' | 'exchange-land' | 'related-applications' | 'add-related-application' | 'related-applications-list' | 'check';
 export type RelatedType = 'DCO' | 'S37' | 'CPO' | 'OTHER' | '';
 
