@@ -8,6 +8,7 @@ import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES, DOCUMENT_STEPS } from '../constants/orderDocumentsConstants';
 import type { CpoDocument, DocumentStep, OrderDocumentsResponse, UploadStep } from '../types/orderDocuments';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import '../../styles/cpo.css';
 
 const COPY: Record<UploadStep, { heading: string; description: string; uploadTitle: string; hint: string; guidanceTitle: string; points: string[] }> = {
@@ -58,6 +59,7 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
   const pageDocuments = data.documents.filter(document => step !== 'check' && DOCUMENT_GROUP_CATEGORIES[step].includes(document.category));
   const backUrl = fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
     : step === 'order' ? `${CPO_BASE_URL}/${applicationId}/task-list` : `${base}/${DOCUMENT_STEPS[DOCUMENT_STEPS.indexOf(step) - 1]}${fromApplicationReview ? '?from=application-review' : ''}`;
+  useBreadcrumb(<Link className="govuk-back-link" to={backUrl}>Back</Link>);
 
   useEffect(() => {
     let active = true;
@@ -119,7 +121,6 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${heading}`} />
     <div className="govuk-width-container cpo-order-details cpo-document-uploads">
-    <Link className="govuk-back-link govuk-!-margin-bottom-6" to={backUrl}>Back</Link>
     <div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
       {errors.length > 0 && <div className="govuk-error-summary" ref={errorSummary} tabIndex={-1} role="alert" aria-labelledby="documents-error-title">
         <h2 className="govuk-error-summary__title" id="documents-error-title">There is a problem</h2>

@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../../context/BreadcrumbContext';
 import CpoOrderDocumentsPage from '../pages/CpoOrderDocumentsPage';
 import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES } from '../constants/orderDocumentsConstants';
@@ -31,8 +31,13 @@ const document = (category: string, filename: string): CpoDocument => ({
   added_by: 'user', added_at: '2026-10-07T00:00:00Z',
 });
 let stored: OrderDocumentsResponse;
+const BreadcrumbOutlet = () => {
+  const { breadcrumb } = useBreadcrumbContext();
+  return <>{breadcrumb}</>;
+};
 const renderStep = (step = 'order', query = '') => render(
   <BreadcrumbProvider><MemoryRouter initialEntries={[`/cpo/application-id/order-documents/${step}${query}`]}>
+    <BreadcrumbOutlet />
     <Routes><Route path="/cpo/:applicationId/order-documents/:documentStep" element={<CpoOrderDocumentsPage />} /></Routes>
   </MemoryRouter></BreadcrumbProvider>
 );
