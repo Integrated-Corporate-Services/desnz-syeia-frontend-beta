@@ -1,0 +1,39 @@
+/* Fixed column widths so long names and emails wrap inside their column (govuk-!-text-break-word) instead of widening the table past the page */
+.team-coordinators__table {
+  table-layout: fixed;
+}
+
+.team-coordinators__table .govuk-table__header:nth-child(1) {
+  width: 28%;
+}
+
+.team-coordinators__table .govuk-table__header:nth-child(2) {
+  width: 35%;
+}
+
+@media (min-width: 40.0625em) {
+  .team-coordinators__table .govuk-table__header:nth-child(1) {
+    width: 30%;
+  }
+
+  .team-coordinators__table .govuk-table__header:nth-child(2) {
+    width: 45%;
+  }
+}
+
+/* Desktop: give Email address enough width to keep emails up to 34 characters on one line (Action keeps the mockup 13%), with cell padding included in the widths */
+@media (min-width: 48.0625em) {
+  .team-coordinators__table .govuk-table__header:nth-child(1),
+  .team-coordinators__table .govuk-table__header:nth-child(2) {
+    box-sizing: border-box;
+  }
+
+  .team-coordinators__table .govuk-table__header:nth-child(1) {
+    width: 35%;
+  }
+
+  .team-coordinators__table .govuk-table__header:nth-child(2) {
+    width: 53%;
+  }
+}
+

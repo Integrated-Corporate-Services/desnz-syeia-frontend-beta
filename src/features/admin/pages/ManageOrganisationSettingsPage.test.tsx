@@ -77,7 +77,10 @@ describe('ManageOrganisationSettingsPage', () => {
       'jane.austen@sse.com,leo.tolstoy@sse.com,bob.mortimer@sse.co.uk'
     );
     expect(coordinatorsRow).not.toHaveTextContent('Jane Austen');
-    expect(within(coordinatorsRow as HTMLElement).queryByRole('link')).not.toBeInTheDocument();
+    expect(within(coordinatorsRow as HTMLElement).getByRole('link', { name: 'Change team coordinators' })).toHaveAttribute(
+      'href',
+      '/admin/organisations/organisation-123/team-coordinators'
+    );
 
     expect(screen.queryByText('Approved domains')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
@@ -97,6 +100,5 @@ describe('ManageOrganisationSettingsPage', () => {
     document.querySelectorAll('.govuk-summary-list__value').forEach((value) => {
       expect(value).toHaveClass('govuk-!-text-break-word');
     });
-    expect(coordinatorsRow).toHaveClass('govuk-summary-list__row--no-actions');
   });
 });
