@@ -4,6 +4,7 @@ export const CPO_SUBSECTIONS = {
   APPLICANT_DETAILS: 'Applicant details',
   CHECK_APPLICANT_CONTACT_DETAILS: 'Check applicant contact details',
   PRE_SUBMISSION_MEETING: 'Pre-submission meeting',
+  PROJECT_OVERVIEW: 'Project overview',
   ORDER_DETAILS: 'Order details',
   EXECUTIVE_SUMMARY: 'Executive summary',
   ORDER_DOCUMENTS: 'Order documents',
@@ -23,6 +24,7 @@ export const CPO_TASK_SECTIONS: readonly CpoTaskSection[] = [
   {
     title: 'About the order',
     tasks: [
+      { subsection: CPO_SUBSECTIONS.PROJECT_OVERVIEW, label: 'Project overview', slug: 'project-overview' },
       { subsection: CPO_SUBSECTIONS.ORDER_DETAILS, label: 'Order details', slug: 'order-details' },
       { subsection: CPO_SUBSECTIONS.EXECUTIVE_SUMMARY, label: 'Executive summary', slug: 'order-details/executive-summary' },
       { subsection: CPO_SUBSECTIONS.ORDER_DOCUMENTS, label: 'Order documents', slug: 'order-documents' },

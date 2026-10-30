@@ -39,6 +39,14 @@ it('shows the reference title and the saved progress on the task list', async ()
   expect(screen.getByText('Cannot start yet')).toBeInTheDocument();
 });
 
+it('lists Project overview first in the About the order section', async () => {
+  renderPage();
+  const link = await screen.findByRole('link', { name: 'Project overview' });
+  expect(link).toHaveAttribute('href', '/cpo/application-id/project-overview');
+  expect(link.closest('li')).toHaveTextContent('Not completed');
+  expect(link.closest('ul')?.querySelector('a')).toBe(link);
+});
+
 it('unlocks application review when all seven prerequisites are complete', async () => {
   vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(
     completed(Object.values(CPO_SUBSECTIONS).filter(subsection => subsection !== CPO_SUBSECTIONS.CHECK_AND_SUBMIT)),
