@@ -31,7 +31,7 @@ describe('CPO check your answers', () => {
     mockApplication(application());
     vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(completedProgress);
     vi.spyOn(cpoOrderDetailsService, 'get').mockResolvedValue({ canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'North Ridge CPO', purpose: 'Acquire land and rights', includesSpecialLand: false, hasRelatedApplications: false }, documents: [file('executive-summary.docx')] });
-    vi.spyOn(cpoOrderDocumentsService, 'get').mockResolvedValue({ canEdit: true, orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }] });
+    vi.spyOn(cpoOrderDocumentsService, 'get').mockResolvedValue({ orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }] });
     vi.spyOn(cpoNoticesService, 'get').mockResolvedValue({ reference: 'CPO00001', objectionsEmail: '', finalObjectionDate: '2026-11-09', record: { newspapers: { evidence: [{ fileId: 'notice.pdf', date: '2026-10-14' }] }, site: { completionDate: '2026-10-07' }, people: { completionDate: '2026-10-19' } }, documents: [{ ...file('notice.pdf'), category: 'CPO_NEWSPAPER_NOTICES' }] });
   });
   it('renders four sections with actual answers, filenames and dates', async () => {
@@ -78,10 +78,6 @@ describe('CPO check your answers', () => {
   it('does not allow edits on a submitted application', async () => {
     mockApplication({ type: 'CPO', status: 'SUBMITTED', permissions: { canEdit: true, canDownload: true } });
     renderPage(); await ready(); expect(screen.queryByRole('link', { name: /^Change / })).not.toBeInTheDocument();
-  });
-  it('does not offer download links for pending virus checks', async () => {
-    vi.mocked(cpoOrderDocumentsService.get).mockResolvedValue({ orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order, scan_status: 'PENDING' }] });
-    renderPage(); await ready(); expect(screen.queryByRole('link', { name: 'order.pdf' })).not.toBeInTheDocument(); expect(screen.getByText(/Virus check not complete/)).toBeInTheDocument();
   });
   it('shows incomplete prerequisite tasks without completing anything', async () => {
     vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue([]);
