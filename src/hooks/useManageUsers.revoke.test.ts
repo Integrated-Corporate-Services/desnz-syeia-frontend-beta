@@ -14,6 +14,7 @@ const laura = { id: 'u1', fullName: 'Laura Green', email: 'laura.green@example.t
 describe('useManageUsers confirmRevokeAccess organisation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    actor.role = 'SUPERUSER';
     vi.mocked(userService.getUsers).mockResolvedValue({ success: true, data: [laura] } as never);
     vi.mocked(userService.suspendUser).mockResolvedValue({ success: true } as never);
   });
@@ -33,5 +34,19 @@ describe('useManageUsers confirmRevokeAccess organisation', () => {
     await act(() => result.current.confirmRevokeAccess('u1', vi.fn()));
     expect(userService.suspendUser).not.toHaveBeenCalled();
     expect(result.current.error).toBe('Select the organisation whose access you want to revoke');
+  });
+});
+
+
+describe('coordinator revoke fallback', () => {
+  it('uses the coordinator organisation when no explicit target is passed', async () => {
+    actor.role = 'APPLICANT_TEAM_COORDINATOR';
+    vi.mocked(userService.getUsers).mockResolvedValue({ success: true, data: [laura] } as never);
+    vi.mocked(userService.suspendUser).mockResolvedValue({ success: true } as never);
+    const { result } = renderHook(() => useManageUsers());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    await act(() => result.current.confirmRevokeAccess('u1', vi.fn()));
+    expect(userService.suspendUser).toHaveBeenLastCalledWith('u1', REASON, 'desnz-org');
+    actor.role = 'SUPERUSER';
   });
 });
