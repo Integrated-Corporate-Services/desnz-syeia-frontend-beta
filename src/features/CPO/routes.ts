@@ -62,6 +62,7 @@ const backendRoutePaths = new Set([
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
     `${CPO_BASE_URL}/:applicationId/order-details`,
+    `${CPO_BASE_URL}/:applicationId/order-details/executive-summary`,
     `${CPO_BASE_URL}/:applicationId/order-details/:orderStep`,
     `${CPO_BASE_URL}/:applicationId/order-documents`,
     `${CPO_BASE_URL}/:applicationId/order-documents/:documentStep`,
@@ -77,12 +78,5 @@ const backendRoutePaths = new Set([
 // To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
 export const cpoRoutes = cpoPageRoutes.map((route) => {
     return backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false };
+
 });
-// Backend-wired pages (Executive summary) keep real sign-in and the application access check.
-// To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
-const backendRoutePaths = new Set([
-    `${CPO_BASE_URL}/:applicationId/order-details/executive-summary`,
-    `${CPO_BASE_URL}/:applicationId/order-details/:orderStep`,
-]);
-export const cpoRoutes = cpoPageRoutes.map(route =>
-    backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });
