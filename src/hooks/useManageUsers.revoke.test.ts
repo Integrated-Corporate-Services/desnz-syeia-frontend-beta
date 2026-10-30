@@ -27,10 +27,11 @@ describe('useManageUsers confirmRevokeAccess organisation', () => {
     expect(onSuccess).toHaveBeenCalledWith({ userName: 'Laura Green', userEmail: 'laura.green@example.test' });
   });
 
-  it("falls back to the signed-in user's organisation when none is given", async () => {
+  it("rejects a superuser revoke without a target organisation", async () => {
     const { result } = renderHook(() => useManageUsers());
     await waitFor(() => expect(result.current.loading).toBe(false));
     await act(() => result.current.confirmRevokeAccess('u1', vi.fn()));
-    expect(userService.suspendUser).toHaveBeenCalledWith('u1', REASON, 'desnz-org');
+    expect(userService.suspendUser).not.toHaveBeenCalled();
+    expect(result.current.error).toBe('Select the organisation whose access you want to revoke');
   });
 });
