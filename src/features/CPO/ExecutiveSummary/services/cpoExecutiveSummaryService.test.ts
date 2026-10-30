@@ -13,7 +13,7 @@ describe('cpoExecutiveSummaryService', () => {
   beforeEach(() => vi.clearAllMocks());
   afterEach(() => vi.unstubAllGlobals());
 
-  it('GETs the documents with credentials and defaults edit rights', async () => {
+  it('GETs the documents with credentials', async () => {
     const fetchMock = vi.fn().mockResolvedValue(json({ documents: [{ document_id: 'doc' }] }));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -24,7 +24,7 @@ describe('cpoExecutiveSummaryService', () => {
   });
 
   it('PUTs saveForLater with the CSRF token, then refreshes progress', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [], canEdit: true }));
+    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [] }));
     vi.stubGlobal('fetch', fetchMock);
 
     await cpoExecutiveSummaryService.save('app-1', false);
@@ -54,7 +54,13 @@ describe('cpoExecutiveSummaryService', () => {
     await expect(cpoExecutiveSummaryService.save('app-1', false)).rejects.toThrow('Upload an executive summary');
   });
 
-  it('points the template link at the backend DOCX endpoint', () => {
-    expect(cpoExecutiveSummaryService.templateUrl('app-1')).toBe('/api/applications/app-1/executive-summary/template');
+  it('downloads the template DOCX as a blob with credentials', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('docx', { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(cpoExecutiveSummaryService.downloadTemplate('app-1')).resolves.toBeInstanceOf(Blob);
+
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/executive-summary/template');
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
   });
 });

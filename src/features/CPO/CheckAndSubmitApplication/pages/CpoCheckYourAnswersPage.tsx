@@ -78,8 +78,6 @@ const CpoCheckYourAnswersPage: React.FC = () => {
       cpoNoticesService.get(applicationId),
       progressApiService.fetchApplicationProgress(applicationId),
       cpoExecutiveSummaryService.get(applicationId),
-      // applicationApiService.getApplicationById(applicationId),
-      // progressApiService.fetchApplicationProgress(applicationId),
     ]).then(([application, order, documents, notices, progress, summary]) => {
       if (application.type !== 'CPO') throw new Error('Compulsory purchase order application not found');
       if (active) setData({ application, order: { ...order, documents: summary.documents }, documents, notices, progress });

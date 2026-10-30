@@ -79,5 +79,4 @@ const backendRoutePaths = new Set([
 // To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
 export const cpoRoutes = cpoPageRoutes.map((route) => {
     return backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false };
-
 });

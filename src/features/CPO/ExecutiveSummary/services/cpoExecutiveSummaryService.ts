@@ -33,14 +33,20 @@ export const cpoExecutiveSummaryService = {
     }
     if (!csrfHeaders['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
 
-    const result = await readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary`), {
+    return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary`), {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': generateCorrelationId(), ...csrfHeaders },
       body: JSON.stringify({ saveForLater }),
     }));
-    return result;
   },
 
-  templateUrl: (applicationId: string) => buildBackendUrl(`/api/applications/${applicationId}/executive-summary/template`),
+  downloadTemplate: async (applicationId: string): Promise<Blob> => {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary/template`), {
+      credentials: 'include',
+      headers: { 'X-Correlation-ID': generateCorrelationId() },
+    });
+    if (!response.ok) throw Object.assign(new Error('The executive summary template could not be downloaded. Try again.'), { status: response.status });
+    return response.blob();
+  },
 };
