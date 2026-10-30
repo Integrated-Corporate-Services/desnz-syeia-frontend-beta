@@ -11,7 +11,7 @@ import { RELATED_TYPE_LABELS } from '../../OrderDetails/constants/orderDetailsCo
 import type { OrderDetailsResponse, OrderDocument } from '../../OrderDetails/types/orderDetails';
 import { cpoOrderDocumentsService } from '../../OrderDocuments/services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES } from '../../OrderDocuments/constants/orderDocumentsConstants';
-import type { OrderDocumentsResponse } from '../../OrderDocuments/types/orderDocuments';
+import type { CpoDocument, OrderDocumentsResponse } from '../../OrderDocuments/types/orderDocuments';
 import { cpoNoticesService } from '../../RecordNotices/services/cpoNoticesService';
 import { NOTICE_CATEGORIES } from '../../RecordNotices/constants/noticesConstants';
 import type { NoticesResponse, NoticeStep } from '../../RecordNotices/types/notices';
@@ -86,7 +86,7 @@ const CpoCheckYourAnswersPage: React.FC = () => {
   useEffect(() => { if (error) summaryRef.current?.focus(); }, [error]);
   useEffect(() => { if (!loading && !error) headingRef.current?.focus(); }, [loading, error]);
   const canEdit = data?.application.status.toLowerCase() === 'draft' && data.application.permissions?.canEdit === true
-    && data.order.canEdit !== false && data.documents.canEdit !== false;
+    && data.order.canEdit !== false;
   const canDownload = data?.application.permissions?.canDownload === true;
   const changeUrl = (path: string) => `${base}/${path}?from=application-review`;
   const row = (label: string, value: React.ReactNode, path: string) => <div className="govuk-summary-list__row" key={label}>
@@ -94,12 +94,11 @@ const CpoCheckYourAnswersPage: React.FC = () => {
     <dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-line' }}>{value}</dd>
     {canEdit && <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={changeUrl(path)}>Change<span className="govuk-visually-hidden"> {label.toLowerCase()}</span></Link></dd>}
   </div>;
-  const files = (documents: OrderDocument[], empty = 'Not uploaded') => documents.length ? documents.map((file) => <p className="govuk-!-margin-bottom-1" key={file.document_id}>
-    {canDownload && file.scan_status === 'COMPLETED' && file.scan_result === 'CLEAN' ? <a className="govuk-link" href="#review-heading" onClick={(event) => {
+  const files = (documents: (OrderDocument | CpoDocument)[], empty = 'Not uploaded') => documents.length ? documents.map((file) => <p className="govuk-!-margin-bottom-1" key={file.document_id}>
+    {canDownload ? <a className="govuk-link" href="#review-heading" onClick={(event) => {
       event.preventDefault();
       void downloadS3FileOnSameTab(file.s3_key, file.file_id, applicationId, file.document_id).catch(() => setError('Unable to download the document. Try again.'));
     }}>{file.filename}</a> : file.filename}
-    {(file.scan_status !== 'COMPLETED' || file.scan_result !== 'CLEAN') && ' (Virus check not complete)'}
   </p>) : empty;
   const publicityFiles = (step: NoticeStep, label: string) => {
     if (!data) return null;
