@@ -76,11 +76,11 @@ const CpoCheckYourAnswersPage: React.FC = () => {
       cpoOrderDetailsService.get(applicationId),
       cpoOrderDocumentsService.get(applicationId),
       cpoNoticesService.get(applicationId),
-      Promise.resolve().then(() => useCpoStore.getState().getProgress(applicationId)),
+      progressApiService.fetchApplicationProgress(applicationId),
       cpoExecutiveSummaryService.get(applicationId),
       // applicationApiService.getApplicationById(applicationId),
       // progressApiService.fetchApplicationProgress(applicationId),
-    ])).then(([application, order, documents, notices, progress, summary]) => {
+    ]).then(([application, order, documents, notices, progress, summary]) => {
       if (application.type !== 'CPO') throw new Error('Compulsory purchase order application not found');
       if (active) setData({ application, order: { ...order, documents: summary.documents, canEdit: order.canEdit !== false && summary.canEdit }, documents, notices, progress });
     }).catch((failure) => { if (active) setError(failure instanceof Error ? failure.message : 'Unable to load your answers. Try again.'); })

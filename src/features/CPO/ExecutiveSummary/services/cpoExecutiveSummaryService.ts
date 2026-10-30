@@ -45,8 +45,6 @@ export const cpoExecutiveSummaryService = {
       headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': generateCorrelationId(), ...csrfHeaders },
       body: JSON.stringify({ saveForLater }),
     }));
-    // The task list reads the Executive summary progress the backend just wrote.
-    await syncApplicantFromBackend(applicationId, true);
     return result;
   },
 

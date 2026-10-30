@@ -1,13 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cpoExecutiveSummaryService } from './cpoExecutiveSummaryService';
-import { syncApplicantFromBackend } from '../../store/cpoApplicantSync';
 
 vi.mock('../../../../utils/apiConfig', () => ({ buildBackendUrl: (path: string) => path }));
 vi.mock('../../../../utils/csrf', () => ({
   getCsrfHeaders: () => ({ 'X-CSRF-Token': 'test-token' }),
   fetchCsrfToken: vi.fn(),
 }));
-vi.mock('../../store/cpoApplicantSync', () => ({ syncApplicantFromBackend: vi.fn().mockResolvedValue(undefined) }));
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
 
@@ -41,7 +39,6 @@ describe('cpoExecutiveSummaryService', () => {
     expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({ saveForLater: false });
-    expect(syncApplicantFromBackend).toHaveBeenCalledWith('app-1', true);
   });
 
   it.each([
@@ -55,7 +52,6 @@ describe('cpoExecutiveSummaryService', () => {
 
     await expect(cpoExecutiveSummaryService.save('app-1', true)).rejects.toMatchObject({ message: expect.stringContaining(message), status });
     await expect(cpoExecutiveSummaryService.get('app-1')).rejects.toMatchObject({ status });
-    expect(syncApplicantFromBackend).not.toHaveBeenCalled();
   });
 
   it('shows the backend message when the summary cannot be completed', async () => {
