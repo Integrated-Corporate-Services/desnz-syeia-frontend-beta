@@ -3,24 +3,19 @@ import { generateCorrelationId } from '../../../../utils/correlationId';
 import { fetchCsrfToken, getCsrfHeaders } from '../../../../utils/csrf';
 import type { ExecutiveSummaryData } from '../types/executiveSummary';
 
-const ERROR_MESSAGES: Record<number, string> = {
-  401: 'Your session has expired. Sign in again.',
-  403: 'You do not have permission to update this application.',
-  404: 'Compulsory purchase order application not found.',
-  409: 'Only draft compulsory purchase order applications can be updated.',
-};
-const DEFAULT_ERROR = 'Unable to load or save the executive summary. Try again.';
+import { EXECUTIVE_SUMMARY_ERROR_MESSAGES, EXECUTIVE_SUMMARY_DEFAULT_ERROR } from '../constants/executiveSummaryConstants';
 
 async function readResponse(response: Response): Promise<ExecutiveSummaryData> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
+    // Validation messages are written for the applicant; other failures use fixed copy.
     const message = response.status === 400 && typeof body.message === 'string'
       ? body.message
-      : ERROR_MESSAGES[response.status] || DEFAULT_ERROR;
+      : EXECUTIVE_SUMMARY_ERROR_MESSAGES[response.status] || EXECUTIVE_SUMMARY_DEFAULT_ERROR;
     throw Object.assign(new Error(message), { status: response.status });
   }
   const result = await response.json();
-  return { documents: result.documents || [], canEdit: result.canEdit !== false };
+  return { documents: result.documents || [] };
 }
 
 export const cpoExecutiveSummaryService = {
@@ -46,5 +41,12 @@ export const cpoExecutiveSummaryService = {
     }));
   },
 
-  templateUrl: (applicationId: string) => buildBackendUrl(`/api/applications/${applicationId}/executive-summary/template`),
+  downloadTemplate: async (applicationId: string): Promise<Blob> => {
+    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary/template`), {
+      credentials: 'include',
+      headers: { 'X-Correlation-ID': generateCorrelationId() },
+    });
+    if (!response.ok) throw Object.assign(new Error('The executive summary template could not be downloaded. Try again.'), { status: response.status });
+    return response.blob();
+  },
 };

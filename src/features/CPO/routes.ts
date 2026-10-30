@@ -64,6 +64,7 @@ const backendRoutePaths = new Set([
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
     `${CPO_BASE_URL}/:applicationId/order-details`,
+    `${CPO_BASE_URL}/:applicationId/order-details/executive-summary`,
     `${CPO_BASE_URL}/:applicationId/order-details/:orderStep`,
     `${CPO_BASE_URL}/:applicationId/project-overview`,
     `${CPO_BASE_URL}/:applicationId/order-documents`,

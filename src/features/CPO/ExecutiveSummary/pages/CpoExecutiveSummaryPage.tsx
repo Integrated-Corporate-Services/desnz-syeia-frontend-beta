@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import type { FileUploadHandle } from '../../../../components/FileUpload';
 import ExecutiveSummaryUpload from '../components/ExecutiveSummaryUpload';
 import { EXECUTIVE_SUMMARY_COPY } from '../constants/executiveSummaryConstants';
@@ -16,7 +17,7 @@ const CpoExecutiveSummaryPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const exitUrl = getExecutiveSummaryExitUrl(applicationId, searchParams.get('from') === 'application-review');
-  const { documents, setDocuments, canEdit, loading, loadFailed, loadError, refreshDocuments } = useExecutiveSummary(applicationId);
+  const { documents, setDocuments, loading, loadFailed, loadError, refreshDocuments } = useExecutiveSummary(applicationId);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<ExecutiveSummaryFormError[]>([]);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
@@ -24,6 +25,8 @@ const CpoExecutiveSummaryPage: React.FC = () => {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const uploadRef = useRef<FileUploadHandle>(null);
   const { heading, caption, hint } = EXECUTIVE_SUMMARY_COPY;
+
+  useBreadcrumb(<Link className="govuk-back-link" to={exitUrl}>Back</Link>);
 
   useEffect(() => {
     if (loadError) setErrors([{ id: 'executive-summary-heading', message: loadError }]);
@@ -37,10 +40,25 @@ const CpoExecutiveSummaryPage: React.FC = () => {
     if (!loading && !loadFailed) headingRef.current?.focus();
   }, [loading, loadFailed]);
 
+  const downloadTemplate = async () => {
+    try {
+      const url = window.URL.createObjectURL(await cpoExecutiveSummaryService.downloadTemplate(applicationId));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Executive_summary_template.docx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      setErrors([{ id: 'download-template', message: error instanceof Error ? error.message : 'The executive summary template could not be downloaded. Try again.' }]);
+    }
+  };
+
   const toUploadErrors = (messages: string[]) => messages.map((message) => ({ id: 'file-upload-input', message }));
 
   const save = async (saveForLater: boolean) => {
-    if (loading || saving || loadFailed || !canEdit) return;
+    if (loading || saving || loadFailed) return;
     if (uploadErrors.length) { setErrors(toUploadErrors(uploadErrors)); return; }
     if (uploadRef.current?.isBusy()) { setErrors(toUploadErrors(['Wait for your files to finish uploading and being checked for viruses'])); return; }
     setSaving(true);
@@ -63,7 +81,6 @@ const CpoExecutiveSummaryPage: React.FC = () => {
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${heading}`} />
     <div className="govuk-width-container cpo-order-details cpo-executive-summary">
-      <Link className="govuk-back-link govuk-!-margin-bottom-6" to={exitUrl}>Back</Link>
       <div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
         {errors.length > 0 && <div className="govuk-error-summary" role="alert" tabIndex={-1} ref={errorSummary} aria-labelledby="executive-summary-error-title">
           <h2 className="govuk-error-summary__title" id="executive-summary-error-title">There is a problem</h2>
@@ -73,11 +90,10 @@ const CpoExecutiveSummaryPage: React.FC = () => {
         <h1 className="govuk-heading-l" id="executive-summary-heading" ref={headingRef} tabIndex={-1}>{heading}</h1>
         <div id="executive-summary-hint" className="govuk-body">{hint}</div>
         {loading && <p className="govuk-body" role="status">Loading executive summary...</p>}
-        {!loading && !canEdit && <p className="govuk-body" role="status">You can view this executive summary but cannot change it.</p>}
         <form onSubmit={(event) => { event.preventDefault(); void save(false); }}>
-          <fieldset className="govuk-fieldset" disabled={loading || saving || loadFailed || !canEdit}>
+          <fieldset className="govuk-fieldset" disabled={loading || saving || loadFailed}>
             <legend className="govuk-visually-hidden">{heading}</legend>
-            <a className="govuk-button govuk-button--secondary govuk-!-margin-bottom-6" href={cpoExecutiveSummaryService.templateUrl(applicationId)} download="executive-summary-template.txt">Download executive summary template</a>
+            <button className="govuk-button govuk-button--secondary govuk-!-margin-bottom-6" id="download-template" type="button" onClick={() => void downloadTemplate()}>Download executive summary template</button>
             {uploadError && <p className="govuk-error-message" id="file-upload-input-error"><span className="govuk-visually-hidden">Error:</span> {uploadError.message}</p>}
             <ExecutiveSummaryUpload
               ref={uploadRef}
