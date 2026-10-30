@@ -35,8 +35,8 @@ describe('CPO project overview page', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
-    vi.spyOn(cpoProjectOverviewService, 'get').mockResolvedValue({ details: EMPTY_PROJECT_OVERVIEW, canEdit: true });
-    vi.spyOn(cpoProjectOverviewService, 'save').mockImplementation(async (_id, details) => ({ details, canEdit: true }));
+    vi.spyOn(cpoProjectOverviewService, 'get').mockResolvedValue({ details: EMPTY_PROJECT_OVERVIEW });
+    vi.spyOn(cpoProjectOverviewService, 'save').mockImplementation(async (_id, details) => ({ details }));
   });
 
   it('shows the heading, both questions, the character count, a back link and only Save and continue', async () => {
@@ -102,7 +102,7 @@ describe('CPO project overview page', () => {
   });
 
   it('shows the saved answers when the page is reopened', async () => {
-    vi.mocked(cpoProjectOverviewService.get).mockResolvedValue({ details: { projectName: 'North Ridge', projectSummary: 'Summary' }, canEdit: true });
+    vi.mocked(cpoProjectOverviewService.get).mockResolvedValue({ details: { projectName: 'North Ridge', projectSummary: 'Summary' } });
     renderPage();
     await ready();
     expect(nameInput()).toHaveValue('North Ridge');
@@ -118,12 +118,5 @@ describe('CPO project overview page', () => {
     fireEvent.click(button());
     expect(await screen.findByRole('alert')).toHaveTextContent('Only draft compulsory purchase order applications can be updated.');
     expect(navigateMock).not.toHaveBeenCalled();
-  });
-
-  it('disables the form when the application cannot be edited', async () => {
-    vi.mocked(cpoProjectOverviewService.get).mockResolvedValue({ details: EMPTY_PROJECT_OVERVIEW, canEdit: false });
-    renderPage();
-    expect(await screen.findByText('You can view this project overview but cannot change it.')).toBeInTheDocument();
-    expect(button()).toBeDisabled();
   });
 });

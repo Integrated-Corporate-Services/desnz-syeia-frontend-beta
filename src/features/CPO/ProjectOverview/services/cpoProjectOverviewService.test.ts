@@ -14,17 +14,17 @@ describe('cpoProjectOverviewService', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('GETs the project overview with credentials and fills missing fields', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ details: { projectName: 'North Ridge' }, canEdit: true }));
+    const fetchMock = vi.fn().mockResolvedValue(json({ details: { projectName: 'North Ridge' } }));
     vi.stubGlobal('fetch', fetchMock);
     const result = await cpoProjectOverviewService.get('app-1');
     expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/project-overview');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
-    expect(result).toEqual({ details: { projectName: 'North Ridge', projectSummary: '' }, canEdit: true });
+    expect(result).toEqual({ details: { projectName: 'North Ridge', projectSummary: '' } });
   });
 
   it('POSTs the answers with the CSRF token', async () => {
     const details = { projectName: 'North Ridge', projectSummary: 'Summary' };
-    const fetchMock = vi.fn().mockResolvedValue(json({ details, canEdit: true }));
+    const fetchMock = vi.fn().mockResolvedValue(json({ details }));
     vi.stubGlobal('fetch', fetchMock);
     await cpoProjectOverviewService.save('app-1', details);
     expect(fetchMock.mock.calls[0][1]).toMatchObject({

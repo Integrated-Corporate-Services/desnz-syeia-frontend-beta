@@ -5,5 +5,4 @@ export interface ProjectOverview {
 
 export interface ProjectOverviewResponse {
   details: ProjectOverview;
-  canEdit?: boolean;
 }

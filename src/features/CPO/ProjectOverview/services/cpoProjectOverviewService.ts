@@ -15,7 +15,7 @@ async function readResponse(response: Response): Promise<ProjectOverviewResponse
     throw Object.assign(new Error(message), { status: response.status });
   }
   const result: ProjectOverviewResponse = await response.json();
-  return { details: { ...EMPTY_PROJECT_OVERVIEW, ...result.details }, canEdit: result.canEdit };
+  return { details: { ...EMPTY_PROJECT_OVERVIEW, ...result.details } };
 }
 
 export const cpoProjectOverviewService = {

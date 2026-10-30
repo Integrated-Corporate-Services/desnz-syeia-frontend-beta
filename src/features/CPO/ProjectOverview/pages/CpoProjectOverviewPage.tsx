@@ -32,7 +32,6 @@ const CpoProjectOverviewPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [canEdit, setCanEdit] = useState(true);
   const [errors, setErrors] = useState<FormError[]>([]);
   const errorSummary = useRef<HTMLDivElement>(null);
   const taskListUrl = `${CPO_BASE_URL}/${applicationId}/task-list`;
@@ -47,7 +46,6 @@ const CpoProjectOverviewPage: React.FC = () => {
     cpoProjectOverviewService.get(applicationId).then((result) => {
       if (!active) return;
       setDetails({ ...EMPTY_PROJECT_OVERVIEW, ...result.details });
-      setCanEdit(result.canEdit !== false);
     }).catch((error) => {
       if (!active) return;
       setLoadFailed(true);
@@ -80,7 +78,7 @@ const CpoProjectOverviewPage: React.FC = () => {
   };
 
   const save = async () => {
-    if (loading || saving || loadFailed || !canEdit) return;
+    if (loading || saving || loadFailed) return;
     const validationErrors = validate();
     if (validationErrors.length) { setErrors(validationErrors); return; }
     setSaving(true);
@@ -110,9 +108,8 @@ const CpoProjectOverviewPage: React.FC = () => {
       </div>}
       <h1 className="govuk-heading-l" id="project-overview-heading" tabIndex={-1}>{COPY.heading}</h1>
       {loading && <p className="govuk-body" role="status">Loading project overview...</p>}
-      {!loading && !canEdit && <p className="govuk-body" role="status">You can view this project overview but cannot change it.</p>}
       <form noValidate onSubmit={(event) => { event.preventDefault(); void save(); }}>
-        <fieldset className="govuk-fieldset" disabled={loading || saving || loadFailed || !canEdit}>
+        <fieldset className="govuk-fieldset" disabled={loading || saving || loadFailed}>
           <legend className="govuk-visually-hidden">{COPY.heading}</legend>
           <div className={`govuk-form-group${nameError ? ' govuk-form-group--error' : ''}`}>
             <label className="govuk-label govuk-label--s" htmlFor="projectName">{COPY.projectNameLabel}</label>
