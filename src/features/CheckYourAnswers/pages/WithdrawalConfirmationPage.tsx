@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { NWL_BASE_URL } from "../../../constants/nwl";
+import { CPO_BASE_URL } from "../../../constants/cpo";
 import { WITHDRAWAL_LABELS } from "../constants/applicationSummaryLabels";
 import PageTitle from "../../../components/PageTitle";
 
@@ -19,7 +20,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
   // Get application data from location state or use defaults
   const locationState = location.state as ConfirmationLocationState | null;
   const desnzRef = locationState?.desnzRef;
-  const formType = locationState?.formType || "S37";
+  const formType = locationState?.formType || (location.pathname.startsWith(`${CPO_BASE_URL}/`) ? "CPO" : "S37");
   
   const getApplicationId = () => {
     if (params.applicationId) return params.applicationId;
@@ -39,6 +40,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
   const getBaseUrl = () => {
     const type = formType.toUpperCase();
     if (type === 'NWL') return NWL_BASE_URL;
+    if (type === 'CPO') return CPO_BASE_URL;
 
     return S37_BASE_URL;
   };
