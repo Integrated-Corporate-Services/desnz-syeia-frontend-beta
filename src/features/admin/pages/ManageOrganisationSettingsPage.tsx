@@ -108,7 +108,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 </dd>
               </div>
 
-              <div className="govuk-summary-list__row govuk-summary-list__row--no-actions">
+              <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">
                   {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.TEAM_COORDINATORS}
                 </dt>
@@ -116,7 +116,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                   {organisation.team_coordinator_emails?.length ? (
                     organisation.team_coordinator_emails.map((email, index) => (
                       <React.Fragment key={email}>
-                        {email}
+                        {email.split(/(?=@)/).map((part, i) => <React.Fragment key={i}>{i > 0 && <wbr />}{part}</React.Fragment>)}
                         {index < organisation.team_coordinator_emails!.length - 1 && ','}
                         <br />
                       </React.Fragment>
@@ -125,13 +125,11 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                     MANAGE_ORGANISATION_SETTINGS_CONSTANTS.NO_TEAM_COORDINATORS
                   )}
                 </dd>
-                {/* Change link hidden for now
                 <dd className="govuk-summary-list__actions">
                   <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/team-coordinators`}>
                     {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE}<span className="govuk-visually-hidden">{MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE_TEAM_COORDINATORS_HIDDEN}</span>
                   </Link>
                 </dd>
-                */}
               </div>
             </dl>
 
