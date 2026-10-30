@@ -16,7 +16,7 @@ const CpoExecutiveSummaryPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const exitUrl = getExecutiveSummaryExitUrl(applicationId, searchParams.get('from') === 'application-review');
-  const { documents, setDocuments, canEdit, loading, loadFailed, loadError, refreshDocuments } = useExecutiveSummary(applicationId);
+  const { documents, setDocuments, loading, loadFailed, loadError, refreshDocuments } = useExecutiveSummary(applicationId);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<ExecutiveSummaryFormError[]>([]);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
@@ -40,7 +40,7 @@ const CpoExecutiveSummaryPage: React.FC = () => {
   const toUploadErrors = (messages: string[]) => messages.map((message) => ({ id: 'file-upload-input', message }));
 
   const save = async (saveForLater: boolean) => {
-    if (loading || saving || loadFailed || !canEdit) return;
+    if (loading || saving || loadFailed) return;
     if (uploadErrors.length) { setErrors(toUploadErrors(uploadErrors)); return; }
     if (uploadRef.current?.isBusy()) { setErrors(toUploadErrors(['Wait for your files to finish uploading and being checked for viruses'])); return; }
     setSaving(true);
@@ -73,9 +73,8 @@ const CpoExecutiveSummaryPage: React.FC = () => {
         <h1 className="govuk-heading-l" id="executive-summary-heading" ref={headingRef} tabIndex={-1}>{heading}</h1>
         <div id="executive-summary-hint" className="govuk-body">{hint}</div>
         {loading && <p className="govuk-body" role="status">Loading executive summary...</p>}
-        {!loading && !canEdit && <p className="govuk-body" role="status">You can view this executive summary but cannot change it.</p>}
         <form onSubmit={(event) => { event.preventDefault(); void save(false); }}>
-          <fieldset className="govuk-fieldset" disabled={loading || saving || loadFailed || !canEdit}>
+          <fieldset className="govuk-fieldset" disabled={loading || saving || loadFailed}>
             <legend className="govuk-visually-hidden">{heading}</legend>
             <a className="govuk-button govuk-button--secondary govuk-!-margin-bottom-6" href={cpoExecutiveSummaryService.templateUrl(applicationId)} download="executive-summary-template.docx">Download executive summary template</a>
             {uploadError && <p className="govuk-error-message" id="file-upload-input-error"><span className="govuk-visually-hidden">Error:</span> {uploadError.message}</p>}

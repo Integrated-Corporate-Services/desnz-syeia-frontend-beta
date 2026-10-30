@@ -37,8 +37,8 @@ describe('CPO executive summary', () => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
     uploadState.errors = [];
-    vi.spyOn(cpoExecutiveSummaryService, 'get').mockResolvedValue({ documents: [], canEdit: true });
-    vi.spyOn(cpoExecutiveSummaryService, 'save').mockResolvedValue({ documents: [], canEdit: true });
+    vi.spyOn(cpoExecutiveSummaryService, 'get').mockResolvedValue({ documents: [] });
+    vi.spyOn(cpoExecutiveSummaryService, 'save').mockResolvedValue({ documents: [] });
   });
 
   it('does not continue when the scan fails', async () => {
@@ -87,13 +87,6 @@ describe('CPO executive summary', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
     await waitFor(() => expect(cpoExecutiveSummaryService.save).toHaveBeenCalledWith('application-id', true));
     expect(navigateMock).toHaveBeenCalledWith('/application-dashboard');
-  });
-
-  it('disables the upload for view-only access', async () => {
-    vi.mocked(cpoExecutiveSummaryService.get).mockResolvedValue({ documents: [], canEdit: false });
-    renderPage();
-    await screen.findByText('You can view this executive summary but cannot change it.');
-    expect(screen.getByLabelText('Upload your executive summary')).toBeDisabled();
   });
 
   it('disables saving and focuses the error when loading fails', async () => {

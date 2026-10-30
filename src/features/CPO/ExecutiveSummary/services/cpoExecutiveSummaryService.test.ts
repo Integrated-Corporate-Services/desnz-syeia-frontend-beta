@@ -17,15 +17,10 @@ describe('cpoExecutiveSummaryService', () => {
     const fetchMock = vi.fn().mockResolvedValue(json({ documents: [{ document_id: 'doc' }] }));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(cpoExecutiveSummaryService.get('app-1')).resolves.toEqual({ documents: [{ document_id: 'doc' }], canEdit: true });
+    await expect(cpoExecutiveSummaryService.get('app-1')).resolves.toEqual({ documents: [{ document_id: 'doc' }] });
 
     expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/executive-summary');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
-  });
-
-  it('honours canEdit false from the backend', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ documents: [], canEdit: false })));
-    await expect(cpoExecutiveSummaryService.get('app-1')).resolves.toMatchObject({ canEdit: false });
   });
 
   it('PUTs saveForLater with the CSRF token, then refreshes progress', async () => {

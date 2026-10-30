@@ -21,7 +21,7 @@ async function readResponse(response: Response): Promise<ExecutiveSummaryData> {
     throw Object.assign(new Error(message), { status: response.status });
   }
   const result = await response.json();
-  return { documents: result.documents || [], canEdit: result.canEdit !== false };
+  return { documents: result.documents || [] };
 }
 
 export const cpoExecutiveSummaryService = {
