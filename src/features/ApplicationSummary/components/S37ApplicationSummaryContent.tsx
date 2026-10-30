@@ -11,6 +11,7 @@ import { ApplicationReviewSummaryData } from '../types/reviewSummary';
 import { WithdrawalRequest } from '../types';
 import { SummaryWithdrawButton } from './SummaryWithdrawButton';
 import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
+import { AdditionalPaymentSummary } from '../../Payments/components/AdditionalPaymentSummary';
 
 interface S37ApplicationSummaryContentProps {
     data: ApplicationReviewSummaryData;
@@ -77,6 +78,8 @@ export const S37ApplicationSummaryContent: React.FC<S37ApplicationSummaryContent
     return (
         <>
             <h1 className="govuk-heading-l">Application summary</h1>
+
+            <AdditionalPaymentSummary applicationId={applicationId} baseUrl={S37_BASE_URL} />
 
             {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
                 so it must not be gated on the *current* status (a completed FIR should still

@@ -387,6 +387,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       const fileMetas = uploadFiles.map((f) => ({
         filename: prefix ? `${prefix}/${f.name}` : f.name,
         contentType: getMimeType(f),
+        ...(uploadEndpoints ? { size: f.size } : {}),
       }));
 
       const data = await getPresignedUrls(fileMetas, applicationId, uploadEndpoints?.presignedUrl);
@@ -626,13 +627,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         prevFiles.filter((file) => !failedFileKeys.has(`${file.name}:${file.size}`))
       );
 
+      const message = err instanceof Error ? err.message : 'Failed to upload files. Please try again.';
       if (onValidationErrorsRef.current) {
-        const message = err instanceof Error ? err.message : 'Failed to upload files. Please try again.';
         onValidationErrorsRef.current([message]);
       }
 
       logger.debug('[FileUpload.tsx][uploadFiles] ENDs');
-      return { uploadedFiles: [], applicationDocuments: [], scanErrors: [] };
+      return { uploadedFiles: [], applicationDocuments: [], scanErrors: uploadEndpoints ? [message] : [] };
     } finally {
       setIsScanning(false);
     }
