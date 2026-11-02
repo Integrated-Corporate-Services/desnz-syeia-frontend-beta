@@ -572,9 +572,15 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         startedAt: scanWaitStartedAt,
       });
 
-      const scanOutcomes = await waitForScanResults(
-        confirmedOutcomes.map(({ confirmResponse }) => confirmResponse.fileId)
-      );
+      let scanOutcomes: Awaited<ReturnType<typeof waitForScanResults>>;
+      try {
+        scanOutcomes = await waitForScanResults(
+          confirmedOutcomes.map(({ confirmResponse }) => confirmResponse.fileId)
+        );
+      } catch (error) {
+        logger.error('Failed to retrieve uploaded file scan results', { error });
+        scanOutcomes = new Map();
+      }
 
       logger.debug('[FileUpload.tsx][uploadFiles] Scan wait phase completed', {
         fileCount: confirmedOutcomes.length,

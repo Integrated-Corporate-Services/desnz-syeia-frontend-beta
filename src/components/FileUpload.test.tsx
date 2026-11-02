@@ -196,6 +196,38 @@ it.each(['INFECTED', null] as const)('retains and blocks rejected scan result %s
   await waitFor(() => expect(screen.queryByText(result === 'INFECTED' ? 'Infected' : 'Scan failed')).not.toBeInTheDocument());
 });
 
+it('retains and blocks confirmed uploads when scan-status polling fails', async () => {
+  vi.mocked(getPresignedUrls).mockResolvedValue({ urls: [{ url: 'https://upload.example/file', s3Key: 'key' }] });
+  vi.mocked(uploadFileToS3).mockResolvedValue({ ok: true } as Response);
+  vi.mocked(extractUploadEtag).mockResolvedValue('etag');
+  vi.mocked(confirmUpload).mockResolvedValue({
+    documentId: 'document', fileId: 'unresolved', fileName: 'proof.pdf', s3Key: 'key', bucketName: 'bucket',
+    virtualFolder: 'folder', contentType: 'application/pdf', fileSizeBytes: 3, uploadedAt: '2026-10-01', status: 'UPLOADED',
+  });
+  vi.mocked(waitForScanResults).mockRejectedValue(new Error('Scan-status request failed'));
+  const ref = createRef<FileUploadHandle>();
+  const onRemoveUploadedFile = vi.fn().mockResolvedValue(undefined);
+  const props = { applicationId: 'app', category: 'PAYMENT_PROOF', uploadEndpoints: endpoints, onRemoveUploadedFile };
+  const view = render(<FileUpload ref={ref} {...props} />);
+  fireEvent.change(view.container.querySelector('input[type="file"]')!, { target: { files: [new File(['pdf'], 'proof.pdf', { type: 'application/pdf' })] } });
+  await waitFor(() => expect(ref.current?.getPendingFiles()).toHaveLength(1));
+  await act(async () => {
+    const outcome = await ref.current!.triggerUpload();
+    expect(outcome.uploadedFiles).toEqual([]);
+    expect(outcome.scanErrors).toEqual(['proof.pdf could not be checked for viruses. Try uploading it again.']);
+  });
+  expect(screen.getByRole('link', { name: 'Remove proof.pdf' })).toBeInTheDocument();
+  act(() => ref.current!.clearFailedSelection?.());
+  await act(async () => {
+    expect((await ref.current!.triggerUpload()).scanErrors).toEqual([
+      'proof.pdf could not be checked for viruses. Try uploading it again.',
+    ]);
+  });
+  fireEvent.click(screen.getByRole('link', { name: 'Remove proof.pdf' }));
+  await waitFor(() => expect(onRemoveUploadedFile).toHaveBeenCalledWith('unresolved'));
+  expect(screen.queryByRole('link', { name: 'Remove proof.pdf' })).not.toBeInTheDocument();
+});
+
 it('disables chooser and guards pending removal while the parent is confirming', async () => {
   const ref = createRef<FileUploadHandle>();
   const view = render(<FileUpload ref={ref} applicationId="app" category="PAYMENT_PROOF" uploadEndpoints={endpoints} />);
