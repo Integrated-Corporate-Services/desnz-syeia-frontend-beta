@@ -195,12 +195,22 @@ export function useAdditionalPayment() {
     setFileErrors: (errors: string[]) => { if (activeLocation.current === location.key) setFileErrors(errors); },
     setTransaction, setConfirmed, addFiles,
     removeFile: async (id: string) => {
+      if (acting.current) throw new Error('Another payment action is in progress. Please wait and try again.');
       const token = scope.current;
-      await removeAdditionalEvidence(applicationId, requestId, id);
-      if (scope.current !== token) return;
-      setFiles(current => current.filter(file => file.id !== id));
-      setDocuments(current => current.filter(doc => doc.fileId !== id));
-      setFileErrors([]);
+      acting.current = true;
+      setBusy(true);
+      try {
+        await removeAdditionalEvidence(applicationId, requestId, id);
+        if (scope.current !== token) return;
+        setFiles(current => current.filter(file => file.id !== id));
+        setDocuments(current => current.filter(doc => doc.fileId !== id));
+        setFileErrors([]);
+      } finally {
+        if (scope.current === token) {
+          acting.current = false;
+          setBusy(false);
+        }
+      }
     },
     clearFileErrors: () => { setFileErrors([]); upload.current?.clearFailedSelection?.(); },
     retry: () => setRetry(value => value + 1),
