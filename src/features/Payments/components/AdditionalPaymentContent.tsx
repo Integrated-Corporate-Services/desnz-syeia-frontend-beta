@@ -29,9 +29,11 @@ export function AdditionalPaymentContent({ flow, back }: { flow: AdditionalPayme
     case 'result': return <AdditionalPaymentFailed actions={actions(busy ? LABELS.processing : LABELS.payByCard, () => void flow.card())} />;
     case 'bank-transfer': return <AdditionalPaymentBankTransfer amount={amount} invoiceNumber={payment?.invoice?.invoice_number}
       confirmed={flow.confirmed} onConfirm={flow.setConfirmed}
+      error={flow.fieldErrors.confirmation} disabled={busy}
       actions={actions(LABELS.saveContinue, flow.continueBankTransfer, !actionable || !payment?.invoice)} />;
     case 'proof': return <AdditionalPaymentProof applicationId={flow.applicationId} requestId={flow.requestId}
       transaction={flow.transaction} onTransaction={flow.setTransaction} upload={flow.upload} files={flow.files}
+      documents={flow.documents} busy={busy} errors={flow.fileErrors} transactionError={flow.fieldErrors.transaction}
       onErrors={flow.setFileErrors} onUploaded={flow.addFiles} onDelete={flow.removeFile}
       actions={actions(busy ? LABELS.confirming : LABELS.confirmPayment, () => void flow.bankTransfer())} />;
     case 'required': return payment && <AdditionalPaymentBreakdown payment={payment} amount={amount} actionable={actionable}

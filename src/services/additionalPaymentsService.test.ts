@@ -1,11 +1,26 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { confirmAdditionalBankTransfer, downloadAdditionalInvoice, getAdditionalPayment, trustedCardUrl, validAdditionalAmount, verifyAdditionalPayment } from './additionalPaymentsService';
+import { confirmAdditionalBankTransfer, downloadAdditionalInvoice, getAdditionalEvidence, getAdditionalPayment, removeAdditionalEvidence, trustedCardUrl, validAdditionalAmount, verifyAdditionalPayment } from './additionalPaymentsService';
 
 vi.mock('../utils/apiConfig', () => ({ buildBackendUrl: (path: string) => `/backend${path}` }));
 vi.mock('../utils/csrf', () => ({ getCsrfHeaders: () => ({ 'X-CSRF-Token': 'test' }) }));
 afterEach(() => vi.unstubAllGlobals());
 
 describe('additional payment API contract', () => {
+  it('reloads evidence from the request-scoped endpoint using session credentials', async () => {
+    const evidence = { uploadedFiles: [], applicationDocuments: [] };
+    const network = vi.fn().mockResolvedValue({ ok: true, json: async () => evidence });
+    vi.stubGlobal('fetch', network);
+    expect(await getAdditionalEvidence('app', 'request')).toEqual(evidence);
+    expect(network).toHaveBeenCalledWith('/backend/api/applications/app/additional-payments/request/evidence',
+      expect.objectContaining({ method: 'GET', credentials: 'include' }));
+  });
+  it('removes draft evidence through the scoped CSRF-protected endpoint, not generic deletion', async () => {
+    const network = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ removed: true }) });
+    vi.stubGlobal('fetch', network);
+    await removeAdditionalEvidence('app', 'request', 'file');
+    expect(network).toHaveBeenCalledWith('/backend/api/applications/app/additional-payments/request/evidence/file',
+      expect.objectContaining({ method: 'DELETE', credentials: 'include', headers: expect.objectContaining({ 'X-CSRF-Token': 'test' }) }));
+  });
   it('downloads invoice PDFs using the configured API base and session credentials', async () => {
     const pdf = new Blob(['%PDF-1.4'], { type: 'application/pdf' });
     const network = vi.fn().mockResolvedValue({ ok: true, blob: async () => pdf });

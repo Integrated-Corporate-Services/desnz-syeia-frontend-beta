@@ -2,7 +2,13 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useAdditionalPayment } from './useAdditionalPayment';
-import type { UploadedFile } from '../../../types/fileUpload';
+import type { ApplicationDocument, UploadedFile } from '../../../types/fileUpload';
+import { additionalPaymentView } from '../utils/additionalPaymentView';
+import { getAdditionalEvidence } from '../../../services/additionalPaymentsService';
+vi.mock('../../../services/additionalPaymentsService', async importOriginal => ({
+  ...await importOriginal<typeof import('../../../services/additionalPaymentsService')>(),
+  getAdditionalEvidence: vi.fn().mockResolvedValue({ uploadedFiles: [], applicationDocuments: [] }),
+}));
 
 vi.mock('../../../utils/apiConfig', () => ({ buildBackendUrl: (path: string) => `/backend${path}` }));
 vi.mock('../../../utils/csrf', () => ({ getCsrfHeaders: () => ({ 'X-CSRF-Token': 'test' }) }));
@@ -12,6 +18,16 @@ const payment = {
   amount_pence: 12345, status: 'NOT_PAID', items: [],
   invoice: { invoice_id: 'invoice', invoice_number: 'INV-1', download_url: '/invoice.pdf' },
 };
+const uploaded: UploadedFile = { id: 'proof', storageProvider: 'S3', s3Key: 'key', bucketName: 'bucket',
+  virtualFolder: 'folder', filename: 'proof.pdf', fileContentType: 'application/pdf', fileSizeBytes: 3,
+  uploadedAtTimestamp: '2026-10-01', scanStatus: 'COMPLETED', scanResult: 'CLEAN' };
+const document: ApplicationDocument = { documentId: 'document', applicationId: 'app', fileId: uploaded.id,
+  category: 'PAYMENT_PROOF', subCategory: 'request', addedBy: 'user', addedAt: '2026-10-01' };
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>(complete => { resolve = complete; });
+  return { promise, resolve };
+}
 
 function mount(path = '/s-37/app/additional-payments/request/proof') {
   return renderHook(() => ({ flow: useAdditionalPayment(), navigate: useNavigate() }), {
@@ -21,7 +37,10 @@ function mount(path = '/s-37/app/additional-payments/request/proof') {
   });
 }
 
-afterEach(() => { vi.unstubAllGlobals(); sessionStorage.clear(); });
+afterEach(() => {
+  vi.unstubAllGlobals(); sessionStorage.clear();
+  vi.mocked(getAdditionalEvidence).mockResolvedValue({ uploadedFiles: [], applicationDocuments: [] });
+});
 
 describe('additional payment orchestration', () => {
   it.each(['/s-37/app/additional-payments/request-2/proof', '/nwl/app-2/additional-payments/request/proof'])('resets request-local state and card verification when navigating to %s', async path => {
@@ -99,5 +118,122 @@ describe('additional payment orchestration', () => {
     expect(result.current.flow.actionable).toBe(false);
     expect(result.current.flow.busy).toBe(false);
     expect(result.current.flow.generating).toBe(false);
+  });
+
+  it.each(['PAID', 'PROCESSING', 'WITHDRAWN'])('keeps authoritative %s state when the provider is unavailable', async status => {
+    const network = vi.fn().mockImplementation(async (url: string) => {
+      if (url.includes('payment-status')) throw new Error('Provider unavailable');
+      return { ok: true, json: async () => ({ ...payment, status, payment_reference: 'receipt' }) };
+    });
+    vi.stubGlobal('fetch', network);
+    const { result } = mount('/s-37/app/additional-payments/request/result?payment_id=card');
+    await waitFor(() => expect(result.current.flow.loading).toBe(false));
+    expect(result.current.flow.payment?.status).toBe(status);
+    expect(result.current.flow.payment?.payment_reference).toBe('receipt');
+    expect(result.current.flow.error).toBe('');
+    expect(network.mock.calls.some(([url]) => url.includes('payment-status'))).toBe(false);
+  });
+
+  it.each(['payment-method', 'bank-transfer', 'proof'])('requires an invoice on a directly loaded %s route', async step => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ...payment, invoice: undefined }) }));
+    const { result } = mount(`/s-37/app/additional-payments/request/${step}`);
+    await waitFor(() => expect(result.current.flow.loading).toBe(false));
+    expect(additionalPaymentView(result.current.flow).view).toBe('invoice');
+  });
+
+  it('checks the freshly fetched invoice before starting a card payment', async () => {
+    let reads = 0;
+    const network = vi.fn().mockImplementation(async (url: string) => ({ ok: true, json: async () =>
+      url.includes('payment-status') ? { status: 'NOT_PAID' } : { ...payment, invoice: ++reads > 1 ? undefined : payment.invoice } }));
+    vi.stubGlobal('fetch', network);
+    const { result } = mount('/s-37/app/additional-payments/request/payment-method');
+    await waitFor(() => expect(result.current.flow.actionable).toBe(true));
+    await act(async () => { await result.current.flow.card(); });
+    expect(network.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
+    expect(result.current.flow.error).toBe('Generate an invoice for this additional payment before continuing.');
+  });
+
+  it('reports an unavailable upload component instead of confirming without selected evidence', async () => {
+    const network = vi.fn().mockResolvedValue({ ok: true, json: async () => payment });
+    vi.stubGlobal('fetch', network);
+    const { result } = mount();
+    await waitFor(() => expect(result.current.flow.actionable).toBe(true));
+    await act(async () => { await result.current.flow.bankTransfer(); });
+    expect(result.current.flow.error).toContain('Evidence selection is unavailable');
+    expect(network.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
+  });
+
+  it.each(['fetch', 'upload'])('does not continue BACS after route changes during %s', async stage => {
+    const read = deferred<typeof payment>();
+    const uploadResult = deferred<{ uploadedFiles: UploadedFile[]; applicationDocuments: ApplicationDocument[]; scanErrors: string[] }>();
+    let holdFetch = false;
+    const network = vi.fn().mockImplementation(async (url: string) => ({ ok: true,
+      json: async () => holdFetch && !url.includes('payment-status') && url.includes('/request/') ? read.promise : payment }));
+    vi.stubGlobal('fetch', network);
+    const { result } = mount();
+    await waitFor(() => expect(result.current.flow.actionable).toBe(true));
+    const staleAddFiles = result.current.flow.addFiles;
+    const triggerUpload = vi.fn().mockReturnValue(uploadResult.promise);
+    result.current.flow.upload.current = { triggerUpload, isBusy: () => false, getPendingFiles: () => [] };
+    holdFetch = stage === 'fetch';
+    let operation!: Promise<void>;
+    act(() => { operation = result.current.flow.bankTransfer(); });
+    if (stage === 'upload') await waitFor(() => expect(triggerUpload).toHaveBeenCalledOnce());
+    act(() => { void result.current.navigate('/s-37/app/additional-payments/other/proof'); });
+    await waitFor(() => expect(result.current.flow.loading).toBe(false));
+    await act(async () => {
+      staleAddFiles([uploaded], [document]);
+      read.resolve(payment);
+      uploadResult.resolve({ uploadedFiles: [uploaded], applicationDocuments: [document], scanErrors: [] });
+      await operation;
+    });
+    expect(result.current.flow.files).toEqual([]);
+    expect(result.current.flow.root).toContain('/other');
+    expect(network.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
+    if (stage === 'fetch') expect(triggerUpload).not.toHaveBeenCalled();
+  });
+
+  it('restores persisted evidence and retains clean files plus associations after partial upload failure', async () => {
+    vi.mocked(getAdditionalEvidence).mockResolvedValue({ uploadedFiles: [uploaded], applicationDocuments: [document] });
+    const network = vi.fn().mockResolvedValue({ ok: true, json: async () => payment });
+    vi.stubGlobal('fetch', network);
+    const { result } = mount();
+    await waitFor(() => expect(result.current.flow.files).toEqual([uploaded]));
+    expect(result.current.flow.documents).toEqual([document]);
+    const second = { ...uploaded, id: 'second', filename: 'second.pdf' };
+    const association = { ...document, fileId: second.id, documentId: 'doc-2' };
+    result.current.flow.upload.current = { isBusy: () => false, getPendingFiles: () => [], triggerUpload: vi.fn().mockResolvedValue({
+      uploadedFiles: [second], applicationDocuments: [association], scanErrors: ['One file failed'],
+    }) };
+    await act(async () => { await result.current.flow.bankTransfer(); });
+    expect(result.current.flow.files).toEqual([uploaded, second]);
+    expect(result.current.flow.documents).toEqual([document, association]);
+    expect(result.current.flow.fileErrors).toEqual(['One file failed']);
+    expect(network.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
+  });
+
+  it('retains clean evidence after confirmation failure, prevents double-submit and sends it on retry', async () => {
+    const posted = deferred<Response>();
+    const network = vi.fn().mockImplementation(async (_url: string, options: RequestInit) =>
+      options.method === 'POST' ? posted.promise : { ok: true, json: async () => payment });
+    vi.stubGlobal('fetch', network);
+    const { result } = mount();
+    await waitFor(() => expect(result.current.flow.actionable).toBe(true));
+    const triggerUpload = vi.fn().mockResolvedValue({ uploadedFiles: [uploaded], applicationDocuments: [document], scanErrors: [] });
+    result.current.flow.upload.current = { isBusy: () => false, getPendingFiles: () => [], triggerUpload };
+    let operation!: Promise<void>;
+    act(() => { operation = result.current.flow.bankTransfer(); void result.current.flow.bankTransfer(); });
+    await waitFor(() => expect(network.mock.calls.filter(([, options]) => options.method === 'POST')).toHaveLength(1));
+    await act(async () => {
+      posted.resolve(new Response(JSON.stringify({ message: 'Temporary outage' }), { status: 503 }));
+      await operation;
+    });
+    expect(triggerUpload).toHaveBeenCalledOnce();
+    expect(result.current.flow.files).toEqual([uploaded]);
+    expect(result.current.flow.documents).toEqual([document]);
+    triggerUpload.mockResolvedValue({ uploadedFiles: [], applicationDocuments: [], scanErrors: [] });
+    await act(async () => { await result.current.flow.bankTransfer(); });
+    const posts = network.mock.calls.filter(([, options]) => options.method === 'POST');
+    expect(JSON.parse(posts[1][1].body as string)).toEqual({ evidence_file_ids: ['proof'] });
   });
 });

@@ -6,6 +6,10 @@ import AdditionalPaymentPage from './AdditionalPaymentPage';
 import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 import MainLayout from '../../../layouts/MainLayout';
 import type { FileUploadHandle, FileUploadProps } from '../../../components/FileUpload';
+vi.mock('../../../services/additionalPaymentsService', async importOriginal => ({
+  ...await importOriginal<typeof import('../../../services/additionalPaymentsService')>(),
+  getAdditionalEvidence: vi.fn().mockResolvedValue({ uploadedFiles: [], applicationDocuments: [] }),
+}));
 
 vi.mock('../../../layouts/component/Header', () => ({ default: () => null }));
 vi.mock('../../../layouts/component/ServiceNavigation', () => ({ default: () => null }));
@@ -165,6 +169,30 @@ describe('additional payment pages', () => {
     const post = network.mock.calls.find(([url]) => url.endsWith('/bank-transfer'));
     expect(post?.[1].body).toBe('{}');
     expect(network.mock.calls.every(([url]) => url.includes('/additional-payments/'))).toBe(true);
+  });
+  it('links transaction validation from the error summary to its inline error and field', async () => {
+    const network = vi.fn().mockResolvedValue({ ok: true, json: async () => request });
+    vi.stubGlobal('fetch', network);
+    mount('/proof');
+    const input = await screen.findByRole('textbox', { name: /transaction number/i });
+    fireEvent.change(input, { target: { value: 'INVALID!' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm payment' }));
+    const link = await screen.findByRole('link', { name: 'Transaction number must contain only letters and numbers.' });
+    expect(link).toHaveAttribute('href', '#transaction-number');
+    expect(input).toHaveAttribute('id', 'transaction-number');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).toHaveAttribute('aria-describedby', expect.stringContaining('transaction-error'));
+    expect(document.getElementById('transaction-error')).toHaveTextContent('Transaction number must contain only letters and numbers.');
+    expect(network.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
+  });
+  it('links the required bank-transfer confirmation error to its checkbox', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => request }));
+    mount('/bank-transfer');
+    fireEvent.click(await screen.findByRole('button', { name: 'Save and continue' }));
+    expect(await screen.findByRole('link', { name: 'You must confirm you want to pay by bank transfer.' })).toHaveAttribute('href', '#confirm-transfer');
+    const checkbox = screen.getByRole('checkbox');
+    expect(checkbox).toHaveAttribute('aria-invalid', 'true');
+    expect(checkbox).toHaveAttribute('aria-describedby', expect.stringContaining('confirmation-error'));
   });
   it('refetches stale withdrawals before creating an invoice and removes payment actions', async () => {
     const network = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => request }).mockResolvedValueOnce({ ok: true, json: async () => ({ status: 'NOT_PAID' }) }).mockResolvedValue({ ok: true, json: async () => ({ ...request, status: 'WITHDRAWN' }) });
