@@ -14,6 +14,9 @@ export function additionalPaymentView({ loading, payment, pending, generating, s
     view: 'receipt', title: payment.status === 'PAID' ? ADDITIONAL_PAYMENT_TITLES.paid : ADDITIONAL_PAYMENT_TITLES.processing,
   } as const;
   if (generating) return { view: 'generating', title: ADDITIONAL_PAYMENT_TITLES.generating } as const;
+  if (!payment.invoice && ['payment-method', 'bank-transfer', 'proof', 'result'].includes(step)) {
+    return { view: 'invoice', title: ADDITIONAL_PAYMENT_TITLES.invoice } as const;
+  }
   switch (step) {
     case 'invoice':
     case 'payment-method':

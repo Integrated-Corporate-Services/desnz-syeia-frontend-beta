@@ -1,5 +1,6 @@
 import { buildBackendUrl } from '../utils/apiConfig';
 import { getCsrfHeaders } from '../utils/csrf';
+import type { ApplicationDocument, UploadedFile } from '../types/fileUpload';
 
 export type AdditionalPaymentStatus = 'NOT_PAID' | 'PROCESSING' | 'PAID' | 'WITHDRAWN';
 export interface AdditionalPaymentInvoice {
@@ -27,11 +28,11 @@ export class AdditionalPaymentError extends Error {
   constructor(message: string, public status: number) { super(message); }
 }
 
-async function request<T>(applicationId: string, suffix = '', body?: object): Promise<T> {
+async function request<T>(applicationId: string, suffix = '', body?: object, method?: 'DELETE'): Promise<T> {
   const response = await fetch(buildBackendUrl(`/api/applications/${encodeURIComponent(applicationId)}/additional-payments${suffix}`), {
-    method: body ? 'POST' : 'GET',
+    method: method || (body ? 'POST' : 'GET'),
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(body ? getCsrfHeaders() : {}) },
+    headers: { 'Content-Type': 'application/json', ...(body || method ? getCsrfHeaders() : {}) },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
   if (!response.ok) {
@@ -52,6 +53,10 @@ export const generateAdditionalInvoice = (applicationId: string, requestId: stri
 export const createAdditionalCardPayment = (applicationId: string, requestId: string) => request<{ payment_id: string; next_url: string }>(applicationId, `${requestPath(requestId)}/card-payment`, {});
 export const verifyAdditionalPayment = (applicationId: string, requestId: string, paymentId?: string) => request<{ status: AdditionalPaymentStatus; payment_reference?: string; card_outcome?: 'PENDING' | 'FAILED' | 'SUCCEEDED' }>(applicationId, `${requestPath(requestId)}/payment-status${paymentId ? `?payment_id=${encodeURIComponent(paymentId)}` : ''}`);
 export const confirmAdditionalBankTransfer = (applicationId: string, requestId: string, body: { transaction_reference?: string; evidence_file_ids?: string[] }) => request<AdditionalPaymentRequest>(applicationId, `${requestPath(requestId)}/bank-transfer`, body);
+export const getAdditionalEvidence = (applicationId: string, requestId: string) =>
+  request<{ uploadedFiles: UploadedFile[]; applicationDocuments: ApplicationDocument[] }>(applicationId, `${requestPath(requestId)}/evidence`);
+export const removeAdditionalEvidence = (applicationId: string, requestId: string, fileId: string) =>
+  request<{ removed: boolean }>(applicationId, `${requestPath(requestId)}/evidence/${encodeURIComponent(fileId)}`, undefined, 'DELETE');
 
 export async function downloadAdditionalInvoice(applicationId: string, requestId: string): Promise<Blob> {
   const response = await fetch(buildBackendUrl(`/api/applications/${encodeURIComponent(applicationId)}/additional-payments${requestPath(requestId)}/invoice/download`), { credentials: 'include' });

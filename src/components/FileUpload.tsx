@@ -84,6 +84,9 @@ export interface FileUploadProps {
   uploadImmediately?: boolean; // New prop to control upload timing
   onPendingFilesChange?: (files: File[]) => void; // New prop to notify parent of pending files
   uploadEndpoints?: { presignedUrl: string; confirm: string };
+  disabled?: boolean;
+  errors?: string[];
+  onRemoveUploadedFile?: (fileId: string) => Promise<void>;
 }
 
 export interface FileUploadHandle {
@@ -94,6 +97,7 @@ export interface FileUploadHandle {
   }>;
   getPendingFiles: () => File[];
   isBusy: () => boolean;
+  clearFailedSelection?: () => void;
 }
 
 const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
@@ -118,6 +122,9 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
   onPendingFilesChange,
   uploadEndpoints,
+  disabled = false,
+  errors = [],
+  onRemoveUploadedFile,
 }, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
@@ -127,6 +134,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
   const [rejectedFiles, setRejectedFiles] = useState<RejectedFile[]>([]); // Infected/failed-scan files - kept visible so the user can delete them
   const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const validating = useRef(false);
+  const selectionErrors = useRef<string[]>([]);
+  const locked = disabled || isScanning || isValidating;
 
   const onValidationErrorsRef = useRef(onValidationErrors);
   const onPendingFilesChangeRef = useRef(onPendingFilesChange);
@@ -144,6 +155,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
     triggerUpload: async () => {
+      if (validating.current) {
+        return { uploadedFiles: [], applicationDocuments: [], scanErrors: ['File validation is in progress. Please wait and try again.'] };
+      }
+      if (uploadEndpoints && selectionErrors.current.length) {
+        return { uploadedFiles: [], applicationDocuments: [], scanErrors: selectionErrors.current };
+      }
       const staleInfectedFiles: RejectedFile[] = (uploadedFiles || [])
         .filter((f: UploadedFile) => f.scanResult === 'INFECTED')
         .map((f: UploadedFile) => ({ id: f.id, s3Key: f.s3Key, filename: f.filename, reason: 'INFECTED' as const, virusName: f.virusName }));
@@ -167,7 +184,14 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       return { uploadedFiles: [], applicationDocuments: [], scanErrors: unresolvedRejectedErrors };
     },
     getPendingFiles: () => pendingFiles,
-    isBusy: () => isScanning,
+    isBusy: () => isScanning || validating.current,
+    clearFailedSelection: () => {
+      if (validating.current || isScanning) return;
+      selectionErrors.current = [];
+      setPendingFiles([]);
+      setInternalFiles([]);
+      onValidationErrorsRef.current?.(rejectedFiles.map(getRejectedFileMessage));
+    },
   }));
 
   // Notify parent when pending files change
@@ -188,16 +212,16 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         virusName: f.virusName,
       }));
 
-    let failedFiles: RejectedFile[] = [];
-    setRejectedFiles((prev) => {
-      failedFiles = prev.filter((f) => f.reason === 'FAILED');
-      return [...failedFiles, ...infectedFiles];
-    });
+    const retained = rejectedFiles.filter(file => uploadEndpoints || file.reason === 'FAILED');
+    const restored = uploadEndpoints ? (uploadedFiles || [])
+        .filter(file => file.scanStatus !== 'COMPLETED' || file.scanResult !== 'CLEAN')
+        .map(file => ({ id: file.id, s3Key: file.s3Key, filename: file.filename,
+          reason: file.scanResult === 'INFECTED' ? 'INFECTED' as const : 'FAILED' as const, virusName: file.virusName })) : infectedFiles;
+    const rejected = [...retained.filter(file => !restored.some(next => next.id === file.id)), ...restored];
+    setRejectedFiles(rejected);
     
     if (onValidationErrorsRef.current) {
-      const failedMessages = failedFiles.map(getRejectedFileMessage);
-      const infectedMessages = infectedFiles.map(getRejectedFileMessage);
-      const allErrors = [...failedMessages, ...infectedMessages];
+      const allErrors = rejected.map(getRejectedFileMessage);
       if (allErrors.length > 0) {
         onValidationErrorsRef.current(allErrors);
       }
@@ -206,12 +230,15 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     logger.debug('[FileUpload.tsx][handleFileChange] STARTs');
-    if (!e.target.files) {
+    if (locked || validating.current || !e.target.files) {
       logger.debug('[FileUpload.tsx][handleFileChange] ENDs');
       return;
     }
 
     const newFiles = Array.from(e.target.files);
+    validating.current = true;
+    setIsValidating(true);
+    try {
 
     if (onValidationErrorsRef.current) {
       onValidationErrorsRef.current([]);
@@ -244,6 +271,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
     const allExistingFiles = [...uploadedFilesForThisCategory, ...pendingFiles];
     const result = await validateFiles(newFiles, allExistingFiles);
+    selectionErrors.current = result.errors.map(error => error.message);
 
     logger.info('File validation completed', {
       validFilesCount: result.validFiles.length,
@@ -291,13 +319,22 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
     e.target.value = "";
     logger.debug('[FileUpload.tsx][handleFileChange] ENDs');
+    } catch (error) {
+      logger.error('File validation failed', { error });
+      selectionErrors.current = ['File validation failed. Remove the selection and try again.'];
+      onValidationErrorsRef.current?.(selectionErrors.current);
+    } finally { validating.current = false; setIsValidating(false); }
   };
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     logger.debug('[FileUpload.tsx][handleDrop] STARTs');
     e.preventDefault();
+    if (locked || validating.current) return;
 
     const droppedFiles = Array.from(e.dataTransfer.files);
+    validating.current = true;
+    setIsValidating(true);
+    try {
 
     // Immediately clear parent errors when validation starts
     if (onValidationErrorsRef.current) {
@@ -326,6 +363,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
     const allExistingFiles = [...uploadedFilesForThisCategory, ...pendingFiles];
     const result = await validateFiles(droppedFiles, allExistingFiles);
+    selectionErrors.current = result.errors.map(error => error.message);
 
     // Handle validation errors
     if (result.errors.length > 0) {
@@ -363,6 +401,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       }
     }
     logger.debug('[FileUpload.tsx][handleDrop] ENDs');
+    } catch (error) {
+      logger.error('File validation failed', { error });
+      selectionErrors.current = ['File validation failed. Remove the selection and try again.'];
+      onValidationErrorsRef.current?.(selectionErrors.current);
+    } finally { validating.current = false; setIsValidating(false); }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -546,7 +589,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           };
           scanErrors.push(getRejectedFileMessage(rejectedFile));
           newRejectedFiles.push(rejectedFile);
-        } else if (scanOutcome.scanStatus !== 'COMPLETED') {
+        } else if (scanOutcome.scanStatus !== 'COMPLETED' || scanOutcome.scanResult !== 'CLEAN') {
           logger.warn('Uploaded file scan did not complete', {
             fileName: confirmResponse.fileName,
             scanStatus: scanOutcome.scanStatus,
@@ -641,7 +684,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
   // Handle file deletion from S3
   const handleDeleteFile = async (fileId: string, s3Key: string) => {
+    if (locked) return;
     try {
+      if (onRemoveUploadedFile) {
+        await onRemoveUploadedFile(fileId);
+        return;
+      }
       if (!applicationId) {
         const msg = 'Application ID is required to delete files';
         onValidationErrors?.([msg]);
@@ -685,11 +733,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         errorMessage: errorMsg,
         error: err
       });
+      onValidationErrorsRef.current?.(['Could not remove the file. Please try again.']);
     }
   };
 
   // Handle deletion of an infected/failed-scan file (same S3+DB delete as a clean file)
   const handleDeleteRejectedFile = async (fileId: string, s3Key: string) => {
+    if (locked) return;
     try {
       if (!applicationId) {
         const msg = 'Application ID is required to delete files';
@@ -697,7 +747,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         logger.error(msg, { fileId, s3Key });
         return;
       }
-      await deleteFileCompletely(fileId, s3Key, applicationId);
+      if (onRemoveUploadedFile) await onRemoveUploadedFile(fileId);
+      else await deleteFileCompletely(fileId, s3Key, applicationId);
       setRejectedFiles((prev) => prev.filter((f) => f.id !== fileId));
 
       if (onValidationErrorsRef.current) {
@@ -711,6 +762,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         errorMessage: err?.message,
         error: err,
       });
+      onValidationErrorsRef.current?.(['Could not remove the rejected file. Please try again.']);
     }
   };
 
@@ -723,10 +775,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         <div className="govuk-!-margin-bottom-6">
           <h3 className="govuk-visually-hidden">Documents uploaded</h3>
           <ul className="govuk-task-list">
-              {uploadedFiles.map((file: UploadedFile, idx: number) => (
+              {uploadedFiles.filter(file => !uploadEndpoints || file.scanStatus === 'COMPLETED' && file.scanResult === 'CLEAN').map((file: UploadedFile, idx: number) => (
                 <li key={file.id} className="govuk-task-list__item">
                   <span className="govuk-task-list__name-and-hint">
-                    <a
+                    {uploadEndpoints ? <span>{file.filename.split('/').pop()}</span> : <a
                       href="#"
                       className="govuk-link"
                       onClick={async (e) => {
@@ -746,14 +798,17 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                       }}
                     >
                       {file.filename ? file.filename.split("/").pop() : ""}
-                    </a>
+                    </a>}
                   </span>
                   <span className="govuk-task-list__status">
                     <a
                       href="#"
                       className="govuk-link"
+                      aria-disabled={locked}
                       onClick={async (e) => {
                         e.preventDefault();
+                        if (locked) return;
+                        if (onRemoveUploadedFile) { await handleDeleteFile(file.id, file.s3Key); return; }
                         if (onDeleteFile) {
                           await handleDeleteFile(file.id, file.s3Key);
                         } else if (onRemoveFile) {
@@ -761,7 +816,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                         }
                       }}
                     >
-                      Delete<span className="govuk-visually-hidden"> {file.filename ? file.filename.split('/').pop() : 'file'}</span>
+                      {uploadEndpoints ? 'Remove' : 'Delete'}<span className="govuk-visually-hidden"> {file.filename ? file.filename.split('/').pop() : 'file'}</span>
                     </a>
                   </span>
                 </li>
@@ -786,12 +841,14 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                     <a
                       href="#"
                       className="govuk-link"
+                      aria-disabled={locked}
                       onClick={async (e) => {
                         e.preventDefault();
+                        if (locked) return;
                         await handleDeleteRejectedFile(file.id, file.s3Key);
                       }}
                     >
-                      Delete<span className="govuk-visually-hidden"> {file.filename ? file.filename.split("/").pop() : "file"}</span>
+                      {uploadEndpoints ? 'Remove' : 'Delete'}<span className="govuk-visually-hidden"> {file.filename ? file.filename.split("/").pop() : "file"}</span>
                     </a>
                   </span>
                 </li>
@@ -813,6 +870,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                       className="govuk-link"
                       onClick={(e) => {
                         e.preventDefault();
+                        if (locked) return;
                         // Create a blob URL and open in new tab for viewing
                         const blobUrl = URL.createObjectURL(file);
                         const link = document.createElement('a');
@@ -830,8 +888,10 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                     <a
                       href="#"
                       className="govuk-link"
+                      aria-disabled={locked}
                       onClick={(e) => {
                         e.preventDefault();
+                        if (locked) return;
                         const updatedPendingFiles = pendingFiles.filter((_, i) => i !== idx);
                         setPendingFiles(updatedPendingFiles);
 
@@ -863,6 +923,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
         .xlsx files of up to 25MB each. Files cannot be password protected.
       </p>
+      {errors.length > 0 && <div id="file-upload-error" className="govuk-error-message">{errors.join(' ')}</div>}
 
       {isScanning && (
         <div
@@ -879,29 +940,27 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       )}
 
       <div
-        className={`gds-upload-dropzone${isScanning ? ' gds-upload-dropzone--disabled' : ''}`}
-        aria-disabled={isScanning}
+        className={`gds-upload-dropzone${locked ? ' gds-upload-dropzone--disabled' : ''}`}
+        aria-disabled={locked}
         onDrop={(e) => {
-          if (isScanning) {
+          if (locked) {
             e.preventDefault();
             return;
           }
           handleDrop(e);
         }}
         onDragOver={(e) => {
-          if (isScanning) {
+          if (locked) {
             e.preventDefault();
             return;
           }
           handleDragOver(e);
         }}
         onClick={() => {
-          if (isScanning) {
+          if (locked) {
             return;
           }
-          if (onValidationErrorsRef.current) {
-            onValidationErrorsRef.current([]);
-          }
+          if (!uploadEndpoints) onValidationErrorsRef.current?.([]);
           fileInputRef.current?.click();
         }}
       >
@@ -918,11 +977,13 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           className="govuk-visually-hidden"
           onChange={handleFileChange}
           accept=".pdf,.jpg,.jpeg,.png,.msg,.doc,.docx,.xls,.xlsx"
-          disabled={isScanning}
+          disabled={locked}
+          aria-invalid={errors.length ? true : undefined}
+          aria-describedby={errors.length ? 'file-upload-error' : undefined}
         />
         <div className="gds-upload-dropzone-content">
           <span>No file chosen</span>
-          <button type="button" className="gds-upload-choose" disabled={isScanning}>
+          <button type="button" className="gds-upload-choose" disabled={locked}>
             {isScanning ? 'Uploading…' : 'Choose file'}
           </button>
           <span>or drop file</span>
