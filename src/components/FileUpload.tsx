@@ -188,8 +188,6 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     clearFailedSelection: () => {
       if (validating.current || isScanning) return;
       selectionErrors.current = [];
-      setPendingFiles([]);
-      setInternalFiles([]);
       onValidationErrorsRef.current?.(rejectedFiles.map(getRejectedFileMessage));
     },
   }));
