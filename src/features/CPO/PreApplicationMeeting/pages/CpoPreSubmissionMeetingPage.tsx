@@ -72,12 +72,12 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     if (loading || saving || loadFailed) return;
     if (complete && answer === null) {
       setSelectionError(true);
-      setError('Select whether you have had a pre-application meeting');
+      setError('Select whether you’ve had or need a pre-application meeting');
       return;
     }
     if (answer === 'No, I don’t need this meeting' && ((complete && !reason.trim()) || reason.trim().length > REASON_MAX_LENGTH)) {
       setReasonError(true);
-      setError(reason.trim().length > REASON_MAX_LENGTH ? 'The reason must be 4,000 characters or fewer' : "Tell us why you don’t need this meeting");
+      setError(reason.trim().length > REASON_MAX_LENGTH ? 'The reason must be 4,000 characters or fewer' : "Explain why you don't need this meeting");
       return;
     }
     setSelectionError(false);

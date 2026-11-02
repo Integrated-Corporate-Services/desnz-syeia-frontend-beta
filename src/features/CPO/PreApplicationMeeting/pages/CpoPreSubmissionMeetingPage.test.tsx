@@ -136,7 +136,7 @@ describe('CPO pre-submission meeting', () => {
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/task-list');
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("No, I don’t need this meeting"));
-    const reason = screen.getByRole('textbox', { name: "Tell us why you don’t need this meeting" });
+    const reason = screen.getByRole('textbox', { name: "Explain why you don't need this meeting" });
     expect(reason).toHaveAttribute('maxlength', '4000');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     expect(screen.getByRole('alert')).toHaveFocus();
