@@ -12,6 +12,15 @@ import '../../styles/cpo.css';
 type FormError = { id: string; message: string };
 type Props = { fixedStep?: OrderStep };
 
+const PURPOSE_MAX_LENGTH = 4000;
+
+const characterCountMessage = (length: number, limit: number): string => {
+  const remaining = limit - length;
+  const count = Math.abs(remaining).toLocaleString('en-GB');
+  const unit = Math.abs(remaining) === 1 ? 'character' : 'characters';
+  return remaining >= 0 ? `You can enter upto ${count} ${unit}` : `You have ${count} ${unit} too many`;
+};
+
 const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   const { orderStep = 'name' } = useParams();
   const applicationId = useCpoApplicationId();
@@ -106,8 +115,8 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   );
 
   const validate = (): FormError[] => {
-    if ((step === 'name' || step === 'check') && !details.orderName.trim()) return [{ id: step === 'check' ? 'order-heading' : 'orderName', message: 'Enter the order title' }];
-    if ((step === 'purpose' || step === 'check') && (!details.purpose.trim() || details.purpose.length > 4000)) return [{ id: step === 'check' ? 'order-heading' : 'purpose', message: details.purpose.length > 4000 ? 'What the order is for must be 4,000 characters or fewer' : 'Explain what the order is for' }];
+    if ((step === 'name' || step === 'check') && !details.orderName.trim()) return [{ id: step === 'check' ? 'order-heading' : 'orderName', message: 'Enter the title of the order' }];
+    if ((step === 'purpose' || step === 'check') && (!details.purpose.trim() || details.purpose.length > 4000)) return [{ id: step === 'check' ? 'order-heading' : 'purpose', message: details.purpose.length > 4000 ? 'What the order is for must be 4,000 characters or fewer' : 'Enter an explanation of what the order is for' }];
     if (step === 'special-land' && details.includesSpecialLand === null) return [{ id: 'special-land-yes', message: 'Select yes or no for common land, open space or allotment' }];
     if (step === 'exchange-land' && details.exchangeLand === null) return [{ id: 'exchange-land-yes', message: 'Select yes or no for exchange land' }];
     if (step === 'related-applications' && details.hasRelatedApplications === null) return [{ id: 'related-applications-yes', message: 'Select yes or no for related applications' }];
@@ -193,7 +202,7 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
             <label className="govuk-label govuk-visually-hidden" htmlFor={step === 'name' ? 'orderName' : 'purpose'}>{heading}</label>
             {inlineError(step === 'name' ? 'orderName' : 'purpose')}
             {step === 'name' ? <input className={`govuk-input${errorFor('orderName') ? ' govuk-input--error' : ''}`} id="orderName" value={details.orderName} maxLength={500} onChange={(event) => update({ orderName: event.target.value })} aria-describedby={`order-hint${errorFor('orderName') ? ' orderName-error' : ''}`} />
-              : <><textarea className={`govuk-textarea${errorFor('purpose') ? ' govuk-textarea--error' : ''}`} id="purpose" rows={5} maxLength={4000} value={details.purpose} onChange={(event) => update({ purpose: event.target.value })} aria-describedby={`order-hint purpose-limit${errorFor('purpose') ? ' purpose-error' : ''}`} /><div className="govuk-hint" id="purpose-limit">You can enter up to 4,000 characters</div></>}
+              : <><textarea className={`govuk-textarea${errorFor('purpose') ? ' govuk-textarea--error' : ''}`} id="purpose" rows={5} maxLength={4000} value={details.purpose} onChange={(event) => update({ purpose: event.target.value })} aria-describedby={`order-hint purpose-limit${errorFor('purpose') ? ' purpose-error' : ''}`} /><div className={`govuk-hint${details.purpose.length > PURPOSE_MAX_LENGTH ? ' govuk-error-message' : ''}`} id="purpose-limit" aria-live="polite">{characterCountMessage(details.purpose.length, PURPOSE_MAX_LENGTH)}</div></>}
           </div>}
           {step === 'special-land' && choices('special-land', details.includesSpecialLand, (value) => update({ includesSpecialLand: value }), heading)}
           {step === 'exchange-land' && choices('exchange-land', details.exchangeLand, (value) => update({ exchangeLand: value }), heading)}
@@ -224,8 +233,8 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
           </>}
           {step === 'check' && <>
             <dl className="govuk-summary-list">
-              {summaryRow('Enter the order title', details.orderName || 'Not answered', 'name')}
-              {summaryRow('Explain what the order is for', details.purpose || 'Not answered', 'purpose')}
+              {summaryRow('Enter the title of the order', details.orderName || 'Not answered', 'name')}
+              {summaryRow('Enter an explanation of what the order is for', details.purpose || 'Not answered', 'purpose')}
             </dl>
           </>}
           <div className="govuk-button-group govuk-!-margin-top-6"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>
