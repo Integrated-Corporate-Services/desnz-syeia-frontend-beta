@@ -169,7 +169,12 @@ const NotificationsPage: React.FC = () => {
             {items.map((notification) => (
               <div className="govuk-summary-list__row" key={notification.id}>
                 <dt className="govuk-summary-list__key">{formatNotificationDate(notification.createdAt)}</dt>
-                <dd className="govuk-summary-list__value">{renderMessage(notification)}</dd>
+                <dd className="govuk-summary-list__value">
+                  {notification.type === NOTIFICATION_TYPES.ADDITIONAL_PAYMENT_WITHDRAWN && notification.title && (
+                    <h3 className="govuk-heading-s govuk-!-margin-bottom-2">{notification.title}</h3>
+                  )}
+                  {renderMessage(notification)}
+                </dd>
                 {notification.read ? null : (
                   <dd className="govuk-summary-list__actions">
                     {/* A button, not a link: it changes the notification rather than going anywhere. The
