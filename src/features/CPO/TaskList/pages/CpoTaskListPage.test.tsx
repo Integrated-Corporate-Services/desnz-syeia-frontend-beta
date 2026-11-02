@@ -39,7 +39,7 @@ it('shows the reference title and the saved progress on the task list', async ()
   expect(screen.getByText('Cannot start yet')).toBeInTheDocument();
 });
 
-it('lists Project overview first in the About the order section', async () => {
+it('lists Project overview first in the Project information section', async () => {
   renderPage();
   const link = await screen.findByRole('link', { name: 'Project overview' });
   expect(link).toHaveAttribute('href', '/cpo/application-id/project-overview');

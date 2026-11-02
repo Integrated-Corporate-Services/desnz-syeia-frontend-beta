@@ -22,7 +22,7 @@ export const CPO_TASK_SECTIONS: readonly CpoTaskSection[] = [
     ],
   },
   {
-    title: 'About the order',
+    title: 'Project information',
     tasks: [
       { subsection: CPO_SUBSECTIONS.PROJECT_OVERVIEW, label: 'Project overview', slug: 'project-overview' },
       { subsection: CPO_SUBSECTIONS.ORDER_DETAILS, label: 'Order details', slug: 'order-details' },
