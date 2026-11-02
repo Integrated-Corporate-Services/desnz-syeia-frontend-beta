@@ -30,6 +30,7 @@ export function AdditionalPaymentProof({ applicationId, requestId, transaction, 
     <FileUpload key={`${applicationId}:${requestId}`} ref={upload} title={COPY.uploadTitle} showTitle={false}
       applicationId={applicationId} category={FILE_CATEGORIES.PAYMENT_PROOF} subCategory={requestId}
       prefix={`${applicationId}/ADDITIONAL_PAYMENTS/${requestId}`} uploadEndpoints={additionalEvidenceEndpoints(applicationId, requestId)}
+      blockOnSelectionErrors hideDownloadLinks
       uploadedFiles={files} applicationDocuments={documents} disabled={busy} errors={errors}
       onValidationErrors={onErrors} onUploaded={onUploaded} onRemoveUploadedFile={onDelete} />
     <div className="govuk-!-margin-top-6">{actions}</div>

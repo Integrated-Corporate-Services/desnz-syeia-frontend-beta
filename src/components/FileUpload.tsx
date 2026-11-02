@@ -23,7 +23,7 @@ interface RejectedFile {
   id: string;
   s3Key: string;
   filename: string;
-  reason: 'INFECTED' | 'FAILED';
+  reason: 'INFECTED' | 'FAILED' | 'PENDING';
   virusName?: string | null;
 }
 
@@ -32,6 +32,8 @@ function getRejectedFileMessage(file: RejectedFile): string {
   const displayName = file.filename.split('/').pop() || file.filename;
   return file.reason === 'INFECTED'
     ? `${displayName} contains a virus${file.virusName ? ` (${file.virusName})` : ''} and could not be uploaded. Remove the file and try again.`
+    : file.reason === 'PENDING'
+      ? `${displayName} is still being checked for viruses. Check its status or remove the file.`
     : `${displayName} could not be checked for viruses. Try uploading it again.`;
 }
 
@@ -89,6 +91,8 @@ export interface FileUploadProps {
   disabled?: boolean;
   errors?: string[];
   onRemoveUploadedFile?: (fileId: string) => Promise<void>;
+  blockOnSelectionErrors?: boolean;
+  hideDownloadLinks?: boolean;
 }
 
 export interface FileUploadHandle {
@@ -129,6 +133,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   disabled = false,
   errors = [],
   onRemoveUploadedFile,
+  blockOnSelectionErrors = false,
+  hideDownloadLinks = false,
 }, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
@@ -145,6 +151,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
   const onValidationErrorsRef = useRef(onValidationErrors);
   const onPendingFilesChangeRef = useRef(onPendingFilesChange);
+  const clearFailedSelection = () => {
+    if (validating.current || isScanning) return;
+    selectionErrors.current = [];
+    onValidationErrorsRef.current?.(rejectedFiles.map(getRejectedFileMessage));
+  };
 
   useEffect(() => {
     onValidationErrorsRef.current = onValidationErrors;
@@ -162,7 +173,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       if (validating.current) {
         return { uploadedFiles: [], applicationDocuments: [], scanErrors: ['File validation is in progress. Please wait and try again.'] };
       }
-      if (uploadEndpoints && selectionErrors.current.length) {
+      if (blockOnSelectionErrors && selectionErrors.current.length) {
         return { uploadedFiles: [], applicationDocuments: [], scanErrors: selectionErrors.current };
       }
       const staleInfectedFiles: RejectedFile[] = (uploadedFiles || [])
@@ -189,11 +200,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     },
     getPendingFiles: () => pendingFiles,
     isBusy: () => isScanning || validating.current,
-    clearFailedSelection: () => {
-      if (validating.current || isScanning) return;
-      selectionErrors.current = [];
-      onValidationErrorsRef.current?.(rejectedFiles.map(getRejectedFileMessage));
-    },
+    clearFailedSelection,
   }));
 
   // Notify parent when pending files change
@@ -218,7 +225,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     const restored = uploadEndpoints ? (uploadedFiles || [])
         .filter(file => file.scanStatus !== 'COMPLETED' || file.scanResult !== 'CLEAN')
         .map(file => ({ id: file.id, s3Key: file.s3Key, filename: file.filename,
-          reason: file.scanResult === 'INFECTED' ? 'INFECTED' as const : 'FAILED' as const, virusName: file.virusName })) : infectedFiles;
+          reason: file.scanResult === 'INFECTED' ? 'INFECTED' as const
+            : file.scanStatus === 'FAILED' ? 'FAILED' as const : 'PENDING' as const, virusName: file.virusName })) : infectedFiles;
     const rejected = [...retained.filter(file => !restored.some(next => next.id === file.id)), ...restored];
     setRejectedFiles(rejected);
     
@@ -575,9 +583,48 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         scanOutcomes = await waitForScanResults(
           confirmedOutcomes.map(({ confirmResponse }) => confirmResponse.fileId)
         );
-      } catch (error) {
-        logger.error('Failed to retrieve uploaded file scan results', { error });
-        scanOutcomes = new Map();
+      } catch {
+        const unresolvedFiles: UploadedFile[] = [];
+        const unresolvedDocuments: ApplicationDocument[] = [];
+        for (const { confirmResponse } of confirmedOutcomes) {
+          unresolvedFiles.push({
+            id: confirmResponse.fileId,
+            storageProvider: "aws_s3",
+            s3Key: confirmResponse.s3Key,
+            bucketName: confirmResponse.bucketName,
+            virtualFolder: confirmResponse.virtualFolder,
+            filename: confirmResponse.fileName,
+            fileContentType: confirmResponse.contentType,
+            fileSizeBytes: confirmResponse.fileSizeBytes,
+            uploadedAtTimestamp: confirmResponse.uploadedAt,
+            scanStatus: 'PENDING',
+            scanResult: null,
+            virusName: null,
+          });
+          unresolvedDocuments.push({
+            documentId: confirmResponse.documentId,
+            applicationId: applicationId || "",
+            fileId: confirmResponse.fileId,
+            category: category || "",
+            subCategory: subCategory || "",
+            title: confirmResponse.fileName,
+            virtualFolder: confirmResponse.virtualFolder,
+            addedBy: userId,
+            addedAt: confirmResponse.uploadedAt,
+            consultationId: consultationId || undefined,
+          });
+        }
+        const error = 'Could not check the uploaded files for viruses. Check their status or remove them before continuing.';
+        setRejectedFiles(prev => [...prev, ...unresolvedFiles.map(file => ({
+          id: file.id, s3Key: file.s3Key, filename: file.filename, reason: 'PENDING' as const,
+        }))]);
+        onValidationErrorsRef.current?.([...scanErrors, error]);
+        onUploaded?.(unresolvedFiles, unresolvedDocuments);
+        return {
+          uploadedFiles: unresolvedFiles,
+          applicationDocuments: unresolvedDocuments,
+          scanErrors: [...scanErrors, error],
+        };
       }
 
       logger.debug('[FileUpload.tsx][uploadFiles] Scan wait phase completed', {
@@ -593,6 +640,32 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
           virusName: null,
         };
 
+        const uploadedFile: UploadedFile = {
+          id: confirmResponse.fileId,
+          storageProvider: "aws_s3",
+          s3Key: confirmResponse.s3Key,
+          bucketName: confirmResponse.bucketName,
+          virtualFolder: confirmResponse.virtualFolder,
+          filename: confirmResponse.fileName,
+          fileContentType: confirmResponse.contentType,
+          fileSizeBytes: confirmResponse.fileSizeBytes,
+          uploadedAtTimestamp: confirmResponse.uploadedAt,
+          scanStatus: scanOutcome.scanStatus === 'TIMED_OUT' ? 'PENDING' : scanOutcome.scanStatus,
+          scanResult: scanOutcome.scanResult,
+          virusName: scanOutcome.virusName,
+        };
+        const applicationDocument: ApplicationDocument = {
+          documentId: confirmResponse.documentId,
+          applicationId: applicationId || "",
+          fileId: confirmResponse.fileId,
+          category: category || "",
+          subCategory: subCategory || "",
+          title: confirmResponse.fileName,
+          virtualFolder: confirmResponse.virtualFolder,
+          addedBy: userId,
+          addedAt: confirmResponse.uploadedAt,
+          consultationId: consultationId || undefined,
+        };
         if (scanOutcome.scanStatus === 'COMPLETED' && scanOutcome.scanResult === 'INFECTED') {
           logger.warn('Uploaded file failed virus scan', {
             fileId: confirmResponse.fileId,
@@ -617,39 +690,16 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
             id: confirmResponse.fileId,
             s3Key: confirmResponse.s3Key,
             filename: confirmResponse.fileName,
-            reason: 'FAILED',
+            reason: scanOutcome.scanStatus === 'TIMED_OUT' ? 'PENDING' : 'FAILED',
           };
           scanErrors.push(getRejectedFileMessage(rejectedFile));
           newRejectedFiles.push(rejectedFile);
+          if (scanOutcome.scanStatus === 'TIMED_OUT') {
+            uploadedFiles.push(uploadedFile);
+            applicationDocuments.push(applicationDocument);
+          }
         } else {
-          const uploadedFile: UploadedFile = {
-            id: confirmResponse.fileId,
-            storageProvider: "aws_s3",
-            s3Key: confirmResponse.s3Key,
-            bucketName: confirmResponse.bucketName,
-            virtualFolder: confirmResponse.virtualFolder,
-            filename: confirmResponse.fileName,
-            fileContentType: confirmResponse.contentType,
-            fileSizeBytes: confirmResponse.fileSizeBytes,
-            uploadedAtTimestamp: confirmResponse.uploadedAt,
-            scanStatus: scanOutcome.scanStatus,
-            scanResult: scanOutcome.scanResult,
-            virusName: scanOutcome.virusName,
-          };
           uploadedFiles.push(uploadedFile);
-
-          const applicationDocument: ApplicationDocument = {
-            documentId: confirmResponse.documentId,
-            applicationId: applicationId || "",
-            fileId: confirmResponse.fileId,
-            category: category || "",
-            subCategory: subCategory || "",
-            title: confirmResponse.fileName,
-            virtualFolder: confirmResponse.virtualFolder,
-            addedBy: userId,
-            addedAt: confirmResponse.uploadedAt,
-            consultationId: consultationId || undefined,
-          };
           applicationDocuments.push(applicationDocument);
         }
 
@@ -785,6 +835,50 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     }
   };
 
+  const handleRefreshScan = async (file: RejectedFile) => {
+    if (locked) return;
+    setIsScanning(true);
+    try {
+      const outcome = (await waitForScanResults([file.id])).get(file.id);
+      if (!outcome) throw new Error('The scan status is unavailable.');
+      const uploadedFile = uploadedFiles?.find(uploaded => uploaded.id === file.id);
+      if (uploadedFile) {
+        const updatedFile: UploadedFile = {
+          ...uploadedFile,
+          scanStatus: outcome.scanStatus === 'TIMED_OUT' ? 'PENDING' : outcome.scanStatus,
+          scanResult: outcome.scanResult,
+          virusName: outcome.virusName,
+        };
+        const document = applicationDocuments?.filter(item => item.fileId === file.id) || [];
+        onUploaded?.([updatedFile], document);
+      }
+
+      if (outcome.scanStatus === 'COMPLETED' && outcome.scanResult === 'CLEAN') {
+        setRejectedFiles(current => current.filter(item => item.id !== file.id));
+        onValidationErrorsRef.current?.(rejectedFiles.filter(item => item.id !== file.id).map(getRejectedFileMessage));
+      } else {
+        const updatedRejected: RejectedFile = {
+          ...file,
+          reason: outcome.scanStatus === 'TIMED_OUT' ? 'PENDING'
+            : outcome.scanStatus === 'COMPLETED' && outcome.scanResult === 'INFECTED' ? 'INFECTED' : 'FAILED',
+          virusName: outcome.virusName,
+        };
+        setRejectedFiles(current => current.map(item => item.id === file.id ? updatedRejected : item));
+        onValidationErrorsRef.current?.([
+          ...rejectedFiles.filter(item => item.id !== file.id).map(getRejectedFileMessage),
+          getRejectedFileMessage(updatedRejected),
+        ]);
+      }
+    } catch {
+      onValidationErrorsRef.current?.([
+        ...rejectedFiles.map(getRejectedFileMessage),
+        'Could not refresh the virus scan status. Try again or remove the file.',
+      ]);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
   const TitleHeading = titleHeadingLevel;
 
   return (
@@ -797,7 +891,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
               {uploadedFiles.filter(file => !uploadEndpoints || file.scanStatus === 'COMPLETED' && file.scanResult === 'CLEAN').map((file: UploadedFile, idx: number) => (
                 <li key={file.id} className="govuk-task-list__item">
                   <span className="govuk-task-list__name-and-hint">
-                    {uploadEndpoints ? <span>{file.filename.split('/').pop()}</span> : <a
+                    {hideDownloadLinks ? <span>{file.filename.split('/').pop()}</span> : <a
                       href="#"
                       className="govuk-link"
                       onClick={async (e) => {
@@ -853,10 +947,21 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                   <span className="govuk-task-list__name-and-hint">
                     <span>{file.filename ? file.filename.split("/").pop() : ""}</span>
                     <span className="govuk-task-list__hint">
-                      {file.reason === 'INFECTED' ? 'Infected' : 'Scan failed'}
+                      {file.reason === 'INFECTED' ? 'Infected' : file.reason === 'PENDING' ? 'Scan pending' : 'Scan failed'}
                     </span>
                   </span>
                   <span className="govuk-task-list__status">
+                    {file.reason === 'PENDING' && <a
+                      href="#"
+                      className="govuk-link"
+                      aria-disabled={locked}
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        await handleRefreshScan(file);
+                      }}
+                    >
+                      Check scan status<span className="govuk-visually-hidden"> for {file.filename ? file.filename.split('/').pop() : 'file'}</span>
+                    </a>}
                     <a
                       href="#"
                       className="govuk-link"
@@ -944,6 +1049,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         {maxFiles !== undefined && ` You can upload a maximum of ${maxFiles} ${maxFiles === 1 ? 'file' : 'files'}.`}
       </p>
       {errors.length > 0 && <div id="file-upload-error" className="govuk-error-message">{errors.join(' ')}</div>}
+      {blockOnSelectionErrors && selectionErrors.current.length > 0 && (
+        <button type="button" className="govuk-button govuk-button--secondary" disabled={locked}
+          onClick={clearFailedSelection}>
+          Clear failed selection
+        </button>
+      )}
 
       {isScanning && (
         <div
