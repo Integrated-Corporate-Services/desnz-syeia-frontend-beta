@@ -236,4 +236,29 @@ describe('additional payment orchestration', () => {
     const posts = network.mock.calls.filter(([, options]) => options.method === 'POST');
     expect(JSON.parse(posts[1][1].body as string)).toEqual({ evidence_file_ids: ['proof'] });
   });
+
+  it('locks bank-transfer confirmation while evidence removal is in progress', async () => {
+    const deletion = deferred<Response>();
+    const network = vi.fn().mockImplementation(async (_url: string, options: RequestInit) =>
+      options.method === 'DELETE' ? deletion.promise : { ok: true, json: async () => payment });
+    vi.stubGlobal('fetch', network);
+    const { result } = mount();
+    await waitFor(() => expect(result.current.flow.actionable).toBe(true));
+    act(() => result.current.flow.addFiles([uploaded], [document]));
+    let removing!: Promise<void>;
+    act(() => { removing = result.current.flow.removeFile(uploaded.id); });
+    await waitFor(() => expect(network.mock.calls.some(([, options]) => options.method === 'DELETE')).toBe(true));
+    expect(result.current.flow.busy).toBe(true);
+
+    await act(async () => { await result.current.flow.bankTransfer(); });
+    expect(network.mock.calls.some(([, options]) => options.method === 'POST')).toBe(false);
+    expect(result.current.flow.files).toEqual([uploaded]);
+
+    await act(async () => {
+      deletion.resolve(new Response(JSON.stringify({ removed: true }), { status: 200 }));
+      await removing;
+    });
+    expect(result.current.flow.files).toEqual([]);
+    expect(result.current.flow.busy).toBe(false);
+  });
 });
