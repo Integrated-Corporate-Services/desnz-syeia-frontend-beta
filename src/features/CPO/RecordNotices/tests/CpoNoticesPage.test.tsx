@@ -74,13 +74,13 @@ describe('CPO notices journey', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/check'));
   });
-  it.each([['online', 'newspapers'], ['newspapers', 'site'], ['site', 'people'], ['people', 'check']])('saves %s and moves to %s', async (step, next) => {
+  it.each([['inspection', 'online'], ['online', 'newspapers'], ['newspapers', 'site'], ['site', 'people'], ['people', 'check']])('saves %s and moves to %s', async (step, next) => {
     if (step === 'newspapers') stored.record.newspapers = { firstDate: '2026-10-07', secondDate: '2026-10-14' };
     renderStep(step); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith(`/cpo/app/record-notices/${next}`));
   });
   it('renders a structured inspection address and provides Change links', async () => {
-    renderStep('inspection'); await readyLater();
+    renderStep('inspection'); await ready();
     expect(screen.getByText('Network House')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Change inspection address 1' })).toHaveAttribute('href', expect.stringContaining('/inspection-address?id='));
   });
@@ -157,10 +157,18 @@ describe('CPO notices journey', () => {
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'inspection', expect.objectContaining({ format: 'reference', addresses: [expect.objectContaining({ line1: '72 Guild Street', townCity: 'London', postcode: 'SE23 6FH' })] }), true));
     expect(navigate).toHaveBeenCalledWith(expect.stringContaining('/inspection-date?id='));
   });
-  it('shows only Save for later on the inspection address list', async () => {
+  it('hides Save and continue on the inspection list until an address is added', async () => {
+    stored.record.inspection = { format: 'reference', addresses: [] };
     renderStep('inspection'); await readyLater();
     expect(screen.queryByRole('button', { name: 'Save and continue' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Add an address' })).toBeInTheDocument();
+  });
+  it('links incomplete date errors to the date input and focuses the summary', async () => {
+    stored.record.inspection = { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '' }] };
+    renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('alert')).toHaveFocus();
+    expect(screen.getByRole('link', { name: 'Enter an availability date for every inspection address' })).toHaveAttribute('href', '#inspection-heading');
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
   });
   it('allows service evidence and its completion date to be omitted', async () => {
     stored.record.people = {};
