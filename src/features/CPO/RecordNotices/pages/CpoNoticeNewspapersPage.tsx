@@ -133,7 +133,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
     if (target === 'requirements') return saved.acknowledged === true ? 'Read and acknowledged' : 'Not acknowledged';
     if (target === 'inspection') return inspectionAddresses(saved).map(address => <p className="govuk-body" key={address.id}>{inspectionAddressText(address)}<br />Available from {noticeDateText(address.from)}</p>);
     if (target === 'online') return <a className="govuk-link" href={saved.url} target="_blank" rel="noopener noreferrer">{saved.url || 'Not recorded'}</a>;
-    return <>{data.documents.filter(file => file.category === NOTICE_CATEGORIES[target]).map(file => <p className="govuk-!-margin-bottom-1" key={file.file_id}><a className="govuk-link" href="#notices-heading" onClick={event => { event.preventDefault(); void downloadS3FileOnSameTab(file.s3_key, file.file_id, applicationId, file.document_id).catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download the document. Try again.' }])); }}>{file.filename}</a><br />{target === 'newspapers' ? 'Published' : target === 'site' ? 'Displayed' : 'Served'} {formatDate(saved.evidence?.find(item => item.fileId === file.file_id)?.date || saved.completionDate)}</p>)}{!saved.evidence?.length && (target === 'people' ? 'Not provided' : 'Not recorded')}</>;
+    return <>{data.documents.filter(file => file.category === NOTICE_CATEGORIES[target]).map(file => <p className="govuk-!-margin-bottom-1" key={file.file_id}><a className="govuk-link" href="#notices-heading" onClick={event => { event.preventDefault(); void downloadS3FileOnSameTab('', file.file_id, applicationId, file.document_id).catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download the document. Try again.' }])); }}>{file.filename}</a><br />{target === 'newspapers' ? 'Published' : target === 'site' ? 'Displayed' : 'Served'} {formatDate(saved.evidence?.find(item => item.fileId === file.file_id)?.date || saved.completionDate)}</p>)}{!saved.evidence?.length && (target === 'people' ? 'Not provided' : 'Not recorded')}</>;
   };
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${NOTICE_HEADINGS[step]}`} />
@@ -174,7 +174,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
                   <div className="govuk-task-list__name-and-hint" style={{ overflowWrap: 'anywhere' }}>
                     <a className="govuk-link" href="#notices-heading" onClick={(event) => {
                       event.preventDefault();
-                      void downloadS3FileOnSameTab(file.s3_key, file.file_id, applicationId, file.document_id)
+                      void downloadS3FileOnSameTab('', file.file_id, applicationId, file.document_id)
                         .catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download this document. Try again.' }]));
                     }}>{file.filename}</a>
                   </div>
@@ -222,8 +222,8 @@ const CpoNoticeNewspapersPage: React.FC = () => {
                 }).finally(() => setRefreshingUploads(false));
               }}
               showDocumentsHeading={false}
-              uploadedFiles={documents.map((file) => ({ id: file.file_id, storageProvider: 'aws_s3', s3Key: file.s3_key ?? '', bucketName: '', virtualFolder: file.s3_key ? file.s3_key.split('/').slice(0, -1).join('/') : '', filename: file.filename, fileContentType: file.file_content_type, fileSizeBytes: file.file_size_bytes, uploadedAtTimestamp: file.uploaded_at_timestamp }))}
-              applicationDocuments={documents.map((file) => ({ documentId: file.document_id, applicationId, fileId: file.file_id, category, addedBy: file.added_by, addedAt: file.added_at }))}
+              uploadedFiles={documents.map((file) => ({ id: file.file_id, storageProvider: 'aws_s3', s3Key: '', bucketName: '', virtualFolder: '', filename: file.filename, fileContentType: '', fileSizeBytes: 0, uploadedAtTimestamp: '' }))}
+              applicationDocuments={documents.map((file) => ({ documentId: file.document_id, applicationId, fileId: file.file_id, category, addedBy: '', addedAt: '' }))}
               onDeleteFile={(id) => { setData((current) => ({ ...current, documents: current.documents.filter((file) => file.file_id !== id) })); setAnswer((current) => ({ ...current, evidence: (current.evidence || []).filter((item) => item.fileId !== id) })); }}
               onValidationErrors={(messages) => { setFileErrors(messages); setErrors(messages.map((message) => ({ id: 'file-upload-input', message }))); }} />
           </>}

@@ -28,16 +28,10 @@ export interface NoticeAnswer {
 
 export interface CpoNoticeDocument {
   document_id: string;
-  application_id: string;
+  /** Equal to document_id; kept so the evidence pickers can keep addressing files by fileId. */
   file_id: string;
   category: string;
-  added_by: string;
-  added_at: string;
   filename: string;
-  s3_key: string;
-  file_content_type: string;
-  file_size_bytes: number;
-  uploaded_at_timestamp: string;
 }
 
 export interface NoticesResponse {
