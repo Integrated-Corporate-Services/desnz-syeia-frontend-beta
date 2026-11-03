@@ -16,6 +16,10 @@ import { inspectionAddresses, inspectionAddressText, noticeDateText, publication
 const formatDate = (value?: string) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value))
   ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : 'Not recorded';
 const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+const todayLocalIsoDate = () => {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+};
 type FormError = { id: string; message: string };
 
 const CpoNoticeNewspapersPage: React.FC = () => {
@@ -87,7 +91,17 @@ const CpoNoticeNewspapersPage: React.FC = () => {
     if (uploadRef.current?.isBusy()) { setErrors([{ id: 'file-upload-input', message: 'Wait for uploads and virus checks to finish before continuing' }]); return; }
     const localErrors: FormError[] = [];
     const dateKeys = step === 'newspapers' ? ['firstDate', 'secondDate'] as const : step === 'website' ? ['liveDate'] as const : step === 'site' || step === 'people' ? ['completionDate'] as const : [];
-    for (const key of dateKeys) if (((!saveForLater && step !== 'people') || answer[key]) && !validDate(answer[key] || '')) localErrors.push({ id: `${key}-day`, message: `Enter a valid ${key === 'firstDate' ? 'first publication' : key === 'secondDate' ? 'second publication' : key === 'liveDate' ? 'notice live' : 'completion'} date` });
+    for (const key of dateKeys) {
+      const value = answer[key] || '';
+      if (step === 'newspapers') {
+        const label = key === 'firstDate' ? 'First' : 'Second';
+        if (!value) { if (!saveForLater) localErrors.push({ id: `${key}-day`, message: `Enter the ${label.toLowerCase()} date the newspaper notice appeared` }); }
+        else if (!validDate(value)) localErrors.push({ id: `${key}-day`, message: `${label} date the notice appeared must include a day, month and year` });
+        else if (!saveForLater && value > todayLocalIsoDate()) localErrors.push({ id: `${key}-day`, message: `${label} date the notice appeared cannot be in the future` });
+        continue;
+      }
+      if (((!saveForLater && step !== 'people') || answer[key]) && !validDate(value)) localErrors.push({ id: `${key}-day`, message: `Enter a valid ${key === 'liveDate' ? 'notice live' : 'completion'} date` });
+    }
     if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address where the order and maps can be viewed' });
     if (localErrors.length) { setErrors(localErrors); return; }
     setSaving(true); setErrors([]);
