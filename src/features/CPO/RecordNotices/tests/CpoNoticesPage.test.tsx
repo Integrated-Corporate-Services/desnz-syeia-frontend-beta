@@ -189,6 +189,18 @@ describe('CPO notices journey', () => {
     expect(screen.queryByRole('link', { name: 'Enter a valid completion date' })).not.toBeInTheDocument();
     expect(cpoNoticesService.save).not.toHaveBeenCalled();
   });
+  it('asks for the last served date not to be in the future', async () => {
+    stored.record.people = { format: 'reference', completionDate: '2099-01-01', evidence: [] };
+    renderStep('people'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Date the last person was served cannot be in the future' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('asks for the last served date to include a day, month and year', async () => {
+    stored.record.people = { format: 'reference', completionDate: '2026-10-', evidence: [] };
+    renderStep('people'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Date the last person was served must include a day, month and year' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
   it('links incomplete date errors to the date input and focuses the summary', async () => {
     stored.record.inspection = { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '' }] };
     renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
