@@ -76,6 +76,146 @@ describe('cpoNoticesService', () => {
     });
   });
 
+  it('sends newspaper row versions inside each publication without a record-level row version', async () => {
+    const firstDate = '2026-10-07';
+    const secondDate = '2026-10-14';
+    const newspaperState = {
+      ...serverState,
+      documents: [
+        { document_id: '880e8400-e29b-41d4-a716-446655440060', category: 'CPO_NEWSPAPER_NOTICES', filename: 'week-1.pdf' },
+        { document_id: '880e8400-e29b-41d4-a716-446655440061', category: 'CPO_NEWSPAPER_NOTICES', filename: 'week-2.pdf' },
+      ],
+      record: {
+        ...serverState.record,
+        newspapers: { publications: [
+          { publication_id: '880e8400-e29b-41d4-a716-446655440070', publication_number: 1, row_version: 1, expected_row_version: 1, published_on: firstDate, document_id: '880e8400-e29b-41d4-a716-446655440060' },
+          { publication_id: '880e8400-e29b-41d4-a716-446655440071', publication_number: 2, row_version: 1, expected_row_version: 1, published_on: secondDate, document_id: '880e8400-e29b-41d4-a716-446655440061' },
+        ] },
+      },
+    };
+    const fetchMock = vi.fn().mockImplementation(async () => json(newspaperState));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await cpoNoticesService.save('app-1', 'newspapers', {
+      format: 'reference',
+      firstDate,
+      secondDate,
+      evidence: [
+        { fileId: '880e8400-e29b-41d4-a716-446655440060', date: firstDate },
+        { fileId: '880e8400-e29b-41d4-a716-446655440061', date: secondDate },
+      ],
+    }, false);
+
+    expect(result.record.newspapers?.evidence).toEqual([
+      {
+        fileId: '880e8400-e29b-41d4-a716-446655440060',
+        date: firstDate,
+        publicationId: '880e8400-e29b-41d4-a716-446655440070',
+        expectedRowVersion: 1,
+      },
+      {
+        fileId: '880e8400-e29b-41d4-a716-446655440061',
+        date: secondDate,
+        publicationId: '880e8400-e29b-41d4-a716-446655440071',
+        expectedRowVersion: 1,
+      },
+    ]);
+
+    const patch = fetchMock.mock.calls.find(([, init]) => init?.method === 'PATCH');
+    expect(patch).toBeDefined();
+    expect(JSON.parse(patch![1].body as string)).toEqual({
+      expected_content_version: 13,
+      page_id: 'newspapers',
+      data: { publications: [
+        {
+          publication_id: '880e8400-e29b-41d4-a716-446655440070',
+          expected_row_version: 1,
+          publication_number: 1,
+          published_on: firstDate,
+          document_ids: '880e8400-e29b-41d4-a716-446655440060',
+        },
+        {
+          publication_id: '880e8400-e29b-41d4-a716-446655440071',
+          expected_row_version: 1,
+          publication_number: 2,
+          published_on: secondDate,
+          document_ids: '880e8400-e29b-41d4-a716-446655440061',
+        },
+      ] },
+    });
+  });
+
+  it('sends publication ids when creating newspapers and maps the returned row versions', async () => {
+    const firstDate = '2026-10-07';
+    const secondDate = '2026-10-14';
+    const documentIds = [
+      '880e8400-e29b-41d4-a716-446655440060',
+      '880e8400-e29b-41d4-a716-446655440061',
+    ];
+    const publicationIds = [
+      '880e8400-e29b-41d4-a716-446655440070',
+      '880e8400-e29b-41d4-a716-446655440071',
+    ];
+    vi.stubGlobal('crypto', {
+      randomUUID: vi.fn().mockReturnValueOnce(publicationIds[0]).mockReturnValueOnce(publicationIds[1]),
+    });
+    const createState = {
+      ...serverState,
+      content_version: 4,
+      documents: documentIds.map((document_id, index) => ({
+        document_id,
+        category: 'CPO_NEWSPAPER_NOTICES',
+        filename: `week-${index + 1}.pdf`,
+      })),
+      record: { ...serverState.record, newspapers: { publications: [] } },
+    };
+    const savedState = {
+      ...createState,
+      content_version: 5,
+      record: {
+        ...createState.record,
+        newspapers: { publications: documentIds.map((document_id, index) => ({
+          publication_id: publicationIds[index],
+          publication_number: index + 1,
+          row_version: 1,
+          expected_row_version: 1,
+          published_on: index === 0 ? firstDate : secondDate,
+          document_id,
+        })) },
+      },
+    };
+    const fetchMock = vi.fn().mockImplementation(async (_url: string, init?: RequestInit) => (
+      init?.method === 'PATCH' ? json(savedState) : json(createState)
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await cpoNoticesService.save('app-1', 'newspapers', {
+      format: 'reference',
+      firstDate,
+      secondDate,
+      evidence: documentIds.map((fileId, index) => ({ fileId, date: index === 0 ? firstDate : secondDate })),
+    }, false);
+
+    const patch = fetchMock.mock.calls.find(([, init]) => init?.method === 'PATCH');
+    expect(JSON.parse(patch![1].body as string)).toEqual({
+      expected_content_version: 4,
+      page_id: 'newspapers',
+      data: { publications: documentIds.map((document_ids, index) => ({
+        publication_id: publicationIds[index],
+        expected_row_version: 0,
+        publication_number: index + 1,
+        published_on: index === 0 ? firstDate : secondDate,
+        document_ids,
+      })) },
+    });
+    expect(result.record.newspapers?.evidence).toEqual(documentIds.map((fileId, index) => ({
+      fileId,
+      date: index === 0 ? firstDate : secondDate,
+      publicationId: publicationIds[index],
+      expectedRowVersion: 1,
+    })));
+  });
+
   it('sends no PATCH when the page answers match the server state', async () => {
     const fetchMock = serverFetch();
     vi.stubGlobal('fetch', fetchMock);

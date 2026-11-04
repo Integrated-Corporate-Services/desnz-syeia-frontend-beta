@@ -13,6 +13,7 @@ interface RawPublication {
   publication_id: string;
   publication_number: number | null;
   row_version: number;
+  expected_row_version?: number;
   published_on: string;
   document_id: string;
 }
@@ -87,7 +88,12 @@ function toNoticesResponse(raw: RawRecordNotices): NoticesResponse {
         format: 'reference',
         firstDate: publications.find(item => item.publication_number === 1)?.published_on ?? '',
         secondDate: publications.find(item => item.publication_number === 2)?.published_on ?? '',
-        evidence: publications.map(item => ({ fileId: item.document_id, date: item.published_on })),
+        evidence: publications.map(item => ({
+          fileId: item.document_id,
+          date: item.published_on,
+          publicationId: item.publication_id,
+          expectedRowVersion: item.expected_row_version ?? item.row_version,
+        })),
       },
       site: {
         format: 'reference',
@@ -163,7 +169,8 @@ function buildNewspaperOperations(raw: RawRecordNotices, answer: NoticeAnswer): 
     const existing = current.find(item => item.document_id === entry.fileId);
     const publicationNumber = entry.date === answer.firstDate ? 1 : entry.date === answer.secondDate ? 2 : null;
     return {
-      ...(existing ? { publication_id: existing.publication_id, expected_row_version: existing.row_version } : {}),
+      publication_id: existing?.publication_id ?? crypto.randomUUID(),
+      expected_row_version: existing?.row_version ?? 0,
       publication_number: publicationNumber,
       published_on: entry.date,
       document_ids: entry.fileId,
@@ -231,7 +238,7 @@ async function applyOperation(applicationId: string, raw: RawRecordNotices, oper
     method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
     body: JSON.stringify({
       expected_content_version: raw.content_version,
-      expected_row_version: rowVersionFor(raw, operation.rowId),
+      ...(operation.page_id === 'newspapers' ? {} : { expected_row_version: rowVersionFor(raw, operation.rowId) }),
       page_id: operation.page_id,
       data: operation.data,
     }),
