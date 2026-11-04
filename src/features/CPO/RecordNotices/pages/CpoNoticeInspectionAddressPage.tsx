@@ -66,10 +66,18 @@ const CpoNoticeInspectionAddressPage: React.FC = () => {
       const savedAddress = addressPage ? { ...address, line1: address.line1.trim(), line2: address.line2.trim(), townCity: address.townCity.trim(), county: (address.county || '').trim(), postcode: address.postcode.trim().toUpperCase() } : address;
       const addresses = addressPage || datePage ? list.some(item => item.id === address.id)
         ? list.map(item => item.id === address.id ? savedAddress : item) : [...list, savedAddress] : list;
-      await cpoNoticesService.save(applicationId, 'inspection', { ...data?.record.inspection, format: 'reference', addresses }, later || addressPage || datePage);
+      const result = await cpoNoticesService.save(applicationId, 'inspection', { ...data?.record.inspection, format: 'reference', addresses }, later || addressPage || datePage);
       if (later) navigate('/application-dashboard');
-      else if (addressPage) navigate(entryUrl('inspection-date', address.id));
-      else if (datePage) navigate(`${base}/inspection${returnQuery}`);
+      else if (addressPage) {
+        const persistedAddresses = inspectionAddresses(result.record.inspection);
+        const persistedAddress = persistedAddresses.find(item => item.id === address.id)
+          ?? persistedAddresses.find(item => !list.some(existing => existing.id === item.id)
+            && item.line1 === savedAddress.line1 && item.line2 === savedAddress.line2
+            && item.townCity === savedAddress.townCity && item.county === savedAddress.county
+            && item.postcode === savedAddress.postcode);
+        if (!persistedAddress) throw new Error('Unable to find the saved inspection address. Return to the address list and try again.');
+        navigate(entryUrl('inspection-date', persistedAddress.id));
+      } else if (datePage) navigate(`${base}/inspection${returnQuery}`);
       else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'application-review' ? '?from=application-review' : ''}`);
     } catch (failure) { setErrors([{ id: 'inspection-heading', message: failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.' }]); }
     finally { setSaving(false); }
