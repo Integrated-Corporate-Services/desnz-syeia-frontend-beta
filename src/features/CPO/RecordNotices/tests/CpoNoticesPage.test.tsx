@@ -154,6 +154,14 @@ describe('CPO notices journey', () => {
   });
   it('saves a structured address before entering its availability date', async () => {
     stored.record.inspection = {};
+    const persistedId = crypto.randomUUID();
+    vi.mocked(cpoNoticesService.save).mockResolvedValueOnce({
+      ...stored,
+      record: {
+        ...stored.record,
+        inspection: { format: 'reference', addresses: [{ id: persistedId, line1: '72 Guild Street', line2: '', townCity: 'London', county: '', postcode: 'SE23 6FH', from: '' }] },
+      },
+    });
     renderStep('inspection-address');
     await waitFor(() => expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled());
     fireEvent.change(screen.getByLabelText('Address line 1'), { target: { value: '72 Guild Street' } });
@@ -161,7 +169,7 @@ describe('CPO notices journey', () => {
     fireEvent.change(screen.getByLabelText('Postcode'), { target: { value: 'SE23 6FH' } });
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'inspection', expect.objectContaining({ format: 'reference', addresses: [expect.objectContaining({ line1: '72 Guild Street', townCity: 'London', postcode: 'SE23 6FH' })] }), true));
-    expect(navigate).toHaveBeenCalledWith(expect.stringContaining('/inspection-date?id='));
+    expect(navigate).toHaveBeenCalledWith(`/cpo/app/record-notices/inspection-date?id=${persistedId}`);
   });
   it('requires an inspection address before continuing from an empty list', async () => {
     stored.record.inspection = {};

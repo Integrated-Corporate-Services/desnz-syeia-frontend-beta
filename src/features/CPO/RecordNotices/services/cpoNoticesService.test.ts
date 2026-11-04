@@ -216,6 +216,66 @@ describe('cpoNoticesService', () => {
     })));
   });
 
+  it('creates an inspection address without a temporary id and uses the returned id for its date', async () => {
+    const clientAddressId = 'client-address-id';
+    const serverAddressId = '880e8400-e29b-41d4-a716-446655440080';
+    const availableFrom = '2026-10-07';
+    const address = {
+      line1: 'Network House, 72 Guild Street',
+      line2: null,
+      town_city: 'London',
+      county: null,
+      postcode: 'SE23 6FH',
+    };
+    const initialState = {
+      ...serverState,
+      content_version: 4,
+      record: { ...serverState.record, inspection: { addresses: [] } },
+    };
+    const createdState = {
+      ...initialState,
+      content_version: 5,
+      record: {
+        ...initialState.record,
+        inspection: { addresses: [{ inspection_address_id: serverAddressId, row_version: 1, address, available_from: null }] },
+      },
+    };
+    const datedState = {
+      ...createdState,
+      content_version: 6,
+      record: {
+        ...createdState.record,
+        inspection: { addresses: [{ inspection_address_id: serverAddressId, row_version: 2, address, available_from: availableFrom }] },
+      },
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(json(initialState))
+      .mockResolvedValueOnce(json(createdState))
+      .mockResolvedValueOnce(json(datedState));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await cpoNoticesService.save('app-1', 'inspection', {
+      format: 'reference',
+      addresses: [{ id: clientAddressId, line1: address.line1, line2: '', townCity: 'London', county: '', postcode: address.postcode, from: availableFrom }],
+    }, false);
+
+    const patches = fetchMock.mock.calls.filter(([, init]) => init?.method === 'PATCH');
+    expect(patches).toHaveLength(2);
+    expect(JSON.parse(patches[0][1].body as string)).toEqual({
+      expected_content_version: 4,
+      expected_row_version: 2,
+      page_id: 'inspection-address',
+      data: { inspection_address: address },
+    });
+    expect(JSON.parse(patches[1][1].body as string)).toEqual({
+      expected_content_version: 5,
+      expected_row_version: 1,
+      page_id: 'inspection-date',
+      data: { inspection_address_id: serverAddressId, available_from: availableFrom },
+    });
+    expect(result.record.inspection?.addresses?.[0]).toMatchObject({ id: serverAddressId, from: availableFrom });
+  });
+
   it('sends no PATCH when the page answers match the server state', async () => {
     const fetchMock = serverFetch();
     vi.stubGlobal('fetch', fetchMock);

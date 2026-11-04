@@ -41,6 +41,7 @@ interface PatchOperation {
   data: Record<string, unknown>;
   /** Inspection address the page targets. Absent for record-level pages. */
   rowId?: string;
+  createdAvailableFrom?: string;
 }
 
 async function readRaw(response: Response): Promise<RawRecordNotices> {
@@ -147,16 +148,17 @@ function buildInspectionOperations(raw: RawRecordNotices, desired: InspectionAdd
       operations.push({
         page_id: 'inspection-address',
         data: {
-          inspection_address_id: address.id,
+          ...(existing ? { inspection_address_id: existing.inspection_address_id } : {}),
           inspection_address: {
             line1: address.line1, line2: address.line2 || null, town_city: address.townCity,
             county: address.county || null, postcode: address.postcode,
           },
         },
-        rowId: address.id,
+        ...(existing ? { rowId: existing.inspection_address_id } : {}),
+        ...(!existing && address.from ? { createdAvailableFrom: address.from } : {}),
       });
     }
-    if (address.from && address.from !== (existing?.available_from ?? '')) {
+    if (existing && address.from && address.from !== existing.available_from) {
       operations.push({ page_id: 'inspection-date', data: { inspection_address_id: address.id, available_from: address.from }, rowId: address.id });
     }
   }
@@ -251,7 +253,17 @@ export const cpoNoticesService = {
   save: async (applicationId: string, step: NoticeStep, answers: NoticeAnswer, _saveForLater: boolean): Promise<NoticesResponse> => {
     let raw = await fetchRaw(applicationId);
     for (const operation of buildOperations(raw, step, answers)) {
+      const previousAddressIds = new Set((raw.record.inspection?.addresses ?? []).map(address => address.inspection_address_id));
       raw = await applyOperation(applicationId, raw, operation);
+      if (operation.createdAvailableFrom) {
+        const createdAddress = raw.record.inspection?.addresses.find(address => !previousAddressIds.has(address.inspection_address_id));
+        if (!createdAddress) throw new Error('Unable to find the newly saved inspection address. Refresh the page and try again.');
+        raw = await applyOperation(applicationId, raw, {
+          page_id: 'inspection-date',
+          data: { inspection_address_id: createdAddress.inspection_address_id, available_from: operation.createdAvailableFrom },
+          rowId: createdAddress.inspection_address_id,
+        });
+      }
     }
     return toNoticesResponse(raw);
   },
