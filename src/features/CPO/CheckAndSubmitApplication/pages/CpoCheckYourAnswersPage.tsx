@@ -30,7 +30,6 @@ const CpoCheckYourAnswersPage: React.FC = () => {
   const [problems, setProblems] = useState<ProblemLink[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const summaryRef = useRef<HTMLDivElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
   const base = `${CPO_BASE_URL}/${applicationId}`;
 
   useBreadcrumb(<div className="govuk-breadcrumbs"><ol className="govuk-breadcrumbs__list">
@@ -40,7 +39,6 @@ const CpoCheckYourAnswersPage: React.FC = () => {
 
   const allProblems: ProblemLink[] = error ? [{ text: error, href: '#review-heading' }, ...problems] : problems;
   useEffect(() => { if (allProblems.length) summaryRef.current?.focus(); }, [allProblems.length, error, problems]);
-  useEffect(() => { if (!loading && !error) headingRef.current?.focus(); }, [loading, error]);
 
   const isDraft = data?.application.status.toLowerCase() === 'draft';
   const editable = isDraft && data?.application.permissions?.canEdit === true;
@@ -79,7 +77,7 @@ const CpoCheckYourAnswersPage: React.FC = () => {
         </ul></div>
       </div>}
       <span className="govuk-caption-l">Check and submit</span>
-      <h1 className="govuk-heading-l" id="review-heading" ref={headingRef} tabIndex={-1}>{HEADING}</h1>
+      <h1 className="govuk-heading-l" id="review-heading" tabIndex={-1}>{HEADING}</h1>
       {loading && <p className="govuk-body" role="status">Loading your answers...</p>}
       {!loading && !data && <button className="govuk-button govuk-button--secondary" type="button" onClick={retry}>Try again</button>}
       {data && <>

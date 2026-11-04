@@ -6,7 +6,7 @@ import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES } from '../../OrderDocum
 import { PROJECT_OVERVIEW_COPY } from '../../ProjectOverview/constants/projectOverviewConstants';
 import { NOTICE_CATEGORIES, NOTICE_HEADINGS } from '../../RecordNotices/constants/noticesConstants';
 import type { NoticeStep } from '../../RecordNotices/types/notices';
-import { inspectionAddresses, inspectionAddressText, noticeDateText } from '../../RecordNotices/utils/noticeRecord';
+import { inspectionAddresses, noticeDateText } from '../../RecordNotices/utils/noticeRecord';
 import type { CpoAnswers } from '../hooks/useCpoApplicationAnswers';
 
 interface CpoApplicationAnswersProps {
@@ -33,7 +33,7 @@ const valueStyle: React.CSSProperties = { overflowWrap: 'anywhere', whiteSpace: 
 
 const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <div className="govuk-summary-list__row">
-    <dt className="govuk-summary-list__key">{label}</dt>
+    <dt className="govuk-summary-list__key govuk-!-width-one-half">{label}</dt>
     <dd className="govuk-summary-list__value" style={valueStyle}>{children}</dd>
   </div>
 );
@@ -65,14 +65,14 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
   const changeUrl = (path: string) => editable ? `${base}/${path}?from=application-review` : undefined;
 
   const fileList = (files: AnswerFile[], empty = 'Not uploaded') => files.length ? files.map((file) => <React.Fragment key={file.key}>
-    <p className="govuk-!-margin-bottom-0">
+    <p className="govuk-!-margin-top-0 govuk-!-margin-bottom-0">
       {canDownload && file.clean ? <a className="govuk-link" href="#" onClick={(event) => {
         event.preventDefault();
         void downloadS3FileOnSameTab(file.s3Key, file.fileId, applicationId, file.documentId).catch(onDownloadError);
       }}>{file.filename}</a> : file.filename}
       {!file.clean && ' (Virus check not complete)'}
     </p>
-    {file.detail && <p className="govuk-!-margin-bottom-2">{file.detail}</p>}
+    {file.detail && <p className="govuk-!-margin-top-0 govuk-!-margin-bottom-0">{file.detail}</p>}
   </React.Fragment>) : empty;
 
   const orderFiles = (categories: string[]): AnswerFile[] => documents.documents
@@ -92,7 +92,7 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
   const completedNotice = (step: NoticeStep, label: string) => {
     const files = noticeFiles(step);
     const date = notices.record[step]?.completionDate;
-    return <>{fileList(files)}{date && <p className="govuk-!-margin-bottom-0">{label} {noticeDateText(date)}</p>}</>;
+    return <>{fileList(files)}{date && <p className="govuk-!-margin-top-0 govuk-!-margin-bottom-0">{label} {noticeDateText(date)}</p>}</>;
   };
 
   const party = application.application_party;
@@ -140,7 +140,7 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
     <Card title="Record your notices" changeUrl={changeUrl('record-notices/check')}>
       {addresses.length
         ? addresses.map((address, index) => <Row key={address.id} label={`Inspection address ${index + 1}`}>
-          {inspectionAddressText(address)}{'\n'}Available from {noticeDateText(address.from)}
+          {[address.line1, address.line2, address.townCity, address.county].filter(Boolean).join(', ')}{address.postcode && `\n${address.postcode}`}{'\n'}Available from {noticeDateText(address.from)}
         </Row>)
         : <Row label="Inspection address">{NOT_ANSWERED}</Row>}
       <Row label={NOTICE_HEADINGS.online}>{notices.record.online?.url || NOT_ANSWERED}</Row>
