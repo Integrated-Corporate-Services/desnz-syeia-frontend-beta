@@ -6,7 +6,6 @@ import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { deleteDocument } from '../../../../services/s3ApiService';
 import DateInput from '../components/DateInput';
-import NoticesPagination from '../components/NoticesPagination';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import { NOTICE_CATEGORIES, NOTICE_HEADINGS, NOTICE_LABELS, NOTICE_STEPS } from '../constants/noticesConstants';
 import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../types/notices';
@@ -239,7 +238,6 @@ const CpoNoticeNewspapersPage: React.FC = () => {
         {editable && <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void submit(true)}>Save for later</button></div>}
       </fieldset></form>
       {saving && <p className="govuk-body" role="status">Saving publicity record...</p>}
-    <NoticesPagination current="newspapers" />
     </div></div></div>
   </>;
 };

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import DateInput from '../components/DateInput';
-import NoticesPagination from '../components/NoticesPagination';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { InspectionAddress, NoticesResponse } from '../types/notices';
@@ -108,7 +107,6 @@ const CpoNoticeInspectionPage: React.FC = () => {
           ? <div className="govuk-button-group"><button className="govuk-button" type="submit">Continue</button></div>
           : <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>)}
       </fieldset></form>
-    <NoticesPagination current="inspection" />
     </div></div></div>
   </>;
 };
