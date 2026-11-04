@@ -66,10 +66,10 @@ describe('Manage user keeps the coordinator list return path (PR #588 review)', 
   });
 
   it('Revoke access targets the organisation from the coordinator list', async () => {
-    mount({ from: LIST, organisationId: 'org-b' });
+    mount({ from: LIST, organisationId: 'org-a' });
     fireEvent.click(screen.getByRole('link', { name: 'Revoke access' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Revoke access' }));
-    expect(revoke).toHaveBeenCalledWith('u1', expect.any(Function), 'org-b');
+    expect(revoke).toHaveBeenCalledWith('u1', expect.any(Function), 'org-a');
   });
 
   it('Revoke access, then Back, then Back returns to the coordinator list', async () => {

@@ -74,16 +74,22 @@ export const useManageUsers = () => {
   const confirmRevokeAccess = async (
     userId: string,
     onSuccess: (data: { userName: string; userEmail: string }) => void,
-    // Organisation of the membership to revoke; defaults to the signed-in user's organisation
+    // Superusers must supply the target membership; coordinators may use their own organisation.
     organisationId?: string
   ) => {
+    setError("");
+    const targetOrganisationId = organisationId ?? (isSuperUserRole ? undefined : userOrganisationId);
+    if (!targetOrganisationId) {
+      setError("Select the organisation whose access you want to revoke");
+      return;
+    }
     const user = users.find((u) => u.id === userId);
     if (user) {
       try {
         const response = await userService.suspendUser(
           userId,
           "Access revoked by administrator",
-          organisationId ?? userOrganisationId
+          targetOrganisationId
         );
         if (response.success) {
           // Reload users to reflect the change
@@ -125,6 +131,7 @@ export const useManageUsers = () => {
     actionColumnCount,
     userRole,
     userOrganisation,
+    userOrganisationId,
     // Handlers
     handleRevokeAccess,
     confirmRevokeAccess,

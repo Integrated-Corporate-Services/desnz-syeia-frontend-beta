@@ -12,7 +12,7 @@ async function readResponse(response: Response): Promise<OrderDetailsResponse> {
         : response.status === 403 ? 'You do not have permission to update this application.'
           : response.status === 409 ? 'Only draft compulsory purchase order applications can be updated.'
             : 'Unable to load or save order details. Try again.';
-    throw new Error(message);
+    throw Object.assign(new Error(message), { status: response.status });
   }
   const result: OrderDetailsResponse = await response.json();
   return { details: { ...EMPTY_ORDER_DETAILS, ...result.details }, documents: result.documents || [], canEdit: result.canEdit };
@@ -29,7 +29,7 @@ export const cpoOrderDetailsService = {
     }
     if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
     return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/order-details`), {
-      method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
+      method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ step, changes, saveForLater }),
     }));
   },
