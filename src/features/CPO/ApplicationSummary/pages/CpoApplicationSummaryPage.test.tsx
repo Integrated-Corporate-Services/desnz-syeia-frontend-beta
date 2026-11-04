@@ -156,6 +156,16 @@ describe('CPO application summary', () => {
     expect(screen.queryByRole('region')).not.toBeInTheDocument();
   });
 
+  it('does not offer Withdraw application until the withdrawal request lookup succeeds', async () => {
+    vi.mocked(applicationApiService.getWithdrawalRequest).mockRejectedValueOnce(new Error('Failed')).mockResolvedValueOnce(null);
+    renderPage(); await ready();
+    const checkAgain = await screen.findByRole('button', { name: 'Check again' });
+    expect(screen.getByText('We could not check if a withdrawal has been requested.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Withdraw application' })).not.toBeInTheDocument();
+    fireEvent.click(checkAgain);
+    expect(await screen.findByRole('button', { name: 'Withdraw application' })).toHaveAttribute('href', '/cpo/app/withdraw');
+    expect(screen.queryByRole('button', { name: 'Check again' })).not.toBeInTheDocument();
+  });
   it('does not show View objections until objections can be viewed', async () => {
     renderPage(); await ready();
     expect(screen.queryByRole('button', { name: 'View objections' })).not.toBeInTheDocument();

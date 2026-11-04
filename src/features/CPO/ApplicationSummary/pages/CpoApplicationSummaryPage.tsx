@@ -4,13 +4,13 @@ import PageTitle from '../../../../components/PageTitle';
 import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { CPO_BASE_URL, CPO_CASE_TYPE_LABEL } from '../../../../constants/cpo';
 import { getApplicationStatusDisplay } from '../../../../constants/status';
-import { useWithdrawalRequest } from '../../../ApplicationSummary/hooks';
 import { APPLICATION_SUMMARY_CONSTANTS } from '../../../ApplicationSummary/constants';
 import { WithdrawalNotificationBanner } from '../../../ApplicationSummary/components/WithdrawalNotificationBanner';
 import { noticeDateText } from '../../RecordNotices/utils/noticeRecord';
 import { useCpoApplicationId } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationId';
 import CpoApplicationAnswers from '../../shared/components/CpoApplicationAnswers';
 import { useCpoApplicationAnswers } from '../../shared/hooks/useCpoApplicationAnswers';
+import { useCpoWithdrawalRequest } from '../hooks/useCpoWithdrawalRequest';
 
 const HEADING = 'Application summary';
 
@@ -18,7 +18,7 @@ const HEADING = 'Application summary';
 const CpoApplicationSummaryPage: React.FC = () => {
   const applicationId = useCpoApplicationId();
   const { data, loading, error, setError, retry } = useCpoApplicationAnswers(applicationId);
-  const { withdrawalRequest, loading: withdrawalLoading } = useWithdrawalRequest(applicationId);
+  const { withdrawalRequest, loading: withdrawalLoading, failed: withdrawalFailed, retry: retryWithdrawal } = useCpoWithdrawalRequest(applicationId);
   const summaryRef = useRef<HTMLDivElement>(null);
   const base = `${CPO_BASE_URL}/${applicationId}`;
 
@@ -31,7 +31,7 @@ const CpoApplicationSummaryPage: React.FC = () => {
 
   const status = data ? getApplicationStatusDisplay(data.application.status) : null;
   const reference = data?.application.desnz_ref || data?.notices.reference || '';
-  const canWithdraw = data?.application.permissions?.canWithdraw === true && !withdrawalLoading && !withdrawalRequest;
+  const canWithdraw = data?.application.permissions?.canWithdraw === true && !withdrawalLoading && !withdrawalFailed && !withdrawalRequest;
 
   return <>
     <PageTitle title={`${error ? 'Error: ' : ''}${HEADING}`} />
@@ -76,6 +76,10 @@ const CpoApplicationSummaryPage: React.FC = () => {
           to={`${base}/withdraw`} state={{ desnzRef: reference, formType: 'CPO' }}>
           Withdraw application
         </Link>}
+        {withdrawalFailed && <>
+          <p className="govuk-body">We could not check if a withdrawal has been requested.</p>
+          <button className="govuk-button govuk-button--secondary" type="button" onClick={retryWithdrawal}>Check again</button>
+        </>}
         {/* View objections is added once an objections page exists for CPO. */}
         <hr className="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
         <CpoApplicationAnswers answers={data} applicationId={applicationId} editable={false}
