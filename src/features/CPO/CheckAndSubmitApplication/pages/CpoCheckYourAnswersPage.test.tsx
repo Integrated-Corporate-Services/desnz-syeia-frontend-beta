@@ -32,17 +32,18 @@ const application = (overrides: Record<string, unknown> = {}) => ({
   application_party: { organisation_name: 'National Grid Electricity Distribution', contact_person_name: 'Alex Smith', contact_person_line1: '72 Guild Street', contact_person_city: 'London', contact_person_postcode: 'SE23 6FH', contact_person_email: 'alex.smith@example.co.uk', contact_person_phone: '07123 456789', additional_contact: 'ops.team@ngeld.co.uk' },
   ...overrides,
 }) as any;
-type Answers = { application: any; order: any; documents: any; notices: any; progress: { subsection_name: string; status: string }[] };
+type Answers = { application: any; projectOverview: any; order: any; documents: any; notices: any; progress: { subsection_name: string; status: string }[] };
 let answers: Answers;
 const mockApplication = (value: unknown) => { answers.application = value; };
 const inCategory = (documents: any[], ...categories: string[]) => documents.filter((document) => categories.includes(document.category));
 /** The GET /review payload the backend's cpoReviewPayloadBuilder returns for these answers. */
-const review = ({ application: saved, order, documents, notices: savedNotices, progress }: Answers) => ({
+const review = ({ application: saved, projectOverview, order, documents, notices: savedNotices, progress }: Answers) => ({
   applicationId: 'app', status: saved.status, desnzRef: saved.desnz_ref ?? null, formType: saved.type, permissions: saved.permissions,
   metadata: { schemaVersion: 1, source: 'SYEIA' },
   sections: {
     applicantDetails: { applicationParty: saved.application_party ?? null, operatorRef: saved.operator_ref ?? null },
     preSubmissionMeeting: { answer: saved.pre_submission_meeting_answer ?? null, requested: saved.pre_submission_meeting_requested ?? null, reason: saved.pre_submission_meeting_reason ?? null, requestedAt: null, completedAt: null },
+    projectOverview,
     orderDetails: order.details,
     executiveSummary: { documents: order.documents },
     orderDocuments: {
@@ -74,6 +75,7 @@ describe('CPO check your answers', () => {
     answers = {
       application: application(),
       progress: completedProgress,
+      projectOverview: { projectName: 'North Ridge substation', projectSummary: 'Grid reinforcement for North Ridge' },
       order: { details: { ...EMPTY_ORDER_DETAILS, orderName: 'Compulsory purchase order', purpose: 'To acquire land and rights' }, documents: [file('executive-summary.docx')] },
       documents: { orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }, { ...file('reasons.pdf'), category: DOCUMENT_CATEGORIES.reasons }] },
       notices: notices(),
@@ -86,7 +88,7 @@ describe('CPO check your answers', () => {
     expect(screen.getByText('Check and submit')).toHaveClass('govuk-caption-l');
     expect(screen.getByRole('heading', { level: 1, name: 'Check your answers before sending your application' })).toBeInTheDocument();
     for (const heading of ['Applicant details', 'Project information', 'Public notices']) expect(screen.getByRole('heading', { level: 2, name: heading })).toBeInTheDocument();
-    for (const title of ['Applicant details', 'Pre-application meeting', 'Executive summary', 'Order details', 'Order documents', 'Record your notices']) expect(screen.getByRole('heading', { level: 3, name: title })).toBeInTheDocument();
+    for (const title of ['Applicant details', 'Pre-application meeting', 'Project overview', 'Executive summary', 'Order details', 'Order documents', 'Record your notices']) expect(screen.getByRole('heading', { level: 3, name: title })).toBeInTheDocument();
   });
 
   it('shows the saved applicant details, references and order answers', async () => {
@@ -96,6 +98,8 @@ describe('CPO check your answers', () => {
     expect(applicant.getByText('ops.team@ngeld.co.uk')).toBeInTheDocument();
     expect(applicant.getByText('012345678')).toBeInTheDocument();
     expect(within(card('Pre-application meeting')).getByText('CPO000001')).toBeInTheDocument();
+    expect(within(card('Project overview')).getByText('North Ridge substation')).toBeInTheDocument();
+    expect(within(card('Project overview')).getByText('Grid reinforcement for North Ridge')).toBeInTheDocument();
     expect(within(card('Order details')).getByText('Compulsory purchase order')).toBeInTheDocument();
     expect(within(card('Order details')).getByText('To acquire land and rights')).toBeInTheDocument();
   });
@@ -124,6 +128,7 @@ describe('CPO check your answers', () => {
 
   it('links each editable card to its check page and back to this review', async () => {
     renderPage(); await ready();
+    expect(screen.getByRole('link', { name: 'Change project overview' })).toHaveAttribute('href', '/cpo/app/project-overview?from=application-review');
     expect(screen.getByRole('link', { name: 'Change executive summary' })).toHaveAttribute('href', '/cpo/app/order-details/executive-summary?from=application-review');
     expect(screen.getByRole('link', { name: 'Change order details' })).toHaveAttribute('href', '/cpo/app/order-details/check?from=application-review');
     expect(screen.getByRole('link', { name: 'Change order documents' })).toHaveAttribute('href', '/cpo/app/order-documents/check?from=application-review');

@@ -2,6 +2,8 @@ import { applicationApiService } from '../../../../services/applicationApiServic
 import { EMPTY_ORDER_DETAILS } from '../../OrderDetails/constants/orderDetailsConstants';
 import type { OrderDetails, OrderDocument } from '../../OrderDetails/types/orderDetails';
 import type { CpoDocument } from '../../OrderDocuments/types/orderDocuments';
+import { EMPTY_PROJECT_OVERVIEW } from '../../ProjectOverview/constants/projectOverviewConstants';
+import type { ProjectOverview } from '../../ProjectOverview/types/projectOverview';
 import type { NoticesResponse } from '../../RecordNotices/types/notices';
 import type { CpoAnswers, CpoApplication } from '../hooks/useCpoApplicationAnswers';
 
@@ -19,6 +21,7 @@ export interface CpoReview {
       requested: boolean | null;
       reason: string | null;
     };
+    projectOverview: Partial<ProjectOverview>;
     orderDetails: Partial<OrderDetails>;
     executiveSummary: { documents: OrderDocument[] };
     orderDocuments: { order: CpoDocument[]; reasons: CpoDocument[]; additional: CpoDocument[] };
@@ -31,7 +34,7 @@ export interface CpoReview {
 
 /** Maps the review payload onto the answers each CPO section already shows. */
 export const toCpoAnswers = (review: CpoReview): CpoAnswers => {
-  const { applicantDetails, preSubmissionMeeting, orderDetails, executiveSummary, orderDocuments, notices, progress } = review.sections;
+  const { applicantDetails, preSubmissionMeeting, projectOverview, orderDetails, executiveSummary, orderDocuments, notices, progress } = review.sections;
   return {
     application: {
       type: review.formType,
@@ -44,6 +47,7 @@ export const toCpoAnswers = (review: CpoReview): CpoAnswers => {
       application_party: applicantDetails.applicationParty ?? undefined,
       permissions: review.permissions,
     },
+    projectOverview: { ...EMPTY_PROJECT_OVERVIEW, ...projectOverview },
     order: { details: { ...EMPTY_ORDER_DETAILS, ...orderDetails }, documents: executiveSummary.documents },
     documents: {
       orderDetails,

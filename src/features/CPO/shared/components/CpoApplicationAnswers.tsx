@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES } from '../../OrderDocuments/constants/orderDocumentsConstants';
+import { PROJECT_OVERVIEW_COPY } from '../../ProjectOverview/constants/projectOverviewConstants';
 import { NOTICE_CATEGORIES, NOTICE_HEADINGS } from '../../RecordNotices/constants/noticesConstants';
 import type { NoticeStep } from '../../RecordNotices/types/notices';
 import { inspectionAddresses, inspectionAddressText, noticeDateText } from '../../RecordNotices/utils/noticeRecord';
@@ -58,7 +59,7 @@ const meetingAnswer = ({ pre_submission_meeting_answer: answer, pre_submission_m
 };
 
 const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, applicationId, editable, onDownloadError }) => {
-  const { application, order, documents, notices } = answers;
+  const { application, projectOverview, order, documents, notices } = answers;
   const base = `${CPO_BASE_URL}/${applicationId}`;
   const canDownload = application.permissions?.canDownload === true;
   const changeUrl = (path: string) => editable ? `${base}/${path}?from=application-review` : undefined;
@@ -118,6 +119,10 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
     </Card>
 
     <h2 className="govuk-heading-m govuk-!-margin-top-8">Project information</h2>
+    <Card title="Project overview" changeUrl={changeUrl('project-overview')}>
+      <Row label={PROJECT_OVERVIEW_COPY.projectNameLabel}>{projectOverview.projectName || NOT_ANSWERED}</Row>
+      <Row label={PROJECT_OVERVIEW_COPY.projectSummaryLabel}>{projectOverview.projectSummary || NOT_ANSWERED}</Row>
+    </Card>
     <Card title="Executive summary" changeUrl={changeUrl('order-details/executive-summary')}>
       <Row label="Executive summary">{fileList(summaryFiles)}</Row>
     </Card>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { OrderDetailsResponse } from '../../OrderDetails/types/orderDetails';
 import type { OrderDocumentsResponse } from '../../OrderDocuments/types/orderDocuments';
 import type { NoticesResponse } from '../../RecordNotices/types/notices';
+import type { ProjectOverview } from '../../ProjectOverview/types/projectOverview';
 import { cpoReviewService } from '../services/cpoReviewService';
 
 export type PreSubmissionMeetingAnswer =
@@ -35,6 +36,7 @@ export interface CpoApplication {
 
 export interface CpoAnswers {
   application: CpoApplication;
+  projectOverview: ProjectOverview;
   order: OrderDetailsResponse;
   documents: OrderDocumentsResponse;
   notices: NoticesResponse;
