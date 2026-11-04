@@ -145,6 +145,14 @@ describe('CPO check your answers', () => {
     expect(record.getByText('Last notice served 7 October 2026')).toBeInTheDocument();
   });
 
+  it('shows the last-served date when no statement of service is uploaded', async () => {
+    answers.notices = notices({ documents: notices().documents.filter((document: any) => document.category !== 'CPO_QUALIFYING_PERSON_NOTICES') });
+    renderPage(); await ready();
+    const record = within(card('Record your notices'));
+    expect(record.getByText('Not uploaded')).toBeInTheDocument();
+    expect(record.getByText('Last notice served 7 October 2026')).toBeInTheDocument();
+  });
+
   it('downloads a clean document with its file and application IDs', async () => {
     renderPage(); await ready(); fireEvent.click(screen.getByRole('link', { name: 'order.pdf' }));
     expect(downloadS3FileOnSameTab).toHaveBeenCalledWith('key/order.pdf', 'order.pdf', 'app', 'order.pdf');
