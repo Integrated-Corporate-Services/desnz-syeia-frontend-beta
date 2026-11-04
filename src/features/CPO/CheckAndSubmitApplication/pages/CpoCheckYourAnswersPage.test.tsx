@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { applicationApiService, SubmitApplicationError } from '../../../../services/applicationApiService';
-import { EMPTY_ORDER_DETAILS, ORDER_COPY } from '../../OrderDetails/constants/orderDetailsConstants';
+import { EMPTY_ORDER_DETAILS } from '../../OrderDetails/constants/orderDetailsConstants';
 import { DOCUMENT_CATEGORIES } from '../../OrderDocuments/constants/orderDocumentsConstants';
 import { CPO_SUBSECTIONS } from '../../TaskList/constants/cpoTaskListConstants';
 import CpoCheckYourAnswersPage from './CpoCheckYourAnswersPage';
@@ -102,29 +102,6 @@ describe('CPO check your answers', () => {
     expect(within(card('Project overview')).getByText('Grid reinforcement for North Ridge')).toBeInTheDocument();
     expect(within(card('Order details')).getByText('Compulsory purchase order')).toBeInTheDocument();
     expect(within(card('Order details')).getByText('To acquire land and rights')).toBeInTheDocument();
-  });
-
-  it('shows the land and related applications answers, with the detail rows for Yes', async () => {
-    answers.order.details = { ...answers.order.details, includesSpecialLand: true, exchangeLand: false, hasRelatedApplications: true,
-      relatedApplications: [{ id: 'r1', type: 'DCO', otherType: '', reference: 'EN010001', siteAddress: 'North Ridge', relationship: 'Same project' }] };
-    renderPage(); await ready();
-    const order = within(card('Order details'));
-    expect(order.getByText(ORDER_COPY['special-land'].heading).nextElementSibling).toHaveTextContent('Yes');
-    expect(order.getByText(ORDER_COPY['exchange-land'].heading).nextElementSibling).toHaveTextContent('No');
-    expect(order.getByText(ORDER_COPY['related-applications'].heading).nextElementSibling).toHaveTextContent('Yes');
-    expect(order.getByText(ORDER_COPY['related-applications-list'].heading)).toHaveClass('govuk-!-width-one-half');
-    expect(order.getByText('Development consent order (DCO)')).toBeInTheDocument();
-    expect(order.getByText('EN010001 - North Ridge - Same project')).toBeInTheDocument();
-  });
-
-  it('hides the exchange land and related applications rows when those answers are No', async () => {
-    answers.order.details = { ...answers.order.details, includesSpecialLand: false, exchangeLand: null, hasRelatedApplications: false };
-    renderPage(); await ready();
-    const order = within(card('Order details'));
-    expect(order.getByText(ORDER_COPY['special-land'].heading).nextElementSibling).toHaveTextContent('No');
-    expect(order.getByText(ORDER_COPY['related-applications'].heading).nextElementSibling).toHaveTextContent('No');
-    expect(order.queryByText(ORDER_COPY['exchange-land'].heading)).not.toBeInTheDocument();
-    expect(order.queryByText(ORDER_COPY['related-applications-list'].heading)).not.toBeInTheDocument();
   });
 
   it('shows Yes for a meeting that took place, without a reason row', async () => {

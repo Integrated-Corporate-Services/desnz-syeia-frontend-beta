@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
-import { ORDER_COPY, RELATED_TYPE_LABELS } from '../../OrderDetails/constants/orderDetailsConstants';
 import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES } from '../../OrderDocuments/constants/orderDocumentsConstants';
 import { PROJECT_OVERVIEW_COPY } from '../../ProjectOverview/constants/projectOverviewConstants';
 import { NOTICE_CATEGORIES, NOTICE_HEADINGS } from '../../RecordNotices/constants/noticesConstants';
@@ -52,8 +51,6 @@ const Card: React.FC<{ title: string; changeUrl?: string; children: React.ReactN
     <div className="govuk-summary-card__content"><dl className="govuk-summary-list">{children}</dl></div>
   </div>
 );
-
-const yesNo = (value: boolean | null | undefined) => value === true ? 'Yes' : value === false ? 'No' : NOT_ANSWERED;
 
 const meetingAnswer = ({ pre_submission_meeting_answer: answer, pre_submission_meeting_requested: requested }: CpoAnswers['application']) => {
   if (answer === 'Yes, I’ve had this meeting') return 'Yes';
@@ -132,13 +129,6 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
     <Card title="Order details" changeUrl={changeUrl('order-details/check')}>
       <Row label="Enter the order title">{order.details.orderName || NOT_ANSWERED}</Row>
       <Row label="Explain what the order is for">{order.details.purpose || NOT_ANSWERED}</Row>
-      <Row label={ORDER_COPY['special-land'].heading}>{yesNo(order.details.includesSpecialLand)}</Row>
-      {order.details.includesSpecialLand === true && <Row label={ORDER_COPY['exchange-land'].heading}>{yesNo(order.details.exchangeLand)}</Row>}
-      <Row label={ORDER_COPY['related-applications'].heading}>{yesNo(order.details.hasRelatedApplications)}</Row>
-      {order.details.hasRelatedApplications === true && <Row label={ORDER_COPY['related-applications-list'].heading}>{order.details.relatedApplications.length ? order.details.relatedApplications.map((entry) => <React.Fragment key={entry.id}>
-        <p className="govuk-!-margin-top-0 govuk-!-margin-bottom-0">{entry.type === 'OTHER' ? entry.otherType || 'Other' : RELATED_TYPE_LABELS[entry.type]}</p>
-        <p className="govuk-!-margin-top-0 govuk-!-margin-bottom-0">{[entry.reference, entry.siteAddress, entry.relationship].filter(Boolean).join(' - ') || NOT_ANSWERED}</p>
-      </React.Fragment>) : 'None added'}</Row>}
     </Card>
     <Card title="Order documents" changeUrl={changeUrl('order-documents/check')}>
       <Row label="The order documents">{fileList(orderFiles(DOCUMENT_GROUP_CATEGORIES.order))}</Row>
