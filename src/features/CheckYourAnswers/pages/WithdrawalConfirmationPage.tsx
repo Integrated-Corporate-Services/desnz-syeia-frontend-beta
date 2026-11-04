@@ -21,6 +21,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
   const locationState = location.state as ConfirmationLocationState | null;
   const desnzRef = locationState?.desnzRef;
   const formType = locationState?.formType || (location.pathname.startsWith(`${CPO_BASE_URL}/`) ? "CPO" : "S37");
+  const contactEmail = formType.toUpperCase() === "CPO" ? "compulsorypurchaseorders@energysecurity.gov.uk" : "S37consents@energysecurity.gov.uk";
   
   const getApplicationId = () => {
     if (params.applicationId) return params.applicationId;
@@ -80,7 +81,7 @@ const WithdrawalConfirmationPage: React.FC = () => {
             </p>
 
             <div className="govuk-inset-text">
-              {WITHDRAWAL_LABELS.MISTAKE_MESSAGE} <a href="mailto:S37consents@energysecurity.gov.uk" className="govuk-link">S37consents@energysecurity.gov.uk</a> as soon as possible.
+              {WITHDRAWAL_LABELS.MISTAKE_MESSAGE} <a href={`mailto:${contactEmail}`} className="govuk-link">{contactEmail}</a> as soon as possible.
             </div>
 
             <p className="govuk-body">
