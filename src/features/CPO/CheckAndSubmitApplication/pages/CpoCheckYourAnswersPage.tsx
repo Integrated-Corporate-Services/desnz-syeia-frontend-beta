@@ -43,8 +43,7 @@ const CpoCheckYourAnswersPage: React.FC = () => {
   useEffect(() => { if (!loading && !error) headingRef.current?.focus(); }, [loading, error]);
 
   const isDraft = data?.application.status.toLowerCase() === 'draft';
-  const editable = isDraft && data?.application.permissions?.canEdit === true
-    && data.order.canEdit !== false;
+  const editable = isDraft && data?.application.permissions?.canEdit === true;
   const canSubmit = isDraft && data?.application.permissions?.canSubmit === true;
 
   const sectionProblems = (sections: { subsection: string; label: string; slug: string }[]): ProblemLink[] =>

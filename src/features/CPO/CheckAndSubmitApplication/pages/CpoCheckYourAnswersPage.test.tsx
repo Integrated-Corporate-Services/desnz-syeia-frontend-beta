@@ -44,7 +44,7 @@ const review = ({ application: saved, order, documents, notices: savedNotices, p
     applicantDetails: { applicationParty: saved.application_party ?? null, operatorRef: saved.operator_ref ?? null },
     preSubmissionMeeting: { answer: saved.pre_submission_meeting_answer ?? null, requested: saved.pre_submission_meeting_requested ?? null, reason: saved.pre_submission_meeting_reason ?? null, requestedAt: null, completedAt: null },
     orderDetails: order.details,
-    executiveSummary: { documents: order.documents, canEdit: order.canEdit },
+    executiveSummary: { documents: order.documents },
     orderDocuments: {
       order: inCategory(documents.documents, DOCUMENT_CATEGORIES.order, DOCUMENT_CATEGORIES.maps),
       reasons: inCategory(documents.documents, DOCUMENT_CATEGORIES.reasons),
@@ -74,7 +74,7 @@ describe('CPO check your answers', () => {
     answers = {
       application: application(),
       progress: completedProgress,
-      order: { canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'Compulsory purchase order', purpose: 'To acquire land and rights' }, documents: [file('executive-summary.docx')] },
+      order: { details: { ...EMPTY_ORDER_DETAILS, orderName: 'Compulsory purchase order', purpose: 'To acquire land and rights' }, documents: [file('executive-summary.docx')] },
       documents: { orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }, { ...file('reasons.pdf'), category: DOCUMENT_CATEGORIES.reasons }] },
       notices: notices(),
     };

@@ -20,7 +20,7 @@ export interface CpoReview {
       reason: string | null;
     };
     orderDetails: Partial<OrderDetails>;
-    executiveSummary: { documents: OrderDocument[]; canEdit?: boolean };
+    executiveSummary: { documents: OrderDocument[] };
     orderDocuments: { order: CpoDocument[]; reasons: CpoDocument[]; additional: CpoDocument[] };
     notices: NoticesResponse;
     progress: CpoAnswers['progress'];
@@ -44,7 +44,7 @@ export const toCpoAnswers = (review: CpoReview): CpoAnswers => {
       application_party: applicantDetails.applicationParty ?? undefined,
       permissions: review.permissions,
     },
-    order: { details: { ...EMPTY_ORDER_DETAILS, ...orderDetails }, documents: executiveSummary.documents, canEdit: executiveSummary.canEdit },
+    order: { details: { ...EMPTY_ORDER_DETAILS, ...orderDetails }, documents: executiveSummary.documents },
     documents: {
       orderDetails,
       documents: [...orderDocuments.order, ...orderDocuments.reasons, ...orderDocuments.additional],
