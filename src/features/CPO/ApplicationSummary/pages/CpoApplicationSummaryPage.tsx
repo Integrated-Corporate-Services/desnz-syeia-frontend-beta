@@ -5,6 +5,7 @@ import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { CPO_BASE_URL, CPO_CASE_TYPE_LABEL } from '../../../../constants/cpo';
 import { getApplicationStatusDisplay } from '../../../../constants/status';
 import { useWithdrawalRequest } from '../../../ApplicationSummary/hooks';
+import { APPLICATION_SUMMARY_CONSTANTS } from '../../../ApplicationSummary/constants';
 import { WithdrawalNotificationBanner } from '../../../ApplicationSummary/components/WithdrawalNotificationBanner';
 import { noticeDateText } from '../../RecordNotices/utils/noticeRecord';
 import { useCpoApplicationId } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationId';
@@ -39,7 +40,9 @@ const CpoApplicationSummaryPage: React.FC = () => {
         <h2 className="govuk-error-summary__title" id="summary-error-title">There is a problem</h2>
         <div className="govuk-error-summary__body"><ul className="govuk-list govuk-error-summary__list"><li><a href="#summary-heading">{error}</a></li></ul></div>
       </div>}
-      {withdrawalRequest && <WithdrawalNotificationBanner />}
+      {withdrawalRequest?.request_status === 'Requested' && <WithdrawalNotificationBanner />}
+      {withdrawalRequest?.request_status === 'Rejected' && <WithdrawalNotificationBanner
+        message={APPLICATION_SUMMARY_CONSTANTS.REVIEW_LAYOUT.WITHDRAWAL.REJECTED_NOTIFICATION_BANNER} />}
       <h1 className="govuk-heading-l" id="summary-heading">{HEADING}</h1>
       {loading && <p className="govuk-body" role="status">Loading the application...</p>}
       {!loading && !data && <button className="govuk-button govuk-button--secondary" type="button" onClick={retry}>Try again</button>}

@@ -137,10 +137,23 @@ describe('CPO application summary', () => {
   });
 
   it('shows the withdrawal banner instead of the button once withdrawal is requested', async () => {
-    vi.mocked(applicationApiService.getWithdrawalRequest).mockResolvedValue({ success: true, data: { status: 'Requested' } });
+    vi.mocked(applicationApiService.getWithdrawalRequest).mockResolvedValue({ success: true, data: { request_status: 'Requested' } });
     renderPage(); await ready();
-    expect(await screen.findByRole('region')).toHaveTextContent('Important');
+    expect(await screen.findByRole('region')).toHaveTextContent('This is being reviewed by your case officer.');
     expect(screen.queryByRole('button', { name: 'Withdraw application' })).not.toBeInTheDocument();
+  });
+
+  it('shows the not approved banner once a withdrawal request is rejected', async () => {
+    vi.mocked(applicationApiService.getWithdrawalRequest).mockResolvedValue({ success: true, data: { request_status: 'Rejected' } });
+    renderPage(); await ready();
+    expect(await screen.findByRole('region')).toHaveTextContent('Your withdrawal request was not approved.');
+  });
+
+  it('shows no withdrawal banner once a withdrawal request is approved', async () => {
+    vi.mocked(applicationApiService.getWithdrawalRequest).mockResolvedValue({ success: true, data: { request_status: 'Approved' } });
+    renderPage(); await ready();
+    await waitFor(() => expect(applicationApiService.getWithdrawalRequest).toHaveBeenCalled());
+    expect(screen.queryByRole('region')).not.toBeInTheDocument();
   });
 
   it('does not show View objections until objections can be viewed', async () => {
