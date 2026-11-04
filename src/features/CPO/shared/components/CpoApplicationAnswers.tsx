@@ -91,7 +91,7 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
   const completedNotice = (step: NoticeStep, label: string) => {
     const files = noticeFiles(step);
     const date = notices.record[step]?.completionDate;
-    return <>{fileList(files)}{files.length > 0 && date && <p className="govuk-!-margin-bottom-0">{label} {noticeDateText(date)}</p>}</>;
+    return <>{fileList(files)}{date && <p className="govuk-!-margin-bottom-0">{label} {noticeDateText(date)}</p>}</>;
   };
 
   const party = application.application_party;
