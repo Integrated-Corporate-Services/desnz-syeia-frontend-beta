@@ -3,28 +3,19 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { cpoOrderDetailsService, nextOrderStep } from '../services/cpoOrderDetailsService';
-import { EMPTY_ORDER_DETAILS, ORDER_STEPS, RELATED_TYPE_LABELS } from '../constants/orderDetailsConstants';
+import { COPY, EMPTY_ORDER_DETAILS, ORDER_STEPS, RELATED_TYPE_LABELS, emptyRelated } from '../constants/orderDetailsConstants';
 import type { OrderDetails, OrderStep, RelatedApplication, RelatedType } from '../types/orderDetails';
+import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
 
 type FormError = { id: string; message: string };
-const COPY: Record<OrderStep, { heading: string; hint?: string }> = {
-  name: { heading: 'Enter the order title', hint: 'Use exactly the same title used in the certified order.' },
-  purpose: { heading: 'Explain what the order is for', hint: 'Describe the rights you seek and why, similar to the summary on your order.' },
-  'special-land': { heading: 'Does the order include common land, open space, or a fuel or field garden allotment?', hint: 'This decides which prescribed form your order must use, and whether you need a certificate under section 19 of the Acquisition of Land Act 1981.' },
-  'exchange-land': { heading: 'Are you providing land in exchange?', hint: 'Exchange land is land given in place of the common land, open space or allotment being acquired.' },
-  'related-applications': { heading: 'Are there any other applications related to this one?', hint: 'For example, a development consent order, a Section 37 consent, or another compulsory purchase order for this project.' },
-  'add-related-application': { heading: 'Add a related application' },
-  'related-applications-list': { heading: 'Related applications' },
-  check: { heading: 'Check the order details' },
-};
-const emptyRelated = (): RelatedApplication => ({ id: crypto.randomUUID(), type: '', otherType: '', reference: '', siteAddress: '', relationship: '' });
+type Props = { fixedStep?: OrderStep };
 
-const CpoOrderDetailsPage: React.FC = () => {
+const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   const { orderStep = 'name' } = useParams();
   const applicationId = useCpoApplicationId();
-  const step: OrderStep = ORDER_STEPS.includes(orderStep as OrderStep) ? orderStep as OrderStep : 'name';
+  const step: OrderStep = fixedStep ?? (ORDER_STEPS.includes(orderStep as OrderStep) ? orderStep as OrderStep : 'name');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fromApplicationReview = searchParams.get('from') === 'application-review';
@@ -51,6 +42,8 @@ const CpoOrderDetailsPage: React.FC = () => {
     : step === 'purpose' ? base : step === 'check' ? `${base}/purpose${fromApplicationReview ? '?from=application-review' : ''}`
       : `${CPO_BASE_URL}/${applicationId}/task-list`;
 
+  useBreadcrumb(<Link className="govuk-back-link" to={backUrl}>Back</Link>);
+
   useEffect(() => {
     let active = true;
     setLoading(true);
@@ -59,7 +52,7 @@ const CpoOrderDetailsPage: React.FC = () => {
     setAddAnother(null);
     cpoOrderDetailsService.get(applicationId).then((result) => {
       if (!active) return;
-      setDetails(result.details);
+      setDetails({ ...EMPTY_ORDER_DETAILS, ...result.details });
       setCanEdit(result.canEdit !== false);
       const entry = editId ? result.details.relatedApplications.find((item) => item.id === editId) : undefined;
       if (editId && !entry) throw new Error('Related application not found. Return to the related applications list.');
@@ -156,16 +149,16 @@ const CpoOrderDetailsPage: React.FC = () => {
         savedStep = 'related-applications-list';
       }
       const result = await cpoOrderDetailsService.save(applicationId, savedStep, changes, saveForLater);
-      setDetails(result.details);
+      setDetails({ ...EMPTY_ORDER_DETAILS, ...result.details });
       if (saveForLater) { navigate('/application-dashboard'); return; }
       if (fromOrderDocuments && ['special-land', 'exchange-land'].includes(step)) {
-        navigate(step === 'special-land' && result.details.includesSpecialLand && result.details.exchangeLand === null
+        navigate(step === 'special-land' && result.details.includesSpecialLand === true && result.details.exchangeLand === null
           ? `${base}/exchange-land?${searchParams.toString()}` : documentsUrl);
         return;
       }
-      let next = nextOrderStep(step, result.details, addAnother);
+      let next = nextOrderStep(step, { ...EMPTY_ORDER_DETAILS, ...result.details }, addAnother);
       if (fromCheck && !['related-applications', 'add-related-application', 'related-applications-list', 'check'].includes(step)) {
-        next = step === 'special-land' && result.details.includesSpecialLand && result.details.exchangeLand === null ? 'exchange-land' : 'check';
+        next = step === 'special-land' && result.details.includesSpecialLand === true && result.details.exchangeLand === null ? 'exchange-land' : 'check';
       }
       const returnQuery = fromApplicationReview ? '?from=application-review' : fromCheck && next !== 'check' ? '?from=check' : '';
       navigate(next ? `${base}/${next}${returnQuery}` : `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
@@ -182,7 +175,6 @@ const CpoOrderDetailsPage: React.FC = () => {
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${heading}`} />
     <div className="govuk-width-container cpo-order-details">
-    <Link className="govuk-back-link govuk-!-margin-bottom-6" to={backUrl}>Back</Link>
     <div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
       {errors.length > 0 && <div className="govuk-error-summary" role="alert" tabIndex={-1} ref={errorSummary} aria-labelledby="order-error-title">
         <h2 className="govuk-error-summary__title" id="order-error-title">There is a problem</h2>

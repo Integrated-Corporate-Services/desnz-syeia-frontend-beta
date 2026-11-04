@@ -5,6 +5,7 @@ import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { TEAM_COORDINATORS_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
+import './TeamCoordinatorsPage.css';
 
 const TeamCoordinatorsPage: React.FC = () => {
   const { organisationId } = useParams<{ organisationId: string }>();
@@ -77,12 +78,8 @@ const TeamCoordinatorsPage: React.FC = () => {
             <p className="govuk-body">
               {TEAM_COORDINATORS_CONSTANTS.INTRO}
             </p>
-          </div>
-        </div>
 
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-full">
-            <table className="govuk-table">
+            <table className="govuk-table team-coordinators__table">
               <thead className="govuk-table__head">
                 <tr className="govuk-table__row">
                   <th scope="col" className="govuk-table__header">{TEAM_COORDINATORS_CONSTANTS.TABLE_HEADERS.FULL_NAME}</th>
@@ -100,11 +97,11 @@ const TeamCoordinatorsPage: React.FC = () => {
                 ) : (
                   sortedCoordinators.map((coordinator) => (
                     <tr key={coordinator.user_id} className="govuk-table__row">
-                      <td className="govuk-table__cell">{coordinator.fullName}</td>
-                      <td className="govuk-table__cell">{coordinator.email}</td>
+                      <td className="govuk-table__cell govuk-!-text-break-word">{coordinator.fullName}</td>
+                      <td className="govuk-table__cell govuk-!-text-break-word">{coordinator.email.split(/(?=@)/).map((part, i) => <React.Fragment key={i}>{i > 0 && <wbr />}{part}</React.Fragment>)}</td>
                       <td className="govuk-table__cell govuk-table__cell--numeric">
                         <Link
-                          className="govuk-link"
+                          className="govuk-link govuk-link--no-visited-state"
                           to={`/admin/manage-user/${coordinator.user_id}`}
                           state={{ from: `/admin/organisations/${organisationId}/team-coordinators`, organisationId }}
                         >

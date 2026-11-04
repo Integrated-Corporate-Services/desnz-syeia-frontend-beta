@@ -74,7 +74,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 <dt className="govuk-summary-list__key">
                   {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.ORGANISATION_NAME}
                 </dt>
-                <dd className="govuk-summary-list__value">
+                <dd className="govuk-summary-list__value govuk-!-text-break-word">
                   {organisation.organisation_name}
                 </dd>
                 <dd className="govuk-summary-list__actions">
@@ -88,7 +88,7 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 <dt className="govuk-summary-list__key">
                   {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.ORGANISATION_ADDRESS}
                 </dt>
-                <dd className="govuk-summary-list__value">
+                <dd className="govuk-summary-list__value govuk-!-text-break-word">
                   {organisation.address_line1 ? (
                     <>
                       {organisation.address_line1}<br />
@@ -112,11 +112,11 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                 <dt className="govuk-summary-list__key">
                   {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.TEAM_COORDINATORS}
                 </dt>
-                <dd className="govuk-summary-list__value organisation-details__coordinators">
+                <dd className="govuk-summary-list__value govuk-!-text-break-word">
                   {organisation.team_coordinator_emails?.length ? (
                     organisation.team_coordinator_emails.map((email, index) => (
                       <React.Fragment key={email}>
-                        {email}
+                        {email.split(/(?=@)/).map((part, i) => <React.Fragment key={i}>{i > 0 && <wbr />}{part}</React.Fragment>)}
                         {index < organisation.team_coordinator_emails!.length - 1 && ','}
                         <br />
                       </React.Fragment>
@@ -125,13 +125,11 @@ const ManageOrganisationSettingsPage: React.FC = () => {
                     MANAGE_ORGANISATION_SETTINGS_CONSTANTS.NO_TEAM_COORDINATORS
                   )}
                 </dd>
-                {/* Change link hidden for now
                 <dd className="govuk-summary-list__actions">
                   <Link className="govuk-link govuk-link--no-visited-state" to={`/admin/organisations/${organisationId}/team-coordinators`}>
                     {MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE}<span className="govuk-visually-hidden">{MANAGE_ORGANISATION_SETTINGS_CONSTANTS.CHANGE_TEAM_COORDINATORS_HIDDEN}</span>
                   </Link>
                 </dd>
-                */}
               </div>
             </dl>
 

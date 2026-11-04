@@ -6,6 +6,13 @@ import { createLogger } from '../utils/logger';
 
 const logger = createLogger('useDashboard');
 
+const fullName = (request: AccessRequest) =>
+  `${request.first_name ?? ''} ${request.last_name ?? ''}`.trim();
+
+// Access requests are listed alphabetically by name (A to Z).
+const byName = (a: AccessRequest, b: AccessRequest) =>
+  fullName(a).localeCompare(fullName(b), 'en-GB', { sensitivity: 'base' });
+
 /**
  * Custom hook for managing dashboard data and pending requests
  * @param {string} userRole - Current user role
@@ -41,7 +48,7 @@ export const useDashboard = (userRole: string) => {
         
         if (requests && Array.isArray(requests)) {
           // Filter for pending requests
-          const pending = requests.filter(req => req.status === 'PENDING');
+          const pending = requests.filter(req => req.status === 'PENDING').sort(byName);
           setPendingRequests(pending);
           
           // Calculate stats from all the data
@@ -69,7 +76,7 @@ export const useDashboard = (userRole: string) => {
   }, [userRole]);
 
   // Get recent requests (sorted by date, limited to 5)
-  const recentRequests = pendingRequests
+  const recentRequests = [...pendingRequests]
     .sort((a, b) => {
       const dateA = new Date(a.requested_at || 0).getTime();
       const dateB = new Date(b.requested_at || 0).getTime();
