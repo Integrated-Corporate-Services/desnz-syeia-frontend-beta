@@ -18,9 +18,9 @@ const BreadcrumbOutlet = () => {
   const { breadcrumb } = useBreadcrumbContext();
   return <>{breadcrumb}</>;
 };
-const renderPage = () => render(
+const renderPage = (search = '') => render(
   <BreadcrumbProvider>
-    <MemoryRouter initialEntries={['/cpo/application-id/project-overview']}>
+    <MemoryRouter initialEntries={[`/cpo/application-id/project-overview${search}`]}>
       <BreadcrumbOutlet />
       <Routes><Route path="/cpo/:applicationId/project-overview" element={<CpoProjectOverviewPage />} /></Routes>
     </MemoryRouter>
@@ -99,6 +99,16 @@ describe('CPO project overview page', () => {
     fireEvent.click(button());
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/task-list'));
     expect(cpoProjectOverviewService.save).toHaveBeenCalledWith('application-id', { projectName: 'North Ridge', projectSummary: 'Grid reinforcement' });
+  });
+
+  it('returns to check your answers when opened from the application review', async () => {
+    renderPage('?from=application-review');
+    await ready();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
+    fireEvent.change(nameInput(), { target: { value: 'North Ridge' } });
+    fireEvent.change(summaryInput(), { target: { value: 'Summary' } });
+    fireEvent.click(button());
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
   });
 
   it('shows the saved answers when the page is reopened', async () => {
