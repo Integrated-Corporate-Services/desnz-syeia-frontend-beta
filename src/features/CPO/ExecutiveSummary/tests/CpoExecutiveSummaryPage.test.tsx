@@ -2,9 +2,10 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import CpoExecutiveSummaryPage from './CpoExecutiveSummaryPage';
+import CpoExecutiveSummaryPage from '../pages/CpoExecutiveSummaryPage';
 import { cpoExecutiveSummaryService } from '../services/cpoExecutiveSummaryService';
 import type { FileUploadProps } from '../../../../components/FileUpload';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../../context/BreadcrumbContext';
 
 const navigateMock = vi.fn();
 const uploadState = vi.hoisted(() => ({ errors: [] as string[], props: undefined as FileUploadProps | undefined }));
@@ -25,10 +26,17 @@ vi.mock('../../../../components/FileUpload', async () => {
   }) };
 });
 
+const BreadcrumbOutlet = () => {
+  const { breadcrumb } = useBreadcrumbContext();
+  return <>{breadcrumb}</>;
+};
 const renderPage = (query = '') => render(
-  <MemoryRouter initialEntries={[`/cpo/application-id/order-details/executive-summary${query}`]}>
-    <Routes><Route path="/cpo/:applicationId/order-details/executive-summary" element={<CpoExecutiveSummaryPage />} /></Routes>
-  </MemoryRouter>
+  <BreadcrumbProvider>
+    <MemoryRouter initialEntries={[`/cpo/application-id/order-details/executive-summary${query}`]}>
+      <BreadcrumbOutlet />
+      <Routes><Route path="/cpo/:applicationId/order-details/executive-summary" element={<CpoExecutiveSummaryPage />} /></Routes>
+    </MemoryRouter>
+  </BreadcrumbProvider>
 );
 const ready = () => waitFor(() => expect(screen.getByRole('button', { name: 'Save and continue' })).toBeEnabled());
 
@@ -37,15 +45,14 @@ describe('CPO executive summary', () => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
     uploadState.errors = [];
-    vi.spyOn(cpoExecutiveSummaryService, 'get').mockResolvedValue({ documents: [], canEdit: true });
-    vi.spyOn(cpoExecutiveSummaryService, 'save').mockResolvedValue({ documents: [], canEdit: true });
+    vi.spyOn(cpoExecutiveSummaryService, 'get').mockResolvedValue({ documents: [] });
+    vi.spyOn(cpoExecutiveSummaryService, 'save').mockResolvedValue({ documents: [] });
   });
 
   it('does not continue when the scan fails', async () => {
     uploadState.errors = ['The file could not be checked for viruses'];
     renderPage();
     await ready();
-    expect(screen.getByRole('link', { name: 'Download executive summary template' })).toHaveAttribute('href', expect.stringContaining('/api/applications/application-id/executive-summary/template'));
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('could not be checked'));
     expect(cpoExecutiveSummaryService.save).not.toHaveBeenCalled();
@@ -89,11 +96,11 @@ describe('CPO executive summary', () => {
     expect(navigateMock).toHaveBeenCalledWith('/application-dashboard');
   });
 
-  it('disables the upload for view-only access', async () => {
-    vi.mocked(cpoExecutiveSummaryService.get).mockResolvedValue({ documents: [], canEdit: false });
-    renderPage();
-    await screen.findByText('You can view this executive summary but cannot change it.');
-    expect(screen.getByLabelText('Upload your executive summary')).toBeDisabled();
+  it('shows an error when the template cannot be downloaded', async () => {
+    vi.spyOn(cpoExecutiveSummaryService, 'downloadTemplate').mockRejectedValue(new Error('The executive summary template could not be downloaded. Try again.'));
+    renderPage(); await ready();
+    fireEvent.click(screen.getByRole('button', { name: 'Download executive summary template' }));
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('could not be downloaded'));
   });
 
   it('disables saving and focuses the error when loading fails', async () => {

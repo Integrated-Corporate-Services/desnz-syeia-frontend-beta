@@ -7,6 +7,7 @@ import { CpoPreSubmissionMeetingPage, CpoPreSubmissionMeetingConfirmationPage } 
 import { CPOWhoIsApplying } from './WhoIsApplying';
 import { CpoTaskListPage, CpoTaskUnavailablePage } from './TaskList';
 import { CpoOrderDetailsPage } from './OrderDetails';
+import { CpoProjectOverviewPage } from './ProjectOverview';
 import { CpoExecutiveSummaryPage } from './ExecutiveSummary';
 import { CpoOrderDocumentsPage } from './OrderDocuments';
 import { CpoNoticesPage, CpoNoticeRequirementsPage, CpoNoticeInspectionPage, CpoNoticeInspectionAddressPage, CpoNoticeInspectionDatePage, CpoNoticeOnlinePage, CpoNoticeWebsitePage, CpoNoticeNewspapersPage, CpoNoticeSitePage, CpoNoticePeoplePage, CpoNoticeCheckPage } from './RecordNotices';
@@ -23,6 +24,7 @@ const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/:applicationId/delete-confirmation`, component: ApplicationDeleteConfirmationPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/delete-success`, component: ApplicationDeleteSuccessPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/:taskSlug`, component: CpoTaskUnavailablePage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/project-overview`, component: CpoProjectOverviewPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-details`, component: CpoOrderDetailsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/notice-requirements`, component: CpoNoticeRequirementsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/record-notices`, component: CpoNoticeRequirementsPage, auth: true, layout: true },
@@ -76,10 +78,19 @@ const backendRoutePaths = new Set([
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
     `${CPO_BASE_URL}/:applicationId/order-details`,
+    `${CPO_BASE_URL}/:applicationId/order-details/executive-summary`,
     `${CPO_BASE_URL}/:applicationId/order-details/:orderStep`,
+    `${CPO_BASE_URL}/:applicationId/project-overview`,
+    `${CPO_BASE_URL}/:applicationId/order-documents`,
+    `${CPO_BASE_URL}/:applicationId/order-documents/:documentStep`,
 ]);
+
+
+
 // LOCAL (frontend-only) MODE: no sign-in or backend access check, so the pages open with the backend off.
+// Backend-wired pages (Order documents) keep real sign-in and the application access check.
 // Backend-wired pages (Order details) keep real sign-in and the application access check.
 // To use the backend everywhere, replace this with `export const cpoRoutes = cpoPageRoutes;`.
-export const cpoRoutes = cpoPageRoutes.map(route =>
-    backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false });
+export const cpoRoutes = cpoPageRoutes.map((route) => {
+    return backendRoutePaths.has(route.path) ? route : { ...route, auth: false, accessGuard: false };
+});
