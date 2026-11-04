@@ -49,12 +49,11 @@ const review = ({ application: saved, order, documents, notices: savedNotices, p
     applicantDetails: { applicationParty: saved.application_party ?? null, operatorRef: saved.operator_ref ?? null },
     preSubmissionMeeting: { answer: saved.pre_submission_meeting_answer ?? null, requested: saved.pre_submission_meeting_requested ?? null, reason: saved.pre_submission_meeting_reason ?? null, requestedAt: null, completedAt: null },
     orderDetails: order.details,
-    executiveSummary: { documents: order.documents, canEdit: order.canEdit },
+    executiveSummary: { documents: order.documents },
     orderDocuments: {
       order: inCategory(documents.documents, DOCUMENT_CATEGORIES.order, DOCUMENT_CATEGORIES.maps),
       reasons: inCategory(documents.documents, DOCUMENT_CATEGORIES.reasons),
       additional: inCategory(documents.documents, DOCUMENT_CATEGORIES.additional),
-      canEdit: documents.canEdit,
     },
     notices: savedNotices, progress, incompleteSections: [], payment: null,
   },
@@ -67,8 +66,8 @@ describe('CPO application summary', () => {
     answers = {
       application: application(),
       progress: [],
-      order: { canEdit: false, details: { ...EMPTY_ORDER_DETAILS, orderName: 'North Ridge CPO', purpose: 'To acquire land and rights' }, documents: [file('executive-summary.docx')] },
-      documents: { canEdit: false, orderDetails: {}, documents: [
+      order: { details: { ...EMPTY_ORDER_DETAILS, orderName: 'North Ridge CPO', purpose: 'To acquire land and rights' }, documents: [file('executive-summary.docx')] },
+      documents: { orderDetails: {}, documents: [
       { ...file('sealed-order.pdf'), category: DOCUMENT_CATEGORIES.order },
       { ...file('order-map-sheet-1.pdf'), category: DOCUMENT_CATEGORIES.maps },
       { ...file('statement-of-reasons.pdf'), category: DOCUMENT_CATEGORIES.reasons },
