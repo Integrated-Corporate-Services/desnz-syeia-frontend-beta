@@ -22,7 +22,7 @@ export interface NoticeAnswer {
   until?: string;
   liveDate?: string;
   completionDate?: string;
-  evidence?: { fileId: string; date: string }[];
+  evidence?: { fileId: string; date: string; publicationId?: string; expectedRowVersion?: number }[];
   confirmed?: boolean | null;
 }
 
