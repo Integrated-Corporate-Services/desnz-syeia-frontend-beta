@@ -44,7 +44,7 @@ const CpoCheckYourAnswersPage: React.FC = () => {
 
   const isDraft = data?.application.status.toLowerCase() === 'draft';
   const editable = isDraft && data?.application.permissions?.canEdit === true
-    && data.order.canEdit !== false && data.documents.canEdit !== false;
+    && data.order.canEdit !== false;
   const canSubmit = isDraft && data?.application.permissions?.canSubmit === true;
 
   const sectionProblems = (sections: { subsection: string; label: string; slug: string }[]): ProblemLink[] =>

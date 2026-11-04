@@ -117,7 +117,7 @@ export const RejectionReasonForm: React.FC<RejectionReasonFormProps> = ({
     <div className="govuk-button-group govuk-!-margin-top-4">
       <button
         type="button"
-        className="govuk-button govuk-button--warning"
+        className="govuk-button"
         onClick={onSubmit}
         disabled={processing}
       >

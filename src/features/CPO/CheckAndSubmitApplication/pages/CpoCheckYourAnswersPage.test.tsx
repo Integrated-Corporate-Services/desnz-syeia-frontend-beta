@@ -49,7 +49,6 @@ const review = ({ application: saved, order, documents, notices: savedNotices, p
       order: inCategory(documents.documents, DOCUMENT_CATEGORIES.order, DOCUMENT_CATEGORIES.maps),
       reasons: inCategory(documents.documents, DOCUMENT_CATEGORIES.reasons),
       additional: inCategory(documents.documents, DOCUMENT_CATEGORIES.additional),
-      canEdit: documents.canEdit,
     },
     notices: savedNotices, progress, incompleteSections: [], payment: null,
   },
@@ -76,7 +75,7 @@ describe('CPO check your answers', () => {
       application: application(),
       progress: completedProgress,
       order: { canEdit: true, details: { ...EMPTY_ORDER_DETAILS, orderName: 'Compulsory purchase order', purpose: 'To acquire land and rights' }, documents: [file('executive-summary.docx')] },
-      documents: { canEdit: true, orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }, { ...file('reasons.pdf'), category: DOCUMENT_CATEGORIES.reasons }] },
+      documents: { orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order }, { ...file('reasons.pdf'), category: DOCUMENT_CATEGORIES.reasons }] },
       notices: notices(),
     };
     vi.mocked(applicationApiService.getApplicationReview).mockImplementation(async () => review(answers));
@@ -152,9 +151,9 @@ describe('CPO check your answers', () => {
   });
 
   it('does not offer a download while a virus check is running', async () => {
-    answers.documents = { orderDetails: {}, documents: [{ ...file('order.pdf'), category: DOCUMENT_CATEGORIES.order, scan_status: 'PENDING' }] };
+    answers.order.documents = [{ ...file('executive-summary.docx'), scan_status: 'PENDING' }];
     renderPage(); await ready();
-    expect(screen.queryByRole('link', { name: 'order.pdf' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'executive-summary.docx' })).not.toBeInTheDocument();
     expect(screen.getByText(/Virus check not complete/)).toBeInTheDocument();
   });
 

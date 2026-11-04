@@ -21,7 +21,7 @@ export interface CpoReview {
     };
     orderDetails: Partial<OrderDetails>;
     executiveSummary: { documents: OrderDocument[]; canEdit?: boolean };
-    orderDocuments: { order: CpoDocument[]; reasons: CpoDocument[]; additional: CpoDocument[]; canEdit?: boolean };
+    orderDocuments: { order: CpoDocument[]; reasons: CpoDocument[]; additional: CpoDocument[] };
     notices: NoticesResponse;
     progress: CpoAnswers['progress'];
     incompleteSections: { key: string; label: string }[];
@@ -48,7 +48,6 @@ export const toCpoAnswers = (review: CpoReview): CpoAnswers => {
     documents: {
       orderDetails,
       documents: [...orderDocuments.order, ...orderDocuments.reasons, ...orderDocuments.additional],
-      canEdit: orderDocuments.canEdit,
     },
     notices,
     progress,

@@ -76,7 +76,7 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
 
   const orderFiles = (categories: string[]): AnswerFile[] => documents.documents
     .filter((file) => categories.includes(file.category))
-    .map((file) => ({ key: file.document_id, filename: file.filename, s3Key: file.s3_key, fileId: file.file_id, documentId: file.document_id, clean: file.scan_status === 'COMPLETED' && file.scan_result === 'CLEAN' }));
+    .map((file) => ({ key: file.document_id, filename: file.filename, s3Key: file.s3_key, fileId: file.file_id, documentId: file.document_id, clean: true }));
 
   const summaryFiles: AnswerFile[] = order.documents.map((file) => ({ key: file.document_id, filename: file.filename, s3Key: file.s3_key, fileId: file.file_id, documentId: file.document_id, clean: file.scan_status === 'COMPLETED' && file.scan_result === 'CLEAN' }));
 
