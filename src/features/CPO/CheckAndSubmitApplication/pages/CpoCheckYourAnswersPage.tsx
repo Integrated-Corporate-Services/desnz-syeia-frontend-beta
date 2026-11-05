@@ -5,8 +5,8 @@ import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { applicationApiService, SubmitApplicationError } from '../../../../services/applicationApiService';
 import { CPO_SUBSECTIONS, CPO_TASK_SECTIONS } from '../../TaskList/constants/cpoTaskListConstants';
-import CpoApplicationAnswers from '../../shared/components/CpoApplicationAnswers';
-import { useCpoApplicationAnswers, type CpoAnswers } from '../../shared/hooks/useCpoApplicationAnswers';
+import CpoApplicationAnswers from '../components/CpoApplicationAnswers';
+import { useCpoApplicationAnswers, type CpoAnswers } from '../hooks/useCpoApplicationAnswers';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 interface ProblemLink {

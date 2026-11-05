@@ -8,8 +8,8 @@ import { APPLICATION_SUMMARY_CONSTANTS } from '../../../ApplicationSummary/const
 import { WithdrawalNotificationBanner } from '../../../ApplicationSummary/components/WithdrawalNotificationBanner';
 import { noticeDateText } from '../../RecordNotices/utils/noticeRecord';
 import { useCpoApplicationId } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationId';
-import CpoApplicationAnswers from '../../shared/components/CpoApplicationAnswers';
-import { useCpoApplicationAnswers } from '../../shared/hooks/useCpoApplicationAnswers';
+import CpoApplicationAnswers from '../../CheckAndSubmitApplication/components/CpoApplicationAnswers';
+import { useCpoApplicationAnswers } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationAnswers';
 import { useCpoWithdrawalRequest } from '../hooks/useCpoWithdrawalRequest';
 
 const HEADING = 'Application summary';
