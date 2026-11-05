@@ -99,6 +99,8 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
   const additional = party?.additional_contact ?? application.additional_contact;
   const contacts = Array.isArray(additional) ? additional : additional?.split(',').map((value) => value.trim()).filter(Boolean) ?? [];
   const addresses = inspectionAddresses(notices.record.inspection);
+  const websiteUrl = notices.record.website?.url?.trim();
+  const websiteLiveDate = notices.record.website?.liveDate?.trim();
 
   return <>
     <h2 className="govuk-heading-m">Applicant details</h2>
@@ -144,6 +146,10 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({ answers, 
         </Row>)
         : <Row label="Inspection address">{NOT_ANSWERED}</Row>}
       <Row label={NOTICE_HEADINGS.online}>{notices.record.online?.url || NOT_ANSWERED}</Row>
+      {(websiteUrl || websiteLiveDate) && <Row label={NOTICE_HEADINGS.website}>
+        {websiteUrl}
+        {websiteLiveDate && <p className="govuk-!-margin-top-0 govuk-!-margin-bottom-0">Went live {noticeDateText(websiteLiveDate)}</p>}
+      </Row>}
       <Row label={NOTICE_HEADINGS.newspapers}>{fileList(noticeFiles('newspapers', 'Published'))}</Row>
       <Row label={NOTICE_HEADINGS.site}>{completedNotice('site', 'Displayed')}</Row>
       <Row label={NOTICE_HEADINGS.people}>{completedNotice('people', 'Last notice served')}</Row>
