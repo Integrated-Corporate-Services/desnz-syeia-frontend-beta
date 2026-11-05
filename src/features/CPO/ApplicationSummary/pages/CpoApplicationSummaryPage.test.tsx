@@ -106,7 +106,17 @@ describe('CPO application summary', () => {
     expect(within(card('Pre-application meeting')).getByText('Agreed with DESNZ.')).toBeInTheDocument();
     expect(within(card('Order details')).getByText('To acquire land and rights')).toBeInTheDocument();
     expect(within(card('Record your notices')).getByText('https://www.example.gov.uk/north-ridge-cpo')).toBeInTheDocument();
+    expect(within(card('Record your notices')).queryByText('Record the website notice')).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /^Change/ })).not.toBeInTheDocument();
+  });
+
+  it('shows the website notice URL and live date when recorded', async () => {
+    answers.notices.record.website = { url: 'https://www.example.gov.uk/notice', liveDate: '2026-10-01' };
+    renderPage(); await ready();
+    const record = within(card('Record your notices'));
+    expect(record.getByText('Record the website notice')).toBeInTheDocument();
+    expect(record.getByText('https://www.example.gov.uk/notice')).toBeInTheDocument();
+    expect(record.getByText('Went live 1 October 2026')).toBeInTheDocument();
   });
 
   it('lists every uploaded document as a download link', async () => {

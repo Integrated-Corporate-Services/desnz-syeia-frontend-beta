@@ -150,6 +150,20 @@ describe('CPO check your answers', () => {
     expect(record.getByText('Last notice served 7 October 2026')).toBeInTheDocument();
   });
 
+  it('does not show a website notice row when none was recorded', async () => {
+    renderPage(); await ready();
+    expect(within(card('Record your notices')).queryByText('Record the website notice')).not.toBeInTheDocument();
+  });
+
+  it('shows the website notice URL and live date when recorded', async () => {
+    answers.notices = notices({ record: { ...notices().record, website: { url: 'https://www.example.gov.uk/notice', liveDate: '2026-10-01' } } });
+    renderPage(); await ready();
+    const record = within(card('Record your notices'));
+    expect(record.getByText('Record the website notice')).toBeInTheDocument();
+    expect(record.getByText('https://www.example.gov.uk/notice')).toBeInTheDocument();
+    expect(record.getByText('Went live 1 October 2026')).toBeInTheDocument();
+  });
+
   it('shows the last-served date when no statement of service is uploaded', async () => {
     answers.notices = notices({ documents: notices().documents.filter((document: any) => document.category !== 'CPO_QUALIFYING_PERSON_NOTICES') });
     renderPage(); await ready();
