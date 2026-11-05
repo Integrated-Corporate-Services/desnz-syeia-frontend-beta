@@ -193,7 +193,10 @@ const SensitiveAreaPage: React.FC = () => {
                                                         type="radio"
                                                         value="yes"
                                                         checked={toleranceRequired === 'yes'}
-                                                        onChange={() => setToleranceRequired('yes')}
+                                                        onChange={() => {
+                                                            setToleranceRequired('yes');
+                                                            setError(null);
+                                                        }}
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
                                                         data-aria-controls="routeToleranceRequired-hidden"
                                                         aria-controls="routeToleranceRequired-hidden"
@@ -242,7 +245,11 @@ const SensitiveAreaPage: React.FC = () => {
                                                         type="radio"
                                                         value="no"
                                                         checked={toleranceRequired === 'no'}
-                                                        onChange={() => setToleranceRequired('no')}
+                                                        onChange={() => {
+                                                            setToleranceRequired('no');
+                                                            setError(null);
+                                                            setFormError(null);
+                                                        }}
                                                         aria-describedby={error ? 'tolerance-error' : undefined}
                                                     />
                                                     <label className="govuk-label govuk-radios__label" htmlFor="routeToleranceRequired-no">
