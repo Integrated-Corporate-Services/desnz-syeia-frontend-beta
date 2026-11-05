@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
@@ -34,9 +34,10 @@ const CpoProjectOverviewPage: React.FC = () => {
   const [loadFailed, setLoadFailed] = useState(false);
   const [errors, setErrors] = useState<FormError[]>([]);
   const errorSummary = useRef<HTMLDivElement>(null);
-  const taskListUrl = `${CPO_BASE_URL}/${applicationId}/task-list`;
+  const [searchParams] = useSearchParams();
+  const exitUrl = `${CPO_BASE_URL}/${applicationId}/${searchParams.get('from') === 'application-review' ? 'check-and-submit' : 'task-list'}`;
 
-  useBreadcrumb(<Link className="govuk-back-link" to={taskListUrl}>Back</Link>);
+  useBreadcrumb(<Link className="govuk-back-link" to={exitUrl}>Back</Link>);
 
   useEffect(() => {
     let active = true;
@@ -88,7 +89,7 @@ const CpoProjectOverviewPage: React.FC = () => {
         projectName: details.projectName.trim(),
         projectSummary: details.projectSummary.trim(),
       });
-      navigate(taskListUrl);
+      navigate(exitUrl);
     } catch (error) {
       setErrors([{ id: 'project-overview-heading', message: error instanceof Error ? error.message : 'Unable to save the project overview. Try again.' }]);
     } finally { setSaving(false); }
