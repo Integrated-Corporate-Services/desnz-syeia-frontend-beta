@@ -27,7 +27,7 @@ describe('cpoPreSubmissionMeetingService', () => {
     });
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe('/api/cpo/app-1/pre-submission-meeting');
+    expect(url).toBe('/api/applications/app-1/pre-submission-meeting');
     expect(init).toMatchObject({ credentials: 'include' });
     expect(init.method).toBeUndefined();
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -46,7 +46,7 @@ describe('cpoPreSubmissionMeetingService', () => {
     await expect(cpoPreSubmissionMeetingService.save('app-1', versions, meeting, true)).resolves.toMatchObject({ content_version: 8, row_version: 3 });
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe('/api/cpo/app-1/pre-submission-meeting');
+    expect(url).toBe('/api/applications/app-1/pre-submission-meeting');
     expect(init).toMatchObject({ method: 'PATCH', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({
