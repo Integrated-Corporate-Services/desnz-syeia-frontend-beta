@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { cpoPreSubmissionMeetingService } from '../services/cpoPreSubmissionMeetingService';
-import type { CpoMeetingAnswer } from '../types/preSubmissionMeeting';
+import type { CpoMeetingAnswer, CpoMeetingVersions } from '../types/preSubmissionMeeting';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 
 const CpoPreSubmissionMeetingPage: React.FC = () => {
@@ -11,6 +11,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
   const navigate = useNavigate();
   const [answer, setAnswer] = useState<CpoMeetingAnswer | null>(null);
   const [reason, setReason] = useState('');
+  const [versions, setVersions] = useState<CpoMeetingVersions | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -36,15 +37,14 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     setError('');
     setAnswer(null);
     setReason('');
+    setVersions(null);
     cpoPreSubmissionMeetingService.get(applicationId)
-      .then((application) => {
+      .then((meeting) => {
         if (!active) return;
-        if (application.type !== 'CPO') throw new Error('This page is only available for compulsory purchase order applications.');
-        if (application.permissions?.canEdit === false) throw new Error('You cannot update this application.');
-        setAnswer(application.pre_submission_meeting_answer
-          ?? (application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
-            : application.pre_submission_meeting_requested === false ? 'No, I don’t need this meeting' : null));
-        setReason(application.pre_submission_meeting_reason || '');
+        if (!meeting.can_edit) throw new Error('You cannot update this application.');
+        setVersions({ content_version: meeting.content_version, row_version: meeting.row_version });
+        setAnswer(meeting.answer);
+        setReason(meeting.reason || '');
       })
       .catch((failure) => {
         if (!active) return;
@@ -69,7 +69,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
   };
 
   const save = async (complete: boolean) => {
-    if (loading || saving || loadFailed) return;
+    if (loading || saving || loadFailed || !versions) return;
     if (complete && answer === null) {
       setSelectionError(true);
       setError('Select whether you have had a pre-application meeting');
@@ -85,9 +85,9 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     setError('');
     setSaving(true);
     try {
-      await cpoPreSubmissionMeetingService.save(applicationId, answer === null ? null : answer === 'No, I would like a pre-application meeting', complete, {
+      await cpoPreSubmissionMeetingService.save(applicationId, versions, {
         answer, reason: answer === 'No, I don’t need this meeting' ? reason.trim() : '',
-      });
+      }, complete);
       navigate(!complete
         ? '/application-dashboard'
         : `${CPO_BASE_URL}/${applicationId}/pre-submission-meeting/confirmation`);

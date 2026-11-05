@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cpoPreSubmissionMeetingService } from '../services/cpoPreSubmissionMeetingService';
-import type { CpoMeetingAnswer, CpoMeetingApplication } from '../types/preSubmissionMeeting';
+import type { CpoMeeting, CpoMeetingAnswer } from '../types/preSubmissionMeeting';
 import CpoPreSubmissionMeetingPage from './CpoPreSubmissionMeetingPage';
 import CpoPreSubmissionMeetingConfirmationPage from './CpoPreSubmissionMeetingConfirmationPage';
 
@@ -26,7 +26,7 @@ const answers: { answer: CpoMeetingAnswer; label: string }[] = [
   { answer: 'No, I don’t need this meeting', label: "No, I don’t need this meeting" },
 ];
 
-let application: CpoMeetingApplication;
+let application: CpoMeeting;
 
 const renderJourney = (path = formPath) => render(
   <MemoryRouter initialEntries={[path]}>
@@ -71,30 +71,29 @@ describe('CPO meeting confirmation journey', () => {
     vi.resetAllMocks();
     application = {
       application_id: 'application-id',
-      type: 'CPO',
-      status: 'DRAFT',
       desnz_ref: 'CPO00042',
-      created_by: 'user-id',
-      created_at: timestamp,
-      submitted_at: '',
-      pre_submission_meeting_answer: null,
-      pre_submission_meeting_requested: null,
-      pre_submission_meeting_reason: null,
-      pre_submission_meeting_requested_at: null,
-      pre_submission_meeting_completed_at: null,
+      answer: null,
+      reason: '',
+      content_version: 1,
+      row_version: 0,
+      requested_at: null,
+      completed_at: null,
+      can_edit: true,
     };
     vi.mocked(cpoPreSubmissionMeetingService.get).mockImplementation(async () => ({
       ...application,
     }));
     vi.mocked(cpoPreSubmissionMeetingService.save).mockImplementation(
-      async (_id, requested, complete, meeting) => {
+      async (_id, versions, meeting, complete) => {
+        expect(versions).toEqual({ content_version: application.content_version, row_version: application.row_version });
         application = {
           ...application,
-          pre_submission_meeting_answer: meeting?.answer,
-          pre_submission_meeting_reason: meeting?.reason,
-          pre_submission_meeting_requested: requested,
-          pre_submission_meeting_requested_at: complete && requested ? timestamp : null,
-          pre_submission_meeting_completed_at: complete ? timestamp : null,
+          answer: meeting.answer,
+          reason: meeting.reason,
+          content_version: application.content_version + 1,
+          row_version: application.row_version + 1,
+          requested_at: complete && meeting.answer === 'No, I would like a pre-application meeting' ? timestamp : null,
+          completed_at: complete ? timestamp : null,
         };
         return { ...application };
       }
@@ -118,8 +117,8 @@ describe('CPO meeting confirmation journey', () => {
 
       await screen.findByRole('heading', { name: 'Application started' });
       expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith(
-        'application-id', answer === 'No, I would like a pre-application meeting', true,
-        { answer, reason: answer === 'No, I don’t need this meeting' ? 'Already discussed with DESNZ' : '' }
+        'application-id', { content_version: 1, row_version: 0 },
+        { answer, reason: answer === 'No, I don’t need this meeting' ? 'Already discussed with DESNZ' : '' }, true
       );
       expectConfirmation(answer);
 
@@ -140,7 +139,7 @@ describe('CPO meeting confirmation journey', () => {
     fireEvent.click(screen.getByLabelText('No, I would like a pre-application meeting'));
     fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
     await screen.findByRole('heading', { name: 'Applications' });
-    expect(application.pre_submission_meeting_requested_at).toBeNull();
+    expect(application.requested_at).toBeNull();
 
     page.unmount();
     renderJourney(confirmationPath);

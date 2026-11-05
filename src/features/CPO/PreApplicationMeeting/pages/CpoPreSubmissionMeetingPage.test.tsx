@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cpoPreSubmissionMeetingService } from '../services/cpoPreSubmissionMeetingService';
-import type { CpoMeetingApplication } from '../types/preSubmissionMeeting';
+import type { CpoMeeting } from '../types/preSubmissionMeeting';
 import CpoPreSubmissionMeetingPage from './CpoPreSubmissionMeetingPage';
 import CpoPreSubmissionMeetingConfirmationPage from './CpoPreSubmissionMeetingConfirmationPage';
 
@@ -15,13 +15,12 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => navigateMock };
 });
 
-let application: CpoMeetingApplication;
-const seedApplication = (overrides: Partial<CpoMeetingApplication> = {}) => {
-  application = {
-    application_id: 'application-id', type: 'CPO', status: 'DRAFT', desnz_ref: 'CPO00001', created_by: 'user-id',
-    created_at: '2026-10-06T12:00:00Z', submitted_at: '', permissions: { canEdit: true } as CpoMeetingApplication['permissions'],
-    pre_submission_meeting_requested: null, pre_submission_meeting_answer: null, pre_submission_meeting_reason: null,
-    pre_submission_meeting_requested_at: null, pre_submission_meeting_completed_at: null, ...overrides,
+const versions = { content_version: 7, row_version: 2 };
+let meeting: CpoMeeting;
+const seedMeeting = (overrides: Partial<CpoMeeting> = {}) => {
+  meeting = {
+    application_id: 'application-id', answer: null, reason: '', ...versions, desnz_ref: 'CPO00001',
+    requested_at: null, completed_at: null, can_edit: true, ...overrides,
   };
 };
 
@@ -38,9 +37,9 @@ describe('CPO pre-submission meeting', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
-    seedApplication();
-    vi.spyOn(cpoPreSubmissionMeetingService, 'get').mockImplementation(async () => ({ ...application }));
-    vi.spyOn(cpoPreSubmissionMeetingService, 'save').mockImplementation(async () => ({ ...application }));
+    seedMeeting();
+    vi.spyOn(cpoPreSubmissionMeetingService, 'get').mockImplementation(async () => ({ ...meeting }));
+    vi.spyOn(cpoPreSubmissionMeetingService, 'save').mockImplementation(async () => ({ ...meeting }));
   });
 
   const waitForForm = () => waitFor(() => expect(screen.getByRole('button', { name: 'Save and continue' })).toBeEnabled());
@@ -54,15 +53,16 @@ describe('CPO pre-submission meeting', () => {
   });
 
   it.each([
-    ["Yes, I’ve had this meeting", false, 'Yes, I’ve had this meeting'],
-    ['No, I would like a pre-application meeting', true, 'No, I would like a pre-application meeting'],
-  ])('saves %s through the backend and navigates to the confirmation', async (label, requested, answer) => {
+    ["Yes, I’ve had this meeting"],
+    ['No, I would like a pre-application meeting'],
+  ])('completes %s with the loaded versions and navigates to the confirmation', async (answer) => {
     renderPage();
     await waitForForm();
-    fireEvent.click(screen.getByLabelText(label));
+    fireEvent.click(screen.getByLabelText(answer));
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting/confirmation'));
-    expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', requested, true, { answer, reason: '' });
+    expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer, reason: '' }, true);
+    expect(cpoPreSubmissionMeetingService.get).toHaveBeenCalledTimes(1);
   });
 
   it.each(["Yes, I’ve had this meeting", 'No, I would like a pre-application meeting', "No, I don’t need this meeting"])('clears a selection error when %s is chosen', async (label) => {
@@ -80,22 +80,15 @@ describe('CPO pre-submission meeting', () => {
     await waitForForm();
     fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/application-dashboard'));
-    expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', null, false, { answer: null, reason: '' });
+    expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer: null, reason: '' }, false);
   });
 
   it('restores the saved answer', async () => {
-    seedApplication({ pre_submission_meeting_requested: false, pre_submission_meeting_answer: 'No, I don’t need this meeting', pre_submission_meeting_reason: 'Already discussed' });
+    seedMeeting({ answer: 'No, I don’t need this meeting', reason: 'Already discussed' });
     renderPage();
     await waitForForm();
     expect(screen.getByLabelText("No, I don’t need this meeting")).toBeChecked();
     expect(screen.getByRole('textbox')).toHaveValue('Already discussed');
-  });
-
-  it('restores a legacy answer that only has the requested flag', async () => {
-    seedApplication({ pre_submission_meeting_requested: true });
-    renderPage();
-    await waitForForm();
-    expect(screen.getByLabelText('No, I would like a pre-application meeting')).toBeChecked();
   });
 
   it('does not show success or navigate when saving fails', async () => {
@@ -108,23 +101,29 @@ describe('CPO pre-submission meeting', () => {
     expect(navigateMock).not.toHaveBeenCalled();
   });
 
+  it('shows the stale-version message and keeps the applicant on the form', async () => {
+    vi.mocked(cpoPreSubmissionMeetingService.save).mockRejectedValue(
+      Object.assign(new Error('This page has changed since you opened it. Refresh the page and try again.'), { status: 409 })
+    );
+    renderPage();
+    await waitForForm();
+    fireEvent.click(screen.getByLabelText("Yes, I’ve had this meeting"));
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('changed since you opened it'));
+    expect(navigateMock).not.toHaveBeenCalled();
+  });
+
   it('prevents saving after a load failure', async () => {
     vi.mocked(cpoPreSubmissionMeetingService.get).mockRejectedValue(new Error('Unable to load'));
     renderPage();
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Unable to load'));
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Save for later' })).toBeDisabled();
-  });
-
-  it('rejects an application that is not a CPO or cannot be edited', async () => {
-    seedApplication({ type: 'NWL' });
-    renderPage();
-    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('only available for compulsory purchase order'));
-    expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
+    expect(cpoPreSubmissionMeetingService.save).not.toHaveBeenCalled();
   });
 
   it('blocks a read-only application', async () => {
-    seedApplication({ permissions: { canEdit: false } as CpoMeetingApplication['permissions'] });
+    seedMeeting({ can_edit: false });
     renderPage();
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('cannot update this application'));
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
@@ -143,28 +142,28 @@ describe('CPO pre-submission meeting', () => {
     expect(cpoPreSubmissionMeetingService.save).not.toHaveBeenCalled();
     fireEvent.change(reason, { target: { value: '  Already discussed with DESNZ.  ' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', false, true, { answer: 'No, I don’t need this meeting', reason: 'Already discussed with DESNZ.' }));
+    await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer: 'No, I don’t need this meeting', reason: 'Already discussed with DESNZ.' }, true));
     expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting/confirmation');
   });
 
   it('omits a hidden reason when the choice changes', async () => {
-    seedApplication({ pre_submission_meeting_answer: 'No, I don’t need this meeting', pre_submission_meeting_requested: false, pre_submission_meeting_reason: 'Already discussed' });
+    seedMeeting({ answer: 'No, I don’t need this meeting', reason: 'Already discussed' });
     renderPage(); await waitForForm();
     fireEvent.click(screen.getByLabelText("Yes, I’ve had this meeting"));
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', false, true, { answer: 'Yes, I’ve had this meeting', reason: '' }));
+    await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer: 'Yes, I’ve had this meeting', reason: '' }, true));
   });
 
   it('allows saving an unfinished reason for later', async () => {
     renderPage(); await waitForForm();
     fireEvent.click(screen.getByLabelText("No, I don’t need this meeting"));
     fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', false, false, { answer: 'No, I don’t need this meeting', reason: '' }));
+    await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer: 'No, I don’t need this meeting', reason: '' }, false));
   });
 
   it('keeps a submitted meeting request editable', async () => {
-    seedApplication({ pre_submission_meeting_requested: true, pre_submission_meeting_requested_at: '2026-10-06T12:00:00Z' });
+    seedMeeting({ answer: 'No, I would like a pre-application meeting', requested_at: '2026-10-06T12:00:00Z' });
     renderPage();
     await waitForForm();
     expect(screen.getByLabelText('No, I would like a pre-application meeting')).toBeChecked();
@@ -172,9 +171,9 @@ describe('CPO pre-submission meeting', () => {
   });
 
   it('shows the shorter confirmation and real reference for a persisted request', async () => {
-    seedApplication({
-      desnz_ref: 'CPO00042', pre_submission_meeting_requested: true, pre_submission_meeting_requested_at: '2026-10-06T12:00:00Z',
-      pre_submission_meeting_completed_at: '2026-10-06T12:00:00Z',
+    seedMeeting({
+      desnz_ref: 'CPO00042', answer: 'No, I would like a pre-application meeting',
+      requested_at: '2026-10-06T12:00:00Z', completed_at: '2026-10-06T12:00:00Z',
     });
     renderPage(true);
     expect(await screen.findByRole('heading', { name: 'Application started' })).toBeInTheDocument();
@@ -192,10 +191,10 @@ describe('CPO pre-submission meeting', () => {
   });
 
   it.each(['Yes, I’ve had this meeting', 'No, I don’t need this meeting'] as const)('shows the full confirmation for a completed %s answer', async (answer) => {
-    seedApplication({
-      desnz_ref: 'CPO00043', pre_submission_meeting_requested: false, pre_submission_meeting_answer: answer,
-      pre_submission_meeting_reason: answer === 'No, I don’t need this meeting' ? 'Already discussed with DESNZ' : '',
-      pre_submission_meeting_completed_at: '2026-10-06T12:00:00Z', pre_submission_meeting_requested_at: null,
+    seedMeeting({
+      desnz_ref: 'CPO00043', answer,
+      reason: answer === 'No, I don’t need this meeting' ? 'Already discussed with DESNZ' : '',
+      completed_at: '2026-10-06T12:00:00Z',
     });
     renderPage(true);
     expect(await screen.findByRole('heading', { name: 'Application started' })).toBeInTheDocument();
@@ -209,7 +208,7 @@ describe('CPO pre-submission meeting', () => {
   });
 
   it('does not confirm an incomplete No answer', async () => {
-    seedApplication({ pre_submission_meeting_requested: false, pre_submission_meeting_completed_at: null });
+    seedMeeting({ answer: 'No, I don’t need this meeting', completed_at: null });
     renderPage(true);
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting', { replace: true }));
     expect(screen.queryByRole('heading', { name: 'Application started' })).not.toBeInTheDocument();
