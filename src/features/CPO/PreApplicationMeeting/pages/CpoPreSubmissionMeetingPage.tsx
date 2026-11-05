@@ -14,6 +14,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState('');
   const [selectionError, setSelectionError] = useState(false);
   const [reasonError, setReasonError] = useState(false);
@@ -33,6 +34,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     let active = true;
     setLoading(true);
     setLoadFailed(false);
+    setRedirecting(false);
     setError('');
     setAnswer(null);
     setReason('');
@@ -40,6 +42,12 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
       .then((application) => {
         if (!active) return;
         if (application.type !== 'CPO') throw new Error('This page is only available for compulsory purchase order applications.');
+        // A completed answer is final; show the confirmation instead of the form.
+        if (application.pre_submission_meeting_completed_at) {
+          setRedirecting(true);
+          navigate(`${CPO_BASE_URL}/${applicationId}/pre-submission-meeting/confirmation`, { replace: true });
+          return;
+        }
         if (application.permissions?.canEdit === false) throw new Error('You cannot update this application.');
         setAnswer(application.pre_submission_meeting_answer
           ?? (application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
@@ -97,6 +105,8 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
       setSaving(false);
     }
   };
+
+  if (redirecting) return null;
 
   return (
     <>

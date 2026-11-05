@@ -33,10 +33,23 @@ it('shows the reference title and the saved progress on the task list', async ()
   expect(await screen.findByRole('heading', { name: 'Compulsory purchase order' })).toBeInTheDocument();
   expect(screen.getByText('National Grid Electricity Distribution')).toBeInTheDocument();
   expect(screen.getByText('Complete the following sections in order to create and submit your application.')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Executive summary' })).toHaveAttribute('href', '/cpo/application-id/order-details/executive-summary');
+  expect(screen.getByRole('link', { name: 'Executive summary' })).toHaveAttribute('href', '/cpo/application-id/executive-summary');
   expect(screen.getByRole('link', { name: 'Executive summary' }).closest('li')).toHaveTextContent('Not completed');
   expect(screen.getByRole('link', { name: 'Order documents' }).closest('li')).toHaveTextContent('Completed');
   expect(screen.getByText('Cannot start yet')).toBeInTheDocument();
+});
+
+it('opens the confirmation page for a completed pre-application meeting only', async () => {
+  vi.mocked(progressApiService.fetchApplicationProgress).mockResolvedValue(completed(['Pre-submission meeting']));
+  renderPage();
+  const link = await screen.findByRole('link', { name: 'Pre-application meeting' });
+  expect(link).toHaveAttribute('href', '/cpo/application-id/pre-submission-meeting/confirmation');
+  expect(screen.getByRole('link', { name: 'Applicant details' })).toHaveAttribute('href', '/cpo/application-id/applicant-details');
+});
+
+it('opens the meeting form while the pre-application meeting is not completed', async () => {
+  renderPage();
+  expect(await screen.findByRole('link', { name: 'Pre-application meeting' })).toHaveAttribute('href', '/cpo/application-id/pre-submission-meeting');
 });
 
 it('lists Project overview first in the Project information section', async () => {

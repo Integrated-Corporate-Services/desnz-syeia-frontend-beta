@@ -32,9 +32,9 @@ const BreadcrumbOutlet = () => {
 };
 const renderPage = (query = '') => render(
   <BreadcrumbProvider>
-    <MemoryRouter initialEntries={[`/cpo/application-id/order-details/executive-summary${query}`]}>
+    <MemoryRouter initialEntries={[`/cpo/application-id/executive-summary${query}`]}>
       <BreadcrumbOutlet />
-      <Routes><Route path="/cpo/:applicationId/order-details/executive-summary" element={<CpoExecutiveSummaryPage />} /></Routes>
+      <Routes><Route path="/cpo/:applicationId/executive-summary" element={<CpoExecutiveSummaryPage />} /></Routes>
     </MemoryRouter>
   </BreadcrumbProvider>
 );
