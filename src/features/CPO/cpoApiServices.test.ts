@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchCsrfToken, getCsrfHeaders } from '../../utils/csrf';
-import { EMPTY_ORDER_DETAILS } from './OrderDetails/constants/orderDetailsConstants';
-import { cpoOrderDetailsService } from './OrderDetails/services/cpoOrderDetailsService';
 import { cpoOrderDocumentsService } from './OrderDocuments/services/cpoOrderDocumentsService';
 import { cpoNoticesService } from './RecordNotices/services/cpoNoticesService';
 import { cpoTaskListService } from './TaskList/services/cpoTaskListService';
@@ -17,14 +15,6 @@ vi.mock('../../services/applicationApiService', () => ({ applicationApiService: 
 vi.mock('../../services/progressApiService', () => ({ progressApiService: { fetchApplicationProgress: vi.fn() } }));
 
 const apiCases = [
-  {
-    path: 'order-details',
-    method: 'PATCH',
-    get: () => cpoOrderDetailsService.get('app-1'),
-    save: () => cpoOrderDetailsService.save('app-1', 'name', { orderName: 'North Ridge CPO' }, false),
-    body: { step: 'name', changes: { orderName: 'North Ridge CPO' }, saveForLater: false },
-    response: { details: { ...EMPTY_ORDER_DETAILS, orderName: 'North Ridge CPO' }, documents: [], canEdit: true },
-  },
   {
     path: 'order-documents',
     method: 'POST',

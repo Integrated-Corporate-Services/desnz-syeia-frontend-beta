@@ -20,7 +20,7 @@ const DEFAULT_LOAD_ERROR = 'Unable to load your answer. Refresh the page to try 
 const DEFAULT_SAVE_ERROR = 'Unable to save your pre-submission meeting answer. Try again.';
 const PAGE_ID = 'meeting-answer';
 
-const endpoint = (applicationId: string) => buildBackendUrl(`/api/cpo/${applicationId}/pre-submission-meeting`);
+const endpoint = (applicationId: string) => buildBackendUrl(`/api/applications/${applicationId}/pre-submission-meeting`);
 
 const readMeeting = async (response: Response, fallback: string): Promise<CpoMeeting> => {
   if (!response.ok) {
