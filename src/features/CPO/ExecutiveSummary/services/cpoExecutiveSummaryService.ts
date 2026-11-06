@@ -20,7 +20,7 @@ async function readResponse(response: Response): Promise<ExecutiveSummaryData> {
 
 export const cpoExecutiveSummaryService = {
   get: async (applicationId: string): Promise<ExecutiveSummaryData> =>
-    readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary`), {
+    readResponse(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/executive-summary`), {
       credentials: 'include',
       headers: { 'X-Correlation-ID': generateCorrelationId() },
     })),
@@ -33,7 +33,7 @@ export const cpoExecutiveSummaryService = {
     }
     if (!csrfHeaders['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
 
-    return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary`), {
+    return readResponse(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/executive-summary`), {
       method: 'PUT',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': generateCorrelationId(), ...csrfHeaders },
@@ -42,7 +42,7 @@ export const cpoExecutiveSummaryService = {
   },
 
   downloadTemplate: async (applicationId: string): Promise<Blob> => {
-    const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/executive-summary/template`), {
+    const response = await fetch(buildBackendUrl(`/api/cpo/${applicationId}/executive-summary/template`), {
       credentials: 'include',
       headers: { 'X-Correlation-ID': generateCorrelationId() },
     });

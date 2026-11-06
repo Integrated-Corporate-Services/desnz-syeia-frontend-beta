@@ -24,7 +24,7 @@ const PAGES: Partial<Record<OrderStep, { pageId: string; field: 'order_name' | '
 // Latest versions seen per application in this tab; every GET and PATCH refreshes them.
 const snapshots = new Map<string, Snapshot>();
 
-const endpoint = (applicationId: string) => buildBackendUrl(`/api/applications/${applicationId}/order-details`);
+const endpoint = (applicationId: string) => buildBackendUrl(`/api/cpo/${applicationId}/order-details`);
 
 async function readResponse(applicationId: string, response: Response): Promise<OrderDetailsResponse> {
   if (!response.ok) {

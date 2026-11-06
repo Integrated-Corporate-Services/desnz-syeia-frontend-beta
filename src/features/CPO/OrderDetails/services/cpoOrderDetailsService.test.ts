@@ -27,7 +27,7 @@ describe('cpoOrderDetailsService', () => {
     const result = await cpoOrderDetailsService.get(id);
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe(`/api/applications/${id}/order-details`);
+    expect(url).toBe(`/api/cpo/${id}/order-details`);
     expect(init).toMatchObject({ credentials: 'include' });
     expect(init.method).toBeUndefined();
     expect(result).toMatchObject({
@@ -47,7 +47,7 @@ describe('cpoOrderDetailsService', () => {
     const result = await cpoOrderDetailsService.save(id, 'name', { orderName: 'New title' }, false);
 
     const [url, init] = fetchMock.mock.calls[1];
-    expect(url).toBe(`/api/applications/${id}/order-details`);
+    expect(url).toBe(`/api/cpo/${id}/order-details`);
     expect(init).toMatchObject({ method: 'PATCH', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({

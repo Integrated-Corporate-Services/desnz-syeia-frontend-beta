@@ -17,7 +17,7 @@ describe('cpoProjectOverviewService', () => {
     const fetchMock = vi.fn().mockResolvedValue(json({ details: { projectName: 'North Ridge' } }));
     vi.stubGlobal('fetch', fetchMock);
     const result = await cpoProjectOverviewService.get('app-1');
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/project-overview');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/cpo/app-1/project-overview');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
     expect(result).toEqual({ details: { projectName: 'North Ridge', projectSummary: '' } });
   });

@@ -19,7 +19,7 @@ describe('cpoNoticesService', () => {
 
     const result = await cpoNoticesService.get('app-1');
 
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/notices');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/cpo/app-1/notices');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
     expect(result).toEqual({
       record: { online: { url: 'https://example.gov.uk' } }, documents: [], reference: '', objectionsEmail: '', finalObjectionDate: null,
@@ -33,7 +33,7 @@ describe('cpoNoticesService', () => {
     await cpoNoticesService.save('app-1', 'online', { format: 'reference', url: 'https://example.gov.uk' }, true);
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe('/api/applications/app-1/notices');
+    expect(url).toBe('/api/cpo/app-1/notices');
     expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({ step: 'online', answers: { format: 'reference', url: 'https://example.gov.uk' }, saveForLater: true });
