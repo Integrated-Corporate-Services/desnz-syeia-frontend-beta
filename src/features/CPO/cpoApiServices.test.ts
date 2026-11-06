@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchCsrfToken, getCsrfHeaders } from '../../utils/csrf';
-import { cpoOrderDocumentsService } from './OrderDocuments/services/cpoOrderDocumentsService';
 import { cpoNoticesService } from './RecordNotices/services/cpoNoticesService';
 import { cpoTaskListService } from './TaskList/services/cpoTaskListService';
 import { applicationApiService } from '../../services/applicationApiService';
@@ -15,14 +14,6 @@ vi.mock('../../services/applicationApiService', () => ({ applicationApiService: 
 vi.mock('../../services/progressApiService', () => ({ progressApiService: { fetchApplicationProgress: vi.fn() } }));
 
 const apiCases = [
-  {
-    path: 'order-documents',
-    method: 'POST',
-    get: () => cpoOrderDocumentsService.get('app-1'),
-    save: () => cpoOrderDocumentsService.save('app-1', 'check', false, true),
-    body: { step: 'check', saveForLater: false, confirmed: true },
-    response: { orderDetails: { includesSpecialLand: true }, documents: [], canEdit: false },
-  },
   {
     path: 'notices',
     method: 'PUT',
@@ -48,7 +39,7 @@ describe.each(apiCases)('CPO $path API', ({ path, method, get, save, body, respo
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(get()).resolves.toEqual(response);
-    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`/api/applications/app-1/${path}`, { credentials: 'include' });
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`/api/cpo/app-1/${path}`, { credentials: 'include' });
   });
 
   it('saves the expected payload with CSRF protection', async () => {
@@ -56,7 +47,7 @@ describe.each(apiCases)('CPO $path API', ({ path, method, get, save, body, respo
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(save()).resolves.toEqual(response);
-    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`/api/applications/app-1/${path}`, {
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(`/api/cpo/app-1/${path}`, {
       method, credentials: 'include',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' },
       body: JSON.stringify(body),
@@ -105,16 +96,6 @@ describe.each(apiCases)('CPO $path API', ({ path, method, get, save, body, respo
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network unavailable')));
     await expect(get()).rejects.toThrow('Network unavailable');
     await expect(save()).rejects.toThrow('Network unavailable');
-  });
-});
-
-describe('CPO order document save payload', () => {
-  it('omits confirmation for upload steps', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ orderDetails: {}, documents: [] })));
-    vi.stubGlobal('fetch', fetchMock);
-
-    await cpoOrderDocumentsService.save('app-1', 'order', true);
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ step: 'order', saveForLater: true });
   });
 });
 

@@ -19,7 +19,7 @@ describe('cpoExecutiveSummaryService', () => {
 
     await expect(cpoExecutiveSummaryService.get('app-1')).resolves.toEqual({ documents: [{ document_id: 'doc' }] });
 
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/executive-summary');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/cpo/app-1/executive-summary');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
   });
 
@@ -30,7 +30,7 @@ describe('cpoExecutiveSummaryService', () => {
     await cpoExecutiveSummaryService.save('app-1', false);
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe('/api/applications/app-1/executive-summary');
+    expect(url).toBe('/api/cpo/app-1/executive-summary');
     expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
     expect(JSON.parse(init.body)).toEqual({ saveForLater: false });
@@ -60,7 +60,7 @@ describe('cpoExecutiveSummaryService', () => {
 
     await expect(cpoExecutiveSummaryService.downloadTemplate('app-1')).resolves.toBeInstanceOf(Blob);
 
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/executive-summary/template');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/cpo/app-1/executive-summary/template');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
   });
 });

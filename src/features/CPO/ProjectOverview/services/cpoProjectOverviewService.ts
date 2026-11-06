@@ -20,7 +20,7 @@ async function readResponse(response: Response): Promise<ProjectOverviewResponse
 
 export const cpoProjectOverviewService = {
   get: async (applicationId: string): Promise<ProjectOverviewResponse> =>
-    readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/project-overview`), { credentials: 'include' })),
+    readResponse(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/project-overview`), { credentials: 'include' })),
   save: async (applicationId: string, details: ProjectOverview): Promise<ProjectOverviewResponse> => {
     let headers = getCsrfHeaders();
     if (!headers['X-CSRF-Token']) {
@@ -28,7 +28,7 @@ export const cpoProjectOverviewService = {
       headers = getCsrfHeaders();
     }
     if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
-    return readResponse(await fetch(buildBackendUrl(`/api/applications/${applicationId}/project-overview`), {
+    return readResponse(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/project-overview`), {
       method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify(details),
     }));
