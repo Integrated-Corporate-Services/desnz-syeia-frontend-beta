@@ -87,8 +87,8 @@ const CpoNoticeSitePage: React.FC = () => {
     if (uploadRef.current?.isBusy()) { setErrors([{ id: 'file-upload-input', message: 'Wait for uploads and virus checks to finish before continuing' }]); return; }
     const localErrors: FormError[] = [];
     const dateKeys = step === 'newspapers' ? ['firstDate', 'secondDate'] as const : step === 'website' ? ['liveDate'] as const : step === 'site' || step === 'people' ? ['completionDate'] as const : [];
-    for (const key of dateKeys) if (((!saveForLater && step !== 'people') || answer[key]) && !validDate(answer[key] || '')) localErrors.push({ id: `${key}-day`, message: `Enter a valid ${key === 'firstDate' ? 'first publication' : key === 'secondDate' ? 'second publication' : key === 'liveDate' ? 'notice live' : 'completion'} date` });
-    if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address' });
+    for (const key of dateKeys) if (((!saveForLater && step !== 'people') || answer[key]) && !validDate(answer[key] || '')) localErrors.push({ id: `${key}-day`, message: step === 'site' ? 'Enter the most recent date the site notices were displayed' : `Enter a valid ${key === 'firstDate' ? 'first publication' : key === 'secondDate' ? 'second publication' : key === 'liveDate' ? 'notice live' : 'completion'} date` });
+    if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address where the order and maps can be viewed' });
     if (localErrors.length) { setErrors(localErrors); return; }
     setSaving(true); setErrors([]);
     try {
