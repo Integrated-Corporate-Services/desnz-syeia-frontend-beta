@@ -7,6 +7,7 @@ export interface InAppNotification {
   desnzRef: string | null;
   // What the notification is about, e.g. the access request a Team Coordinator should review.
   referenceId: string | null;
+  title?: string;
   message: string;
   createdAt: string;
   read: boolean;

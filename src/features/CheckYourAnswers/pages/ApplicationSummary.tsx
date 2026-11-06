@@ -56,6 +56,7 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
 import { useAssignmentHistory } from '../../ApplicationReassignment/hooks/useAssignmentHistory';
+import { AdditionalPaymentSummary } from '../../Payments/components/AdditionalPaymentSummary';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -546,6 +547,8 @@ const ApplicationSummary: React.FC = () => {
             <h1 className="govuk-heading-xl">
               {PAGE_LABELS.TITLE}
             </h1>
+
+            <AdditionalPaymentSummary applicationId={applicationId} baseUrl={S37_BASE_URL} />
 
             {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
                 so it must not be gated on the *current* status (a completed FIR should still

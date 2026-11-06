@@ -1,10 +1,47 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { confirmUpload, getPresignedUrls } from './s3ApiService';
+import { confirmUpload, getPresignedUrls, uploadFileToS3 } from './s3ApiService';
 
 vi.mock('../utils/apiConfig', () => ({ buildBackendUrl: (path: string) => path }));
 vi.mock('../utils/csrf', () => ({ getCsrfHeaders: () => ({ 'X-CSRF-Token': 'test-token' }) }));
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe('proxy upload authentication', () => {
+  it.each([
+    '/api/upload/stream/S37/app/receipt.pdf',
+    '/api/applications/app/additional-payments/request/evidence/upload/S37/app/receipt.pdf',
+  ])('includes session and CSRF headers for %s', async url => {
+    const network = vi.fn().mockResolvedValue(new Response('{}', { status: 201 }));
+    vi.stubGlobal('fetch', network);
+    const file = new File(['local test'], 'receipt.pdf', { type: 'application/pdf' });
+
+    await uploadFileToS3(url, file);
+
+    expect(network).toHaveBeenCalledExactlyOnceWith(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/pdf', 'X-CSRF-Token': 'test-token' },
+      credentials: 'include',
+      body: file,
+    });
+  });
+
+  it.each([
+    'https://bucket.s3.eu-west-2.amazonaws.com/receipt.pdf',
+    'https://upload.example.test/api/applications/app/additional-payments/request/evidence/upload/receipt.pdf',
+  ])('does not send backend credentials to an external upload URL: %s', async url => {
+    const network = vi.fn().mockResolvedValue(new Response('', { status: 200 }));
+    vi.stubGlobal('fetch', network);
+    const file = new File(['local test'], 'receipt.pdf', { type: 'application/pdf' });
+
+    await uploadFileToS3(url, file);
+
+    expect(network).toHaveBeenCalledExactlyOnceWith(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/pdf' },
+      body: file,
+    });
+  });
+});
 
 describe('upload API errors', () => {
   it.each([
