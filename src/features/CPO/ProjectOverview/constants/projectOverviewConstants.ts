@@ -4,6 +4,7 @@ export const EMPTY_PROJECT_OVERVIEW: ProjectOverview = { projectName: '', projec
 
 export const PROJECT_NAME_MAX_LENGTH = 400;
 export const PROJECT_SUMMARY_MAX_LENGTH = 4000;
+export const PROJECT_OVERVIEW_PAGE_ID = 'project-overview';
 
 export const PROJECT_OVERVIEW_COPY = {
   heading: 'Project overview',

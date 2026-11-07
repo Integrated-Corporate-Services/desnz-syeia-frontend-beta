@@ -14,26 +14,38 @@ describe('cpoExecutiveSummaryService', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('GETs the documents with credentials', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [{ document_id: 'doc' }] }));
+    const fetchMock = vi.fn().mockResolvedValue(json({
+      application_id: 'app-1', content_version: 3, documents: [{ document_id: 'doc', category: 'CPO_EXECUTIVE_SUMMARY' }],
+    }));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(cpoExecutiveSummaryService.get('app-1')).resolves.toEqual({ documents: [{ document_id: 'doc' }] });
+    await expect(cpoExecutiveSummaryService.get('app-1')).resolves.toEqual({
+      documents: [{ document_id: 'doc', category: 'CPO_EXECUTIVE_SUMMARY' }],
+    });
 
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/executive-summary');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/cpo/app-1/executive-summary');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
   });
 
-  it('PUTs saveForLater with the CSRF token, then refreshes progress', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ documents: [] }));
+  it('PUTs page ID, expected version, and uploaded documents with the CSRF token', async () => {
+    const document = { document_id: 'doc', category: 'CPO_EXECUTIVE_SUMMARY' };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(json({ application_id: 'app-1', content_version: 6, documents: [document] }))
+      .mockResolvedValueOnce(json({ application_id: 'app-1', content_version: 7, documents: [document] }));
     vi.stubGlobal('fetch', fetchMock);
 
     await cpoExecutiveSummaryService.save('app-1', false);
 
-    const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe('/api/applications/app-1/executive-summary');
+    const [url, init] = fetchMock.mock.calls[1];
+    expect(url).toBe('/api/cpo/app-1/executive-summary');
     expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
-    expect(JSON.parse(init.body)).toEqual({ saveForLater: false });
+    expect(JSON.parse(init.body)).toEqual({
+      expected_content_version: 6,
+      page_id: 'executive-summary',
+      saveForLater: false,
+      data: { documents: [document] },
+    });
   });
 
   it.each([
@@ -60,7 +72,7 @@ describe('cpoExecutiveSummaryService', () => {
 
     await expect(cpoExecutiveSummaryService.downloadTemplate('app-1')).resolves.toBeInstanceOf(Blob);
 
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/executive-summary/template');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/cpo/app-1/executive-summary/template');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
   });
 });
