@@ -44,6 +44,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
   const category = NOTICE_CATEGORIES[step];
+  const maxFilesError = 'You can upload no more than 2 newspaper notice documents.';
   const documents = data.documents.filter((file) => file.category === category);
   const editable = true;
   const blocked = loading || loadFailed || saving || refreshingUploads || !editable;
@@ -225,6 +226,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
           {editable && <>
             {errors.filter((error) => error.id === 'file-upload-input').map((error, index) => <p className="govuk-error-message" key={index} id={`upload-error-${index}`}>{error.message}</p>)}
             <FileUpload key={step} ref={uploadRef} title={step === 'newspapers' ? 'Upload copies of the newspaper pages' : step === 'site' ? 'Upload evidence of site notices' : 'Upload a statement of service (optional)'} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`}
+              maxFiles={2} maxFilesError={maxFilesError}
               uploadImmediately
               onUploaded={() => {
                 setRefreshingUploads(true);
@@ -239,7 +241,10 @@ const CpoNoticeNewspapersPage: React.FC = () => {
               uploadedFiles={documents.map((file) => ({ id: file.file_id, storageProvider: 'aws_s3', s3Key: '', bucketName: '', virtualFolder: '', filename: file.filename, fileContentType: '', fileSizeBytes: 0, uploadedAtTimestamp: '' }))}
               applicationDocuments={documents.map((file) => ({ documentId: file.document_id, applicationId, fileId: file.file_id, category, addedBy: '', addedAt: '' }))}
               onDeleteFile={(id) => { setData((current) => ({ ...current, documents: current.documents.filter((file) => file.file_id !== id) })); setAnswer((current) => ({ ...current, evidence: (current.evidence || []).filter((item) => item.fileId !== id) })); }}
-              onValidationErrors={(messages) => { setFileErrors(messages); setErrors(messages.map((message) => ({ id: 'file-upload-input', message }))); }} />
+              onValidationErrors={(messages) => {
+                setFileErrors(messages.filter((message) => message !== maxFilesError));
+                setErrors(messages.map((message) => ({ id: 'file-upload-input', message })));
+              }} />
           </>}
           {step === 'newspapers' ? <>{dateInput('firstDate', 'First date it appeared')}{dateInput('secondDate', 'Second date it appeared', '3 4 2026')}</> : dateInput('completionDate', step === 'site' ? 'Enter the date you displayed the most recent notice' : 'Enter the date the last person was served a notice (optional)')}
         </>}
