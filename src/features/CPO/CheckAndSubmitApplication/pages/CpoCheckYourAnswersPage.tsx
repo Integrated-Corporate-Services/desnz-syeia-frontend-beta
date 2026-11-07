@@ -26,6 +26,7 @@ interface ReviewApplication {
   pre_submission_meeting_requested?: boolean | null;
   pre_submission_meeting_answer?: 'Yes, I’ve had this meeting' | 'No, I would like a pre-application meeting' | 'No, I don’t need this meeting' | null;
   pre_submission_meeting_reason?: string;
+  pre_submission_meeting_completed_at?: string | null;
   additional_contact?: string | string[];
   permissions?: { canEdit?: boolean; canDownload?: boolean };
   application_party?: {
@@ -91,10 +92,10 @@ const CpoCheckYourAnswersPage: React.FC = () => {
     && data.order.canEdit !== false;
   const canDownload = data?.application.permissions?.canDownload === true;
   const changeUrl = (path: string) => `${base}/${path}?from=application-review`;
-  const row = (label: string, value: React.ReactNode, path: string) => <div className="govuk-summary-list__row" key={label}>
+  const row = (label: string, value: React.ReactNode, path: string, locked = false) => <div className="govuk-summary-list__row" key={label}>
     <dt className="govuk-summary-list__key">{label}</dt>
     <dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-line' }}>{value}</dd>
-    {canEdit && <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={changeUrl(path)}>Change<span className="govuk-visually-hidden"> {label.toLowerCase()}</span></Link></dd>}
+    {canEdit && !locked && <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={changeUrl(path)}>Change<span className="govuk-visually-hidden"> {label.toLowerCase()}</span></Link></dd>}
   </div>;
   const files = (documents: (OrderDocument | CpoDocument)[], empty = 'Not uploaded') => documents.length ? documents.map((file) => <p className="govuk-!-margin-bottom-1" key={file.document_id}>
     {canDownload ? <a className="govuk-link" href="#review-heading" onClick={(event) => {
@@ -109,6 +110,7 @@ const CpoCheckYourAnswersPage: React.FC = () => {
     return <>{documents.length ? documents.map((file) => <p className="govuk-!-margin-bottom-1" key={file.document_id}>{file.filename}: {dateText(answer?.evidence?.find((entry) => entry.fileId === file.file_id)?.date)}</p>) : 'Not uploaded'}{step !== 'newspapers' && <p className="govuk-!-margin-bottom-0">{label} {dateText(answer?.completionDate)}</p>}</>;
   };
   const party = data?.application.application_party;
+  const meetingLocked = Boolean(data?.application.pre_submission_meeting_completed_at);
   const additional = party?.additional_contact ?? data?.application.additional_contact;
   const contacts = Array.isArray(additional) ? additional : additional?.split(',').map((value) => value.trim()).filter(Boolean) || [];
   const incomplete = CPO_TASK_SECTIONS.flatMap((section) => section.tasks).filter(task => task.subsection !== CPO_SUBSECTIONS.CHECK_AND_SUBMIT && (
@@ -134,8 +136,8 @@ const CpoCheckYourAnswersPage: React.FC = () => {
           {row('Additional contacts', contacts.join('\n') || 'None added', 'applicant-details')}
           {row('Have you had a pre-application meeting?', data.application.pre_submission_meeting_answer === 'Yes, I’ve had this meeting' ? "Yes, I’ve had this meeting"
             : data.application.pre_submission_meeting_answer === 'No, I would like a pre-application meeting' || data.application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
-              : data.application.pre_submission_meeting_answer === 'No, I don’t need this meeting' || data.application.pre_submission_meeting_requested === false ? "No, I don’t need this meeting" : 'Not answered', 'pre-submission-meeting')}
-          {data.application.pre_submission_meeting_answer === 'No, I don’t need this meeting' && row("Why you don’t need this meeting", data.application.pre_submission_meeting_reason || 'Not answered', 'pre-submission-meeting')}
+              : data.application.pre_submission_meeting_answer === 'No, I don’t need this meeting' || data.application.pre_submission_meeting_requested === false ? "No, I don’t need this meeting" : 'Not answered', 'pre-submission-meeting', meetingLocked)}
+          {data.application.pre_submission_meeting_answer === 'No, I don’t need this meeting' && row("Why you don’t need this meeting", data.application.pre_submission_meeting_reason || 'Not answered', 'pre-submission-meeting', meetingLocked)}
         </dl>
         <h2 className="govuk-heading-m govuk-!-margin-top-8">Order details</h2>
         <dl className="govuk-summary-list">
@@ -143,7 +145,7 @@ const CpoCheckYourAnswersPage: React.FC = () => {
           {row('What the order is for', data.order.details.purpose || 'Not answered', 'order-details/purpose')}
           {typeof data.order.details.includesSpecialLand === 'boolean' && row('Common land, open space or allotment', choiceText(data.order.details.includesSpecialLand), 'order-details/special-land')}
           {data.order.details.includesSpecialLand && row('Land in exchange', choiceText(data.order.details.exchangeLand), 'order-details/exchange-land')}
-          {row('Executive summary', files(data.order.documents), 'order-details/executive-summary')}
+          {row('Executive summary', files(data.order.documents), 'executive-summary')}
           {typeof data.order.details.hasRelatedApplications === 'boolean' && row('Related applications', data.order.details.hasRelatedApplications ? <><p className="govuk-!-margin-bottom-1">Yes. {data.order.details.relatedApplications.length} added.</p>{data.order.details.relatedApplications.map((entry) => <p className="govuk-!-margin-bottom-1" key={entry.id}>{entry.type === 'OTHER' ? entry.otherType : RELATED_TYPE_LABELS[entry.type]}{entry.reference && `: ${entry.reference}`}{entry.siteAddress && `\n${entry.siteAddress}`}{entry.relationship && `\n${entry.relationship}`}</p>)}</> : choiceText(data.order.details.hasRelatedApplications), 'order-details/related-applications')}
         </dl>
         <h2 className="govuk-heading-m govuk-!-margin-top-8">Public notices</h2>

@@ -135,7 +135,7 @@ describe('CPO pre-submission meeting', () => {
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/task-list');
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("No, I don’t need this meeting"));
-    const reason = screen.getByRole('textbox', { name: "Tell us why you don’t need this meeting" });
+    const reason = screen.getByRole('textbox', { name: "Explain why you don't need this meeting" });
     expect(reason).toHaveAttribute('maxlength', '4000');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     expect(screen.getByRole('alert')).toHaveFocus();
@@ -160,6 +160,17 @@ describe('CPO pre-submission meeting', () => {
     fireEvent.click(screen.getByLabelText("No, I don’t need this meeting"));
     fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
     await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer: 'No, I don’t need this meeting', reason: '' }, false));
+  });
+
+  it('sends a completed meeting to its confirmation page instead of the form', async () => {
+    seedApplication({
+      pre_submission_meeting_requested: false, pre_submission_meeting_answer: 'Yes, I’ve had this meeting',
+      pre_submission_meeting_completed_at: '2026-10-06T12:00:00Z',
+    });
+    renderPage();
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting/confirmation', { replace: true }));
+    expect(screen.queryByRole('button', { name: 'Save and continue' })).not.toBeInTheDocument();
+    expect(cpoPreSubmissionMeetingService.save).not.toHaveBeenCalled();
   });
 
   it('keeps a submitted meeting request editable', async () => {

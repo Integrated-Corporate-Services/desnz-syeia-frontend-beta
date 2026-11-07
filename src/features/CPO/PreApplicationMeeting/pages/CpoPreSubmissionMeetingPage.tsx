@@ -15,6 +15,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState('');
   const [selectionError, setSelectionError] = useState(false);
   const [reasonError, setReasonError] = useState(false);
@@ -34,6 +35,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     let active = true;
     setLoading(true);
     setLoadFailed(false);
+    setRedirecting(false);
     setError('');
     setAnswer(null);
     setReason('');
@@ -72,12 +74,12 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     if (loading || saving || loadFailed || !versions) return;
     if (complete && answer === null) {
       setSelectionError(true);
-      setError('Select whether you have had a pre-application meeting');
+      setError('Select whether you’ve had or need a pre-application meeting');
       return;
     }
     if (answer === 'No, I don’t need this meeting' && ((complete && !reason.trim()) || reason.trim().length > REASON_MAX_LENGTH)) {
       setReasonError(true);
-      setError(reason.trim().length > REASON_MAX_LENGTH ? 'The reason must be 4,000 characters or fewer' : "Tell us why you don’t need this meeting");
+      setError(reason.trim().length > REASON_MAX_LENGTH ? 'The reason must be 4,000 characters or fewer' : "Explain why you don't need this meeting");
       return;
     }
     setSelectionError(false);
@@ -97,6 +99,8 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
       setSaving(false);
     }
   };
+
+  if (redirecting) return null;
 
   return (
     <>

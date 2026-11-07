@@ -62,8 +62,8 @@ describe('cpoExecutiveSummaryService', () => {
   });
 
   it('shows the backend message when the summary cannot be completed', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ error: 'Bad Request', message: 'Upload an executive summary and wait for the virus check to finish' }, 400)));
-    await expect(cpoExecutiveSummaryService.save('app-1', false)).rejects.toThrow('Upload an executive summary');
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ error: 'Bad Request', message: 'Upload the executive summary document' }, 400)));
+    await expect(cpoExecutiveSummaryService.save('app-1', false)).rejects.toThrow('Upload the executive summary document');
   });
 
   it('downloads the template DOCX as a blob with credentials', async () => {
