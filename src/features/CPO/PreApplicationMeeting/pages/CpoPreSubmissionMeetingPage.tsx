@@ -43,6 +43,11 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     cpoPreSubmissionMeetingService.get(applicationId)
       .then((meeting) => {
         if (!active) return;
+        if (meeting.completed_at) {
+          setRedirecting(true);
+          navigate(`${CPO_BASE_URL}/${applicationId}/pre-submission-meeting/confirmation`, { replace: true });
+          return;
+        }
         if (!meeting.can_edit) throw new Error('You cannot update this application.');
         setVersions({ content_version: meeting.content_version, row_version: meeting.row_version });
         setAnswer(meeting.answer);

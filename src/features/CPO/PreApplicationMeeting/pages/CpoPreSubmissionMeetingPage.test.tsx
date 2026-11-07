@@ -163,9 +163,9 @@ describe('CPO pre-submission meeting', () => {
   });
 
   it('sends a completed meeting to its confirmation page instead of the form', async () => {
-    seedApplication({
-      pre_submission_meeting_requested: false, pre_submission_meeting_answer: 'Yes, I’ve had this meeting',
-      pre_submission_meeting_completed_at: '2026-10-06T12:00:00Z',
+    seedMeeting({
+      answer: 'Yes, I’ve had this meeting',
+      completed_at: '2026-10-06T12:00:00Z',
     });
     renderPage();
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/pre-submission-meeting/confirmation', { replace: true }));
