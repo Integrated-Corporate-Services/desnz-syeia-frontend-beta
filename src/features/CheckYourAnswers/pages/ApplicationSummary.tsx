@@ -622,8 +622,7 @@ const ApplicationSummary: React.FC = () => {
                       />
                     </dd>
                   </div>
-                  {withdrawalRequest &&
-                    !(withdrawalRequest.request_status === 'Approved' && withdrawalRequest.banner_acknowledged_at) && (
+                  {withdrawalRequest?.request_status === 'Requested' && (
                     <div className="govuk-summary-list__row">
                       <dt className="govuk-summary-list__key">{FIELD_LABELS.WITHDRAWAL_REQUEST_STATUS}</dt>
                       <dd className="govuk-summary-list__value">

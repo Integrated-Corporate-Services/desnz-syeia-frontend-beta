@@ -66,7 +66,7 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
             DESNZ_REF: 'DESNZ reference',
             CASE_TYPE: 'Case type',
             STATUS: 'Application status',
-            WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
+            WITHDRAWAL_REQUEST_STATUS: 'Withdraw application',
             DATE_WITHDRAWN: 'Date withdrawn',
         },
         CASE_TYPE_LABEL: 'Necessary Wayleave (NWL)',
@@ -88,7 +88,7 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
             NOTIFICATION_BANNER:
                 'You sent a request to withdraw this application. This is being reviewed by your case officer.',
             REJECTED_NOTIFICATION_BANNER:
-                'Your withdrawal request was not approved. Your application continues as normal. Check your email for details.',
+                'Your request to withdraw this application was rejected. Your application’s status has not changed.',
             APPROVED_NOTIFICATION_BANNER:
                 'Your request to withdraw this application has been approved.',
         },
