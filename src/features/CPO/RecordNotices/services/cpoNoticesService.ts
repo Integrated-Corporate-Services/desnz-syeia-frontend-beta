@@ -44,7 +44,7 @@ interface PatchOperation {
   createdAvailableFrom?: string;
 }
 
-async function readRaw(response: Response): Promise<RawRecordNotices> {
+async function readRaw<T = RawRecordNotices>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     const message = response.status === 400 && typeof body.message === 'string'
@@ -249,22 +249,17 @@ async function applyOperation(applicationId: string, raw: RawRecordNotices, oper
 
 export const cpoNoticesService = {
   get: async (applicationId: string): Promise<NoticesResponse> =>
-    toNoticesResponse(await fetchRaw(applicationId)),
-  save: async (applicationId: string, step: NoticeStep, answers: NoticeAnswer, _saveForLater: boolean): Promise<NoticesResponse> => {
-    let raw = await fetchRaw(applicationId);
-    for (const operation of buildOperations(raw, step, answers)) {
-      const previousAddressIds = new Set((raw.record.inspection?.addresses ?? []).map(address => address.inspection_address_id));
-      raw = await applyOperation(applicationId, raw, operation);
-      if (operation.createdAvailableFrom) {
-        const createdAddress = raw.record.inspection?.addresses.find(address => !previousAddressIds.has(address.inspection_address_id));
-        if (!createdAddress) throw new Error('Unable to find the newly saved inspection address. Refresh the page and try again.');
-        raw = await applyOperation(applicationId, raw, {
-          page_id: 'inspection-date',
-          data: { inspection_address_id: createdAddress.inspection_address_id, available_from: operation.createdAvailableFrom },
-          rowId: createdAddress.inspection_address_id,
-        });
-      }
+    readRaw<NoticesResponse>(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/notices`), { credentials: 'include' })),
+  save: async (applicationId: string, step: NoticeStep, answers: NoticeAnswer, saveForLater: boolean): Promise<NoticesResponse> => {
+    let headers = getCsrfHeaders();
+    if (!headers['X-CSRF-Token']) {
+      await fetchCsrfToken();
+      headers = getCsrfHeaders();
     }
-    return toNoticesResponse(raw);
+    if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
+    return readRaw<NoticesResponse>(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/notices`), {
+      method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify({ step, answers, saveForLater }),
+    }));
   },
 };

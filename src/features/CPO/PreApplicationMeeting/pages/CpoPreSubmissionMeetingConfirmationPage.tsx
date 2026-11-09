@@ -24,17 +24,18 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
     setConfirmed(false);
     setMeetingRequested(false);
     cpoPreSubmissionMeetingService.get(applicationId)
-      .then((application) => {
+      .then((meeting) => {
         if (!active) return;
-        const hasMeetingRequest = application.pre_submission_meeting_requested === true && application.pre_submission_meeting_requested_at;
-        const hasCompletedNoAnswer = application.pre_submission_meeting_requested === false && application.pre_submission_meeting_completed_at;
-        if (application.type !== 'CPO' || (!hasMeetingRequest && !hasCompletedNoAnswer)) {
+        const meetingRequested = meeting.answer === 'No, I would like a pre-application meeting';
+        const hasMeetingRequest = meetingRequested && meeting.requested_at;
+        const hasCompletedNoAnswer = meeting.answer !== null && !meetingRequested && meeting.completed_at;
+        if (!hasMeetingRequest && !hasCompletedNoAnswer) {
           navigate(`${CPO_BASE_URL}/${applicationId}/pre-submission-meeting`, { replace: true });
           return;
         }
         setConfirmed(true);
-        setMeetingRequested(application.pre_submission_meeting_requested === true);
-        setReference(application.desnz_ref);
+        setMeetingRequested(meetingRequested);
+        setReference(meeting.desnz_ref ?? '');
       })
       .catch(() => { if (active) setError('Unable to load your application confirmation. Refresh the page to try again.'); })
       .finally(() => { if (active) setLoading(false); });
