@@ -67,6 +67,7 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
             CASE_TYPE: 'Case type',
             STATUS: 'Application status',
             WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
+            DATE_WITHDRAWN: 'Date withdrawn',
         },
         CASE_TYPE_LABEL: 'Necessary Wayleave (NWL)',
         PAYMENT: {
@@ -88,6 +89,8 @@ export const APPLICATION_SUMMARY_CONSTANTS = {
                 'You sent a request to withdraw this application. This is being reviewed by your case officer.',
             REJECTED_NOTIFICATION_BANNER:
                 'Your withdrawal request was not approved. Your application continues as normal. Check your email for details.',
+            APPROVED_NOTIFICATION_BANNER:
+                'Your request to withdraw this application has been approved.',
         },
         NO_ASSETS: 'No assets provided.',
         DEFAULTS: {

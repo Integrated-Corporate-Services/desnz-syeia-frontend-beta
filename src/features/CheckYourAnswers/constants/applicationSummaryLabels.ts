@@ -1,4 +1,4 @@
-﻿// src/features/CheckYourAnswers/constants/applicationSummaryLabels.ts
+// src/features/CheckYourAnswers/constants/applicationSummaryLabels.ts
 /**
  * Application Summary UI Labels
  * All user-facing text and labels
@@ -85,6 +85,8 @@ export const FIELD_LABELS = {
   WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
   WITHDRAWAL_NOTIFICATION_BANNER: 'You sent a request to withdraw this application. This is being reviewed by your case officer.',
   WITHDRAWAL_REJECTED_NOTIFICATION_BANNER: 'Your withdrawal request was not approved. Your application continues as normal. Check your email for details.',
+  WITHDRAWAL_APPROVED_NOTIFICATION_BANNER: 'Your request to withdraw this application has been approved.',
+  DATE_WITHDRAWN: 'Date withdrawn',
   // Route fields
   EASTING: 'Easting',
   NORTHING: 'Northing',
