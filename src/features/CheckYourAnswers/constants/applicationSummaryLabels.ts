@@ -82,9 +82,9 @@ export const FIELD_LABELS = {
   LINE_VOLTAGE: 'Line voltage',
   LINE_LENGTH: 'Line length',
   
-  WITHDRAWAL_REQUEST_STATUS: 'Withdrawal request',
+  WITHDRAWAL_REQUEST_STATUS: 'Withdraw application',
   WITHDRAWAL_NOTIFICATION_BANNER: 'You sent a request to withdraw this application. This is being reviewed by your case officer.',
-  WITHDRAWAL_REJECTED_NOTIFICATION_BANNER: 'Your withdrawal request was not approved. Your application continues as normal. Check your email for details.',
+  WITHDRAWAL_REJECTED_NOTIFICATION_BANNER: 'Your request to withdraw this application was rejected. Your application’s status has not changed.',
   WITHDRAWAL_APPROVED_NOTIFICATION_BANNER: 'Your request to withdraw this application has been approved.',
   DATE_WITHDRAWN: 'Date withdrawn',
   // Route fields

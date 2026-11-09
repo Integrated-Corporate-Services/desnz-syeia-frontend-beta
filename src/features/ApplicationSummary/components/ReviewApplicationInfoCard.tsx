@@ -55,9 +55,7 @@ export const ReviewApplicationInfoCard: React.FC<ReviewApplicationInfoCardProps>
         },
     ];
 
-    const hideApprovedRow =
-        withdrawalRequest?.request_status === 'Approved' && !!withdrawalRequest.banner_acknowledged_at;
-    if (withdrawalRequest && !hideApprovedRow) {
+    if (withdrawalRequest?.request_status === 'Requested') {
         rows.push({
             key: { text: L.SUMMARY_CARD.WITHDRAWAL_REQUEST_STATUS },
             value: {
