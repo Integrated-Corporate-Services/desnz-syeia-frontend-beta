@@ -58,7 +58,7 @@ const CpoNoticeInspectionPage: React.FC = () => {
       for (const [id, label] of [['line1', 'address line 1'], ['townCity', 'town or city'], ['postcode', 'postcode']] as const) {
         if (!address[id]?.trim()) problems.push({ id, message: `Enter ${label}` });
       }
-    } else if (datePage && !validNoticeDate(address.from)) problems.push({ id: 'inspection-date-day', message: 'Enter a valid inspection availability date' });
+    } else if (datePage && !validNoticeDate(address.from))     problems.push({ id: 'inspection-date-day', message: 'Enter the date the order documents were made available for inspection' });
     else if (!addressPage && !datePage && !later && (!list.length || list.some(item => !validNoticeDate(item.from)))) problems.push({ id: 'inspection-heading', message: list.length ? 'Enter an availability date for every inspection address' : 'Add at least one inspection address' });
     if (problems.length) { setErrors(problems); return; }
     setSaving(true); setErrors([]);
@@ -105,7 +105,7 @@ const CpoNoticeInspectionPage: React.FC = () => {
             </>}
         {canEdit && (addressPage || datePage
           ? <div className="govuk-button-group"><button className="govuk-button" type="submit">Continue</button></div>
-          : <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>)}
+          : <div className="govuk-button-group">{!!list.length && <button className="govuk-button" type="submit">Save and continue</button>}<button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>)}
       </fieldset></form>
     </div></div></div>
   </>;

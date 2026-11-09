@@ -83,6 +83,17 @@ describe('CPO order details journey', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('4,000 characters or fewer');
   });
 
+  it('shows the live remaining character count for the purpose', async () => {
+    renderStep('purpose');
+    await ready();
+    const input = screen.getByLabelText('Explain what the order is for');
+    expect(screen.getByText('You have 4,000 characters remaining')).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: 'a'.repeat(3990) } });
+    expect(screen.getByText('You have 10 characters remaining')).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: 'a'.repeat(4001) } });
+    expect(screen.getByText('You have 1 character too many')).toBeInTheDocument();
+  });
+
   it.each([['Yes', 'exchange-land'], ['No', 'related-applications']])('routes common-land %s to %s', async (answer, destination) => {
     renderStep('special-land');
     await ready();

@@ -42,7 +42,7 @@ const CpoApplicationAnswers: React.FC<CpoApplicationAnswersProps> = ({
 
       <h2 className="govuk-heading-m govuk-!-margin-top-8">Project information</h2>
       <ProjectOverviewSummaryCard projectOverview={projectOverview} changeUrl={changeUrl('project-overview')} />
-      <ExecutiveSummarySummaryCard order={order} changeUrl={changeUrl('order-details/executive-summary')} fileOptions={fileOptions} />
+      <ExecutiveSummarySummaryCard order={order} changeUrl={changeUrl('executive-summary')} fileOptions={fileOptions} />
       <OrderDetailsSummaryCard order={order} changeUrl={changeUrl('order-details/check')} />
       <OrderDocumentsSummaryCard documents={documents} changeUrl={changeUrl('order-documents/check')} fileOptions={fileOptions} />
 

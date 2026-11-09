@@ -129,7 +129,7 @@ describe('CPO check your answers', () => {
   it('links each editable card to its check page and back to this review', async () => {
     renderPage(); await ready();
     expect(screen.getByRole('link', { name: 'Change project overview' })).toHaveAttribute('href', '/cpo/app/project-overview?from=application-review');
-    expect(screen.getByRole('link', { name: 'Change executive summary' })).toHaveAttribute('href', '/cpo/app/order-details/executive-summary?from=application-review');
+    expect(screen.getByRole('link', { name: 'Change executive summary' })).toHaveAttribute('href', '/cpo/app/executive-summary?from=application-review');
     expect(screen.getByRole('link', { name: 'Change order details' })).toHaveAttribute('href', '/cpo/app/order-details/check?from=application-review');
     expect(screen.getByRole('link', { name: 'Change order documents' })).toHaveAttribute('href', '/cpo/app/order-documents/check?from=application-review');
     expect(screen.getByRole('link', { name: 'Change record your notices' })).toHaveAttribute('href', '/cpo/app/record-notices/check?from=application-review');
@@ -225,10 +225,10 @@ describe('CPO check your answers', () => {
   });
 
   it('shows the sections the server reports as incomplete', async () => {
-    vi.mocked(applicationApiService.submitApplication).mockRejectedValue(new SubmitApplicationError(400, [{ key: 'order-details/executive-summary', label: CPO_SUBSECTIONS.EXECUTIVE_SUMMARY }]));
+    vi.mocked(applicationApiService.submitApplication).mockRejectedValue(new SubmitApplicationError(400, [{ key: 'executive-summary', label: CPO_SUBSECTIONS.EXECUTIVE_SUMMARY }]));
     renderPage(); await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Submit application' }));
-    expect(await screen.findByRole('link', { name: 'Complete the executive summary section' })).toHaveAttribute('href', '/cpo/app/order-details/executive-summary');
+    expect(await screen.findByRole('link', { name: 'Complete the executive summary section' })).toHaveAttribute('href', '/cpo/app/executive-summary');
     expect(screen.getByRole('button', { name: 'Submit application' })).toBeEnabled();
   });
 

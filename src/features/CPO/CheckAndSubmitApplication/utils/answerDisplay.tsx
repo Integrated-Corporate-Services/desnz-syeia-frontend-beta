@@ -100,7 +100,7 @@ export const noticeFiles = (
       return {
         key: file.document_id,
         filename: file.filename,
-        s3Key: file.s3_key,
+        s3Key: '',
         fileId: file.file_id,
         documentId: file.document_id,
         clean: true,

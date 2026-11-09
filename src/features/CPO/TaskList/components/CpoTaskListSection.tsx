@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CPO_BASE_URL } from '../../../../constants/cpo';
 import type { CpoTaskSection, CpoTaskStatus } from '../types/cpoTaskList';
+import { getTaskSlug } from '../utils/taskStatus';
 import CpoTaskStatusTag from './CpoTaskStatusTag';
 
 type Props = {
@@ -21,7 +22,8 @@ const CpoTaskListSection: React.FC<Props> = ({ section, sectionIndex, applicatio
       {section.tasks.map((task, taskIndex) => {
         const status = statusOf(task.subsection);
         const isBlocked = status === 'Cannot start yet';
-        const taskUrl = task.slug ? `${CPO_BASE_URL}/${applicationId}/${task.slug}` : undefined;
+        const slug = getTaskSlug(task, status);
+        const taskUrl = slug ? `${CPO_BASE_URL}/${applicationId}/${slug}` : undefined;
 
         return (
           <li key={task.subsection} className={`govuk-task-list__item${taskUrl && !isBlocked ? ' govuk-task-list__item--with-link' : ''}`}>

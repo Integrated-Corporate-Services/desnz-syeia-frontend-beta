@@ -70,6 +70,8 @@ export interface FileUploadProps {
   applicationId?: string;
   category?: string;
   subCategory?: string;
+  maxFiles?: number;
+  maxFilesError?: string;
   addedBy?: string;
   consultationId?: string;
   showDocumentsHeading?: boolean;
@@ -107,6 +109,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   applicationId,
   category,
   subCategory,
+  maxFiles,
+  maxFilesError,
   addedBy, // eslint-disable-line @typescript-eslint/no-unused-vars
   consultationId,
   showDocumentsHeading = true,
@@ -225,6 +229,12 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       file => fileIdsForThisCategory.includes(file.id)
     ) || [];
 
+    if (maxFiles !== undefined && newFiles.length + uploadedFilesForThisCategory.length + Math.max(files.length, pendingFiles.length) > maxFiles) {
+      onValidationErrorsRef.current?.([maxFilesError || `You can upload a maximum of ${maxFiles} files`]);
+      e.target.value = '';
+      return;
+    }
+
     const uploadedFilesSize = uploadedFilesForThisCategory.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0);
 
     const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
@@ -311,6 +321,11 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     const uploadedFilesForThisCategory = uploadedFiles?.filter(
       file => fileIdsForThisCategory.includes(file.id)
     ) || [];
+
+    if (maxFiles !== undefined && droppedFiles.length + uploadedFilesForThisCategory.length + Math.max(files.length, pendingFiles.length) > maxFiles) {
+      onValidationErrorsRef.current?.([maxFilesError || `You can upload a maximum of ${maxFiles} files`]);
+      return;
+    }
 
     const uploadedFilesSize = uploadedFilesForThisCategory.reduce((sum, f) => sum + Number(f.fileSizeBytes), 0);
     const pendingFilesSize = pendingFiles.reduce((sum, f) => sum + f.size, 0);
@@ -861,6 +876,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
       <p className="govuk-hint govuk-!-margin-bottom-4">
         You can upload .pdf, .jpg, .jpeg, .png, .msg, .doc, .docx, .xls, and
         .xlsx files of up to 25MB each. Files cannot be password protected.
+        {maxFiles !== undefined && ` You can upload a maximum of ${maxFiles} ${maxFiles === 1 ? 'file' : 'files'}.`}
       </p>
 
       {isScanning && (
