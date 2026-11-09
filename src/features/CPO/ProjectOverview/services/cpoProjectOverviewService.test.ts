@@ -14,21 +14,30 @@ describe('cpoProjectOverviewService', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('GETs the project overview with credentials and fills missing fields', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(json({ details: { projectName: 'North Ridge' } }));
+    const fetchMock = vi.fn().mockResolvedValue(json({
+      application_id: 'app-get', content_version: 2, details: { projectName: 'North Ridge' },
+    }));
     vi.stubGlobal('fetch', fetchMock);
-    const result = await cpoProjectOverviewService.get('app-1');
-    expect(fetchMock.mock.calls[0][0]).toBe('/api/applications/app-1/project-overview');
+    const result = await cpoProjectOverviewService.get('app-get');
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/cpo/app-get/project-overview');
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: 'include' });
     expect(result).toEqual({ details: { projectName: 'North Ridge', projectSummary: '' } });
   });
 
-  it('POSTs the answers with the CSRF token', async () => {
+  it('POSTs the page id, expected version, and answers with the CSRF token', async () => {
     const details = { projectName: 'North Ridge', projectSummary: 'Summary' };
-    const fetchMock = vi.fn().mockResolvedValue(json({ details }));
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(json({ application_id: 'app-save', content_version: 4, details }))
+      .mockResolvedValueOnce(json({ application_id: 'app-save', content_version: 5, details }));
     vi.stubGlobal('fetch', fetchMock);
-    await cpoProjectOverviewService.save('app-1', details);
-    expect(fetchMock.mock.calls[0][1]).toMatchObject({
-      method: 'POST', credentials: 'include', headers: { 'X-CSRF-Token': 'test-token' }, body: JSON.stringify(details),
+    await cpoProjectOverviewService.save('app-save', details);
+    expect(fetchMock.mock.calls[1][1]).toMatchObject({
+      method: 'POST', credentials: 'include', headers: { 'X-CSRF-Token': 'test-token' },
+      body: JSON.stringify({
+        expected_content_version: 4,
+        page_id: 'project-overview',
+        data: { project_name: 'North Ridge', project_summary: 'Summary' },
+      }),
     });
   });
 
