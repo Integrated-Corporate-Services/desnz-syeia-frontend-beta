@@ -70,7 +70,9 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
         if (
             !applicationId ||
             !withdrawalRequest ||
-            (withdrawalRequest.request_status !== 'Requested' && withdrawalRequest.request_status !== 'Rejected') ||
+            (withdrawalRequest.request_status !== 'Requested' &&
+                withdrawalRequest.request_status !== 'Rejected' &&
+                withdrawalRequest.request_status !== 'Approved') ||
             withdrawalRequest.banner_acknowledged_at
         ) {
             setShowWithdrawalBanner(false);
@@ -130,6 +132,13 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 />
             )}
 
+            {showWithdrawalBanner && withdrawalRequest?.request_status === 'Approved' && (
+                <WithdrawalNotificationBanner
+                    variant="success"
+                    message={CONSTANTS.REVIEW_LAYOUT.WITHDRAWAL.APPROVED_NOTIFICATION_BANNER}
+                />
+            )}
+
             <h1 className="govuk-heading-l">{CONSTANTS.REVIEW_LAYOUT.HEADING}</h1>
 
             {pdfError && (
@@ -158,6 +167,12 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 desnzRef={data.desnzRef}
                 status={data.status}
                 assigneeName={assigneeName}
+                withdrawalRequest={withdrawalRequest}
+                dateWithdrawn={
+                    normalizedStatus === 'WITHDRAWN' && withdrawalRequest?.request_status === 'Approved'
+                        ? withdrawalRequest.decision_at
+                        : null
+                }
             />
 
             {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
