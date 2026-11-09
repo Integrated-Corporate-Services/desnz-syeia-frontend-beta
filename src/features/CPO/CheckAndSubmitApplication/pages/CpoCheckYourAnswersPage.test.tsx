@@ -283,12 +283,12 @@ describe('CPO check your answers', () => {
     renderPage();
     await ready();
     expect(screen.queryByText('Not answered')).not.toBeInTheDocument();
-    const valueOf = (title, label) => {
+    const valueOf = (title: string, label: string) => {
       const row = Array.from(card(title).querySelectorAll('.govuk-summary-list__row')).find(
         (entry) => entry.querySelector('.govuk-summary-list__key')?.textContent === label,
       );
       return row?.querySelector('.govuk-summary-list__value')?.textContent ?? '';
-    }
+    };
     expect(valueOf('Applicant details', 'Applicant name').trim()).toBe('');
     expect(valueOf('Applicant details', 'Email address').trim()).toBe('');
     expect(valueOf('Applicant details', 'Phone number').trim()).toBe('');
