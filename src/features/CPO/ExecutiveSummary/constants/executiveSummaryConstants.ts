@@ -1,5 +1,6 @@
 export const EXECUTIVE_SUMMARY_CATEGORY = 'CPO_EXECUTIVE_SUMMARY';
 export const EXECUTIVE_SUMMARY_SUBCATEGORY = 'EXECUTIVE_SUMMARY';
+export const EXECUTIVE_SUMMARY_PAGE_ID = 'executive-summary';
 
 export const EXECUTIVE_SUMMARY_COPY = {
   heading: 'Provide the executive summary',
