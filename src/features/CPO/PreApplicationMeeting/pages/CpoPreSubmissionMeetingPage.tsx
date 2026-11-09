@@ -40,21 +40,20 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     setAnswer(null);
     setReason('');
     setVersions(null);
+
     cpoPreSubmissionMeetingService.get(applicationId)
       .then((meeting) => {
         if (!active) return;
-        if (application.type !== 'CPO') throw new Error('This page is only available for compulsory purchase order applications.');
         // A completed answer is final; show the confirmation instead of the form.
-        if (application.pre_submission_meeting_completed_at) {
+        if (meeting.completed_at) {
           setRedirecting(true);
           navigate(`${CPO_BASE_URL}/${applicationId}/pre-submission-meeting/confirmation`, { replace: true });
           return;
         }
-        if (application.permissions?.canEdit === false) throw new Error('You cannot update this application.');
-        setAnswer(application.pre_submission_meeting_answer
-          ?? (application.pre_submission_meeting_requested === true ? 'No, I would like a pre-application meeting'
-            : application.pre_submission_meeting_requested === false ? 'No, I don’t need this meeting' : null));
-        setReason(application.pre_submission_meeting_reason || '');
+        if (!meeting.can_edit) throw new Error('You cannot update this application.');
+        setVersions({ content_version: meeting.content_version, row_version: meeting.row_version });
+        setAnswer(meeting.answer);
+        setReason(meeting.reason || '');
       })
       .catch((failure) => {
         if (!active) return;
@@ -65,7 +64,6 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
     return () => { active = false; };
   }, [applicationId, navigate]);
 
-  
   useEffect(() => {
     if (error) errorSummary.current?.focus();
   }, [error]);

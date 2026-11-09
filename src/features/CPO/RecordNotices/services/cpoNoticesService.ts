@@ -44,7 +44,7 @@ interface PatchOperation {
   createdAvailableFrom?: string;
 }
 
-async function readRaw(response: Response): Promise<RawRecordNotices> {
+async function readRaw<T = RawRecordNotices>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     const message = response.status === 400 && typeof body.message === 'string'
@@ -249,7 +249,7 @@ async function applyOperation(applicationId: string, raw: RawRecordNotices, oper
 
 export const cpoNoticesService = {
   get: async (applicationId: string): Promise<NoticesResponse> =>
-    readResponse(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/notices`), { credentials: 'include' })),
+    readRaw<NoticesResponse>(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/notices`), { credentials: 'include' })),
   save: async (applicationId: string, step: NoticeStep, answers: NoticeAnswer, saveForLater: boolean): Promise<NoticesResponse> => {
     let headers = getCsrfHeaders();
     if (!headers['X-CSRF-Token']) {
@@ -257,7 +257,7 @@ export const cpoNoticesService = {
       headers = getCsrfHeaders();
     }
     if (!headers['X-CSRF-Token']) throw new Error('Unable to obtain CSRF token. Refresh the page.');
-    return readResponse(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/notices`), {
+    return readRaw<NoticesResponse>(await fetch(buildBackendUrl(`/api/cpo/${applicationId}/notices`), {
       method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ step, answers, saveForLater }),
     }));
