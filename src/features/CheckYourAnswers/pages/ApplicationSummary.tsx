@@ -717,7 +717,8 @@ const ApplicationSummary: React.FC = () => {
             )}
 
             {/* Withdraw application button - hidden only while a withdrawal request is pending; a rejected request lets the user try again */}
-            {permissions?.canWithdraw && !permissions?.canEdit && withdrawalRequest?.request_status !== 'Requested' && (
+            {permissions?.canWithdraw && !permissions?.canEdit &&
+              (!withdrawalRequest || withdrawalRequest.request_status === 'Rejected') && (
               <div className="govuk-button-group govuk-!-margin-top-6">
                 <button
                   type="button"

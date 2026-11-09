@@ -63,7 +63,7 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
     const showWithdraw =
         data.permissions?.canWithdraw &&
         !data.permissions?.canEdit &&
-        withdrawalRequest?.request_status !== 'Requested';
+        (!withdrawalRequest || withdrawalRequest.request_status === 'Rejected');
 
     const [showWithdrawalBanner, setShowWithdrawalBanner] = useState(false);
     useEffect(() => {
