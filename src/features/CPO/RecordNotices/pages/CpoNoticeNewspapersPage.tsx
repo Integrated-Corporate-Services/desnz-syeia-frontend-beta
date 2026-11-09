@@ -16,6 +16,10 @@ import { inspectionAddresses, inspectionAddressText, noticeDateText, publication
 const formatDate = (value?: string) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value))
   ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : 'Not recorded';
 const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+const todayLocalIsoDate = () => {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+};
 type FormError = { id: string; message: string };
 
 const CpoNoticeNewspapersPage: React.FC = () => {
@@ -40,6 +44,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const summaryRef = useRef<HTMLDivElement>(null);
   const category = NOTICE_CATEGORIES[step];
+  const maxFilesError = 'You can upload no more than 2 newspaper notice documents.';
   const documents = data.documents.filter((file) => file.category === category);
   const editable = true;
   const blocked = loading || loadFailed || saving || refreshingUploads || !editable;
@@ -87,8 +92,18 @@ const CpoNoticeNewspapersPage: React.FC = () => {
     if (uploadRef.current?.isBusy()) { setErrors([{ id: 'file-upload-input', message: 'Wait for uploads and virus checks to finish before continuing' }]); return; }
     const localErrors: FormError[] = [];
     const dateKeys = step === 'newspapers' ? ['firstDate', 'secondDate'] as const : step === 'website' ? ['liveDate'] as const : step === 'site' || step === 'people' ? ['completionDate'] as const : [];
-    for (const key of dateKeys) if (((!saveForLater && step !== 'people') || answer[key]) && !validDate(answer[key] || '')) localErrors.push({ id: `${key}-day`, message: `Enter a valid ${key === 'firstDate' ? 'first publication' : key === 'secondDate' ? 'second publication' : key === 'liveDate' ? 'notice live' : 'completion'} date` });
-    if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address' });
+    for (const key of dateKeys) {
+      const value = answer[key] || '';
+      if (step === 'newspapers') {
+        const label = key === 'firstDate' ? 'First' : 'Second';
+        if (!value) { if (!saveForLater) localErrors.push({ id: `${key}-day`, message: `Enter the ${label.toLowerCase()} date the newspaper notice appeared` }); }
+        else if (!validDate(value)) localErrors.push({ id: `${key}-day`, message: `${label} date the notice appeared must include a day, month and year` });
+        else if (!saveForLater && value > todayLocalIsoDate()) localErrors.push({ id: `${key}-day`, message: `${label} date the notice appeared cannot be in the future` });
+        continue;
+      }
+      if (((!saveForLater && step !== 'people') || answer[key]) && !validDate(value)) localErrors.push({ id: `${key}-day`, message: `Enter a valid ${key === 'liveDate' ? 'notice live' : 'completion'} date` });
+    }
+    if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address where the order and maps can be viewed' });
     if (localErrors.length) { setErrors(localErrors); return; }
     setSaving(true); setErrors([]);
     try {
@@ -133,7 +148,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
     if (target === 'requirements') return saved.acknowledged === true ? 'Read and acknowledged' : 'Not acknowledged';
     if (target === 'inspection') return inspectionAddresses(saved).map(address => <p className="govuk-body" key={address.id}>{inspectionAddressText(address)}<br />Available from {noticeDateText(address.from)}</p>);
     if (target === 'online') return <a className="govuk-link" href={saved.url} target="_blank" rel="noopener noreferrer">{saved.url || 'Not recorded'}</a>;
-    return <>{data.documents.filter(file => file.category === NOTICE_CATEGORIES[target]).map(file => <p className="govuk-!-margin-bottom-1" key={file.file_id}><a className="govuk-link" href="#notices-heading" onClick={event => { event.preventDefault(); void downloadS3FileOnSameTab(file.s3_key, file.file_id, applicationId, file.document_id).catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download the document. Try again.' }])); }}>{file.filename}</a><br />{target === 'newspapers' ? 'Published' : target === 'site' ? 'Displayed' : 'Served'} {formatDate(saved.evidence?.find(item => item.fileId === file.file_id)?.date || saved.completionDate)}</p>)}{!saved.evidence?.length && (target === 'people' ? 'Not provided' : 'Not recorded')}</>;
+    return <>{data.documents.filter(file => file.category === NOTICE_CATEGORIES[target]).map(file => <p className="govuk-!-margin-bottom-1" key={file.file_id}><a className="govuk-link" href="#notices-heading" onClick={event => { event.preventDefault(); void downloadS3FileOnSameTab('', file.file_id, applicationId, file.document_id).catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download the document. Try again.' }])); }}>{file.filename}</a><br />{target === 'newspapers' ? 'Published' : target === 'site' ? 'Displayed' : 'Served'} {formatDate(saved.evidence?.find(item => item.fileId === file.file_id)?.date || saved.completionDate)}</p>)}{!saved.evidence?.length && (target === 'people' ? 'Not provided' : 'Not recorded')}</>;
   };
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${NOTICE_HEADINGS[step]}`} />
@@ -174,7 +189,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
                   <div className="govuk-task-list__name-and-hint" style={{ overflowWrap: 'anywhere' }}>
                     <a className="govuk-link" href="#notices-heading" onClick={(event) => {
                       event.preventDefault();
-                      void downloadS3FileOnSameTab(file.s3_key, file.file_id, applicationId, file.document_id)
+                      void downloadS3FileOnSameTab('', file.file_id, applicationId, file.document_id)
                         .catch(() => setErrors([{ id: 'notices-heading', message: 'Unable to download this document. Try again.' }]));
                     }}>{file.filename}</a>
                   </div>
@@ -211,6 +226,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
           {editable && <>
             {errors.filter((error) => error.id === 'file-upload-input').map((error, index) => <p className="govuk-error-message" key={index} id={`upload-error-${index}`}>{error.message}</p>)}
             <FileUpload key={step} ref={uploadRef} title={step === 'newspapers' ? 'Upload copies of the newspaper pages' : step === 'site' ? 'Upload evidence of site notices' : 'Upload a statement of service (optional)'} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`}
+              maxFiles={2} maxFilesError={maxFilesError}
               uploadImmediately
               onUploaded={() => {
                 setRefreshingUploads(true);
@@ -222,10 +238,13 @@ const CpoNoticeNewspapersPage: React.FC = () => {
                 }).finally(() => setRefreshingUploads(false));
               }}
               showDocumentsHeading={false}
-              uploadedFiles={documents.map((file) => ({ id: file.file_id, storageProvider: 'aws_s3', s3Key: file.s3_key ?? '', bucketName: '', virtualFolder: file.s3_key ? file.s3_key.split('/').slice(0, -1).join('/') : '', filename: file.filename, fileContentType: file.file_content_type, fileSizeBytes: file.file_size_bytes, uploadedAtTimestamp: file.uploaded_at_timestamp }))}
-              applicationDocuments={documents.map((file) => ({ documentId: file.document_id, applicationId, fileId: file.file_id, category, addedBy: file.added_by, addedAt: file.added_at }))}
+              uploadedFiles={documents.map((file) => ({ id: file.file_id, storageProvider: 'aws_s3', s3Key: '', bucketName: '', virtualFolder: '', filename: file.filename, fileContentType: '', fileSizeBytes: 0, uploadedAtTimestamp: '' }))}
+              applicationDocuments={documents.map((file) => ({ documentId: file.document_id, applicationId, fileId: file.file_id, category, addedBy: '', addedAt: '' }))}
               onDeleteFile={(id) => { setData((current) => ({ ...current, documents: current.documents.filter((file) => file.file_id !== id) })); setAnswer((current) => ({ ...current, evidence: (current.evidence || []).filter((item) => item.fileId !== id) })); }}
-              onValidationErrors={(messages) => { setFileErrors(messages); setErrors(messages.map((message) => ({ id: 'file-upload-input', message }))); }} />
+              onValidationErrors={(messages) => {
+                setFileErrors(messages.filter((message) => message !== maxFilesError));
+                setErrors(messages.map((message) => ({ id: 'file-upload-input', message })));
+              }} />
           </>}
           {step === 'newspapers' ? <>{dateInput('firstDate', 'First date it appeared')}{dateInput('secondDate', 'Second date it appeared', '3 4 2026')}</> : dateInput('completionDate', step === 'site' ? 'Enter the date you displayed the most recent notice' : 'Enter the date the last person was served a notice (optional)')}
         </>}

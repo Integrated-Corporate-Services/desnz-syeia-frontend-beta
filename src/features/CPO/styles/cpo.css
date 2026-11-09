@@ -19,7 +19,7 @@
 
 .cpo-notice-documents .govuk-task-list__item {
   display: grid;
-  grid-template-columns: max-content max-content minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) max-content max-content;
   align-items: center;
   column-gap: 1rem;
 }

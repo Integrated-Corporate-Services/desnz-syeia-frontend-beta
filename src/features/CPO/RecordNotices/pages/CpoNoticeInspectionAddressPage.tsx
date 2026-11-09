@@ -55,10 +55,10 @@ const CpoNoticeInspectionAddressPage: React.FC = () => {
     if (blocked) return;
     const problems: FormError[] = [];
     if (addressPage) {
-      for (const [id, label] of [['line1', 'address line 1'], ['townCity', 'town or city'], ['postcode', 'postcode']] as const) {
-        if (!address[id]?.trim()) problems.push({ id, message: `Enter ${label}` });
+      for (const [id, message] of [['line1', 'Enter address line 1, typically the building and street'], ['townCity', 'Enter the town or city'], ['postcode', 'Enter postcode']] as const) {
+        if (!address[id]?.trim()) problems.push({ id, message });
       }
-    } else if (datePage && !validNoticeDate(address.from)) problems.push({ id: 'inspection-date-day', message: 'Enter a valid inspection availability date' });
+    } else if (datePage && !validNoticeDate(address.from)) problems.push({ id: 'inspection-date-day', message: 'Enter the date the order documents were made available for inspection' });
     else if (!addressPage && !datePage && !later && (!list.length || list.some(item => !validNoticeDate(item.from)))) problems.push({ id: 'inspection-heading', message: list.length ? 'Enter an availability date for every inspection address' : 'Add at least one inspection address' });
     if (problems.length) { setErrors(problems); return; }
     setSaving(true); setErrors([]);
@@ -66,10 +66,18 @@ const CpoNoticeInspectionAddressPage: React.FC = () => {
       const savedAddress = addressPage ? { ...address, line1: address.line1.trim(), line2: address.line2.trim(), townCity: address.townCity.trim(), county: (address.county || '').trim(), postcode: address.postcode.trim().toUpperCase() } : address;
       const addresses = addressPage || datePage ? list.some(item => item.id === address.id)
         ? list.map(item => item.id === address.id ? savedAddress : item) : [...list, savedAddress] : list;
-      await cpoNoticesService.save(applicationId, 'inspection', { ...data?.record.inspection, format: 'reference', addresses }, later || addressPage || datePage);
+      const result = await cpoNoticesService.save(applicationId, 'inspection', { ...data?.record.inspection, format: 'reference', addresses }, later || addressPage || datePage);
       if (later) navigate('/application-dashboard');
-      else if (addressPage) navigate(entryUrl('inspection-date', address.id));
-      else if (datePage) navigate(`${base}/inspection${returnQuery}`);
+      else if (addressPage) {
+        const persistedAddresses = inspectionAddresses(result.record.inspection);
+        const persistedAddress = persistedAddresses.find(item => item.id === address.id)
+          ?? persistedAddresses.find(item => !list.some(existing => existing.id === item.id)
+            && item.line1 === savedAddress.line1 && item.line2 === savedAddress.line2
+            && item.townCity === savedAddress.townCity && item.county === savedAddress.county
+            && item.postcode === savedAddress.postcode);
+        if (!persistedAddress) throw new Error('Unable to find the saved inspection address. Return to the address list and try again.');
+        navigate(entryUrl('inspection-date', persistedAddress.id));
+      } else if (datePage) navigate(`${base}/inspection${returnQuery}`);
       else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'application-review' ? '?from=application-review' : ''}`);
     } catch (failure) { setErrors([{ id: 'inspection-heading', message: failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.' }]); }
     finally { setSaving(false); }

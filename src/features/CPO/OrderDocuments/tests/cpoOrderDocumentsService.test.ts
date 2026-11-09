@@ -58,7 +58,7 @@ describe('cpoOrderDocumentsService', () => {
   });
 
   it('shows the backend validation message for a 400', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ error: 'Validation Error', message: 'Upload the statement of reasons' }, 400)));
-    await expect(cpoOrderDocumentsService.save('app-1', 'reasons', false)).rejects.toThrow('Upload the statement of reasons');
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ error: 'Validation Error', message: 'Upload at least one document related to the statement of reasons' }, 400)));
+    await expect(cpoOrderDocumentsService.save('app-1', 'reasons', false)).rejects.toThrow('Upload at least one document related to the statement of reasons');
   });
 });

@@ -29,6 +29,7 @@ const renderStep = (step: string, query = '') => render(<BreadcrumbProvider><Mem
   <Route path="/cpo/:applicationId/record-notices/:noticeStep" element={<CpoNoticesPage />} />
 </Routes></MemoryRouter></BreadcrumbProvider>);
 const ready = () => waitFor(() => expect(screen.getByRole('button', { name: 'Save and continue' })).toBeEnabled());
+const readyLater = () => waitFor(() => expect(screen.getByRole('button', { name: 'Save for later' })).toBeEnabled());
 const setDate = (id: string, day = '7', month = '10', year = '2026') => {
   for (const [part, value] of [['day', day], ['month', month], ['year', year]]) fireEvent.change(document.getElementById(`${id}-${part}`)!, { target: { value } });
 };
@@ -83,13 +84,6 @@ describe('CPO notices journey', () => {
     expect(screen.getByText('Network House')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Change inspection address 1' })).toHaveAttribute('href', expect.stringContaining('/inspection-address?id='));
   });
-  it('links incomplete date errors to the date input and focuses the summary', async () => {
-    stored.record.inspection = { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '' }] };
-    renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    expect(screen.getByRole('alert')).toHaveFocus();
-    expect(screen.getByRole('link', { name: 'Enter an availability date for every inspection address' })).toHaveAttribute('href', '#inspection-heading');
-    expect(cpoNoticesService.save).not.toHaveBeenCalled();
-  });
   it('preserves separate day, month and year values in ISO dates', async () => {
     renderStep('website'); await ready(); setDate('liveDate', '14');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
@@ -97,7 +91,7 @@ describe('CPO notices journey', () => {
   });
   it('saves partial forms for later without completing the section', async () => {
     stored.record.inspection = { format: 'reference', addresses: [] };
-    renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
+    renderStep('inspection'); await readyLater(); fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/application-dashboard'));
     expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'inspection', expect.objectContaining({ format: 'reference', addresses: [] }), true);
   });
@@ -143,7 +137,7 @@ describe('CPO notices journey', () => {
     vi.mocked(cpoNoticesService.get).mockRejectedValue(new Error('Unable to load publicity'));
     renderStep('inspection'); await screen.findByRole('alert');
     await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus());
-    expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save for later' })).toBeDisabled();
   });
   it('removes the document through the existing API and saves the updated evidence list', async () => {
     stored.documents = [{ document_id: 'doc', file_id: 'file', category: 'CPO_NEWSPAPER_NOTICES', filename: 'notice.pdf', s3_key: 'path/notice.pdf' } as NoticesResponse['documents'][number]];
@@ -154,6 +148,14 @@ describe('CPO notices journey', () => {
   });
   it('saves a structured address before entering its availability date', async () => {
     stored.record.inspection = {};
+    const persistedId = crypto.randomUUID();
+    vi.mocked(cpoNoticesService.save).mockResolvedValueOnce({
+      ...stored,
+      record: {
+        ...stored.record,
+        inspection: { format: 'reference', addresses: [{ id: persistedId, line1: '72 Guild Street', line2: '', townCity: 'London', county: '', postcode: 'SE23 6FH', from: '' }] },
+      },
+    });
     renderStep('inspection-address');
     await waitFor(() => expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled());
     fireEvent.change(screen.getByLabelText('Address line 1'), { target: { value: '72 Guild Street' } });
@@ -161,14 +163,58 @@ describe('CPO notices journey', () => {
     fireEvent.change(screen.getByLabelText('Postcode'), { target: { value: 'SE23 6FH' } });
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'inspection', expect.objectContaining({ format: 'reference', addresses: [expect.objectContaining({ line1: '72 Guild Street', townCity: 'London', postcode: 'SE23 6FH' })] }), true));
-    expect(navigate).toHaveBeenCalledWith(expect.stringContaining('/inspection-date?id='));
+    expect(navigate).toHaveBeenCalledWith(`/cpo/app/record-notices/inspection-date?id=${persistedId}`);
   });
-  it('requires an inspection address before continuing from an empty list', async () => {
-    stored.record.inspection = {};
-    renderStep('inspection'); await ready();
-    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('Add at least one inspection address');
+  it('hides Save and continue on the inspection list until an address is added', async () => {
+    stored.record.inspection = { format: 'reference', addresses: [] };
+    renderStep('inspection'); await readyLater();
+    expect(screen.queryByRole('button', { name: 'Save and continue' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Add an address' })).toBeInTheDocument();
+  });
+  it('asks for each newspaper date when it is empty', async () => {
+    renderStep('newspapers'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Enter the first date the newspaper notice appeared' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Enter the second date the newspaper notice appeared' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('explains when a newspaper date is missing part of its day, month or year', async () => {
+    renderStep('newspapers'); await ready(); fireEvent.change(document.getElementById('firstDate-day')!, { target: { value: '7' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'First date the notice appeared must include a day, month and year' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('rejects newspaper dates in the future', async () => {
+    renderStep('newspapers'); await ready();
+    for (const part of ['day', 'month', 'year']) fireEvent.change(document.getElementById(`secondDate-${part}`)!, { target: { value: { day: '1', month: '1', year: '2099' }[part] } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Second date the notice appeared cannot be in the future' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('asks for the most recent site notice display date when it is empty', async () => {
+    stored.record.site = { format: 'reference', completionDate: '', evidence: [] };
+    renderStep('site'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Enter the most recent date the site notices were displayed' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Enter a valid completion date' })).not.toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('asks for the last served date not to be in the future', async () => {
+    stored.record.people = { format: 'reference', completionDate: '2099-01-01', evidence: [] };
+    renderStep('people'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Date the last person was served cannot be in the future' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('asks for the last served date to include a day, month and year', async () => {
+    stored.record.people = { format: 'reference', completionDate: '2026-10-', evidence: [] };
+    renderStep('people'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Date the last person was served must include a day, month and year' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('links incomplete date errors to the date input and focuses the summary', async () => {
+    stored.record.inspection = { format: 'reference', addresses: [{ id: crypto.randomUUID(), line1: 'Network House', line2: '', townCity: '', county: '', postcode: '', from: '' }] };
+    renderStep('inspection'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('alert')).toHaveFocus();
+    expect(screen.getByRole('link', { name: 'Enter an availability date for every inspection address' })).toHaveAttribute('href', '#inspection-heading');
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
   });
   it('allows service evidence and its completion date to be omitted', async () => {
     stored.record.people = {};
