@@ -258,6 +258,52 @@ describe('CPO check your answers', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Compulsory purchase order application not found');
   });
 
+  it('leaves unanswered fields blank instead of showing Not answered', async () => {
+    mockApplication(application({
+      pre_submission_meeting_answer: null,
+      pre_submission_meeting_requested: null,
+      pre_submission_meeting_reason: null,
+      operator_ref: '',
+      application_party: {
+        organisation_name: '',
+        contact_person_name: '',
+        contact_person_line1: '',
+        contact_person_line2: '',
+        contact_person_city: '',
+        contact_person_county: '',
+        contact_person_postcode: '',
+        contact_person_email: '',
+        contact_person_phone: '',
+        additional_contact: '',
+      },
+    }));
+    answers.projectOverview = { projectName: '', projectSummary: '' };
+    answers.order = { details: { ...EMPTY_ORDER_DETAILS, orderName: '', purpose: '' }, documents: [file('executive-summary.docx')] };
+    answers.notices = notices({ record: { ...notices().record, inspection: { addresses: [] }, online: { url: '' } } });
+    renderPage();
+    await ready();
+    expect(screen.queryByText('Not answered')).not.toBeInTheDocument();
+    const valueOf = (title, label) => {
+      const row = Array.from(card(title).querySelectorAll('.govuk-summary-list__row')).find(
+        (entry) => entry.querySelector('.govuk-summary-list__key')?.textContent === label,
+      );
+      return row?.querySelector('.govuk-summary-list__value')?.textContent ?? '';
+    }
+    expect(valueOf('Applicant details', 'Applicant name').trim()).toBe('');
+    expect(valueOf('Applicant details', 'Email address').trim()).toBe('');
+    expect(valueOf('Applicant details', 'Phone number').trim()).toBe('');
+    expect(valueOf('Applicant details', 'Additional contacts').trim()).toBe('');
+    expect(valueOf('Applicant details', "Applicant’s reference").trim()).toBe('');
+    expect(screen.queryByText('None added')).not.toBeInTheDocument();
+    expect(screen.queryByText('Not provided')).not.toBeInTheDocument();
+    expect(valueOf('Pre-application meeting', 'Pre-application meeting').trim()).toBe('');
+    expect(valueOf('Project overview', 'Enter the name of the project that requires this CPO').trim()).toBe('');
+    expect(valueOf('Project overview', 'Summarise the project').trim()).toBe('');
+    expect(valueOf('Order details', 'Enter the order title').trim()).toBe('');
+    expect(valueOf('Order details', 'Explain what the order is for').trim()).toBe('');
+    expect(valueOf('Record your notices', 'Inspection address').trim()).toBe('');
+  });
+
   it('shows download failures in the error summary', async () => {
     vi.mocked(downloadS3FileOnSameTab).mockRejectedValueOnce(new Error('Download failed'));
     renderPage(); await ready(); fireEvent.click(screen.getByRole('link', { name: 'order.pdf' }));
