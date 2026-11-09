@@ -110,7 +110,19 @@ describe('cpoNoticesService', () => {
     expect(url).toBe('/api/cpo/app-1/notices');
     expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
     expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'X-CSRF-Token': 'test-token' });
-    expect(JSON.parse(init.body)).toEqual({ step: 'online', answers: { format: 'reference', url: 'https://example.gov.uk' }, saveForLater: true });
+    expect(JSON.parse(init.body)).toEqual({
+      step: 'newspapers',
+      answers: {
+        format: 'reference',
+        firstDate,
+        secondDate,
+        evidence: [
+          { fileId: '880e8400-e29b-41d4-a716-446655440060', date: firstDate },
+          { fileId: '880e8400-e29b-41d4-a716-446655440061', date: secondDate },
+        ],
+      },
+      saveForLater: false,
+    });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
