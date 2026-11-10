@@ -11,7 +11,7 @@ export const FirUploadDecisionPage: React.FC = () => {
   const navigate = useNavigate();
   const [choice, setChoice] = useState<'yes' | 'no' | ''>('');
 
-  useBreadcrumb(<Link className="govuk-back-link" to={requestPath}>Back</Link>);
+  useBreadcrumb(<Link className="govuk-back-link" to={`${requestPath}/${requestId}/respond`}>Back</Link>);
 
   if (!applicationId || !requestId) return null;
 
@@ -27,7 +27,8 @@ export const FirUploadDecisionPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-three-quarters">
       <FirErrorSummary error={error} />
       <form onSubmit={submit} noValidate>
         <fieldset className="govuk-fieldset">
@@ -50,6 +51,7 @@ export const FirUploadDecisionPage: React.FC = () => {
         <button className="govuk-button govuk-!-margin-top-5" type="submit">Save and continue</button>
       </form>
       {request && <FirRequestDetails request={request} />}
-    </div>
+            </div>
+          </div>
   );
 };
