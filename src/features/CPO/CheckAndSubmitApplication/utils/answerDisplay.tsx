@@ -6,7 +6,8 @@ import type { NoticeStep } from '../../RecordNotices/types/notices';
 import { noticeDateText } from '../../RecordNotices/utils/noticeRecord';
 import type { CpoAnswers } from '../hooks/useCpoApplicationAnswers';
 
-export const NOT_ANSWERED = 'Not answered';
+/** Empty answers stay blank, same as NWL Check your answers. */
+export const NOT_ANSWERED = '';
 
 export interface AnswerFile {
   key: string;

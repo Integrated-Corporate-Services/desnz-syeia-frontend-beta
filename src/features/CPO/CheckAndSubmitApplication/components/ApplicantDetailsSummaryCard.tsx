@@ -25,8 +25,8 @@ export const ApplicantDetailsSummaryCard: React.FC<Props> = ({ application }) =>
       </SummaryRow>
       <SummaryRow label="Email address">{party?.contact_person_email || NOT_ANSWERED}</SummaryRow>
       <SummaryRow label="Phone number">{party?.contact_person_phone || NOT_ANSWERED}</SummaryRow>
-      <SummaryRow label="Additional contacts">{contacts.join('\n') || 'None added'}</SummaryRow>
-      <SummaryRow label="Applicant’s reference">{application.operator_ref || 'Not provided'}</SummaryRow>
+      <SummaryRow label="Additional contacts">{contacts.join('\n')}</SummaryRow>
+      <SummaryRow label="Applicant’s reference">{application.operator_ref || ''}</SummaryRow>
     </SummaryCard>
   );
 };

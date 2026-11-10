@@ -156,7 +156,7 @@ describe('CPO application summary', () => {
   it('shows the not approved banner once a withdrawal request is rejected', async () => {
     vi.mocked(applicationApiService.getWithdrawalRequest).mockResolvedValue({ success: true, data: { request_status: 'Rejected' } });
     renderPage(); await ready();
-    expect(await screen.findByRole('region')).toHaveTextContent('Your withdrawal request was not approved.');
+    expect(await screen.findByRole('region')).toHaveTextContent('Your request to withdraw this application was rejected.');
   });
 
   it('shows no withdrawal banner once a withdrawal request is approved', async () => {
