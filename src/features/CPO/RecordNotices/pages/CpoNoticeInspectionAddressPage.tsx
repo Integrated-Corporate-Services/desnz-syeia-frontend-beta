@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { UK_POSTCODE_REGEX, isValidNoticeDate } from '../utils/noticeRecord';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import DateInput from '../components/DateInput';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { InspectionAddress, NoticesResponse } from '../types/notices';
-import { inspectionAddresses, inspectionAddressText, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
+import { inspectionAddresses, inspectionAddressText, inspectionErrorField, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
 
 const emptyAddress = (): InspectionAddress => ({ id: crypto.randomUUID(), line1: '', line2: '', townCity: '', county: '', postcode: '', from: '' });
 type FormError = { id: string; message: string };
@@ -57,8 +58,12 @@ const CpoNoticeInspectionAddressPage: React.FC = () => {
     if (addressPage) {
       for (const [id, message] of [['line1', 'Enter address line 1, typically the building and street'], ['townCity', 'Enter the town or city'], ['postcode', 'Enter postcode']] as const) {
         if (!address[id]?.trim()) problems.push({ id, message });
+        else if (id === 'postcode' && !UK_POSTCODE_REGEX.test(address.postcode.trim())) problems.push({ id, message: 'Enter a valid UK postcode (e.g., "SW1A 2AW")' });
       }
-    } else if (datePage && !validNoticeDate(address.from)) problems.push({ id: 'inspection-date-day', message: 'Enter the date the order documents were made available for inspection' });
+    } else if (datePage) {
+      const dateResult = isValidNoticeDate(address.from);
+      if (!dateResult.valid) problems.push({ id: 'inspection-date-day', message: dateResult.message || 'Enter the date the order documents were made available for inspection' });
+    }
     else if (!addressPage && !datePage && !later && (!list.length || list.some(item => !validNoticeDate(item.from)))) problems.push({ id: 'inspection-heading', message: list.length ? 'Enter an availability date for every inspection address' : 'Add at least one inspection address' });
     if (problems.length) { setErrors(problems); return; }
     setSaving(true); setErrors([]);
@@ -79,7 +84,7 @@ const CpoNoticeInspectionAddressPage: React.FC = () => {
         navigate(entryUrl('inspection-date', persistedAddress.id));
       } else if (datePage) navigate(`${base}/inspection${returnQuery}`);
       else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'application-review' ? '?from=application-review' : ''}`);
-    } catch (failure) { setErrors([{ id: 'inspection-heading', message: failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.' }]); }
+    } catch (failure) { const message = failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.'; setErrors([{ id: inspectionErrorField(message, addressPage, datePage), message }]); }
     finally { setSaving(false); }
   };
   const remove = async (id: string) => {
