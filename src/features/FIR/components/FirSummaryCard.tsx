@@ -52,8 +52,6 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
     <>
       {openRequest && (
         <>
-          <div className="govuk-grid-row">
-            <div className="govuk-grid-column-two-thirds">
           <section className="govuk-summary-card govuk-!-margin-top-6" aria-labelledby="fir-summary-heading">
             <div className="govuk-summary-card__title-wrapper">
               <h2 className="govuk-summary-card__title" id="fir-summary-heading">Further information request</h2>
@@ -79,8 +77,6 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
               </dl>
             </div>
           </section>
-            </div>
-          </div>
           <Link className="govuk-button" to={`${basePath}/${openRequest.furtherInformationRequestId}/respond`}>Provide information</Link>
         </>
       )}

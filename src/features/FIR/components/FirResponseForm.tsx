@@ -82,7 +82,8 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
   };
 
   return (
-    <div className="govuk-width-container">
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-three-quarters">
       {request && <span className="govuk-caption-l">{request.desnzRef}</span>}
       <h1 className="govuk-heading-l">Provide the information requested</h1>
       <FirErrorSummary error={error} />
@@ -143,6 +144,7 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
         </form>
       )}
       {request && <FirRequestDetails request={request} />}
-    </div>
+            </div>
+          </div>
   );
 };
