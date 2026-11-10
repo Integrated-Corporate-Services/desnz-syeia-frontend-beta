@@ -80,7 +80,9 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
           <Link className="govuk-button" to={`${basePath}/${openRequest.furtherInformationRequestId}/respond`}>Provide information</Link>
         </>
       )}
-      <p><Link className="govuk-link" to={basePath}>View all information requests</Link></p>
+      {(requests.length > 1 || !openRequest) && (
+        <p><Link className="govuk-link" to={basePath}>View all information requests</Link></p>
+      )}
     </>
   );
 };

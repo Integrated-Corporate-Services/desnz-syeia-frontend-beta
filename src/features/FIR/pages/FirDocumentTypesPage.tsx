@@ -40,7 +40,8 @@ export const FirDocumentTypesPage: React.FC = () => {
   };
 
   return (
-    <div className="govuk-width-container">
+    <div className="govuk-grid-row">
+      <div className="govuk-grid-column-three-quarters">
       <FirErrorSummary error={error} />
       {request && (
         <form onSubmit={submit} noValidate>
@@ -66,6 +67,7 @@ export const FirDocumentTypesPage: React.FC = () => {
         </form>
       )}
       {request && <FirRequestDetails request={request} />}
-    </div>
+            </div>
+          </div>
   );
 };

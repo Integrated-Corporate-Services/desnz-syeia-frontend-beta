@@ -21,8 +21,7 @@ const statusLabel = (status: FurtherInformationRequest['status']) =>
 const RequestCard: React.FC<{
   request: FurtherInformationRequest;
   title: string;
-  action?: React.ReactNode;
-}> = ({ request, title, action }) => (
+}> = ({ request, title }) => (
   <section className="govuk-summary-card govuk-!-margin-bottom-6">
     <div className="govuk-summary-card__title-wrapper">
       <h2 className="govuk-summary-card__title">{title}</h2>
@@ -43,7 +42,9 @@ const RequestCard: React.FC<{
         </div>
         <div className="govuk-summary-list__row">
           <dt className="govuk-summary-list__key">Status</dt>
-          <dd className="govuk-summary-list__value"><strong className="govuk-tag govuk-tag--blue">{statusLabel(request.status)}</strong></dd>
+          <dd className="govuk-summary-list__value">{request.status === 'OPEN'
+            ? <strong className="govuk-tag govuk-tag--blue">{statusLabel(request.status)}</strong>
+            : statusLabel(request.status)}</dd>
         </div>
         {request.response && <>
           <div className="govuk-summary-list__row">
@@ -51,7 +52,7 @@ const RequestCard: React.FC<{
             <dd className="govuk-summary-list__value">{formatDate(request.response.submittedAt)}</dd>
           </div>
           <div className="govuk-summary-list__row">
-            <dt className="govuk-summary-list__key">Document types selected</dt>
+            <dt className="govuk-summary-list__key">Which types of document will you be uploading?</dt>
             <dd className="govuk-summary-list__value">
               {request.response.documentCategories.map((category) => <div key={category}>{FIR_CATEGORY_LABELS[category] || category}</div>)}
             </dd>
@@ -65,13 +66,12 @@ const RequestCard: React.FC<{
             </div>
           ))}
           {request.response.responseText && <div className="govuk-summary-list__row">
-            <dt className="govuk-summary-list__key">Additional information</dt>
+            <dt className="govuk-summary-list__key">Additional comments (optional)</dt>
             <dd className="govuk-summary-list__value">{request.response.responseText}</dd>
           </div>}
         </>}
       </dl>
     </div>
-    {action}
   </section>
 );
 
@@ -106,19 +106,22 @@ export const FurtherInformationRequestsPage: React.FC = () => {
   const completedRequests = requests.filter((request) => request.status !== 'OPEN');
 
   return (
-    <div className="govuk-width-container">
+    <div className="govuk-grid-row">
+     <div className="govuk-grid-column-two-thirds">
       {requests[0] && <span className="govuk-caption-l">{requests[0].desnzRef}</span>}
       <h1 className="govuk-heading-l">Further information requests</h1>
       <FirErrorSummary error={error} />
       {openRequests.map((request, index) => (
-        <RequestCard
-          key={request.furtherInformationRequestId}
-          request={request}
-          title={`Further information request ${openRequests.length - index}`}
-          action={<Link className="govuk-button" to={`${requestPath}/${request.furtherInformationRequestId}/respond`}>Provide information</Link>}
-        />
+        <React.Fragment key={request.furtherInformationRequestId}>
+          <RequestCard
+            request={request}
+            title={`Further information request ${openRequests.length - index}`}
+          />
+          <Link className="govuk-button" to={`${requestPath}/${request.furtherInformationRequestId}/respond`}>Provide information</Link>
+        </React.Fragment>
       ))}
       {completedRequests.length > 0 && <>
+        {openRequests.length > 0 && <hr className="govuk-section-break govuk-section-break--l govuk-section-break--visible" />}
         <h2 className="govuk-heading-m">Completed requests</h2>
         {completedRequests.map((request, index) => (
           <RequestCard
@@ -128,6 +131,7 @@ export const FurtherInformationRequestsPage: React.FC = () => {
           />
         ))}
       </>}
+     </div>
     </div>
   );
 };
