@@ -168,7 +168,12 @@ function buildInspectionOperations(raw: RawRecordNotices, desired: InspectionAdd
 function buildNewspaperOperations(raw: RawRecordNotices, answer: NoticeAnswer): PatchOperation[] {
   const current = raw.record.newspapers?.publications ?? [];
   const publications = (answer.evidence ?? []).filter(entry => entry.date).map(entry => {
-    const existing = current.find(item => item.document_id === entry.fileId);
+    // Match existing publication by date, not by file ID
+    // This ensures that when a file is re-uploaded with the same date,
+    // the publication number is preserved correctly
+    const existingByDate = current.find(item => item.published_on === entry.date);
+    const existingById = current.find(item => item.document_ids === entry.fileId);
+    const existing = existingByDate || existingById;
     const publicationNumber = entry.date === answer.firstDate ? 1 : entry.date === answer.secondDate ? 2 : null;
     return {
       publication_id: existing?.publication_id ?? crypto.randomUUID(),
