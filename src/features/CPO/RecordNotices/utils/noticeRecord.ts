@@ -9,6 +9,9 @@ export const noticeDateText = (value?: string | null) => value && /^\d{4}-\d{2}-
 
 export const validNoticeDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 
+/** UK postcode regex pattern */
+export const UK_POSTCODE_REGEX = /^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$/i;
+
 export const publicationDateForFile = (fileId: string, index: number, answer: NoticeAnswer, previous?: NoticeAnswer) => {
   const previousDate = previous?.evidence?.find(entry => entry.fileId === fileId)?.date;
   const previousDates = [...new Set(previous?.evidence?.map(entry => entry.date).filter(Boolean) || [])].sort();
