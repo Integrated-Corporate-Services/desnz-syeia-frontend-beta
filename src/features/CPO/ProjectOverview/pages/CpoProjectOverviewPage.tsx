@@ -91,7 +91,9 @@ const CpoProjectOverviewPage: React.FC = () => {
       });
       navigate(exitUrl);
     } catch (error) {
-      setErrors([{ id: 'project-overview-heading', message: error instanceof Error ? error.message : 'Unable to save the project overview. Try again.' }]);
+      const message = error instanceof Error ? error.message : 'Unable to save the project overview. Try again.';
+      const fieldId = /summary/i.test(message) ? 'projectSummary' : /name/i.test(message) ? 'projectName' : 'project-overview-heading';
+      setErrors([{ id: fieldId, message }]);
     } finally { setSaving(false); }
   };
 

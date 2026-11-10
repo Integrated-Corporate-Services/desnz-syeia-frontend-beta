@@ -180,7 +180,16 @@ describe('CPO notices journey', () => {
   it('explains when a newspaper date is missing part of its day, month or year', async () => {
     renderStep('newspapers'); await ready(); fireEvent.change(document.getElementById('firstDate-day')!, { target: { value: '7' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    expect(screen.getByRole('link', { name: 'First date the notice appeared must include a day, month and year' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'First date the notice appeared must include a month and year' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('rejects an impossible newspaper date such as 31 September', async () => {
+    renderStep('newspapers'); await ready();
+    fireEvent.change(document.getElementById('firstDate-day')!, { target: { value: '31' } });
+    fireEvent.change(document.getElementById('firstDate-month')!, { target: { value: '9' } });
+    fireEvent.change(document.getElementById('firstDate-year')!, { target: { value: '2025' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'First date the notice appeared must be a real date' })).toBeInTheDocument();
     expect(cpoNoticesService.save).not.toHaveBeenCalled();
   });
   it('rejects newspaper dates in the future', async () => {
@@ -203,10 +212,16 @@ describe('CPO notices journey', () => {
     expect(screen.getByRole('link', { name: 'Date the last person was served cannot be in the future' })).toBeInTheDocument();
     expect(cpoNoticesService.save).not.toHaveBeenCalled();
   });
-  it('asks for the last served date to include a day, month and year', async () => {
+  it('asks for the last served date to include the missing day', async () => {
     stored.record.people = { format: 'reference', completionDate: '2026-10-', evidence: [] };
     renderStep('people'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    expect(screen.getByRole('link', { name: 'Date the last person was served must include a day, month and year' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Date the last person was served must include a day' })).toBeInTheDocument();
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
+  it('rejects an impossible last served date such as 31 February', async () => {
+    stored.record.people = { format: 'reference', completionDate: '2026-02-31', evidence: [] };
+    renderStep('people'); await ready(); fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(screen.getByRole('link', { name: 'Date the last person was served must be a real date' })).toBeInTheDocument();
     expect(cpoNoticesService.save).not.toHaveBeenCalled();
   });
   it('links incomplete date errors to the date input and focuses the summary', async () => {
