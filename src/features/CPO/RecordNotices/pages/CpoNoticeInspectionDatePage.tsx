@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { UK_POSTCODE_REGEX, isValidNoticeDate } from '../utils/noticeRecord';
+import { isValidNoticeDate } from '../utils/noticeRecord';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import DateInput from '../components/DateInput';
