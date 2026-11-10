@@ -6,7 +6,7 @@ import DateInput from '../components/DateInput';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { InspectionAddress, NoticesResponse } from '../types/notices';
-import { inspectionAddresses, inspectionAddressText, inspectionErrorField, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
+import { inspectionAddresses, inspectionAddressText, inspectionErrorField, noticeDateText } from '../utils/noticeRecord';
 
 const emptyAddress = (): InspectionAddress => ({ id: crypto.randomUUID(), line1: '', line2: '', townCity: '', county: '', postcode: '', from: '' });
 type FormError = { id: string; message: string };
