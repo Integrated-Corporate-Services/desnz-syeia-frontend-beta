@@ -5,7 +5,7 @@ import DateInput from '../components/DateInput';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { InspectionAddress, NoticesResponse } from '../types/notices';
-import { inspectionAddresses, inspectionAddressText, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
+import { inspectionAddresses, inspectionAddressText, inspectionErrorField, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
 
 const emptyAddress = (): InspectionAddress => ({ id: crypto.randomUUID(), line1: '', line2: '', townCity: '', county: '', postcode: '', from: '' });
 type FormError = { id: string; message: string };
@@ -71,7 +71,7 @@ const CpoNoticeInspectionDatePage: React.FC = () => {
       else if (addressPage) navigate(entryUrl('inspection-date', address.id));
       else if (datePage) navigate(`${base}/inspection${returnQuery}`);
       else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'application-review' ? '?from=application-review' : ''}`);
-    } catch (failure) { setErrors([{ id: 'inspection-heading', message: failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.' }]); }
+    } catch (failure) { const message = failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.'; setErrors([{ id: inspectionErrorField(message, addressPage, datePage), message }]); }
     finally { setSaving(false); }
   };
   const remove = async (id: string) => {

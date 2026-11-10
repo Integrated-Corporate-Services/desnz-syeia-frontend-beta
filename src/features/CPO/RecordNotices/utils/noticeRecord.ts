@@ -12,6 +12,25 @@ export const validNoticeDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(val
 /** UK postcode regex pattern */
 export const UK_POSTCODE_REGEX = /^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$/i;
 
+// Server-side save failures must target a rendered field so the summary link focuses it and the field shows an inline error and border.
+export const noticeErrorField = (step: string, message: string, hasCategory: boolean) => {
+  if (step === 'online') return 'notice-location';
+  if (step === 'website') return /date|live/i.test(message) ? 'liveDate-day' : 'notice-location';
+  if (step === 'newspapers' && /date/i.test(message)) return /second/i.test(message) ? 'secondDate-day' : 'firstDate-day';
+  if ((step === 'site' || step === 'people') && /date/i.test(message)) return 'completionDate-day';
+  return hasCategory ? 'file-upload-input' : 'notices-heading';
+};
+
+export const inspectionErrorField = (message: string, addressPage: boolean, datePage: boolean) => {
+  if (addressPage) {
+    if (/postcode/i.test(message)) return 'postcode';
+    if (/town|city/i.test(message)) return 'townCity';
+    if (/line 1|line1|street/i.test(message)) return 'line1';
+  }
+  if (datePage && /date/i.test(message)) return 'inspection-date-day';
+  return 'inspection-heading';
+};
+
 export const publicationDateForFile = (fileId: string, index: number, answer: NoticeAnswer, previous?: NoticeAnswer) => {
   const previousDate = previous?.evidence?.find(entry => entry.fileId === fileId)?.date;
   const previousDates = [...new Set(previous?.evidence?.map(entry => entry.date).filter(Boolean) || [])].sort();
