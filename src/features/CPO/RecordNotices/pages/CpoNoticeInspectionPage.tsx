@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { UK_POSTCODE_REGEX, isValidNoticeDate } from '../utils/noticeRecord';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import DateInput from '../components/DateInput';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { InspectionAddress, NoticesResponse } from '../types/notices';
-import { inspectionAddresses, inspectionAddressText, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
+import { inspectionAddresses, inspectionAddressText, inspectionErrorField, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
 
 const emptyAddress = (): InspectionAddress => ({ id: crypto.randomUUID(), line1: '', line2: '', townCity: '', county: '', postcode: '', from: '' });
 type FormError = { id: string; message: string };
@@ -58,8 +59,10 @@ const CpoNoticeInspectionPage: React.FC = () => {
       for (const [id, label] of [['line1', 'address line 1'], ['townCity', 'town or city'], ['postcode', 'postcode']] as const) {
         if (!address[id]?.trim()) problems.push({ id, message: `Enter ${label}` });
       }
-    } else if (datePage && !validNoticeDate(address.from))     problems.push({ id: 'inspection-date-day', message: 'Enter the date the order documents were made available for inspection' });
-    else if (!addressPage && !datePage && !later && (!list.length || list.some(item => !validNoticeDate(item.from)))) problems.push({ id: 'inspection-heading', message: list.length ? 'Enter an availability date for every inspection address' : 'Add at least one inspection address' });
+    } else if (datePage) {
+      const dateResult = isValidNoticeDate(address.from);
+      if (!dateResult.valid) problems.push({ id: 'inspection-date-day', message: dateResult.message || 'Enter the date the order documents were made available for inspection' });
+    } else if (!addressPage && !datePage && !later && (!list.length || list.some(item => { const r = isValidNoticeDate(item.from); return !r.valid; }))) problems.push({ id: 'inspection-heading', message: list.length ? 'Enter an availability date for every inspection address' : 'Add at least one inspection address' });
     if (problems.length) { setErrors(problems); return; }
     setSaving(true); setErrors([]);
     try {
@@ -71,7 +74,7 @@ const CpoNoticeInspectionPage: React.FC = () => {
       else if (addressPage) navigate(entryUrl('inspection-date', address.id));
       else if (datePage) navigate(`${base}/inspection${returnQuery}`);
       else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'application-review' ? '?from=application-review' : ''}`);
-    } catch (failure) { setErrors([{ id: 'inspection-heading', message: failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.' }]); }
+    } catch (failure) { const message = failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.'; setErrors([{ id: inspectionErrorField(message, addressPage, datePage), message }]); }
     finally { setSaving(false); }
   };
   const remove = async (id: string) => {

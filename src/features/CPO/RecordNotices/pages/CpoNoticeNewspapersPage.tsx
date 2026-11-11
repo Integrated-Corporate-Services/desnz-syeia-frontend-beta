@@ -11,7 +11,7 @@ import { NOTICE_CATEGORIES, NOTICE_HEADINGS, NOTICE_LABELS, NOTICE_STEPS } from 
 import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../types/notices';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
-import { inspectionAddresses, inspectionAddressText, noticeDateText, publicationDateForFile } from '../utils/noticeRecord';
+import { inspectionAddresses, inspectionAddressText, noticeDateText, noticeDateError, noticeErrorField, publicationDateForFile } from '../utils/noticeRecord';
 
 const formatDate = (value?: string) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value))
   ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : 'Not recorded';
@@ -97,8 +97,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
       if (step === 'newspapers') {
         const label = key === 'firstDate' ? 'First' : 'Second';
         if (!value) { if (!saveForLater) localErrors.push({ id: `${key}-day`, message: `Enter the ${label.toLowerCase()} date the newspaper notice appeared` }); }
-        else if (!validDate(value)) localErrors.push({ id: `${key}-day`, message: `${label} date the notice appeared must include a day, month and year` });
-        else if (!saveForLater && value > todayLocalIsoDate()) localErrors.push({ id: `${key}-day`, message: `${label} date the notice appeared cannot be in the future` });
+        else { const message = noticeDateError(step, key, value, ''); if (message) localErrors.push({ id: `${key}-day`, message }); else if (!saveForLater && value > todayLocalIsoDate()) localErrors.push({ id: `${key}-day`, message: `${label} date the notice appeared cannot be in the future` }); }
         continue;
       }
       if (((!saveForLater && step !== 'people') || answer[key]) && !validDate(value)) localErrors.push({ id: `${key}-day`, message: `Enter a valid ${key === 'liveDate' ? 'notice live' : 'completion'} date` });
@@ -121,7 +120,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
       if (saveForLater) { navigate('/application-dashboard'); return; }
       if (step === 'check') navigate(`${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
       else navigate(`${base}/${searchParams.get('from') === 'check' || fromApplicationReview ? 'check' : step === 'website' ? 'site' : NOTICE_STEPS[NOTICE_STEPS.indexOf(step) + 1]}${fromApplicationReview ? '?from=application-review' : ''}`);
-    } catch (failure) { setErrors([{ id: category ? 'file-upload-input' : 'notices-heading', message: failure instanceof Error ? failure.message : 'Unable to save your publicity record. Try again.' }]); }
+    } catch (failure) { const message = failure instanceof Error ? failure.message : 'Unable to save your publicity record. Try again.'; setErrors([{ id: noticeErrorField(step, message, !!category), message }]); }
     finally { setSaving(false); }
   };
   const textInput = (label: string, key: 'address' | 'url') => <div className={`govuk-form-group${errorFor('notice-location') ? ' govuk-form-group--error' : ''}`}>

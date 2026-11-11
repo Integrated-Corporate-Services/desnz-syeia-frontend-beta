@@ -11,7 +11,7 @@ import { NOTICE_CATEGORIES, NOTICE_HEADINGS, NOTICE_LABELS, NOTICE_STEPS } from 
 import type { NoticeAnswer, NoticesResponse, NoticeStep } from '../types/notices';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import '../../styles/cpo.css';
-import { inspectionAddresses, inspectionAddressText, noticeDateText, publicationDateForFile } from '../utils/noticeRecord';
+import { inspectionAddresses, inspectionAddressText, noticeDateText, noticeDateError, noticeErrorField, publicationDateForFile } from '../utils/noticeRecord';
 
 const formatDate = (value?: string) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value))
   ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : 'Not recorded';
@@ -87,7 +87,11 @@ const CpoNoticeWebsitePage: React.FC = () => {
     if (uploadRef.current?.isBusy()) { setErrors([{ id: 'file-upload-input', message: 'Wait for uploads and virus checks to finish before continuing' }]); return; }
     const localErrors: FormError[] = [];
     const dateKeys = step === 'newspapers' ? ['firstDate', 'secondDate'] as const : step === 'website' ? ['liveDate'] as const : step === 'site' || step === 'people' ? ['completionDate'] as const : [];
-    for (const key of dateKeys) if (((!saveForLater && step !== 'people') || answer[key]) && !validDate(answer[key] || '')) localErrors.push({ id: `${key}-day`, message: `Enter a valid ${key === 'firstDate' ? 'first publication' : key === 'secondDate' ? 'second publication' : key === 'liveDate' ? 'notice live' : 'completion'} date` });
+    for (const key of dateKeys) {
+      if (!((!saveForLater && step !== 'people') || answer[key])) continue;
+      const message = noticeDateError(step, key, answer[key] || '', step === 'site' ? 'Enter the most recent date the site notices were displayed' : 'Enter a valid notice live date');
+      if (message) localErrors.push({ id: `${key}-day`, message });
+    }
     if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address where the order and maps can be viewed' });
     if (localErrors.length) { setErrors(localErrors); return; }
     setSaving(true); setErrors([]);
@@ -106,7 +110,7 @@ const CpoNoticeWebsitePage: React.FC = () => {
       if (saveForLater) { navigate('/application-dashboard'); return; }
       if (step === 'check') navigate(`${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
       else navigate(`${base}/${searchParams.get('from') === 'check' || fromApplicationReview ? 'check' : step === 'website' ? 'site' : NOTICE_STEPS[NOTICE_STEPS.indexOf(step) + 1]}${fromApplicationReview ? '?from=application-review' : ''}`);
-    } catch (failure) { setErrors([{ id: category ? 'file-upload-input' : 'notices-heading', message: failure instanceof Error ? failure.message : 'Unable to save your publicity record. Try again.' }]); }
+    } catch (failure) { const message = failure instanceof Error ? failure.message : 'Unable to save your publicity record. Try again.'; setErrors([{ id: noticeErrorField(step, message, !!category), message }]); }
     finally { setSaving(false); }
   };
   const textInput = (label: string, key: 'address' | 'url') => <div className={`govuk-form-group${errorFor('notice-location') ? ' govuk-form-group--error' : ''}`}>

@@ -163,7 +163,8 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
       const returnQuery = fromApplicationReview ? '?from=application-review' : fromCheck && next !== 'check' ? '?from=check' : '';
       navigate(next ? `${base}/${next}${returnQuery}` : `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
     } catch (error) {
-      setErrors([{ id: 'order-heading', message: error instanceof Error ? error.message : 'Unable to save order details. Try again.' }]);
+      const fieldId = step === 'name' ? 'orderName' : step === 'purpose' ? 'purpose' : step === 'special-land' ? 'special-land-yes' : step === 'related-applications' ? 'related-applications-yes' : 'order-heading';
+      setErrors([{ id: fieldId, message: error instanceof Error ? error.message : 'Unable to save order details. Try again.' }]);
     } finally { setSaving(false); }
   };
 
