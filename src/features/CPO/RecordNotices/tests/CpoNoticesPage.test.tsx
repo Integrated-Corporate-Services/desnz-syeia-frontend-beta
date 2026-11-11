@@ -89,6 +89,12 @@ describe('CPO notices journey', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'website', expect.objectContaining({ liveDate: '2026-10-14' }), false));
   });
+  it('rejects a site notice date in the future without saving', async () => {
+    renderStep('site'); await ready(); setDate('completionDate', '1', '1', '2099');
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(await screen.findAllByText('Date the site notices were displayed cannot be in the future')).not.toHaveLength(0);
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
+  });
   it('saves partial forms for later without completing the section', async () => {
     stored.record.inspection = { format: 'reference', addresses: [] };
     renderStep('inspection'); await readyLater(); fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));

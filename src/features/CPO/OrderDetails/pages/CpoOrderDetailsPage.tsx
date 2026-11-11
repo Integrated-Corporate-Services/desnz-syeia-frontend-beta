@@ -47,9 +47,11 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
     : COPY[step].heading;
 
   const documentsUrl = `${CPO_BASE_URL}/${applicationId}/order-documents${searchParams.get('return') === 'application-review' ? '?from=application-review' : ''}`;
-  const backUrl = fromOrderDocuments ? documentsUrl : fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
-    : step === 'purpose' ? base : step === 'check' ? `${base}/purpose${fromApplicationReview ? '?from=application-review' : ''}`
-      : `${CPO_BASE_URL}/${applicationId}/task-list`;
+  const backUrl = fromOrderDocuments ? documentsUrl
+    : step === 'check' && fromApplicationReview ? `${CPO_BASE_URL}/${applicationId}/check-and-submit`
+      : fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
+        : step === 'purpose' ? base : step === 'check' ? `${base}/purpose`
+          : `${CPO_BASE_URL}/${applicationId}/task-list`;
 
   useBreadcrumb(<Link className="govuk-back-link" to={backUrl}>Back</Link>);
 

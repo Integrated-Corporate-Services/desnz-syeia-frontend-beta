@@ -134,6 +134,14 @@ describe('CPO order documents journey', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
   });
+  it('links Back on the check page to the full application review when opened from it', async () => {
+    renderStep('check', '?from=application-review'); await ready();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
+  });
+  it('links Back on the check page to the last document step in the section journey', async () => {
+    renderStep('check'); await ready();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/order-documents/additional');
+  });
   it('reviews three document groups with downloadable files and Change links', async () => {
     renderStep('check');
     await ready();

@@ -246,6 +246,18 @@ describe('CPO order details journey', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
   });
 
+  it('links Back on the check page to the full application review when opened from it', async () => {
+    stored.orderName = 'North Ridge CPO'; stored.purpose = 'Acquire land and rights';
+    renderStep('check', '?from=application-review'); await ready();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
+  });
+
+  it('links Back on the check page to the purpose question in the section journey', async () => {
+    stored.orderName = 'North Ridge CPO'; stored.purpose = 'Acquire land and rights';
+    renderStep('check'); await ready();
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/order-details/purpose');
+  });
+
   it('keeps the user on the page when saving fails', async () => {
     stored.orderName = 'Order';
     vi.mocked(cpoOrderDetailsService.save).mockRejectedValue(new Error('Unable to save'));

@@ -57,7 +57,8 @@ const CpoOrderDocumentsCheckPage: React.FC = () => {
   const editable = true;
   const category = step === 'check' ? '' : DOCUMENT_CATEGORIES[step];
   const pageDocuments = data.documents.filter(document => step !== 'check' && DOCUMENT_GROUP_CATEGORIES[step].includes(document.category));
-  const backUrl = fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
+  const backUrl = step === 'check' && fromApplicationReview ? `${CPO_BASE_URL}/${applicationId}/check-and-submit`
+    : fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
     : step === 'order' ? `${CPO_BASE_URL}/${applicationId}/task-list` : `${base}/${DOCUMENT_STEPS[DOCUMENT_STEPS.indexOf(step) - 1]}${fromApplicationReview ? '?from=application-review' : ''}`;
   useBreadcrumb(<Link className="govuk-back-link" to={backUrl}>Back</Link>);
 
