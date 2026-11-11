@@ -11,7 +11,7 @@ export const FirUploadDecisionPage: React.FC = () => {
   const navigate = useNavigate();
   const [choice, setChoice] = useState<'yes' | 'no' | ''>('');
 
-  useBreadcrumb(<Link className="govuk-back-link" to={`${requestPath}/${requestId}/respond`}>Back</Link>);
+  useBreadcrumb(<Link className="govuk-back-link" to={requestPath}>Back</Link>);
 
   if (!applicationId || !requestId) return null;
 
