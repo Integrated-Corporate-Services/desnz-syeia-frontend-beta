@@ -1,11 +1,9 @@
 import { ADDITIONAL_PAYMENT_COPY as COPY, ADDITIONAL_PAYMENT_TITLES } from '../constants/additionalPayments';
 
-export function AdditionalPaymentStatus({ status, onRetry }: { status: 'withdrawn' | 'pending' | 'unconfirmed' | 'unavailable'; onRetry: () => void }) {
+export function AdditionalPaymentStatus({ status, onRetry }: { status: 'withdrawn' | 'unavailable'; onRetry: () => void }) {
   return <>
     {status !== 'unavailable' && <p className="govuk-body">{COPY[status]}</p>}
-    {(status === 'pending' || status === 'unavailable') && <button className="govuk-button" onClick={onRetry}>
-      {status === 'pending' ? 'Check payment status' : 'Try again'}
-    </button>}
+    {status === 'unavailable' && <button className="govuk-button" onClick={onRetry}>Try again</button>}
   </>;
 }
 

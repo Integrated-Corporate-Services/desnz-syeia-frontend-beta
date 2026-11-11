@@ -182,7 +182,11 @@ export function useAdditionalPayment() {
 
   const generating = busy && (step === 'required' || step === 'invoice');
   const amount = payment ? additionalPaymentAmount(payment.amount_pence) : ADDITIONAL_PAYMENT_COPY.amountUnavailable;
-  const pending = payment?.status === 'NOT_PAID' && (cardOutcome !== undefined && cardOutcome !== 'FAILED' || step === 'result' && (!verified || cardOutcome !== 'FAILED'));
+  const pending = payment?.status === 'NOT_PAID' && (
+    cardOutcome !== undefined && cardOutcome !== 'FAILED'
+    || step === 'result' && (!verified || cardOutcome !== 'FAILED')
+    || step === 'processing'
+  );
   const actionable = payment?.status === 'NOT_PAID' && verified && !pending && validAdditionalAmount(payment.amount_pence);
   const completed = payment?.status === 'PAID' || payment?.status === 'PROCESSING';
   const failed = !loading && verified && step === 'result' && payment?.status === 'NOT_PAID' && cardOutcome === 'FAILED';

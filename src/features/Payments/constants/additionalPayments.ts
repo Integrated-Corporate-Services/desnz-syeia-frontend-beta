@@ -20,10 +20,10 @@ export const ADDITIONAL_PAYMENT_ERRORS = {
 
 export const ADDITIONAL_PAYMENT_TITLES = {
   required: 'Payment required', loading: 'Loading additional payment...', checking: 'Checking your payment...',
-  withdrawn: 'Request withdrawn', pending: 'We could not confirm your payment', paid: 'Payment received',
+  withdrawn: 'Request withdrawn', paid: 'Payment received',
   processing: 'Processing additional payment', generating: 'Generating invoice...', invoice: 'Your invoice',
   'payment-method': 'Choose payment method', result: 'The payment was unsuccessful',
-  'bank-transfer': 'Pay by bank transfer', proof: 'Provide proof of payment', unconfirmed: 'Payment not confirmed',
+  'bank-transfer': 'Pay by bank transfer', proof: 'Provide proof of payment',
 };
 
 export const ADDITIONAL_PAYMENT_COPY = {
@@ -34,6 +34,7 @@ export const ADDITIONAL_PAYMENT_COPY = {
   generating: 'Please do not close this window or navigate away from this page while we generate your invoice.',
   cardRedirect: 'You will be redirected to a secure page to pay by credit or debit card.',
   fastest: 'This is the fastest way to pay and helps avoid any delays when processing your application.',
+  checkingPrevious: 'We are checking your previous payment. You cannot try to pay again until its status is confirmed.',
   alternative: 'I cannot pay by card and need another way to pay',
   bankAlternative: 'If you cannot pay by credit or debit card, you can pay by bank transfer (BACS).',
   bankProcessing: "Your additional payment's status will show as 'Processing additional payment' until we have reconciled your payment.",
@@ -47,8 +48,6 @@ export const ADDITIONAL_PAYMENT_COPY = {
   transactionLabel: 'Transaction number (optional)', transactionHint: 'Must contain only letters and numbers.',
   uploadHeading: 'Upload a document showing full details of the bank transfer (optional)', uploadTitle: 'Upload proof of payment (optional)',
   withdrawn: 'This additional payment request has been withdrawn. You do not need to make this payment.',
-  pending: 'Your payment has not yet been confirmed. Check its status before trying to pay again.',
-  unconfirmed: 'Your additional payment has not been confirmed. Return to the application summary to check its status.',
   noMoneyTaken: 'No money has been taken from your account.',
   failureReasons: ['your card details were incorrect', 'your card has expired', 'your card type is not accepted', 'your bank declined the payment', 'there was a temporary problem with the payment service'],
   retryPayment: 'You can try to pay by card again or return to your application summary. The additional payment request stays open until it is paid. Contact your bank if the payment fails again.',

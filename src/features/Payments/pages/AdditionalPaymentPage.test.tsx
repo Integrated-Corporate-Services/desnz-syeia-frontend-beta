@@ -32,35 +32,32 @@ function mount(step = '', form = 's-37', withLayout = false) {
 afterEach(() => { vi.unstubAllGlobals(); sessionStorage.clear(); });
 
 describe('additional payment pages', () => {
+  async function expectPaymentMethodsDisabled() {
+    expect(await screen.findByRole('heading', { name: 'Choose payment method' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Pay by card' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'I cannot pay by card and need another way to pay' }));
+    expect(screen.getByRole('button', { name: 'Pay by bank transfer' })).toBeDisabled();
+  }
   it('does not retry a successful card attempt while the request is still unpaid', async () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation(async (url: string) => ({ ok: true, json: async () => url.includes('payment-status') ? { status: 'NOT_PAID', card_outcome: 'SUCCEEDED' } : request })));
     mount('/payment-method');
-    expect(await screen.findByRole('button', { name: 'Check payment status' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Pay by card' })).not.toBeInTheDocument();
+    await expectPaymentMethodsDisabled();
+    expect(screen.getByText('We are checking your previous payment. You cannot try to pay again until its status is confirmed.')).toHaveAttribute('role', 'status');
   });
-  it('allows a BACS confirmation after a pending attempt is confirmed failed', async () => {
-    let outcome = 'PENDING';
-    const network = vi.fn().mockImplementation(async (url: string) => ({ ok: true, json: async () => url.includes('payment-status') ? { status: 'NOT_PAID', card_outcome: outcome } : url.endsWith('/bank-transfer') ? { ...request, status: 'PROCESSING', payment_method: 'BACS' } : request }));
+  it('allows a BACS confirmation when the provider confirms the previous attempt failed', async () => {
+    const network = vi.fn().mockImplementation(async (url: string) => ({ ok: true, json: async () => url.includes('payment-status') ? { status: 'NOT_PAID', card_outcome: 'FAILED' } : url.endsWith('/bank-transfer') ? { ...request, status: 'PROCESSING', payment_method: 'BACS' } : request }));
     vi.stubGlobal('fetch', network);
     mount('/proof');
-    const check = await screen.findByRole('button', { name: 'Check payment status' });
-    outcome = 'FAILED';
-    fireEvent.click(check);
     fireEvent.click(await screen.findByRole('button', { name: 'Confirm payment' }));
     await waitFor(() => expect(network.mock.calls.some(([url, options]) => url.endsWith('/bank-transfer') && options.method === 'POST')).toBe(true));
-    expect(network.mock.calls.filter(([url]) => url.includes('payment-status'))).toHaveLength(3);
+    expect(network.mock.calls.filter(([url]) => url.includes('payment-status'))).toHaveLength(2);
   });
-  it.each(['/payment-method', '/proof', '/invoice', ''])('checks pending attempts on reentry at %s until failure is confirmed', async step => {
+  it.each(['/payment-method', '/proof', '/invoice', '', '/processing'])('keeps the existing payment-method screen safe when an attempt is unresolved at %s', async step => {
     let outcome = 'PENDING';
     const network = vi.fn().mockImplementation(async (url: string) => ({ ok: true, json: async () => url.includes('payment-status') ? { status: 'NOT_PAID', card_outcome: outcome } : request }));
     vi.stubGlobal('fetch', network);
     mount(step);
-    expect(await screen.findByRole('button', { name: 'Check payment status' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Pay by card|Confirm payment|Generate invoice|Continue to payment/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Pay by bank transfer' })).not.toBeInTheDocument();
-    outcome = 'FAILED';
-    fireEvent.click(screen.getByRole('button', { name: 'Check payment status' }));
-    await waitFor(() => expect(screen.queryByRole('button', { name: 'Check payment status' })).not.toBeInTheDocument());
+    await expectPaymentMethodsDisabled();
     expect(network.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
   });
   it.each([['/payment-method', 'Pay by card'], ['/proof', 'Confirm payment'], ['', 'Generate invoice']])('rechecks the current attempt before %s mutations', async (step, action) => {
@@ -71,7 +68,7 @@ describe('additional payment pages', () => {
     const button = await screen.findByRole('button', { name: action });
     pending = true;
     fireEvent.click(button);
-    expect(await screen.findByRole('button', { name: 'Check payment status' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Choose payment method' })).toBeInTheDocument();
     expect(network.mock.calls.filter(([url]) => url.includes('payment-status'))).toHaveLength(2);
     expect(network.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
   });
@@ -110,9 +107,9 @@ describe('additional payment pages', () => {
   it('does not describe an ambiguous unpaid provider result as a failed payment', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => request }));
     mount('/result?payment_id=pending-payment');
-    expect(await screen.findByRole('button', { name: 'Check payment status' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Choose payment method' })).toBeInTheDocument();
     expect(screen.queryByText('No money has been taken from your account.')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Pay by card' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Pay by card' })).toBeDisabled();
   });
   it('scopes evidence uploads to the request-specific backend endpoints and prefix', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => request }));
