@@ -134,6 +134,8 @@ it('counts documents already uploaded in the category against the page limit', a
 
   await waitFor(() => expect(validation).toHaveBeenLastCalledWith(['You can upload no more than 1 site notice document.']));
   expect(ref.current?.getPendingFiles()).toEqual([]);
+});
+
 it('blocks confirmation synchronously while asynchronous selection validation is pending', async () => {
   let finish!: (value: Awaited<ReturnType<typeof validateFiles>>) => void;
   vi.mocked(validateFiles).mockReturnValue(new Promise(resolve => { finish = resolve; }));
