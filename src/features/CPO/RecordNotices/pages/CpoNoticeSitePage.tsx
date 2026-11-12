@@ -16,12 +16,16 @@ import { inspectionAddresses, inspectionAddressText, noticeDateText, noticeDateE
 const formatDate = (value?: string) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value))
   ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : 'Not recorded';
 const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+const todayLocalIsoDate = () => {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+};
 type FormError = { id: string; message: string };
 
 const CpoNoticeSitePage: React.FC = () => {
   const applicationId = useCpoApplicationId();
   const [searchParams] = useSearchParams();
-  const fromApplicationReview = searchParams.get('from') === 'application-review';
+  const fromApplicationReview = searchParams.get('from') === 'check-and-submit';
   const navigate = useNavigate();
   const location = useLocation();
   const legacyRequirements = location.pathname.endsWith('/notice-requirements');
@@ -50,7 +54,7 @@ const CpoNoticeSitePage: React.FC = () => {
     if (legacyRequirements) navigate(`${base}/requirements${location.search}`, { replace: true });
   }, [legacyRequirements, base, location.search, navigate]);
   const backUrl = searchParams.get('from') === 'check' || fromApplicationReview
-    ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
+    ? `${base}/check${fromApplicationReview ? '?from=check-and-submit' : ''}`
     : step === 'requirements' ? `${CPO_BASE_URL}/${applicationId}/task-list` : `${base}/${step === 'website' ? 'online' : NOTICE_STEPS[NOTICE_STEPS.indexOf(step) - 1]}`;
   useEffect(() => {
     let active = true;
@@ -92,6 +96,7 @@ const CpoNoticeSitePage: React.FC = () => {
       if (!((!saveForLater && step !== 'people') || answer[key])) continue;
       const message = noticeDateError(step, key, answer[key] || '', step === 'site' ? 'Enter the most recent date the site notices were displayed' : 'Enter a valid notice live date');
       if (message) localErrors.push({ id: `${key}-day`, message });
+      else if (!saveForLater && step === 'site' && (answer[key] || '') > todayLocalIsoDate()) localErrors.push({ id: `${key}-day`, message: 'Date the site notices were displayed cannot be in the future' });
     }
     if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address where the order and maps can be viewed' });
     if (localErrors.length) { setErrors(localErrors); return; }
@@ -110,7 +115,7 @@ const CpoNoticeSitePage: React.FC = () => {
       setData({ ...result }); setAnswer(nextAnswer);
       if (saveForLater) { navigate('/application-dashboard'); return; }
       if (step === 'check') navigate(`${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
-      else navigate(`${base}/${searchParams.get('from') === 'check' || fromApplicationReview ? 'check' : step === 'website' ? 'site' : NOTICE_STEPS[NOTICE_STEPS.indexOf(step) + 1]}${fromApplicationReview ? '?from=application-review' : ''}`);
+      else navigate(`${base}/${searchParams.get('from') === 'check' || fromApplicationReview ? 'check' : step === 'website' ? 'site' : NOTICE_STEPS[NOTICE_STEPS.indexOf(step) + 1]}${fromApplicationReview ? '?from=check-and-submit' : ''}`);
     } catch (failure) { const message = failure instanceof Error ? failure.message : 'Unable to save your publicity record. Try again.'; setErrors([{ id: noticeErrorField(step, message, !!category), message }]); }
     finally { setSaving(false); }
   };
@@ -240,8 +245,8 @@ const CpoNoticeSitePage: React.FC = () => {
         </>}
         {step === 'check' && <>
           <dl className="govuk-summary-list">
-            {inspectionAddresses(data.record.inspection).map((address, index) => <div className="govuk-summary-list__row" key={address.id}><dt className="govuk-summary-list__key">Inspection address {index + 1}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{inspectionAddressText(address)}<br />Available from {noticeDateText(address.from)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/inspection?from=${fromApplicationReview ? 'application-review' : 'check'}`}>Change<span className="govuk-visually-hidden"> inspection address {index + 1}</span></Link></dd></div>)}
-            {NOTICE_STEPS.filter(target => !['check', 'requirements', 'inspection'].includes(target)).map(target => <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{NOTICE_LABELS[target]}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{reviewValue(target)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'application-review' : 'check'}`}>Change<span className="govuk-visually-hidden"> {NOTICE_LABELS[target]?.toLowerCase()}</span></Link></dd></div>)}
+            {inspectionAddresses(data.record.inspection).map((address, index) => <div className="govuk-summary-list__row" key={address.id}><dt className="govuk-summary-list__key">Inspection address {index + 1}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{inspectionAddressText(address)}<br />Available from {noticeDateText(address.from)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/inspection?from=${fromApplicationReview ? 'check-and-submit' : 'check'}`}>Change<span className="govuk-visually-hidden"> inspection address {index + 1}</span></Link></dd></div>)}
+            {NOTICE_STEPS.filter(target => !['check', 'requirements', 'inspection'].includes(target)).map(target => <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{NOTICE_LABELS[target]}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{reviewValue(target)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'check-and-submit' : 'check'}`}>Change<span className="govuk-visually-hidden"> {NOTICE_LABELS[target]?.toLowerCase()}</span></Link></dd></div>)}
           </dl>
         </>}
         {editable && <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void submit(true)}>Save for later</button></div>}

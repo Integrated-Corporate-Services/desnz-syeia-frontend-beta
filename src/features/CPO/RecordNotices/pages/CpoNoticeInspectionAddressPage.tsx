@@ -83,7 +83,7 @@ const CpoNoticeInspectionAddressPage: React.FC = () => {
         if (!persistedAddress) throw new Error('Unable to find the saved inspection address. Return to the address list and try again.');
         navigate(entryUrl('inspection-date', persistedAddress.id));
       } else if (datePage) navigate(`${base}/inspection${returnQuery}`);
-      else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'application-review' ? '?from=application-review' : ''}`);
+      else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'check-and-submit' ? '?from=check-and-submit' : ''}`);
     } catch (failure) { const message = failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.'; setErrors([{ id: inspectionErrorField(message, addressPage, datePage), message }]); }
     finally { setSaving(false); }
   };
