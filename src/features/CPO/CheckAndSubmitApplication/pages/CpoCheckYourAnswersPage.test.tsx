@@ -111,6 +111,14 @@ describe('CPO check your answers', () => {
     expect(meeting.queryByText('Tell us why you don’t need this meeting')).not.toBeInTheDocument();
   });
 
+  it('shows No without a reason row when a meeting was requested', async () => {
+    mockApplication(application({ pre_submission_meeting_answer: 'No, I would like a pre-application meeting', pre_submission_meeting_reason: undefined }));
+    renderPage(); await ready();
+    const meeting = within(card('Pre-application meeting'));
+    expect(meeting.getByText('No')).toBeInTheDocument();
+    expect(meeting.queryByText('Tell us why you don’t need this meeting')).not.toBeInTheDocument();
+  });
+
   it('shows No and the reason when a meeting is not needed', async () => {
     mockApplication(application({ pre_submission_meeting_answer: 'No, I don’t need this meeting', pre_submission_meeting_reason: 'Discussed with the case officer.' }));
     renderPage(); await ready();
@@ -128,11 +136,11 @@ describe('CPO check your answers', () => {
 
   it('links each editable card to its check page and back to this review', async () => {
     renderPage(); await ready();
-    expect(screen.getByRole('link', { name: 'Change project overview' })).toHaveAttribute('href', '/cpo/app/project-overview?from=application-review');
-    expect(screen.getByRole('link', { name: 'Change executive summary' })).toHaveAttribute('href', '/cpo/app/executive-summary?from=application-review');
-    expect(screen.getByRole('link', { name: 'Change order details' })).toHaveAttribute('href', '/cpo/app/order-details/check?from=application-review');
-    expect(screen.getByRole('link', { name: 'Change order documents' })).toHaveAttribute('href', '/cpo/app/order-documents/check?from=application-review');
-    expect(screen.getByRole('link', { name: 'Change record your notices' })).toHaveAttribute('href', '/cpo/app/record-notices/check?from=application-review');
+    expect(screen.getByRole('link', { name: 'Change project overview' })).toHaveAttribute('href', '/cpo/app/project-overview?from=check-and-submit');
+    expect(screen.getByRole('link', { name: 'Change executive summary' })).toHaveAttribute('href', '/cpo/app/executive-summary?from=check-and-submit');
+    expect(screen.getByRole('link', { name: 'Change order details' })).toHaveAttribute('href', '/cpo/app/order-details/check?from=check-and-submit');
+    expect(screen.getByRole('link', { name: 'Change order documents' })).toHaveAttribute('href', '/cpo/app/order-documents/check?from=check-and-submit');
+    expect(screen.getByRole('link', { name: 'Change record your notices' })).toHaveAttribute('href', '/cpo/app/record-notices/check?from=check-and-submit');
   });
 
   it('lists uploaded document names with their notice dates', async () => {
