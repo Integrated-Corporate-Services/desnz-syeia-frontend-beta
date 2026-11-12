@@ -9,6 +9,7 @@ const logger = createLogger('FirSummaryCard');
 interface FirSummaryCardProps {
   applicationId: string;
   basePath: string;
+  placement?: 'top' | 'default';
 }
 
 const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
@@ -18,7 +19,7 @@ const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
   timeZone: 'UTC',
 }).format(new Date(date));
 
-export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, basePath }) => {
+export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, basePath, placement = 'default' }) => {
   const [requests, setRequests] = useState<FurtherInformationRequest[]>([]);
 
   useEffect(() => {
@@ -49,12 +50,13 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
   const openRequests = requests.filter((item) => item.status === 'OPEN');
   const openRequest = openRequests.find((item) => item.canRespond !== false) ?? openRequests[0];
   const sentToObjector = openRequest?.recipientType === 'OBJECTOR' && openRequest.canRespond === false;
+  const atTop = placement === 'top';
 
   return (
     <>
       {openRequest && (
         <>
-          <section className="govuk-summary-card govuk-!-margin-top-6" aria-labelledby="fir-summary-heading">
+          <section className={`govuk-summary-card ${atTop ? 'govuk-!-margin-top-0' : 'govuk-!-margin-top-6'}`} aria-labelledby="fir-summary-heading">
             <div className="govuk-summary-card__title-wrapper">
               <h2 className="govuk-summary-card__title" id="fir-summary-heading">
                 {sentToObjector ? 'Further information request sent to objector' : 'Further information request'}
@@ -91,6 +93,7 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
       {(requests.length > 1 || !openRequest) && (
         <p><Link className="govuk-link" to={basePath}>View all information requests</Link></p>
       )}
+      {atTop && <hr className="govuk-section-break govuk-section-break--l govuk-section-break--visible" />}
     </>
   );
 };
