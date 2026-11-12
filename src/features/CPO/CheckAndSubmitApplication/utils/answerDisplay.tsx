@@ -126,4 +126,4 @@ export const completedNotice = (
 };
 
 export const changeUrlFor = (base: string, path: string, editable: boolean) =>
-  editable ? `${base}/${path}?from=application-review` : undefined;
+  editable ? `${base}/${path}?from=check-and-submit` : undefined;
