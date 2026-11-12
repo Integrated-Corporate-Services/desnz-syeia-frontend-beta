@@ -91,6 +91,7 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
         <form onSubmit={submit} noValidate>
           {acceptsDocuments && selectedCategories.map((category) => (
             <div className="govuk-!-margin-bottom-6" key={category}>
+              <div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-4" aria-hidden="true" />
               <h2 className="govuk-heading-m govuk-!-margin-bottom-2">Upload {FIR_CATEGORY_LABELS[category] || category}</h2>
               <details className="govuk-details" data-module="govuk-details" open={(uploadedFilesByCategory[category]?.length ?? 0) > 0}>
                 <summary className="govuk-details__summary">
@@ -123,6 +124,9 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
               </details>
             </div>
           ))}
+          {acceptsDocuments && selectedCategories.length > 0 && (
+            <div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6" aria-hidden="true" />
+          )}
           <div className="govuk-form-group">
             <label className="govuk-label govuk-label--s" htmlFor="additional-information">
               Additional information{acceptsDocuments ? ' (optional)' : ''}

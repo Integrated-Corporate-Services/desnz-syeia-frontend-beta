@@ -93,7 +93,7 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
       {(requests.length > 1 || !openRequest) && (
         <p><Link className="govuk-link" to={basePath}>View all information requests</Link></p>
       )}
-      {atTop && <hr className="govuk-section-break govuk-section-break--l govuk-section-break--visible" />}
+      {atTop && <div className="govuk-section-break govuk-section-break--l govuk-section-break--visible" aria-hidden="true" />}
     </>
   );
 };
