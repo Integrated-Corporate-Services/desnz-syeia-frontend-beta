@@ -41,6 +41,7 @@ import ReviewPolesPage from '../features/sensitiveArea/page/ReviewPolesPage';
 import ReviewDocumentsPage from '../features/sensitiveArea/page/ReviewDocumentsPage';
 import RouteOverviewPage from '../features/RouteMap/page/RouteOverviewPage';
 import EIAFeesForm from '../features/EIAFees/pages/eiafeesform';
+import EiaReportUploadPage from '../features/EIAFees/pages/EiaReportUploadPage';
 import SupportingInfo from '../features/SupportingInfo/page/SupportingInfo';
 import RouteGuidancePage from '../features/RouteMap/page/RouteGuidancePage';
 import RouteDeletePage from '../features/RouteMap/page/RouteDeletePage';
@@ -879,6 +880,12 @@ export const ROUTE_CONFIG: RouteConfig[] = [
     {
         path: `${S37_BASE_URL}/:applicationId/eia-fees`,
         component: EIAFeesForm,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${S37_BASE_URL}/:applicationId/eia-fees/upload-eia-report`,
+        component: EiaReportUploadPage,
         auth: true,
         layout: true,
     },

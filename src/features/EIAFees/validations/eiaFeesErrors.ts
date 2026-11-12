@@ -1,11 +1,10 @@
 /**
- * EIA Fees Form - Error Types & Constants
- * Centralized error definitions for validation and API responses
+ * EIA Fees - Error Types & Constants (SYEIA-1485)
  */
 
 export enum EIAFeesErrorField {
-    IS_EIA_DEVELOPMENT = 'isEiaDevelopment',
-    SCREENING_ONLY = 'screeningOnly',
+    ASSESSMENT = 'assessment',
+    EIA_REPORT = 'eiaReport',
 }
 
 export interface ValidationError {
@@ -13,28 +12,15 @@ export interface ValidationError {
     message: string;
 }
 
-/**
- * Error messages for form validation
- */
 export const EIA_FEES_ERROR_MESSAGES = {
-    IS_EIA_DEVELOPMENT: {
-        REQUIRED: "Select 'Yes' or 'No'",
-        INVALID_WHEN_SCREENING_NO: "Select 'Yes' or 'No'",
+    ASSESSMENT: {
+        REQUIRED: 'Select an assessment option',
     },
-    SCREENING_ONLY: {
-        REQUIRED: "Select 'Yes' or 'No'",
-        REQUIRED_WHEN_EIA_TRUE: "Select 'Yes' or 'No'",
+    EIA_REPORT: {
+        REQUIRED: 'Select a file to upload',
     },
     API: {
         SUBMIT_FAILED: 'Failed to submit EIA Fees. Please try again.',
         UNKNOWN_ERROR: 'An unexpected error occurred. Please try again.',
     },
-};
-
-/**
- * Field-to-message mapper for easy access
- */
-export const getErrorMessage = (field: string, errorType: string = 'REQUIRED'): string => {
-    const fieldConfig = (EIA_FEES_ERROR_MESSAGES as Record<string, Record<string, string>>)[field];
-    return fieldConfig ? fieldConfig[errorType] || 'Validation error' : 'Validation error';
 };

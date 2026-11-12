@@ -7,6 +7,8 @@ import { getCsrfHeaders } from '../utils/csrf';
 import { EiaFees } from '../types/eiaFees';
 import log from '../logger';
 
+const EIA_SCREENING_VOLTAGE_KV = 132;
+
 // Payload for creating EIA Fee
 export interface CreateEiaFeePayload {
   eiaId: string;
@@ -40,7 +42,12 @@ export const fetchEiaFeesDetails = async (applicationId: string): Promise<EiaFee
     const data = await response.json();
     // If backend returns { applicationId, eiaFees: [ ... ] }, flatten to first eiaFees item
     if (data && Array.isArray(data.eiaFees)) {
-      return { ...data.eiaFees[0], applicationId: data.applicationId };
+      return {
+        ...data.eiaFees[0],
+        applicationId: data.applicationId,
+        uploadedFiles: data.uploadedFiles ?? [],
+        applicationDocuments: data.applicationDocuments ?? [],
+      };
     }
     // If backend returns a flat object, just return it
     return data;
@@ -48,6 +55,22 @@ export const fetchEiaFeesDetails = async (applicationId: string): Promise<EiaFee
     log.error('[fetchEiaFeesDetails] Error fetching EIA Fees details:', error);
     throw error;
   }
+};
+
+export interface EiaScreeningRequirement {
+  highVoltage: boolean;
+  sensitiveArea: boolean;
+}
+
+// SYEIA-1485: screening is mandatory for a line of 132kV or higher, or a route through a chargeable sensitive area.
+export const fetchEiaScreeningRequirement = async (applicationId: string): Promise<EiaScreeningRequirement> => {
+  const response = await fetch(buildBackendUrl(`/api/applications/${applicationId}/fees`), { credentials: 'include' });
+  if (!response.ok) throw new Error('Failed to fetch EIA screening requirement');
+  const { breakdown } = await response.json();
+  return {
+    highVoltage: (breakdown?.voltageValue ?? 0) >= EIA_SCREENING_VOLTAGE_KV,
+    sensitiveArea: breakdown?.hasChargeableSensitiveArea === true,
+  };
 };
 
 // Service to create EIA Fee via POST

@@ -40,7 +40,6 @@ import {
   EMPTY_VALUE,
   POST_CONSULTATION_QUESTIONS,
   SUPPORTING_INFO_QUESTIONS,
-  EIA_QUESTIONS,
   COMMON_TEXT
 } from '../constants/applicationSummaryLabels';
 
@@ -56,6 +55,7 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { ApplicationReassignmentLinks } from '../../ApplicationReassignment/components/ApplicationReassignmentLinks';
 import { ReassignmentSuccessBanner } from '../../ApplicationReassignment/components/ReassignmentSuccessBanner';
 import { useAssignmentHistory } from '../../ApplicationReassignment/hooks/useAssignmentHistory';
+import EiaFeesSummaryCard from '../../EIAFees/component/EiaFeesSummaryCard';
 
 const ApplicationSummary: React.FC = () => {
   const logger = useMemo(() => createLogger("ApplicationSummary"), []);
@@ -148,6 +148,7 @@ const ApplicationSummary: React.FC = () => {
     SupportingDocument[]
   >([]);
   const [eiaFees, setEiaFees] = useState<EIAFees | null>(null);
+  const [eiaReportNames, setEiaReportNames] = useState<string[]>([]);
   const [worksOverview, setWorksOverview] = useState<WorksOverview | null>(
     null,
   );
@@ -398,6 +399,11 @@ const ApplicationSummary: React.FC = () => {
           data.sections?.supportingInformation?.supportingDocuments || [],
         );
         setEiaFees(data.sections?.supportingInformation?.eiaFees || null);
+        setEiaReportNames(
+          (data.sections?.supportingInformation?.eiaReportDocuments || [])
+            .map((doc: { title?: string }) => doc.title)
+            .filter(Boolean),
+        );
         // Set consultations data
         setConsultations(
           Array.isArray(data.sections?.consultations)
@@ -1422,47 +1428,12 @@ const ApplicationSummary: React.FC = () => {
                 </dl>
               </div>
             </div>
-            {/* EIA fees summary card - updated to use eiaFees from state */}
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">{SECTION_HEADINGS.EIA_FEES}</h2>
-
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {EIA_QUESTIONS.REQUIRES_FULL_EIA}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {eiaFees &&
-                        typeof eiaFees.is_eia_development !== "undefined"
-                        ? eiaFees.is_eia_development
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      {EIA_QUESTIONS.SCREENING_ONLY}
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {eiaFees &&
-                        typeof eiaFees.is_eia_development !== "undefined" &&
-                        !eiaFees.is_eia_development
-                        ? "No"
-                        : eiaFees &&
-                          typeof eiaFees.screening_only !== "undefined"
-                          ? eiaFees.screening_only
-                            ? "Yes"
-                            : "No"
-                          : "-"}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
+            <EiaFeesSummaryCard
+              title={SECTION_HEADINGS.EIA_FEES}
+              isEiaDevelopment={eiaFees?.is_eia_development}
+              screeningOnly={eiaFees?.screening_only}
+              reportNames={eiaReportNames}
+            />
             <h2 className="govuk-heading-m">{SECTION_HEADINGS.CONSULTATION}</h2>
             {consultations
               .filter(c => c.status === "Not required")
