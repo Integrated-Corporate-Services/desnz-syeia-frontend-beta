@@ -233,22 +233,22 @@ describe('CPO order details journey', () => {
 
   it('preserves the full application review path after changing the purpose', async () => {
     stored.purpose = 'Existing purpose';
-    renderStep('purpose', '?from=application-review'); await ready();
+    renderStep('purpose', '?from=check-and-submit'); await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-details/check?from=application-review'));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-details/check?from=check-and-submit'));
   });
 
   it('returns confirmed order details to the full application review', async () => {
     stored.orderName = 'North Ridge CPO'; stored.purpose = 'Acquire land and rights';
-    renderStep('check', '?from=application-review'); await ready();
-    expect(screen.getByRole('link', { name: 'Change enter the order title' })).toHaveAttribute('href', '/cpo/application-id/order-details/name?from=application-review');
+    renderStep('check', '?from=check-and-submit'); await ready();
+    expect(screen.getByRole('link', { name: 'Change enter the order title' })).toHaveAttribute('href', '/cpo/application-id/order-details/name?from=check-and-submit');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
   });
 
   it('links Back on the check page to the full application review when opened from it', async () => {
     stored.orderName = 'North Ridge CPO'; stored.purpose = 'Acquire land and rights';
-    renderStep('check', '?from=application-review'); await ready();
+    renderStep('check', '?from=check-and-submit'); await ready();
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
   });
 
@@ -298,9 +298,9 @@ describe('CPO order details journey', () => {
   });
 
   it('preserves the document return path through the exchange-land question', async () => {
-    renderStep('special-land', '?from=order-documents&return=application-review'); await ready();
+    renderStep('special-land', '?from=order-documents&return=check-and-submit'); await ready();
     fireEvent.click(screen.getByLabelText('Yes'));
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-details/exchange-land?from=order-documents&return=application-review'));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-details/exchange-land?from=order-documents&return=check-and-submit'));
   });
 });

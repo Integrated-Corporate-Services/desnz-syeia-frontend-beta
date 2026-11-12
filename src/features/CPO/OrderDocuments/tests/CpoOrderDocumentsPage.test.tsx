@@ -124,18 +124,18 @@ describe('CPO order documents journey', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-documents/check'));
   });
   it('preserves the full application return path while checking changed documents', async () => {
-    renderStep('maps', '?from=application-review'); await ready();
+    renderStep('maps', '?from=check-and-submit'); await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-documents/check?from=application-review'));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-documents/check?from=check-and-submit'));
   });
   it('returns confirmed documents to the full application review', async () => {
-    renderStep('check', '?from=application-review'); await ready();
-    expect(screen.getByRole('link', { name: 'Change the order documents' })).toHaveAttribute('href', '/cpo/application-id/order-documents/order?from=application-review');
+    renderStep('check', '?from=check-and-submit'); await ready();
+    expect(screen.getByRole('link', { name: 'Change the order documents' })).toHaveAttribute('href', '/cpo/application-id/order-documents/order?from=check-and-submit');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
   });
   it('links Back on the check page to the full application review when opened from it', async () => {
-    renderStep('check', '?from=application-review'); await ready();
+    renderStep('check', '?from=check-and-submit'); await ready();
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
   });
   it('links Back on the check page to the last document step in the section journey', async () => {

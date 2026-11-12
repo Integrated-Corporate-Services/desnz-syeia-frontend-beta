@@ -27,7 +27,7 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   const step: OrderStep = fixedStep ?? (ORDER_STEPS.includes(orderStep as OrderStep) ? orderStep as OrderStep : 'name');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const fromApplicationReview = searchParams.get('from') === 'application-review';
+  const fromApplicationReview = searchParams.get('from') === 'check-and-submit';
   const fromOrderDocuments = searchParams.get('from') === 'order-documents';
   const fromCheck = searchParams.get('from') === 'check' || fromApplicationReview;
   const editId = searchParams.get('edit');
@@ -46,10 +46,10 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
     ? `You have added ${details.relatedApplications.length} related application${details.relatedApplications.length === 1 ? '' : 's'}`
     : COPY[step].heading;
 
-  const documentsUrl = `${CPO_BASE_URL}/${applicationId}/order-documents${searchParams.get('return') === 'application-review' ? '?from=application-review' : ''}`;
+  const documentsUrl = `${CPO_BASE_URL}/${applicationId}/order-documents${searchParams.get('return') === 'check-and-submit' ? '?from=check-and-submit' : ''}`;
   const backUrl = fromOrderDocuments ? documentsUrl
     : step === 'check' && fromApplicationReview ? `${CPO_BASE_URL}/${applicationId}/check-and-submit`
-      : fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
+      : fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=check-and-submit' : ''}`
         : step === 'purpose' ? base : step === 'check' ? `${base}/purpose`
           : `${CPO_BASE_URL}/${applicationId}/task-list`;
 
@@ -90,7 +90,7 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   const update = (changes: Partial<OrderDetails>) => setDetails((current) => ({ ...current, ...changes }));
   const errorFor = (id: string) => errors.find((error) => error.id === id)?.message;
   const inlineError = (id: string) => errorFor(id) && <p className="govuk-error-message" id={`${id}-error`}><span className="govuk-visually-hidden">Error:</span> {errorFor(id)}</p>;
-  const changeUrl = (target: OrderStep) => `${base}/${target}?from=${fromApplicationReview ? 'application-review' : 'check'}`;
+  const changeUrl = (target: OrderStep) => `${base}/${target}?from=${fromApplicationReview ? 'check-and-submit' : 'check'}`;
 
   const choices = (id: string, value: boolean | null, onChange: (answer: boolean) => void, title: string, visibleLegend = false) => (
     <div className={`govuk-form-group${errorFor(`${id}-yes`) ? ' govuk-form-group--error' : ''}`}>
@@ -171,7 +171,7 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
       if (fromCheck && !['related-applications', 'add-related-application', 'related-applications-list', 'check'].includes(step)) {
         next = step === 'special-land' && result.details.includesSpecialLand === true && result.details.exchangeLand === null ? 'exchange-land' : 'check';
       }
-      const returnQuery = fromApplicationReview ? '?from=application-review' : fromCheck && next !== 'check' ? '?from=check' : '';
+      const returnQuery = fromApplicationReview ? '?from=check-and-submit' : fromCheck && next !== 'check' ? '?from=check' : '';
       navigate(next ? `${base}/${next}${returnQuery}` : `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}`);
     } catch (error) {
       const fieldId = step === 'name' ? 'orderName' : step === 'purpose' ? 'purpose' : step === 'special-land' ? 'special-land-yes' : step === 'related-applications' ? 'related-applications-yes' : 'order-heading';
@@ -230,7 +230,7 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
             <dl className="govuk-summary-list">{details.relatedApplications.map((entry) => <div className="govuk-summary-list__row" key={entry.id}>
               <dt className="govuk-summary-list__key">{entry.type === 'OTHER' ? entry.otherType || 'Other' : RELATED_TYPE_LABELS[entry.type]}</dt>
               <dd className="govuk-summary-list__value">{[entry.reference, entry.siteAddress, entry.relationship].filter(Boolean).join(' - ') || 'Not answered'}</dd>
-              <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/add-related-application?edit=${entry.id}${fromCheck ? `&from=${fromApplicationReview ? 'application-review' : 'check'}` : ''}`}>Change<span className="govuk-visually-hidden"> related application {entry.reference || entry.type}</span></Link></dd>
+              <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/add-related-application?edit=${entry.id}${fromCheck ? `&from=${fromApplicationReview ? 'check-and-submit' : 'check'}` : ''}`}>Change<span className="govuk-visually-hidden"> related application {entry.reference || entry.type}</span></Link></dd>
             </div>)}</dl>
             {choices('add-another', addAnother, setAddAnother, 'Do you need to add another related application?', true)}
           </>}
