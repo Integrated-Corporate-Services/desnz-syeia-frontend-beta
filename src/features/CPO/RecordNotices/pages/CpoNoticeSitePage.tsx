@@ -16,6 +16,10 @@ import { inspectionAddresses, inspectionAddressText, noticeDateText, noticeDateE
 const formatDate = (value?: string) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value))
   ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : 'Not recorded';
 const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+const todayLocalIsoDate = () => {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+};
 type FormError = { id: string; message: string };
 
 const CpoNoticeSitePage: React.FC = () => {
@@ -91,7 +95,11 @@ const CpoNoticeSitePage: React.FC = () => {
     for (const key of dateKeys) {
       if (!((!saveForLater && step !== 'people') || answer[key])) continue;
       const message = noticeDateError(step, key, answer[key] || '', step === 'site' ? 'Enter the most recent date the site notices were displayed' : 'Enter a valid notice live date');
-      if (message) localErrors.push({ id: `${key}-day`, message });
+      if (message) {
+        localErrors.push({ id: `${key}-day`, message });
+      } else if (step === 'site' && !saveForLater && answer[key] && answer[key] > todayLocalIsoDate()) {
+        localErrors.push({ id: `${key}-day`, message: 'Date the site notices were displayed cannot be in the future' });
+      }
     }
     if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address where the order and maps can be viewed' });
     if (localErrors.length) { setErrors(localErrors); return; }
