@@ -24,6 +24,7 @@ export function AdditionalPaymentContent({ flow, back }: { flow: AdditionalPayme
       ? actions(LABELS.continuePayment, () => goTo('payment-method'))
       : actions(LABELS.generateInvoice, () => void flow.invoice())} />;
     case 'payment-method': return <AdditionalPaymentMethod amount={amount} pending={flow.pending} disabled={busy || !actionable}
+      onCheckStatus={flow.retry}
       onBankTransfer={() => goTo('bank-transfer')} actions={actions(busy ? LABELS.processing : LABELS.payByCard, () => void flow.card())} />;
     case 'result': return <AdditionalPaymentFailed actions={actions(busy ? LABELS.processing : LABELS.payByCard, () => void flow.card())} />;
     case 'bank-transfer': return <AdditionalPaymentBankTransfer amount={amount} invoiceNumber={payment?.invoice?.invoice_number}

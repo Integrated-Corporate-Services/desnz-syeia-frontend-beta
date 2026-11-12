@@ -67,7 +67,7 @@ export const ADDITIONAL_PAYMENT_RECEIPT_COPY = {
 };
 
 export const ADDITIONAL_PAYMENT_LABELS = {
-  generateInvoice: 'Generate invoice', continuePayment: 'Continue to payment', processing: 'Processing...',
+  generateInvoice: 'Generate invoice', continuePayment: 'Continue to payment', processing: 'Processing...', checkStatus: 'Check payment status',
   payByCard: 'Pay by card', saveContinue: 'Save and continue', confirming: 'Confirming...', confirmPayment: 'Confirm payment',
   viewSummary: 'View application summary', returnSummary: 'Return to application summary', backSummary: 'Back to application summary',
   problem: 'There is a problem', applications: 'Applications', applicationSummary: 'Application summary',

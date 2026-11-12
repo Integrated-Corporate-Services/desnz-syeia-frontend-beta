@@ -44,6 +44,28 @@ describe('additional payment pages', () => {
     await expectPaymentMethodsDisabled();
     expect(screen.getByText('We are checking your previous payment. You cannot try to pay again until its status is confirmed.')).toHaveAttribute('role', 'status');
   });
+  it('lets applicants recheck an unresolved payment and keeps payment actions locked until verification resolves', async () => {
+    let finishRecheck!: (response: { ok: boolean; json: () => Promise<unknown> }) => void;
+    const recheck = new Promise<{ ok: boolean; json: () => Promise<unknown> }>(resolve => { finishRecheck = resolve; });
+    let statusChecks = 0;
+    const network = vi.fn().mockImplementation(async (url: string) => {
+      if (url.includes('payment-status')) {
+        statusChecks++;
+        if (statusChecks === 2) return recheck;
+        return { ok: true, json: async () => ({ status: 'NOT_PAID', card_outcome: 'PENDING' }) };
+      }
+      return { ok: true, json: async () => request };
+    });
+    vi.stubGlobal('fetch', network);
+    mount('/payment-method');
+    await expectPaymentMethodsDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Check payment status' }));
+    await waitFor(() => expect(statusChecks).toBe(2));
+    expect(screen.queryByRole('button', { name: 'Pay by card' })).not.toBeInTheDocument();
+    finishRecheck({ ok: true, json: async () => ({ status: 'NOT_PAID', card_outcome: 'FAILED' }) });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Pay by card' })).toBeEnabled());
+    expect(network.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
+  });
   it('allows a BACS confirmation when the provider confirms the previous attempt failed', async () => {
     const network = vi.fn().mockImplementation(async (url: string) => ({ ok: true, json: async () => url.includes('payment-status') ? { status: 'NOT_PAID', card_outcome: 'FAILED' } : url.endsWith('/bank-transfer') ? { ...request, status: 'PROCESSING', payment_method: 'BACS' } : request }));
     vi.stubGlobal('fetch', network);
