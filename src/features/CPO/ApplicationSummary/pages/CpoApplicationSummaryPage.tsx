@@ -26,7 +26,9 @@ const CpoApplicationSummaryPage: React.FC = () => {
 
   const status = data ? getApplicationStatusDisplay(data.application.status) : null;
   const reference = data?.application.desnz_ref || data?.notices.reference || '';
-  const canWithdraw = data?.application.permissions?.canWithdraw === true && !withdrawalLoading && !withdrawalFailed && !withdrawalRequest;
+  // As on S37 and NWL, a rejected request lets the applicant ask again; a pending or approved one does not.
+  const canWithdraw = data?.application.permissions?.canWithdraw === true && !withdrawalLoading && !withdrawalFailed
+    && (!withdrawalRequest || withdrawalRequest.request_status === 'Rejected');
 
   return <>
     <PageTitle title={`${error ? 'Error: ' : ''}${HEADING}`} />
@@ -52,7 +54,7 @@ const CpoApplicationSummaryPage: React.FC = () => {
             </div>
             {data.order.details.orderName && <div className="govuk-summary-list__row">
               <dt className="govuk-summary-list__key">Order title</dt>
-              <dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{data.order.details.orderName}</dd>
+              <dd className="govuk-summary-list__value govuk-!-text-break-word">{data.order.details.orderName}</dd>
             </div>}
             {data.notices.finalObjectionDate && <div className="govuk-summary-list__row">
               <dt className="govuk-summary-list__key">Objection period</dt>

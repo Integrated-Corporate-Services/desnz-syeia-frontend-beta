@@ -164,17 +164,19 @@ describe('CPO application summary', () => {
     expect(screen.queryByRole('button', { name: 'Withdraw application' })).not.toBeInTheDocument();
   });
 
-  it('shows the not approved banner once a withdrawal request is rejected', async () => {
+  it('shows the not approved banner and offers Withdraw application again once a withdrawal request is rejected', async () => {
     vi.mocked(applicationApiService.getWithdrawalRequest).mockResolvedValue({ success: true, data: { request_status: 'Rejected' } });
     renderPage(); await ready();
     expect(await screen.findByRole('region')).toHaveTextContent('Your request to withdraw this application was rejected.');
+    expect(await screen.findByRole('button', { name: 'Withdraw application' })).toHaveAttribute('href', '/cpo/app/withdraw');
   });
 
-  it('shows no withdrawal banner once a withdrawal request is approved', async () => {
+  it('shows no withdrawal banner or Withdraw application once a withdrawal request is approved', async () => {
     vi.mocked(applicationApiService.getWithdrawalRequest).mockResolvedValue({ success: true, data: { request_status: 'Approved' } });
     renderPage(); await ready();
     await waitFor(() => expect(applicationApiService.getWithdrawalRequest).toHaveBeenCalled());
     expect(screen.queryByRole('region')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Withdraw application' })).not.toBeInTheDocument();
   });
 
   it('does not offer Withdraw application until the withdrawal request lookup succeeds', async () => {
