@@ -210,7 +210,7 @@ const BankTransferConfirmationPage: React.FC = () => {
       return;
     }
 
-    // No explicit user confirmation required here â€” backend saves payment on page load
+    // No explicit user confirmation required here — backend saves payment on page load
 
     setLoading(true);
     setError('');
@@ -493,7 +493,7 @@ const BankTransferConfirmationPage: React.FC = () => {
             </div>
 
             <div className={`govuk-form-group ${error ? 'govuk-form-group--error' : ''}`}>
-              {/* No user-facing confirmation checkbox â€” backend-set PROCESSING_PAYMENT on entry */}
+              {/* No user-facing confirmation checkbox — backend-set PROCESSING_PAYMENT on entry */}
             </div>
 
             <div className="govuk-button-group">

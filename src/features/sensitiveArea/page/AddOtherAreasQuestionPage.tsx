@@ -94,7 +94,7 @@ const AddOtherAreasQuestionPage: React.FC = () => {
           }
         }
       } catch (err) {
-        // ignore â€” non-fatal for pre-fill
+        // ignore — non-fatal for pre-fill
       } finally {
         if (mounted) setLoading(false);
       }
