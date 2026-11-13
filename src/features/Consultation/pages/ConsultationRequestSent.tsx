@@ -33,7 +33,7 @@ const ConsultationRequestSent: React.FC = () => {
             </div>
             <div className="govuk-body" style={{ marginTop: 32 }}>
               <h2>What happens next</h2>
-              <p>The details and documents youâ€™ve selected have been sent to the organisations required for your application.</p>
+              <p>The details and documents you’ve selected have been sent to the organisations required for your application.</p>
               <p>You will be notified when a response to your consultation request has been received. You will then need to upload the response before submitting your application as complete.</p>
               <p>If you have any questions, you can contact <a href="mailto:S37consents@energysecurity.gov.uk">S37consents@energysecurity.gov.uk</a></p>
             </div>
