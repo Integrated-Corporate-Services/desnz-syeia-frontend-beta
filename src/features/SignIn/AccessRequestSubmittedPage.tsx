@@ -67,7 +67,7 @@ const AccessRequestSubmittedPage: React.FC = () => {
             <h2 className="govuk-heading-m">If you need help</h2>
 
             <p className="govuk-body">
-              If you have any questions about your request, contact the team coordinator of your organisation or the organisation youâ€™ll be submitting applications for.
+              If you have any questions about your request, contact the team coordinator of your organisation or the organisation you’ll be submitting applications for.
             </p>
 
             <p className="govuk-body">
