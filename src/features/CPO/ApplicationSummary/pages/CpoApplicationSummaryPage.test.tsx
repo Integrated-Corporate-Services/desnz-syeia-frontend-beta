@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../../context/BreadcrumbContext';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { applicationApiService } from '../../../../services/applicationApiService';
 import { EMPTY_ORDER_DETAILS } from '../../OrderDetails/constants/orderDetailsConstants';
@@ -13,7 +13,10 @@ vi.mock('../../../../components/PageTitle', () => ({ default: () => null }));
 vi.mock('../../../../utils/s3DownloadUtil', () => ({ downloadS3FileOnSameTab: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('../../../../services/applicationApiService', () => ({ applicationApiService: { getApplicationReview: vi.fn(), getWithdrawalRequest: vi.fn() } }));
 
-const renderPage = () => render(<BreadcrumbProvider><MemoryRouter initialEntries={['/cpo/app/application-summary']}><Routes>
+const BreadcrumbOutlet = () => <nav aria-label="Page navigation">{useBreadcrumbContext().breadcrumb}</nav>;
+const pageNavigation = () => within(screen.getByRole('navigation', { name: 'Page navigation' }));
+
+const renderPage = () => render(<BreadcrumbProvider><MemoryRouter initialEntries={['/cpo/app/application-summary']}><BreadcrumbOutlet /><Routes>
   <Route path="/cpo/:applicationId/application-summary" element={<CpoApplicationSummaryPage />} />
 </Routes></MemoryRouter></BreadcrumbProvider>);
 
@@ -86,6 +89,14 @@ describe('CPO application summary', () => {
     expect(summary.getByText('North Ridge CPO')).toBeInTheDocument();
     expect(summary.getByText('Compulsory purchase order (CPO)')).toBeInTheDocument();
     expect(summary.getByText('Under review')).toHaveClass('govuk-tag');
+  });
+
+  it('shows a Back link to the application dashboard, as on S37 and NWL', async () => {
+    renderPage(); await ready();
+    const back = pageNavigation().getByRole('link', { name: 'Back' });
+    expect(back).toHaveAttribute('href', '/application-dashboard');
+    expect(back).toHaveClass('govuk-back-link');
+    expect(pageNavigation().queryByRole('link', { name: 'Applications' })).not.toBeInTheDocument();
   });
 
   it('shows the objection period only when one is recorded', async () => {

@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
-import { useBreadcrumb } from '../../../../context/BreadcrumbContext';
 import { CPO_BASE_URL, CPO_CASE_TYPE_LABEL } from '../../../../constants/cpo';
 import { getApplicationStatusDisplay } from '../../../../constants/status';
 import { APPLICATION_SUMMARY_CONSTANTS } from '../../../ApplicationSummary/constants';
 import { WithdrawalNotificationBanner } from '../../../ApplicationSummary/components/WithdrawalNotificationBanner';
+import { ApplicationSummaryBreadcrumbs } from '../../../ApplicationSummary/components/ApplicationSummaryBreadcrumbs';
 import { noticeDateText } from '../../RecordNotices/utils/noticeRecord';
 import { useCpoApplicationId } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationId';
 import CpoApplicationAnswers from '../../CheckAndSubmitApplication/components/CpoApplicationAnswers';
@@ -22,11 +22,6 @@ const CpoApplicationSummaryPage: React.FC = () => {
   const summaryRef = useRef<HTMLDivElement>(null);
   const base = `${CPO_BASE_URL}/${applicationId}`;
 
-  useBreadcrumb(<div className="govuk-breadcrumbs"><ol className="govuk-breadcrumbs__list">
-    <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to="/application-dashboard">Applications</Link></li>
-    <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={`${base}/application-summary`}>{HEADING}</Link></li>
-  </ol></div>);
-
   useEffect(() => { if (error) summaryRef.current?.focus(); }, [error]);
 
   const status = data ? getApplicationStatusDisplay(data.application.status) : null;
@@ -35,6 +30,7 @@ const CpoApplicationSummaryPage: React.FC = () => {
 
   return <>
     <PageTitle title={`${error ? 'Error: ' : ''}${HEADING}`} />
+    <ApplicationSummaryBreadcrumbs applicationType="CPO" applicationId={applicationId} />
     <div className="govuk-width-container"><div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
       {error && <div className="govuk-error-summary" ref={summaryRef} tabIndex={-1} role="alert" aria-labelledby="summary-error-title">
         <h2 className="govuk-error-summary__title" id="summary-error-title">There is a problem</h2>
