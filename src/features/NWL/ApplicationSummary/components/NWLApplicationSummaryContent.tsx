@@ -163,6 +163,17 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                 </div>
             )}
 
+            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
+                so it must not be gated on the *current* status (a completed FIR should still
+                be reachable via "View all information requests" after status moves on). */}
+            {!isFirFeatureDisabled() && (
+                <FirSummaryCard
+                    applicationId={applicationId}
+                    basePath={`${NWL_BASE_URL}/${applicationId}/further-information-requests`}
+                    placement="top"
+                />
+            )}
+
             <ReviewApplicationInfoCard
                 desnzRef={data.desnzRef}
                 status={data.status}
@@ -174,16 +185,6 @@ export const NWLApplicationSummaryContent: React.FC<NWLApplicationSummaryContent
                         : null
                 }
             />
-
-            {/* FirSummaryCard fetches its own FIR history and renders null when there is none,
-                so it must not be gated on the *current* status (a completed FIR should still
-                be reachable via "View all information requests" after status moves on). */}
-            {!isFirFeatureDisabled() && (
-                <FirSummaryCard
-                    applicationId={applicationId}
-                    basePath={`${NWL_BASE_URL}/${applicationId}/further-information-requests`}
-                />
-            )}
 
             <ReviewPaymentDetailsCard 
                 payment={data.payment}

@@ -591,6 +591,7 @@ const ApplicationSummary: React.FC = () => {
               <FirSummaryCard
                 applicationId={applicationId}
                 basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+                placement="top"
               />
             )}
 

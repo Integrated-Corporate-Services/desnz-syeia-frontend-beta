@@ -18,6 +18,14 @@ const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
 const statusLabel = (status: FurtherInformationRequest['status']) =>
   status === 'OPEN' ? 'Not completed' : status === 'RESPONDED' ? 'Completed' : status.replaceAll('_', ' ');
 
+type ResponseDocument = NonNullable<FurtherInformationRequest['response']>['documents'][number];
+
+const groupDocumentsByCategory = (documents: ResponseDocument[]) =>
+  documents.reduce<Record<string, ResponseDocument[]>>((groups, document) => {
+    (groups[document.documentCategory] ??= []).push(document);
+    return groups;
+  }, {});
+
 const RequestCard: React.FC<{
   request: FurtherInformationRequest;
   title: string;
@@ -57,11 +65,17 @@ const RequestCard: React.FC<{
               {request.response.documentCategories.map((category) => <div key={category}>{FIR_CATEGORY_LABELS[category] || category}</div>)}
             </dd>
           </div>
-          {request.response.documents.map((document) => (
-            <div className="govuk-summary-list__row" key={document.documentId}>
-              <dt className="govuk-summary-list__key">{FIR_CATEGORY_LABELS[document.documentCategory] || document.documentCategory}</dt>
+          {Object.entries(groupDocumentsByCategory(request.response.documents)).map(([category, documents]) => (
+            <div className="govuk-summary-list__row" key={category}>
+              <dt className="govuk-summary-list__key">{FIR_CATEGORY_LABELS[category] || category}</dt>
               <dd className="govuk-summary-list__value">
-                <a href="#" className="govuk-link" onClick={(event) => { event.preventDefault(); downloadDocument(document.documentId); }}>{document.filename}</a>
+                <ul className="govuk-list">
+                  {documents.map((document) => (
+                    <li key={document.documentId}>
+                      <a href="#" className="govuk-link" onClick={(event) => { event.preventDefault(); downloadDocument(document.documentId); }}>{document.filename}</a>
+                    </li>
+                  ))}
+                </ul>
               </dd>
             </div>
           ))}

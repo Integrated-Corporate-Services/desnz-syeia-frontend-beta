@@ -9,6 +9,7 @@ const logger = createLogger('FirSummaryCard');
 interface FirSummaryCardProps {
   applicationId: string;
   basePath: string;
+  placement?: 'top' | 'default';
 }
 
 const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
@@ -18,7 +19,7 @@ const formatDate = (date: string) => new Intl.DateTimeFormat('en-GB', {
   timeZone: 'UTC',
 }).format(new Date(date));
 
-export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, basePath }) => {
+export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, basePath, placement = 'default' }) => {
   const [requests, setRequests] = useState<FurtherInformationRequest[]>([]);
 
   useEffect(() => {
@@ -46,15 +47,20 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
   // so completed requests remain reachable via "View all information requests".
   if (requests.length === 0) return null;
 
-  const openRequest = requests.find((item) => item.status === 'OPEN');
+  const openRequests = requests.filter((item) => item.status === 'OPEN');
+  const openRequest = openRequests.find((item) => item.canRespond !== false) ?? openRequests[0];
+  const sentToObjector = openRequest?.recipientType === 'OBJECTOR' && openRequest.canRespond === false;
+  const atTop = placement === 'top';
 
   return (
     <>
       {openRequest && (
         <>
-          <section className="govuk-summary-card govuk-!-margin-top-6" aria-labelledby="fir-summary-heading">
+          <section className={`govuk-summary-card ${atTop ? 'govuk-!-margin-top-0' : 'govuk-!-margin-top-6'}`} aria-labelledby="fir-summary-heading">
             <div className="govuk-summary-card__title-wrapper">
-              <h2 className="govuk-summary-card__title" id="fir-summary-heading">Further information request</h2>
+              <h2 className="govuk-summary-card__title" id="fir-summary-heading">
+                {sentToObjector ? 'Further information request sent to objector' : 'Further information request'}
+              </h2>
             </div>
             <div className="govuk-summary-card__content">
               <dl className="govuk-summary-list">
@@ -70,19 +76,24 @@ export const FirSummaryCard: React.FC<FirSummaryCardProps> = ({ applicationId, b
                   <dt className="govuk-summary-list__key">Deadline to respond</dt>
                   <dd className="govuk-summary-list__value">{formatDate(openRequest.deadlineAt)}</dd>
                 </div>
-                <div className="govuk-summary-list__row">
-                  <dt className="govuk-summary-list__key">Status</dt>
-                  <dd className="govuk-summary-list__value"><strong className="govuk-tag govuk-tag--blue">Not completed</strong></dd>
-                </div>
+                {!sentToObjector && (
+                  <div className="govuk-summary-list__row">
+                    <dt className="govuk-summary-list__key">Status</dt>
+                    <dd className="govuk-summary-list__value"><strong className="govuk-tag govuk-tag--blue">Not completed</strong></dd>
+                  </div>
+                )}
               </dl>
             </div>
           </section>
-          <Link className="govuk-button" to={`${basePath}/${openRequest.furtherInformationRequestId}/respond`}>Provide information</Link>
+          {!sentToObjector && (
+            <Link className="govuk-button" to={`${basePath}/${openRequest.furtherInformationRequestId}/respond`}>Provide information</Link>
+          )}
         </>
       )}
       {(requests.length > 1 || !openRequest) && (
         <p><Link className="govuk-link" to={basePath}>View all information requests</Link></p>
       )}
+      {atTop && <div className="govuk-section-break govuk-section-break--l govuk-section-break--visible" aria-hidden="true" />}
     </>
   );
 };
