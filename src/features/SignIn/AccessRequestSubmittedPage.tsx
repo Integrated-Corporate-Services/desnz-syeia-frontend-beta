@@ -61,7 +61,7 @@ const AccessRequestSubmittedPage: React.FC = () => {
             </p>
 
             <p className="govuk-body">
-              We will email you when you request has been reviewed.
+              We will email you when your request has been reviewed.
             </p>
 
             <h2 className="govuk-heading-m">If you need help</h2>
