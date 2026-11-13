@@ -12,6 +12,9 @@ import { CpoExecutiveSummaryPage } from './ExecutiveSummary';
 import { CpoOrderDocumentsPage } from './OrderDocuments';
 import { CpoNoticesPage, CpoNoticeRequirementsPage, CpoNoticeInspectionPage, CpoNoticeInspectionAddressPage, CpoNoticeInspectionDatePage, CpoNoticeOnlinePage, CpoNoticeWebsitePage, CpoNoticeNewspapersPage, CpoNoticeSitePage, CpoNoticePeoplePage, CpoNoticeCheckPage } from './RecordNotices';
 import { CpoApplicationSubmittedPage, CpoCheckYourAnswersPage } from './CheckAndSubmitApplication';
+import { CpoApplicationSummaryPage } from './ApplicationSummary';
+import WithdrawApplicationPage from '../CheckYourAnswers/pages/WithdrawApplicationPage';
+import WithdrawalConfirmationPage from '../CheckYourAnswers/pages/WithdrawalConfirmationPage';
 
 const cpoPageRoutes = [
     { path: `${CPO_BASE_URL}/who-is-applying`, component: CPOWhoIsApplying, auth: true, layout: true },
@@ -40,6 +43,9 @@ const cpoPageRoutes = [
     // The applications dashboard links every draft to check-your-answers.
     { path: `${CPO_BASE_URL}/:applicationId/check-your-answers`, component: CpoCheckYourAnswersPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/application-submitted`, component: CpoApplicationSubmittedPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/application-summary`, component: CpoApplicationSummaryPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/withdraw`, component: WithdrawApplicationPage, auth: true, layout: true },
+    { path: `${CPO_BASE_URL}/:applicationId/withdrawal-confirmation`, component: WithdrawalConfirmationPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-documents`, component: CpoOrderDocumentsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/order-documents/:documentStep`, component: CpoOrderDocumentsPage, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/executive-summary`, component: CpoExecutiveSummaryPage, auth: true, layout: true },
@@ -66,6 +72,9 @@ const backendRoutePaths = new Set([
     `${CPO_BASE_URL}/:applicationId/check-and-submit`,
     `${CPO_BASE_URL}/:applicationId/check-your-answers`,
     `${CPO_BASE_URL}/:applicationId/application-submitted`,
+    `${CPO_BASE_URL}/:applicationId/application-summary`,
+    `${CPO_BASE_URL}/:applicationId/withdraw`,
+    `${CPO_BASE_URL}/:applicationId/withdrawal-confirmation`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting`,
     `${CPO_BASE_URL}/:applicationId/pre-submission-meeting/confirmation`,
     `${CPO_BASE_URL}/:applicationId/order-details`,

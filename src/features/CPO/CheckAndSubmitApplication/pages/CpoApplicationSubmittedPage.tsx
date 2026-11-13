@@ -33,6 +33,7 @@ const CpoApplicationSubmittedPage: React.FC = () => {
         <h1 className="govuk-panel__title">Application submitted</h1>
         {reference && <div className="govuk-panel__body">Your reference number<br /><strong>{reference}</strong></div>}
       </div>
+      <p className="govuk-body"><Link className="govuk-link" to={`${CPO_BASE_URL}/${applicationId}/application-summary`}>View your application</Link></p>
       <p className="govuk-body"><Link className="govuk-link" to="/application-dashboard">Go to your applications</Link></p>
     </div></div></div>
   </>;
