@@ -81,6 +81,7 @@ export const ALLOWED_ROUTES = [
   `${S37_BASE_URL}/:applicationId/sensitive-areas/review-poles`,
   `${S37_BASE_URL}/:applicationId/sensitive-areas/review-documents`,
   `${S37_BASE_URL}/:applicationId/eia-fees`,
+  `${S37_BASE_URL}/:applicationId/eia-fees/upload-eia-report`,
   `${S37_BASE_URL}/:applicationId/supporting-info`,
   `${S37_BASE_URL}/:applicationId/parishes`,
   `${S37_BASE_URL}/:applicationId/consultation/:consultationId/initial-question`,

@@ -14,6 +14,7 @@ export const FILE_CATEGORIES = {
 	WORKS_ROAD_CLOSURE: 'WORKS_ROAD_CLOSURE',
 	WORKS_ACCESS_ROUTES: 'WORKS_ACCESS_ROUTES',
 	PAYMENT_PROOF: 'PAYMENT_PROOF',
+	EIA_REPORT: 'EIA_REPORT',
 };
 
 export const FILE_CATEGORY_LABELS: { [key: string]: string } = {
@@ -26,6 +27,7 @@ export const FILE_CATEGORY_LABELS: { [key: string]: string } = {
 	CONSULTATION_RESPONSE_NOT_RECEIVED: 'Evidence of Response Not Received',
 	LPA_CONSULTATION_FORM: 'LPA Consultation Form',
 	NEGOTIATIONS: 'Negotiations Evidence',
+	EIA_REPORT: 'EIA Report',
 	NWL_PLAN_INFO: 'NWL Application Plan',
 	NWL_APPLICATION_LAND_DETAILS: 'NWL Application and Land Details',
 	NWL_LAND_REGISTRY: 'Land Registry Documents',

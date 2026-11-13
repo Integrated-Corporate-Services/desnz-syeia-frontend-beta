@@ -5,6 +5,7 @@ import { useEiaFees } from '../../../hooks/useEiaFees';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import EiaFeesSummaryCard from '../component/EiaFeesSummaryCard';
 
 /**
  * Read-only EIA Fees Summary Page
@@ -55,25 +56,12 @@ const EIAFeesSummary: React.FC = () => {
                         {loading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : (
-                            <div className="govuk-summary-card">
-                                <div className="govuk-summary-card__title-wrapper">
-                                    <h2 className="govuk-summary-card__title">EIA</h2>
-                                </div>
-                                <div className="govuk-summary-card__content">
-                                    <dl className="govuk-summary-list">
-                                        <div className="govuk-summary-list__row">
-                                            <dt className="govuk-summary-list__key">Is this an EIA development?</dt>
-                                            <dd className="govuk-summary-list__value">{eiaFees?.isEiaDevelopment !== undefined ? (eiaFees.isEiaDevelopment ? 'Yes' : 'No') : '-'}</dd>
-                                        </div>
-                                        {eiaFees?.isEiaDevelopment && (
-                                            <div className="govuk-summary-list__row">
-                                                <dt className="govuk-summary-list__key">Is this screening only?</dt>
-                                                <dd className="govuk-summary-list__value">{eiaFees?.screeningOnly !== undefined ? (eiaFees.screeningOnly ? 'Yes' : 'No') : '-'}</dd>
-                                            </div>
-                                        )}
-                                    </dl>
-                                </div>
-                            </div>
+                            <EiaFeesSummaryCard
+                                title="EIA"
+                                isEiaDevelopment={eiaFees?.isEiaDevelopment}
+                                screeningOnly={eiaFees?.screeningOnly}
+                                reportNames={(eiaFees?.applicationDocuments ?? []).map((doc) => doc.title).filter((title): title is string => !!title)}
+                            />
                         )}
 
                         <Link to={`${S37_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary" data-module="govuk-button">

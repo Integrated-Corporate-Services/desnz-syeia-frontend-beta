@@ -1,272 +1,159 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { S37_BASE_URL } from '../../../constants/s37';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import RadioGroup from '../component/RadioGroup';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useEiaFees } from '../../../hooks/useEiaFees';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import type { AuthUser } from '../../../types/auth';
-import EIAFeesSummary from './EIAFeesSummary';
 import PageTitle from '../../../components/PageTitle';
+import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import EIAFeesSummary from './EIAFeesSummary';
+import AssessmentOptions from '../component/AssessmentOptions';
+import EiaGuidance from '../component/EiaGuidance';
+import { useEiaScreeningRequirement } from '../hooks/useEiaScreeningRequirement';
 import {
-    validateEiaFeesForm,
-    getFieldErrorMessage,
-    clearValidationErrors,
-    type ValidationError,
-    EIA_FEES_ERROR_MESSAGES,
-} from '../validations';
+    EIA_ASSESSMENT,
+    EIA_CONTENT,
+    MANDATORY_SCREENING_OPTIONS,
+    OPTIONAL_SCREENING_OPTIONS,
+    type EiaAssessment,
+} from '../constants/eiaAssessment';
+import { getEiaAssessment, toEiaAnswers } from '../utils/eiaAssessment';
+import { EIA_FEES_ERROR_MESSAGES, EIAFeesErrorField, getFieldErrorMessage, validateAssessment, type ValidationError } from '../validations';
 
+// SYEIA-1485: one assessment question; Image 2 when screening is optional, Image 3 when it is mandatory.
 const EIAFeesForm: React.FC = () => {
     const navigate = useNavigate();
     const applicationId = useGetApplicationId();
     const { user } = useAuthUserContext();
     const userId = (user as AuthUser)?.user_id;
+    const taskListUrl = `${S37_BASE_URL}/${applicationId}/task-list`;
 
     useBreadcrumb(
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
             <ol className="govuk-breadcrumbs__list">
-                <li className="govuk-breadcrumbs__list-item" aria-current="false">
-                    <Link className="govuk-breadcrumbs__link" to={`${S37_BASE_URL}/${applicationId}/task-list`}>
-                        Task list
-                    </Link>
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={taskListUrl}>Task list</Link>
                 </li>
-                <li className="govuk-breadcrumbs__list-item" aria-current="true">
-                    EIA fees
-                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">{EIA_CONTENT.BREADCRUMB}</li>
             </ol>
         </nav>
     );
 
-    // State for fetched EIA Fees
     const { eiaFees, fetchEiaFees, createEiaFees, updateEiaFees } = useEiaFees();
-    type FormState = {
-        isEiaDevelopment: string;
-        screeningOnly: string;
-        eiaFeeId?: string;
-        applicationId?: string;
-    };
-    const [form, setForm] = useState<FormState>({
-        isEiaDevelopment: '',
-        screeningOnly: '',
-        eiaFeeId: undefined,
-        applicationId: undefined,
-    });
+    const { loading: requirementLoading, mandatory, highVoltage, sensitiveArea } = useEiaScreeningRequirement(applicationId);
+    const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(applicationId);
+    const [assessment, setAssessment] = useState<EiaAssessment | ''>('');
     const [errors, setErrors] = useState<ValidationError[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
-    const [apiError, setApiError] = useState<string | null>(null);
+    const [saving, setSaving] = useState(false);
+    const errorSummaryRef = useRef<HTMLDivElement>(null);
+    const options = mandatory ? MANDATORY_SCREENING_OPTIONS : OPTIONAL_SCREENING_OPTIONS;
 
-    // Clear form when applicationId changes
     useEffect(() => {
-        setForm({
-            isEiaDevelopment: '',
-            screeningOnly: '',
-            eiaFeeId: undefined,
-            applicationId: undefined,
-        });
-        setErrors([]);
-        setApiError(null);
-        setSuccess(false);
-    }, [applicationId]);
-
-    // Fetch EIA Fees on mount
-    useEffect(() => {
-        if (!applicationId) return;
-        fetchEiaFees(applicationId);
+        if (applicationId) fetchEiaFees(applicationId);
     }, [applicationId, fetchEiaFees]);
 
-    // Populate form when EIA Fees are loaded
+    // A saved answer that this version of the page does not offer (an old "No" when screening is mandatory) is left unselected.
     useEffect(() => {
-        if (eiaFees && applicationId && eiaFees.applicationId === applicationId) {
-            setForm({
-                isEiaDevelopment: eiaFees.isEiaDevelopment ? 'true' : 'false',
-                screeningOnly: eiaFees.screeningOnly ? 'true' : 'false',
-                eiaFeeId: eiaFees.eiaFeeId,
-                applicationId: eiaFees.applicationId,
+        if (requirementLoading || !eiaFees || eiaFees.applicationId !== applicationId) return;
+        const saved = getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly);
+        setAssessment(saved && options.includes(saved) ? saved : '');
+    }, [eiaFees, applicationId, requirementLoading, options]);
+
+    useEffect(() => {
+        if (errors.length > 0) errorSummaryRef.current?.focus();
+    }, [errors]);
+
+    const save = async (selected: EiaAssessment) => {
+        const now = new Date().toISOString();
+        const answers = toEiaAnswers(selected);
+        if (eiaFees?.eiaFeeId) {
+            await updateEiaFees({ eiaFeeId: eiaFees.eiaFeeId, applicationId, ...answers, updatedAt: now, updatedBy: userId });
+        } else {
+            await createEiaFees({
+                eiaId: crypto.randomUUID(),
+                applicationId,
+                ...answers,
+                createdAt: now,
+                updatedAt: now,
+                createdBy: userId,
+                updatedBy: userId,
             });
         }
-    }, [eiaFees, applicationId]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = e.target;
-        setForm((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
-        // Clear errors on user input for better UX
-        setErrors(clearValidationErrors());
-        setApiError(null);
-        setSuccess(false);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Use centralized validation function
-        const validationErrors = validateEiaFeesForm(form);
-        setErrors(validationErrors);
-        setApiError(null);
-        setSuccess(false);
-
+    const handleSubmit = async (saveType: 'continue' | 'later') => {
         if (!userId) {
-            setApiError(EIA_FEES_ERROR_MESSAGES.API.UNKNOWN_ERROR);
+            setErrors([{ field: 'general', message: EIA_FEES_ERROR_MESSAGES.API.UNKNOWN_ERROR }]);
             return;
         }
-
-        if (validationErrors.length === 0) {
-            setLoading(true);
-            try {
-                // Compose payload for backend
-                type EiaPayload = {
-                    applicationId: string;
-                    isEiaDevelopment: boolean;
-                    screeningOnly: boolean;
-                    updatedAt: string;
-                    updatedBy: string;
-                    eiaId?: string;
-                    createdAt?: string;
-                    createdBy?: string;
-                };
-                const payload: EiaPayload = {
-                    applicationId: applicationId,
-                    isEiaDevelopment: form.isEiaDevelopment === 'true', // maps first question
-                    screeningOnly: form.screeningOnly === 'true', // maps second question
-                    updatedAt: new Date().toISOString(),
-                    updatedBy: userId,
-                };
-                if (eiaFees && eiaFees.eiaFeeId) {
-                    // Update existing EIA Fee using store (PUT)
-                    await updateEiaFees({
-                        eiaFeeId: eiaFees.eiaFeeId,
-                        applicationId: payload.applicationId,
-                        isEiaDevelopment: payload.isEiaDevelopment,
-                        screeningOnly: payload.screeningOnly,
-                        updatedAt: payload.updatedAt,
-                        updatedBy: payload.updatedBy,
-                    });
-                } else {
-                    // Create new EIA Fee using store (POST)
-                    const eiaId = crypto.randomUUID();
-                    const createdAt = new Date().toISOString();
-                    const createdBy = userId;
-                    await createEiaFees({
-                        eiaId,
-                        applicationId: payload.applicationId,
-                        isEiaDevelopment: payload.isEiaDevelopment,
-                        screeningOnly: payload.screeningOnly,
-                        createdAt,
-                        updatedAt: payload.updatedAt,
-                        createdBy,
-                        updatedBy: payload.updatedBy,
-                    });
-                }
-                setSuccess(true);
-                setForm({
-                    isEiaDevelopment: '',
-                    screeningOnly: '',
-                    eiaFeeId: undefined,
-                    applicationId: undefined,
-                });
-                // Navigate to the next page in the task list sequence
-                const redirectId = payload.applicationId;
-                const nextPageUrl = getNextPageUrl(TASK_NAMES.EIA_FEES, redirectId);
-                navigate(nextPageUrl);
-            } catch {
-                setApiError(EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED);
-            } finally {
-                setLoading(false);
-            }
+        // Save for later keeps a chosen option but does not ask for one.
+        if (saveType === 'later' && !assessment) {
+            navigate(taskListUrl);
+            return;
+        }
+        const validationErrors = validateAssessment(assessment, options);
+        if (validationErrors.length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        const selected = assessment as EiaAssessment;
+        setSaving(true);
+        try {
+            await save(selected);
+            if (saveType === 'later') navigate(taskListUrl);
+            else if (selected === EIA_ASSESSMENT.FULL_EIA) navigate(`${S37_BASE_URL}/${applicationId}/eia-fees/upload-eia-report`);
+            else navigate(getNextPageUrl(TASK_NAMES.EIA_FEES, applicationId));
+        } catch {
+            setErrors([{ field: 'general', message: EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED }]);
+        } finally {
+            setSaving(false);
         }
     };
 
-    // Check if consultations have started - if so, show read-only summary
-    const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(applicationId);
-
-    // While checking consultation status, show loading to prevent flash
-    if (consultationsLoading) {
-        return (
-            <div className="govuk-width-container">
-                <div className="govuk-main-wrapper">
-                    <p className="govuk-body">Loading...</p>
-                </div>
-            </div>
-        );
+    if (consultationsLoading || requirementLoading) {
+        return <p className="govuk-body">Loading...</p>;
     }
 
-    // If consultations started, show read-only EIAFeesSummary page
     if (consultationsStarted) {
         return <EIAFeesSummary />;
     }
 
     return (
         <>
-            <PageTitle title="EIA fees" />
-                        <div className="govuk-width-container">
-            {success && (
-                <div className="govuk-notification-banner govuk-notification-banner--success" role="alert">
-                    <div className="govuk-notification-banner__header">
-                        <h2 className="govuk-notification-banner__title">Success</h2>
-                    </div>
-                    <div className="govuk-notification-banner__content">EIA Fees submitted successfully.</div>
-                </div>
-            )}
-            {apiError && (
-                <div className="govuk-error-summary" role="alert">
-                    <h2 className="govuk-error-summary__title">There is a problem</h2>
-                    <div className="govuk-error-summary__body">{apiError}</div>
-                </div>
-            )}
-            {errors.length > 0 && (
-                <div className="govuk-error-summary govuk-!-width-two-thirds" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary" data-govuk-error-summary-init="">
-                    <h2 className="govuk-error-summary__title" id="error-summary-title">
-                        There is a problem
-                    </h2>
-                    <div className="govuk-error-summary__body">
-                        <ul className="govuk-list govuk-error-summary__list">
-                            {errors.map((err, idx) => (
-                                <li key={idx}>
-                                    <a href={`#${err.field}`}>{err.message}</a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-            )}
-                            <div className="govuk-grid-row">
-                    <div className="govuk-grid-column-two-thirds">
-                        <h1 className="govuk-heading-l">EIA fees</h1>
-
-                        <form method="post" data-module="fds-html-form" onSubmit={handleSubmit} noValidate>
-                            <div className="govuk-form-group">
-                                <RadioGroup
-                                    isEiaDevelopment={form.isEiaDevelopment}
-                                    screeningOnly={form.screeningOnly}
-                                    onChange={handleChange}
-                                    errorMessage={getFieldErrorMessage('isEiaDevelopment', errors)}
-                                    screeningErrorMessage={getFieldErrorMessage('screeningOnly', errors)}
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                data-module="govuk-button"
-                                className="govuk-button"
-                                value="Save and continue"
-                                name="Save and continue"
-                                data-prevent-double-click="true"
-                                data-fds-disable-on-submit="false"
-                                data-govuk-button-init=""
-                                disabled={loading}
-                            >
+            <PageTitle title={EIA_CONTENT.PAGE_TITLE} />
+            <div className="govuk-grid-row">
+                <div className="govuk-grid-column-two-thirds">
+                    <ErrorSummary ref={errorSummaryRef} errors={errors.map((e) => ({ fieldId: e.field, message: e.message }))} />
+                    <h1 className="govuk-heading-l">{EIA_CONTENT.PAGE_TITLE}</h1>
+                    <EiaGuidance mandatory={mandatory} highVoltage={highVoltage} sensitiveArea={sensitiveArea} />
+                    <form noValidate onSubmit={(e) => { e.preventDefault(); handleSubmit('continue'); }}>
+                        <AssessmentOptions
+                            options={options}
+                            value={assessment}
+                            onChange={(value) => { setAssessment(value); setErrors([]); }}
+                            errorMessage={getFieldErrorMessage(EIAFeesErrorField.ASSESSMENT, errors)}
+                        />
+                        <div className="govuk-button-group">
+                            <button type="submit" className="govuk-button" data-module="govuk-button" disabled={saving}>
                                 Save and continue
                             </button>
-                        </form>
-                    </div>
+                            <button
+                                type="button"
+                                className="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                                disabled={saving}
+                                onClick={() => handleSubmit('later')}
+                            >
+                                Save for later
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                    </div>
+            </div>
         </>
     );
 };
