@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BreadcrumbProvider } from '../../../../context/BreadcrumbContext';
+import { BreadcrumbProvider, useBreadcrumbContext } from '../../../../context/BreadcrumbContext';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { applicationApiService, SubmitApplicationError } from '../../../../services/applicationApiService';
 import { EMPTY_ORDER_DETAILS } from '../../OrderDetails/constants/orderDetailsConstants';
@@ -17,7 +17,10 @@ vi.mock('../../../../services/applicationApiService', async (importOriginal) => 
   return { ...actual, applicationApiService: { getApplicationReview: vi.fn(), submitApplication: vi.fn() } };
 });
 
-const renderPage = () => render(<BreadcrumbProvider><MemoryRouter initialEntries={['/cpo/app/check-and-submit']}><Routes>
+const BreadcrumbOutlet = () => <nav aria-label="Page navigation">{useBreadcrumbContext().breadcrumb}</nav>;
+const pageNavigation = () => within(screen.getByRole('navigation', { name: 'Page navigation' }));
+
+const renderPage = () => render(<BreadcrumbProvider><MemoryRouter initialEntries={['/cpo/app/check-and-submit']}><BreadcrumbOutlet /><Routes>
   <Route path="/cpo/:applicationId/check-and-submit" element={<CpoCheckYourAnswersPage />} />
   <Route path="/cpo/:applicationId/application-submitted" element={<h1>Submitted page</h1>} />
 </Routes></MemoryRouter></BreadcrumbProvider>);
@@ -85,7 +88,7 @@ describe('CPO check your answers', () => {
 
   it('shows the caption, heading and each section of the design', async () => {
     renderPage(); await ready();
-    expect(screen.getByText('Check and submit')).toHaveClass('govuk-caption-l');
+    expect(screen.getByText('Check and submit', { selector: 'span' })).toHaveClass('govuk-caption-l');
     expect(screen.getByRole('heading', { level: 1, name: 'Check your answers before sending your application' })).toBeInTheDocument();
     for (const heading of ['Applicant details', 'Project information', 'Public notices']) expect(screen.getByRole('heading', { level: 2, name: heading })).toBeInTheDocument();
     for (const title of ['Applicant details', 'Pre-application meeting', 'Project overview', 'Executive summary', 'Order details', 'Order documents', 'Record your notices']) expect(screen.getByRole('heading', { level: 3, name: title })).toBeInTheDocument();
@@ -205,6 +208,25 @@ describe('CPO check your answers', () => {
     renderPage(); await ready();
     expect(screen.queryByRole('link', { name: /^Change / })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Submit application' })).not.toBeInTheDocument();
+  });
+
+  it('shows the task list breadcrumb to a user who can edit the draft', async () => {
+    renderPage(); await ready();
+    expect(pageNavigation().getByRole('link', { name: 'Task list' })).toHaveAttribute('href', '/cpo/app/task-list');
+    expect(pageNavigation().getByRole('link', { name: 'Check and submit' })).toHaveAttribute('href', '/cpo/app/check-and-submit');
+    expect(pageNavigation().queryByRole('link', { name: 'Application Dashboard' })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['a draft created by someone else', { permissions: { canEdit: false, canDownload: true, canSubmit: false } }],
+    ['a submitted application', { status: 'SUBMITTED' }],
+  ])('links back to the application dashboard for %s', async (_case, overrides) => {
+    mockApplication(application(overrides));
+    renderPage(); await ready();
+    const back = await pageNavigation().findByRole('link', { name: 'Application Dashboard' });
+    expect(back).toHaveAttribute('href', '/application-dashboard');
+    expect(back).toHaveClass('govuk-back-link');
+    expect(pageNavigation().queryByRole('link', { name: 'Task list' })).not.toBeInTheDocument();
   });
 
   it('submits a complete application and shows the confirmation page', async () => {

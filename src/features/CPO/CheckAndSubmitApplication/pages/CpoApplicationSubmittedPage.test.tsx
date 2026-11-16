@@ -21,6 +21,7 @@ describe('CPO application submitted', () => {
     renderPage();
     expect(await screen.findByRole('heading', { level: 1, name: 'Application submitted' })).toBeInTheDocument();
     expect(screen.getByText('CPO000001')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View your application' })).toHaveAttribute('href', '/cpo/app/application-summary');
     expect(screen.getByRole('link', { name: 'Go to your applications' })).toHaveAttribute('href', '/application-dashboard');
   });
 

@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { S37_BASE_URL } from "../../../constants/s37";
 import { NWL_BASE_URL } from "../../../constants/nwl";
+import { CPO_BASE_URL } from "../../../constants/cpo";
 import { useApplicationFormatters } from "../hooks/useApplicationFormatters";
 import { CONTENT } from "../../../constants/content";
 import { applicationApiService } from "../../../services/applicationApiService";
 import { WITHDRAWAL_LABELS, BUTTON_LABELS } from "../constants/applicationSummaryLabels";
 import PageTitle from "../../../components/PageTitle";
+import { applicationTypeFromPath } from "../utils/withdrawalApplicationType";
 import { useBreadcrumb } from "../../../context/BreadcrumbContext";
 
 interface WithdrawalLocationState {
@@ -29,8 +31,10 @@ const WithdrawApplicationPage: React.FC = () => {
   
   // Get application data from location state or use defaults
   const locationState = location.state as WithdrawalLocationState | null;
-  const desnzRef = applicationData?.desnzRef || locationState?.desnzRef || "S3700245";
-  const formType = applicationData?.formType || locationState?.formType || "S37";
+  // The URL tells CPO and NWL apart before the application has loaded (or if it cannot be loaded).
+  const typeFromUrl = applicationTypeFromPath(location.pathname);
+  const desnzRef = applicationData?.desnzRef || locationState?.desnzRef || "";
+  const formType = applicationData?.formType || locationState?.formType || typeFromUrl;
   
   const maxCharacters = CONTENT.MAX_DESCRIPTION_LENGTH;
   const remainingChars = Math.max(0, maxCharacters - withdrawalReason.length);
@@ -57,20 +61,20 @@ const WithdrawApplicationPage: React.FC = () => {
       try {
         const data = await applicationApiService.getApplicationById(applicationId);
         setApplicationData({
-          desnzRef: data.desnz_ref || "S3700245",
-          formType: data.type || "S37",
+          desnzRef: data.desnz_ref || "",
+          formType: data.type || typeFromUrl,
         });
       } catch (err) {
         // Use fallback values if fetch fails
         setApplicationData({
-          desnzRef: locationState?.desnzRef || "S3700245",
-          formType: locationState?.formType || "S37",
+          desnzRef: locationState?.desnzRef || "",
+          formType: locationState?.formType || typeFromUrl,
         });
       }
     };
 
     fetchApplicationData();
-  }, [applicationId, locationState?.desnzRef, locationState?.formType]);
+  }, [applicationId, locationState?.desnzRef, locationState?.formType, typeFromUrl]);
 
   // Scroll to top on mount
   useEffect(() => {
@@ -81,6 +85,7 @@ const WithdrawApplicationPage: React.FC = () => {
   const getBaseUrl = () => {
     const type = formType.toUpperCase();
     if (type === 'NWL') return NWL_BASE_URL;
+    if (type === 'CPO') return CPO_BASE_URL;
     return S37_BASE_URL;
   };
 

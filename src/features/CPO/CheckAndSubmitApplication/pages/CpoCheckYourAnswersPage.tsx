@@ -32,17 +32,20 @@ const CpoCheckYourAnswersPage: React.FC = () => {
   const summaryRef = useRef<HTMLDivElement>(null);
   const base = `${CPO_BASE_URL}/${applicationId}`;
 
-  useBreadcrumb(<div className="govuk-breadcrumbs"><ol className="govuk-breadcrumbs__list">
-    <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={`${base}/task-list`}>Task list</Link></li>
-    <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={`${base}/check-and-submit`}>Check and submit</Link></li>
-  </ol></div>);
-
   const allProblems: ProblemLink[] = error ? [{ text: error, href: '#review-heading' }, ...problems] : problems;
   useEffect(() => { if (allProblems.length) summaryRef.current?.focus(); }, [allProblems.length, error, problems]);
 
   const isDraft = data?.application.status.toLowerCase() === 'draft';
   const editable = isDraft && data?.application.permissions?.canEdit === true;
   const canSubmit = isDraft && data?.application.permissions?.canSubmit === true;
+
+  // Read-only viewers (a draft created by someone else, or a submitted application) go back to the dashboard, as on S37 and NWL.
+  useBreadcrumb(data && !editable
+    ? <Link to="/application-dashboard" className="govuk-back-link">Application Dashboard</Link>
+    : <div className="govuk-breadcrumbs"><ol className="govuk-breadcrumbs__list">
+      <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={`${base}/task-list`}>Task list</Link></li>
+      <li className="govuk-breadcrumbs__list-item"><Link className="govuk-breadcrumbs__link" to={`${base}/check-and-submit`}>Check and submit</Link></li>
+    </ol></div>);
 
   const sectionProblems = (sections: { subsection: string; label: string; slug: string }[]): ProblemLink[] =>
     sections.map((task) => ({ text: `Complete the ${task.label.toLowerCase()} section`, href: `${base}/${task.slug}` }));
