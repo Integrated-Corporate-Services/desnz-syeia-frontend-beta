@@ -8,6 +8,7 @@ import { CONTENT } from "../../../constants/content";
 import { applicationApiService } from "../../../services/applicationApiService";
 import { WITHDRAWAL_LABELS, BUTTON_LABELS } from "../constants/applicationSummaryLabels";
 import PageTitle from "../../../components/PageTitle";
+import { applicationTypeFromPath } from "../utils/withdrawalApplicationType";
 import { useBreadcrumb } from "../../../context/BreadcrumbContext";
 
 interface WithdrawalLocationState {
@@ -30,8 +31,8 @@ const WithdrawApplicationPage: React.FC = () => {
   
   // Get application data from location state or use defaults
   const locationState = location.state as WithdrawalLocationState | null;
-  // The URL tells CPO apart before the application has loaded; other types keep the S37 default.
-  const typeFromUrl = location.pathname.startsWith(`${CPO_BASE_URL}/`) ? "CPO" : "S37";
+  // The URL tells CPO and NWL apart before the application has loaded (or if it cannot be loaded).
+  const typeFromUrl = applicationTypeFromPath(location.pathname);
   const desnzRef = applicationData?.desnzRef || locationState?.desnzRef || "";
   const formType = applicationData?.formType || locationState?.formType || typeFromUrl;
   

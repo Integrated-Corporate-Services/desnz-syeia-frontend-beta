@@ -23,11 +23,19 @@ describe('Withdrawal request submitted contact email', () => {
     expect(screen.queryByText('S37consents@energysecurity.gov.uk')).not.toBeInTheDocument();
   });
 
-  it.each([
-    ['S37', undefined],
-    ['NWL', { formType: 'NWL' }],
-  ])('keeps the S37 consents email for %s', (_type, state) => {
-    renderPage('/s37/app/withdrawal-confirmation', '/s37/:applicationId/withdrawal-confirmation', state);
+  it('keeps the S37 consents email for S37', () => {
+    renderPage('/s-37/app/withdrawal-confirmation', '/s-37/:applicationId/withdrawal-confirmation');
     expect(screen.getByRole('link', { name: 'S37consents@energysecurity.gov.uk' })).toHaveAttribute('href', 'mailto:S37consents@energysecurity.gov.uk');
+    expect(screen.getByRole('link', { name: 'Return to your application summary' })).toHaveAttribute('href', '/s-37/app/application-summary');
+  });
+
+  it.each([
+    ['with the state from the withdraw page', { formType: 'NWL' }],
+    ['without state, for example after a refresh', undefined],
+  ])('shows the necessary wayleaves email and returns to the NWL summary %s', (_case, state) => {
+    renderPage('/nwl/app/withdrawal-confirmation', '/nwl/:applicationId/withdrawal-confirmation', state);
+    expect(screen.getByRole('link', { name: 'necessarywayleaves@energysecurity.gov.uk' })).toHaveAttribute('href', 'mailto:necessarywayleaves@energysecurity.gov.uk');
+    expect(screen.queryByText('S37consents@energysecurity.gov.uk')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Return to your application summary' })).toHaveAttribute('href', '/nwl/app/application-summary');
   });
 });

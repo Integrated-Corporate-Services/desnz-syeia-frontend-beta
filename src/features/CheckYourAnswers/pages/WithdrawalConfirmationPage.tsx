@@ -5,6 +5,7 @@ import { NWL_BASE_URL } from "../../../constants/nwl";
 import { CPO_BASE_URL } from "../../../constants/cpo";
 import { WITHDRAWAL_LABELS } from "../constants/applicationSummaryLabels";
 import PageTitle from "../../../components/PageTitle";
+import { applicationTypeFromPath, withdrawalContactEmail } from "../utils/withdrawalApplicationType";
 
 interface ConfirmationLocationState {
   desnzRef?: string;
@@ -20,8 +21,8 @@ const WithdrawalConfirmationPage: React.FC = () => {
   // Get application data from location state or use defaults
   const locationState = location.state as ConfirmationLocationState | null;
   const desnzRef = locationState?.desnzRef;
-  const formType = locationState?.formType || (location.pathname.startsWith(`${CPO_BASE_URL}/`) ? "CPO" : "S37");
-  const contactEmail = formType.toUpperCase() === "CPO" ? "compulsorypurchaseorders@energysecurity.gov.uk" : "S37consents@energysecurity.gov.uk";
+  const formType = locationState?.formType || applicationTypeFromPath(location.pathname);
+  const contactEmail = withdrawalContactEmail(formType);
   
   const getApplicationId = () => {
     if (params.applicationId) return params.applicationId;
