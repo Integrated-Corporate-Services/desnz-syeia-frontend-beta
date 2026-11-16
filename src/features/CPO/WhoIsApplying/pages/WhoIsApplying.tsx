@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import Details from '../../../../components/Details';
 import AccessibleSelect from '../../../../components/commonFormFields/AccessibleSelect';
@@ -9,7 +8,6 @@ import { useWhoIsApplyingForm } from '../hooks/useWhoIsApplyingForm';
 
 const CPOWhoIsApplying: React.FC = () => {
   const { user } = useAuthUserContext();
-  const [searchParams] = useSearchParams();
   const { submitted, error, saving, loading, loadFailed, organisationId, handleSubmit, clearError } = useWhoIsApplyingForm();
   const { options, selectedOrganisation, selectedOrgName, handleOrgChange } = useNetworkOperators(organisationId);
   const errorSummary = useRef<HTMLDivElement>(null);
@@ -19,7 +17,6 @@ const CPOWhoIsApplying: React.FC = () => {
     <>
       <PageTitle title="Who is applying?" />
       <div className="govuk-width-container">
-        <Link className="govuk-back-link govuk-!-margin-bottom-6" to="/choose-application" state={{ applicationType: 'cpo', applicationId: searchParams.get('applicationId') }}>Back</Link>
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
             <h1 className="govuk-heading-l">Who is applying?</h1>
