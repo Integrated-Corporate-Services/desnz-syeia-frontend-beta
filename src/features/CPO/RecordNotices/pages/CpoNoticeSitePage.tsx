@@ -95,8 +95,11 @@ const CpoNoticeSitePage: React.FC = () => {
     for (const key of dateKeys) {
       if (!((!saveForLater && step !== 'people') || answer[key])) continue;
       const message = noticeDateError(step, key, answer[key] || '', step === 'site' ? 'Enter the most recent date the site notices were displayed' : 'Enter a valid notice live date');
-      if (message) localErrors.push({ id: `${key}-day`, message });
-      else if (!saveForLater && step === 'site' && (answer[key] || '') > todayLocalIsoDate()) localErrors.push({ id: `${key}-day`, message: 'Date the site notices were displayed cannot be in the future' });
+      if (message) {
+        localErrors.push({ id: `${key}-day`, message });
+      } else if (step === 'site' && !saveForLater && answer[key] && answer[key] > todayLocalIsoDate()) {
+        localErrors.push({ id: `${key}-day`, message: 'Date the site notices were displayed cannot be in the future' });
+      }
     }
     if (!saveForLater && (step === 'inspection' ? !answer.address?.trim() : step === 'online' || step === 'website' ? !answer.url?.trim() : false)) localErrors.push({ id: 'notice-location', message: step === 'inspection' ? 'Enter the inspection address' : 'Enter the web address where the order and maps can be viewed' });
     if (localErrors.length) { setErrors(localErrors); return; }

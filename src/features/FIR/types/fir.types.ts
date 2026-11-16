@@ -10,6 +10,7 @@ export interface FurtherInformationRequest {
   furtherInformationRequestId: string;
   applicationId: string;
   recipientType: string | null;
+  canRespond?: boolean;
   requestText: string;
   createdAt: string;
   deadlineAt: string;
