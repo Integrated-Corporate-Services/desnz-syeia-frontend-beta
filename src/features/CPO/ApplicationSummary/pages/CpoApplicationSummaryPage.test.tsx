@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BreadcrumbProvider, useBreadcrumbContext } from '../../../../context/BreadcrumbContext';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
@@ -15,9 +15,11 @@ vi.mock('../../../../services/applicationApiService', () => ({ applicationApiSer
 
 const BreadcrumbOutlet = () => <nav aria-label="Page navigation">{useBreadcrumbContext().breadcrumb}</nav>;
 const pageNavigation = () => within(screen.getByRole('navigation', { name: 'Page navigation' }));
+const WithdrawRoute = () => <p>Withdraw page {JSON.stringify(useLocation().state)}</p>;
 
 const renderPage = () => render(<BreadcrumbProvider><MemoryRouter initialEntries={['/cpo/app/application-summary']}><BreadcrumbOutlet /><Routes>
   <Route path="/cpo/:applicationId/application-summary" element={<CpoApplicationSummaryPage />} />
+  <Route path="/cpo/:applicationId/withdraw" element={<WithdrawRoute />} />
 </Routes></MemoryRouter></BreadcrumbProvider>);
 
 const file = (filename: string) => ({ id: filename, document_id: filename, application_id: 'app', file_id: filename, filename, s3_key: `key/${filename}`, scan_status: 'COMPLETED' as const, scan_result: 'CLEAN' as const, bucket_name: 'test', virtual_folder: '', storage_provider: 'local', file_content_type: 'application/pdf', file_size_bytes: 100, uploaded_at_timestamp: '', added_by: '', added_at: '' });
@@ -146,9 +148,13 @@ describe('CPO application summary', () => {
     expect(screen.queryByRole('link', { name: 'sealed-order.pdf' })).not.toBeInTheDocument();
   });
 
-  it('offers Withdraw application when the status allows it', async () => {
+  it('offers Withdraw application when the status allows it, as a native button that opens the withdraw page', async () => {
     renderPage(); await ready();
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Withdraw application' })).toHaveAttribute('href', '/cpo/app/withdraw'));
+    const withdraw = await screen.findByRole('button', { name: 'Withdraw application' });
+    expect(withdraw.tagName).toBe('BUTTON');
+    expect(withdraw).toHaveAttribute('type', 'button');
+    fireEvent.click(withdraw);
+    expect(await screen.findByText('Withdraw page {"desnzRef":"CPO000001","formType":"CPO"}')).toBeInTheDocument();
   });
 
   it('hides Withdraw application without permission, as for DESNZ staff', async () => {
@@ -168,7 +174,7 @@ describe('CPO application summary', () => {
     vi.mocked(applicationApiService.getWithdrawalRequest).mockResolvedValue({ success: true, data: { request_status: 'Rejected' } });
     renderPage(); await ready();
     expect(await screen.findByRole('region')).toHaveTextContent('Your request to withdraw this application was rejected.');
-    expect(await screen.findByRole('button', { name: 'Withdraw application' })).toHaveAttribute('href', '/cpo/app/withdraw');
+    expect(await screen.findByRole('button', { name: 'Withdraw application' })).toHaveAttribute('type', 'button');
   });
 
   it('shows no withdrawal banner or Withdraw application once a withdrawal request is approved', async () => {
@@ -186,7 +192,7 @@ describe('CPO application summary', () => {
     expect(screen.getByText('We could not check if a withdrawal has been requested.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Withdraw application' })).not.toBeInTheDocument();
     fireEvent.click(checkAgain);
-    expect(await screen.findByRole('button', { name: 'Withdraw application' })).toHaveAttribute('href', '/cpo/app/withdraw');
+    expect(await screen.findByRole('button', { name: 'Withdraw application' })).toHaveAttribute('type', 'button');
     expect(screen.queryByRole('button', { name: 'Check again' })).not.toBeInTheDocument();
   });
   it('does not show View objections until objections can be viewed', async () => {

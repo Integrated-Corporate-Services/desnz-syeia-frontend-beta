@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import { CPO_BASE_URL, CPO_CASE_TYPE_LABEL } from '../../../../constants/cpo';
 import { getApplicationStatusDisplay } from '../../../../constants/status';
@@ -20,6 +20,7 @@ const CpoApplicationSummaryPage: React.FC = () => {
   const { data, loading, error, setError, retry } = useCpoApplicationAnswers(applicationId);
   const { withdrawalRequest, loading: withdrawalLoading, failed: withdrawalFailed, retry: retryWithdrawal } = useCpoWithdrawalRequest(applicationId);
   const summaryRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const base = `${CPO_BASE_URL}/${applicationId}`;
 
   useEffect(() => { if (error) summaryRef.current?.focus(); }, [error]);
@@ -70,10 +71,11 @@ const CpoApplicationSummaryPage: React.FC = () => {
             </div>
           </dl></div>
         </div>
-        {canWithdraw && <Link className="govuk-button govuk-button--secondary" role="button" draggable="false" data-module="govuk-button"
-          to={`${base}/withdraw`} state={{ desnzRef: reference, formType: 'CPO' }}>
+        {/* A native button, as on S37 and NWL: it renders after the async lookups, so Enter and Space must work without GOV.UK Frontend's init. */}
+        {canWithdraw && <button className="govuk-button govuk-button--secondary" type="button" data-module="govuk-button"
+          onClick={() => navigate(`${base}/withdraw`, { state: { desnzRef: reference, formType: 'CPO' } })}>
           Withdraw application
-        </Link>}
+        </button>}
         {withdrawalFailed && <>
           <p className="govuk-body">We could not check if a withdrawal has been requested.</p>
           <button className="govuk-button govuk-button--secondary" type="button" onClick={retryWithdrawal}>Check again</button>
