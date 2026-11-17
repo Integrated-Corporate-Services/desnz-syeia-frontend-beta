@@ -32,13 +32,6 @@ export interface TeamCoordinator {
   status: string;
 }
 
-export interface UpdateTeamCoordinatorData {
-  email?: string;
-  phone_number?: string;
-  location?: string;
-  address_id?: string;
-}
-
 export interface ApprovedDomainsResponse {
   approved_domains: string[];
 }

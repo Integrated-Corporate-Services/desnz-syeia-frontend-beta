@@ -62,7 +62,8 @@ const ChangeOrganisationAddressPage: React.FC = () => {
     if (!form.townCity.trim()) nextErrors.townCity = 'Enter town or city';
     else if (form.townCity.trim().length > FIELD_MAX_LENGTHS.townCity) nextErrors.townCity = `Town or city must be ${FIELD_MAX_LENGTHS.townCity} characters or fewer`;
     if (form.county.trim().length > FIELD_MAX_LENGTHS.county) nextErrors.county = `County must be ${FIELD_MAX_LENGTHS.county} characters or fewer`;
-    if (!UK_POSTCODE_REGEX.test(form.postcode.trim())) nextErrors.postcode = 'Enter postcode';
+    if (!form.postcode.trim()) nextErrors.postcode = 'Enter postcode';
+    else if (!UK_POSTCODE_REGEX.test(form.postcode.trim())) nextErrors.postcode = 'Enter a full UK postcode';
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
       return;
@@ -92,11 +93,11 @@ const ChangeOrganisationAddressPage: React.FC = () => {
   const errorEntries = Object.entries(errors);
   return (
     <>
-      <PageTitle title="Enter address manually" />
+      <PageTitle title="Enter the organisation address" />
       <div className="govuk-width-container">
         <div className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <h1 className="govuk-heading-l">Enter address manually</h1>
+            <h1 className="govuk-heading-l">Enter the organisation address</h1>
             {(errorEntries.length > 0 || loadError) && (
               <div className="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabIndex={-1} ref={errorSummaryRef}>
                 <h2 className="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>

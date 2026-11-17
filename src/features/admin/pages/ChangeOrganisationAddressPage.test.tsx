@@ -56,7 +56,7 @@ describe('ChangeOrganisationAddressPage', () => {
   it('pre-populates every existing address field', () => {
     renderPage();
 
-    expect(screen.getByRole('heading', { name: 'Enter address manually' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Enter the organisation address' })).toBeInTheDocument();
     expect(screen.getByLabelText('Address line 1')).toHaveValue('1 Washington Street');
     expect(screen.getByLabelText('Address line 2 (optional)')).toHaveValue('Riverside Park');
     expect(screen.getByLabelText('Town or city')).toHaveValue('Worcester');
@@ -81,13 +81,23 @@ describe('ChangeOrganisationAddressPage', () => {
       await screen.findAllByText('Enter address line 1, typically the building and street')
     ).toHaveLength(2);
     expect(screen.getAllByText('Enter town or city')).toHaveLength(2);
-    expect(screen.getAllByText('Enter postcode')).toHaveLength(2);
+    expect(screen.getAllByText('Enter a full UK postcode')).toHaveLength(2);
     expect(screen.getByRole('alert')).toHaveAccessibleName('There is a problem');
     expect(within(screen.getByRole('alert')).getByRole('link', { name: 'Enter town or city' })).toHaveAttribute(
       'href',
       '#townCity'
     );
     expect(screen.getByLabelText('Town or city')).toHaveAttribute('aria-describedby', 'townCity-error');
+    expect(organisationService.updateOrganisationAddress).not.toHaveBeenCalled();
+  });
+
+  it('asks for a postcode when it is empty', async () => {
+    renderPage();
+    fireEvent.change(screen.getByLabelText('Postcode'), { target: { value: '' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Use this address' }));
+
+    expect(await screen.findAllByText('Enter postcode')).toHaveLength(2);
     expect(organisationService.updateOrganisationAddress).not.toHaveBeenCalled();
   });
 
