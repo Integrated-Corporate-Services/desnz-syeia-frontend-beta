@@ -33,6 +33,7 @@ import {
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import EiaFeesSummaryCard from '../../EIAFees/component/EiaFeesSummaryCard';
+import { isEiaReportMissing } from '../../EIAFees/utils/eiaAssessment';
 
 
 const CheckYourAnswers: React.FC = () => {
@@ -219,7 +220,15 @@ const CheckYourAnswers: React.FC = () => {
           return value !== undefined && value !== null && value !== "";
         });
 
-        setAllSectionsCompleted(allStarted);
+        // SYEIA-1485: a full EIA also needs its report before the application can be paid for and submitted.
+        const supportingInformation = data.sections?.supportingInformation;
+        const eiaReportMissing = isEiaReportMissing(
+          supportingInformation?.eiaFees?.is_eia_development,
+          supportingInformation?.eiaFees?.screening_only,
+          (supportingInformation?.eiaReportDocuments || []).length,
+        );
+
+        setAllSectionsCompleted(allStarted && !eiaReportMissing);
 
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;

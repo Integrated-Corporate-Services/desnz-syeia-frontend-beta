@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getEiaAssessment, toEiaAnswers } from './eiaAssessment';
+import { getEiaAssessment, isEiaReportMissing, toEiaAnswers } from './eiaAssessment';
 import { EIA_ASSESSMENT } from '../constants/eiaAssessment';
 import { validateAssessment, validateEiaReport } from '../validations';
 import { MANDATORY_SCREENING_OPTIONS } from '../constants/eiaAssessment';
@@ -29,5 +29,15 @@ describe('EIA validation', () => {
   it('asks for a report file', () => {
     expect(validateEiaReport(0)[0].message).toBe('Select a file to upload');
     expect(validateEiaReport(1)).toEqual([]);
+  });
+});
+
+describe('isEiaReportMissing (SYEIA-1485)', () => {
+  it('is true only for a full EIA with no report', () => {
+    expect(isEiaReportMissing(true, true, 0)).toBe(true);
+    expect(isEiaReportMissing(true, true, 1)).toBe(false);
+    expect(isEiaReportMissing(true, false, 0)).toBe(false);
+    expect(isEiaReportMissing(false, false, 0)).toBe(false);
+    expect(isEiaReportMissing(null, null, 0)).toBe(false);
   });
 });

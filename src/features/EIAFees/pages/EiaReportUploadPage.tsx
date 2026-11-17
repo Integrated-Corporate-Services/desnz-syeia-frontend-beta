@@ -76,21 +76,25 @@ const EiaReportUploadPage: React.FC = () => {
         if (!consultationsPending && consultationsStarted) navigate(eiaUrl, { replace: true });
     }, [consultationsPending, consultationsStarted, eiaUrl, navigate]);
 
+    // No saved answer yet: the assessment question comes first.
     useEffect(() => {
-        // No saved answer yet: the assessment question comes first.
-        if (loadError && !eiaFees) {
-            navigate(eiaUrl, { replace: true });
-            return;
-        }
-        if (!eiaFees || eiaFees.applicationId !== applicationId) return;
+        if (loadError && !eiaFees) navigate(eiaUrl, { replace: true });
+    }, [loadError, eiaFees, eiaUrl, navigate]);
+
+    // The file list is taken from the loaded answer once; after that the page owns it, so a failed save
+    // (which changes the shared error) keeps reports uploaded or deleted since the page opened.
+    const filesLoadedFor = useRef<string | null>(null);
+    useEffect(() => {
+        if (!eiaFees || eiaFees.applicationId !== applicationId || filesLoadedFor.current === applicationId) return;
         // The report belongs to a full EIA only.
         if (getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) !== EIA_ASSESSMENT.FULL_EIA) {
             navigate(eiaUrl, { replace: true });
             return;
         }
+        filesLoadedFor.current = applicationId;
         setUploadedFiles(eiaFees.uploadedFiles ?? []);
         setApplicationDocuments(eiaFees.applicationDocuments ?? []);
-    }, [eiaFees, loadError, applicationId, eiaUrl, navigate]);
+    }, [eiaFees, applicationId, eiaUrl, navigate]);
 
     useEffect(() => {
         if (errors.length > 0 || fileErrors.length > 0) errorSummaryRef.current?.focus();

@@ -8,6 +8,11 @@ export function getEiaAssessment(isEiaDevelopment?: boolean | null, screeningOnl
   return null;
 }
 
+// A full EIA is not complete until its report has been uploaded (the upload page's required-file rule).
+export function isEiaReportMissing(isEiaDevelopment: boolean | null | undefined, screeningOnly: boolean | null | undefined, reportCount: number): boolean {
+  return getEiaAssessment(isEiaDevelopment, screeningOnly) === EIA_ASSESSMENT.FULL_EIA && reportCount === 0;
+}
+
 export function toEiaAnswers(assessment: EiaAssessment): { isEiaDevelopment: boolean; screeningOnly: boolean } {
   return {
     isEiaDevelopment: assessment !== EIA_ASSESSMENT.NONE,
