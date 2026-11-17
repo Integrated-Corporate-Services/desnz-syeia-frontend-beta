@@ -67,15 +67,15 @@ describe('Revoke access (SYEIA-2171, 2182)', () => {
     expect(shown('Last login')).toBe('22 February 2026 at 10:32am');
   });
 
-  it('tells an applicant the revocation can be reinstated, not that it cannot be undone', () => {
-    mount('/admin/revoke-user/u1');
-    expect(screen.getByText(/Their access can be reinstated within 180 days/)).toBeInTheDocument();
-    expect(screen.queryByText(/cannot be undone/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/coordinate access requests/)).not.toBeInTheDocument();
-  });
-
-  it('mentions coordinating access requests only for a team coordinator', () => {
-    mount('/admin/revoke-user/u3');
-    expect(screen.getByText(/no longer be able to coordinate access requests/)).toBeInTheDocument();
-  });
+  // The SYEIA-2171 screen has one consequence line for every user (PR #615 review).
+  it.each([['an applicant', 'u1'], ['an agent', 'u2'], ['a team coordinator', 'u3']])(
+    'shows the 2171 consequence line for %s',
+    (_who, id) => {
+      mount(`/admin/revoke-user/${id}`);
+      expect(
+        screen.getByText('This user will no longer be able to view, change or submit applications for this organisation.')
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/cannot be undone|coordinate access requests|180 days/)).not.toBeInTheDocument();
+    }
+  );
 });

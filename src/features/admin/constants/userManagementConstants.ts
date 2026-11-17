@@ -135,8 +135,7 @@ export const CHANGE_USER_ROLE_CONSTANTS = {
 export const REVOKE_USER_ACCESS_CONSTANTS = {
     TITLE: 'Revoke access',
     NOT_FOUND_MESSAGE: 'The user you are trying to revoke access for could not be found.',
-    WARNING: "This user will no longer be able to submit applications on the organisation's behalf. Their access can be reinstated within 180 days.",
-    WARNING_TEAM_COORDINATOR: "This user will no longer be able to coordinate access requests for this organisation or submit applications on the organisation's behalf. Their access can be reinstated within 180 days.",
+    WARNING: 'This user will no longer be able to view, change or submit applications for this organisation.',
     REVOKING: 'Revoking access...',
 };
 

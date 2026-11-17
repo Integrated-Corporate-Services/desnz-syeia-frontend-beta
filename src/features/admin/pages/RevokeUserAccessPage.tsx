@@ -131,9 +131,7 @@ const RevokeUserAccessPage: React.FC = () => {
               </div>
             )}
             <p className="govuk-body">
-              {user.role === ROLES.APPLICANT_TEAM_COORDINATOR
-                ? REVOKE_USER_ACCESS_CONSTANTS.WARNING_TEAM_COORDINATOR
-                : REVOKE_USER_ACCESS_CONSTANTS.WARNING}
+              {REVOKE_USER_ACCESS_CONSTANTS.WARNING}
             </p>
 
             <dl className="govuk-summary-list govuk-!-margin-bottom-6">
