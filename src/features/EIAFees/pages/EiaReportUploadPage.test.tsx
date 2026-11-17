@@ -15,6 +15,8 @@ let consultations: ConsultationState = { consultationsStarted: false, loading: f
 
 vi.mock('../../../context/AuthUserContext', () => ({ useAuthUserContext: () => ({ user: { user_id: 'user-1' } }) }));
 vi.mock('../../../hooks/useConsultationsStarted', () => ({ useConsultationsStarted: () => consultations }));
+let draftCheck = 'locked';
+vi.mock('../hooks/useEditableDraft', () => ({ useEditableDraft: (_id: string, enabled: boolean) => (enabled ? draftCheck : 'idle') }));
 vi.mock('../../../hooks/useEiaFees', () => ({
   useEiaFees: () => ({ eiaFees: savedFees, loading: false, error: hookError, fetchEiaFees: vi.fn(), updateEiaFees }),
 }));
@@ -51,6 +53,7 @@ describe('Upload your EIA report (SYEIA-1485)', () => {
     vi.clearAllMocks();
     savedFees = { ...FULL_EIA, uploadedFiles: [], applicationDocuments: [] };
     hookError = null;
+    draftCheck = 'locked';
     consultations = { consultationsStarted: false, loading: false, checked: true, error: null, retry: retryConsultations };
     triggerUpload.mockResolvedValue({ uploadedFiles: [], applicationDocuments: [], scanErrors: [] });
     updateEiaFees.mockResolvedValue({});
@@ -123,6 +126,35 @@ describe('Upload your EIA report (SYEIA-1485)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(retryConsultations).toHaveBeenCalledTimes(1);
     expect(updateEiaFees).not.toHaveBeenCalled();
+  });
+
+  it('lets a draft full EIA with no report upload it after consultations have started (recovery)', async () => {
+    consultations = { ...consultations, consultationsStarted: true };
+    draftCheck = 'editable';
+    renderPage();
+    expect(await screen.findByTestId('file-upload')).toBeInTheDocument();
+    expect(screen.getByText(/You chose a full EIA but have not uploaded your EIA report/)).toBeInTheDocument();
+    triggerUpload.mockResolvedValueOnce({ uploadedFiles: [{ id: 'f-1', filename: 'eia.pdf' }], applicationDocuments: [{ documentId: 'd-1', fileId: 'f-1' }], scanErrors: [] });
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(updateEiaFees).toHaveBeenCalledTimes(1));
+    expect(await screen.findByRole('heading', { name: 'Task list page' })).toBeInTheDocument();
+  });
+
+  it('keeps the page read-only after consultations start when the application is not an editable draft', async () => {
+    consultations = { ...consultations, consultationsStarted: true };
+    draftCheck = 'locked';
+    renderPage();
+    expect(await screen.findByRole('heading', { name: 'EIA question page' })).toBeInTheDocument();
+    expect(screen.queryByTestId('file-upload')).not.toBeInTheDocument();
+  });
+
+  it('keeps the page read-only after consultations start when the report is already uploaded', async () => {
+    consultations = { ...consultations, consultationsStarted: true };
+    draftCheck = 'editable';
+    savedFees = { ...FULL_EIA, uploadedFiles: [{ id: 'f-1', filename: 'eia.pdf' }], applicationDocuments: [{ documentId: 'd-1', fileId: 'f-1', title: 'eia.pdf' }] };
+    renderPage();
+    expect(await screen.findByRole('heading', { name: 'EIA question page' })).toBeInTheDocument();
+    expect(screen.queryByTestId('file-upload')).not.toBeInTheDocument();
   });
 
   it('sends the applicant back to the question when the answer is not a full EIA', async () => {

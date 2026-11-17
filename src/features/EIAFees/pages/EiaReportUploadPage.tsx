@@ -10,6 +10,7 @@ import { useAuthUserContext } from '../../../context/AuthUserContext';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useEiaFees } from '../../../hooks/useEiaFees';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
+import { useEditableDraft } from '../hooks/useEditableDraft';
 import type { AuthUser } from '../../../types/auth';
 import type { ApplicationDocument, UploadedFile } from '../../../types/fileUpload';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
@@ -59,6 +60,21 @@ const EiaReportUploadPage: React.FC = () => {
     // and a failed fetch leaves checked false.
     const consultationsPending = consultationsLoading || !consultationsChecked;
     const consultationsFailed = !consultationsLoading && !consultationsChecked && !!consultationsError;
+    // Recovery: a full EIA left without a report when consultations started can still have its report uploaded,
+    // while the application is an editable draft. Any other answer stays read-only once consultations start.
+    const savedAnswerLoaded = !!eiaFees && eiaFees.applicationId === applicationId;
+    const reportMissing = savedAnswerLoaded
+        && getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) === EIA_ASSESSMENT.FULL_EIA
+        && (eiaFees.applicationDocuments ?? []).length === 0;
+    const recoveryCheckNeeded = consultationsChecked && consultationsStarted && reportMissing;
+    const draftCheck = useEditableDraft(applicationId, recoveryCheckNeeded);
+    const [recovering, setRecovering] = useState(false);
+    useEffect(() => {
+        if (recoveryCheckNeeded && draftCheck === 'editable') setRecovering(true);
+    }, [recoveryCheckNeeded, draftCheck]);
+    const locked = consultationsStarted && !recovering;
+    const lockConfirmed = consultationsStarted && !recovering
+        && ((savedAnswerLoaded && !reportMissing) || (!!loadError && !eiaFees) || draftCheck === 'locked');
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
     const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
     const [fileErrors, setFileErrors] = useState<string[]>([]);
@@ -71,10 +87,10 @@ const EiaReportUploadPage: React.FC = () => {
         if (applicationId) fetchEiaFees(applicationId);
     }, [applicationId, fetchEiaFees]);
 
-    // Once consultations have started the EIA answer is read-only, as on the question page.
+    // Once consultations have started the EIA answer is read-only, as on the question page (apart from the recovery above).
     useEffect(() => {
-        if (!consultationsPending && consultationsStarted) navigate(eiaUrl, { replace: true });
-    }, [consultationsPending, consultationsStarted, eiaUrl, navigate]);
+        if (!consultationsPending && lockConfirmed) navigate(eiaUrl, { replace: true });
+    }, [consultationsPending, lockConfirmed, eiaUrl, navigate]);
 
     // No saved answer yet: the assessment question comes first.
     useEffect(() => {
@@ -101,7 +117,7 @@ const EiaReportUploadPage: React.FC = () => {
     }, [errors, fileErrors]);
 
     const handleSubmit = async (saveType: 'continue' | 'later') => {
-        if (consultationsPending || consultationsStarted) return;
+        if (consultationsPending || locked) return;
         if (fileUploadRef.current?.isBusy()) {
             setFileErrors([SCAN_IN_PROGRESS]);
             return;
@@ -164,7 +180,7 @@ const EiaReportUploadPage: React.FC = () => {
         );
     }
 
-    if (consultationsPending || consultationsStarted || (loading && !eiaFees)) return <p className="govuk-body">Loading...</p>;
+    if (consultationsPending || locked || (loading && !eiaFees)) return <p className="govuk-body">Loading...</p>;
 
     const reportError = errors.find((e) => e.field === EIAFeesErrorField.EIA_REPORT)?.message;
     // File type, size and scan errors go in the summary too, linked to the file input.
@@ -183,6 +199,9 @@ const EiaReportUploadPage: React.FC = () => {
                 <div className="govuk-grid-column-two-thirds">
                     <ErrorSummary ref={errorSummaryRef} errors={summaryErrors} />
                     <h1 className="govuk-heading-l">{EIA_CONTENT.UPLOAD_TITLE}</h1>
+                    {recovering && (
+                        <div className="govuk-inset-text">{EIA_CONTENT.REPORT_MISSING_AFTER_CONSULTATION}</div>
+                    )}
                     <p className="govuk-body">
                         You need to submit an EIA report as part of your request for a full environmental impact assessment (EIA).
                     </p>

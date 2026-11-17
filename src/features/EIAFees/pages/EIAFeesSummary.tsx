@@ -6,6 +6,9 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import EiaFeesSummaryCard from '../component/EiaFeesSummaryCard';
+import { EIA_ASSESSMENT, EIA_CONTENT } from '../constants/eiaAssessment';
+import { useEditableDraft } from '../hooks/useEditableDraft';
+import { getEiaAssessment } from '../utils/eiaAssessment';
 
 /**
  * Read-only EIA Fees Summary Page
@@ -14,6 +17,11 @@ import EiaFeesSummaryCard from '../component/EiaFeesSummaryCard';
 const EIAFeesSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
     const { eiaFees, fetchEiaFees, loading } = useEiaFees();
+    // SYEIA-1485 recovery: a full EIA without a report on a draft can still have the report uploaded.
+    const reportMissing = !loading && !!eiaFees
+        && getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) === EIA_ASSESSMENT.FULL_EIA
+        && (eiaFees.applicationDocuments ?? []).length === 0;
+    const canUploadReport = useEditableDraft(applicationId, reportMissing) === 'editable' && reportMissing;
 
     useBreadcrumb(
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -62,6 +70,15 @@ const EIAFeesSummary: React.FC = () => {
                                 screeningOnly={eiaFees?.screeningOnly}
                                 reportNames={(eiaFees?.applicationDocuments ?? []).map((doc) => doc.title).filter((title): title is string => !!title)}
                             />
+                        )}
+
+                        {canUploadReport && (
+                            <div className="govuk-inset-text">
+                                <p className="govuk-body">{EIA_CONTENT.REPORT_MISSING_AFTER_CONSULTATION}</p>
+                                <Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/eia-fees/upload-eia-report`}>
+                                    {EIA_CONTENT.UPLOAD_TITLE}
+                                </Link>
+                            </div>
                         )}
 
                         <Link to={`${S37_BASE_URL}/${applicationId}/task-list`} className="govuk-button govuk-button--secondary" data-module="govuk-button">

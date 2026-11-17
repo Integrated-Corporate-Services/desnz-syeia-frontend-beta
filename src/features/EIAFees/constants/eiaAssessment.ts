@@ -28,6 +28,8 @@ export const EIA_CONTENT = {
   BREADCRUMB: 'EIA',
   QUESTION: 'Select an assessment option',
   UPLOAD_TITLE: 'Upload your EIA report',
+  // Shown when a full EIA has no report but consultations have already started (SYEIA-1485 recovery).
+  REPORT_MISSING_AFTER_CONSULTATION: 'You chose a full EIA but have not uploaded your EIA report. You need to upload it before you can submit this application.',
   SUMMARY_ASSESSMENT: 'EIA assessment',
   SUMMARY_REPORT: 'EIA report',
 };
