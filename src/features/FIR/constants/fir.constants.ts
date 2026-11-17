@@ -13,6 +13,12 @@ export const FIR_CATEGORY_LABELS: Record<string, string> = {
   FIR_NWL_APPLICATION_PLAN: 'Application plan',
   FIR_NWL_EVIDENCE_OF_NEGOTIATIONS: 'Evidence of negotiations',
   FIR_NWL_ADDITIONAL_DOCUMENTS: 'Additional documents',
+  FIR_CPO_ORDER_DOCUMENTS: 'Order documents',
+  FIR_CPO_STATEMENT_OF_REASONS: 'Statement of reasons',
+  FIR_CPO_SCHEDULE_OF_LAND: 'Schedule of land',
+  FIR_CPO_ENVIRONMENTAL_INFORMATION: 'Environmental information',
+  FIR_CPO_SUPPORTING_EVIDENCE: 'Supporting evidence',
+  FIR_CPO_ADDITIONAL_DOCUMENTS: 'Additional documents',
 };
 
 export const S37_FIR_CATEGORY_GROUPS: Array<{ heading?: string; categories: string[] }> = [
@@ -49,9 +55,29 @@ export const NWL_FIR_CATEGORY_GROUPS: Array<{ heading: string; categories: strin
   { heading: 'Additional information', categories: ['FIR_NWL_ADDITIONAL_DOCUMENTS'] },
 ];
 
+export const CPO_FIR_CATEGORY_GROUPS: Array<{ heading: string; categories: string[] }> = [
+  {
+    heading: 'Order documents',
+    categories: [
+      'FIR_CPO_ORDER_DOCUMENTS',
+      'FIR_CPO_STATEMENT_OF_REASONS',
+      'FIR_CPO_SCHEDULE_OF_LAND',
+    ],
+  },
+  {
+    heading: 'Environmental and land',
+    categories: ['FIR_CPO_ENVIRONMENTAL_INFORMATION'],
+  },
+  {
+    heading: 'Supporting evidence',
+    categories: ['FIR_CPO_SUPPORTING_EVIDENCE', 'FIR_CPO_ADDITIONAL_DOCUMENTS'],
+  },
+];
+
 export const FIR_CATEGORY_GROUPS = [
   ...S37_FIR_CATEGORY_GROUPS,
   ...NWL_FIR_CATEGORY_GROUPS,
+  ...CPO_FIR_CATEGORY_GROUPS,
 ];
 
 export const FIR_MESSAGES = {
@@ -66,4 +92,5 @@ export const FIR_MESSAGES = {
 export const FIR_CONTACT_EMAIL = {
   S37: 's37consents@energysecurity.gov.uk',
   NWL: 'necessarywayleaves@energysecurity.gov.uk',
+  CPO: 'compulsorypurchaseorders@energysecurity.gov.uk',
 } as const;

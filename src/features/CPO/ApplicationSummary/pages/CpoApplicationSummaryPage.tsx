@@ -7,6 +7,8 @@ import { APPLICATION_SUMMARY_CONSTANTS } from '../../../ApplicationSummary/const
 import { WithdrawalNotificationBanner } from '../../../ApplicationSummary/components/WithdrawalNotificationBanner';
 import { ApplicationSummaryBreadcrumbs } from '../../../ApplicationSummary/components/ApplicationSummaryBreadcrumbs';
 import { noticeDateText } from '../../RecordNotices/utils/noticeRecord';
+import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
+import { isFirFeatureDisabled } from '../../../../utils/disabledFormTypes';
 import { useCpoApplicationId } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationId';
 import CpoApplicationAnswers from '../../CheckAndSubmitApplication/components/CpoApplicationAnswers';
 import { useCpoApplicationAnswers } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationAnswers';
@@ -71,6 +73,13 @@ const CpoApplicationSummaryPage: React.FC = () => {
             </div>
           </dl></div>
         </div>
+        {!isFirFeatureDisabled() && (
+          <FirSummaryCard
+            applicationId={applicationId}
+            basePath={`${CPO_BASE_URL}/${applicationId}/further-information-requests`}
+            placement="top"
+          />
+        )}
         {/* A native button, as on S37 and NWL: it renders after the async lookups, so Enter and Space must work without GOV.UK Frontend's init. */}
         {canWithdraw && <button className="govuk-button govuk-button--secondary" type="button" data-module="govuk-button"
           onClick={() => navigate(`${base}/withdraw`, { state: { desnzRef: reference, formType: 'CPO' } })}>
