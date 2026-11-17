@@ -85,6 +85,7 @@ export const S37ApplicationSummaryContent: React.FC<S37ApplicationSummaryContent
                 <FirSummaryCard
                     applicationId={applicationId}
                     basePath={`${S37_BASE_URL}/${applicationId}/further-information-requests`}
+                    placement="top"
                 />
             )}
 

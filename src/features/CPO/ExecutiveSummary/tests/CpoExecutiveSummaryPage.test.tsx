@@ -82,8 +82,8 @@ describe('CPO executive summary', () => {
     expect(cpoExecutiveSummaryService.save).toHaveBeenCalledWith('application-id', false);
   });
 
-  it('preserves the application-review Back and save destinations', async () => {
-    renderPage('?from=application-review'); await ready();
+  it('preserves the check-and-submit Back and save destinations', async () => {
+    renderPage('?from=check-and-submit'); await ready();
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));

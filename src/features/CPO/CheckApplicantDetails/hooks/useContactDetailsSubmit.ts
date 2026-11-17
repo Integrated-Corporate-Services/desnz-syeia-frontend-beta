@@ -64,7 +64,7 @@ export function useContactDetailsSubmit({
         contactIsConfirmed ? 'Completed' : 'Not completed',
       );
 
-      navigate(`${CPO_BASE_URL}/${appId}/${new URLSearchParams(location.search).get('from') === 'application-review' ? 'check-and-submit' : 'task-list'}`);
+      navigate(`${CPO_BASE_URL}/${appId}/${new URLSearchParams(location.search).get('from') === 'check-and-submit' ? 'check-and-submit' : 'task-list'}`);
     } catch {
       setError('Unable to save the applicant details. Try again.');
     } finally {

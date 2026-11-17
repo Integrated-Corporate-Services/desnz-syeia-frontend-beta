@@ -35,7 +35,7 @@ const CpoProjectOverviewPage: React.FC = () => {
   const [errors, setErrors] = useState<FormError[]>([]);
   const errorSummary = useRef<HTMLDivElement>(null);
   const [searchParams] = useSearchParams();
-  const exitUrl = `${CPO_BASE_URL}/${applicationId}/${searchParams.get('from') === 'application-review' ? 'check-and-submit' : 'task-list'}`;
+  const exitUrl = `${CPO_BASE_URL}/${applicationId}/${searchParams.get('from') === 'check-and-submit' ? 'check-and-submit' : 'task-list'}`;
 
   useBreadcrumb(<Link className="govuk-back-link" to={exitUrl}>Back</Link>);
 

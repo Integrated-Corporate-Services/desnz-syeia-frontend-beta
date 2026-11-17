@@ -102,7 +102,7 @@ describe('CPO project overview page', () => {
   });
 
   it('returns to check your answers when opened from the application review', async () => {
-    renderPage('?from=application-review');
+    renderPage('?from=check-and-submit');
     await ready();
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/application-id/check-and-submit');
     fireEvent.change(nameInput(), { target: { value: 'North Ridge' } });

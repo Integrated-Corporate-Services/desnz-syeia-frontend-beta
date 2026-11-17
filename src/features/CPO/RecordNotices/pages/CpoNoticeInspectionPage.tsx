@@ -73,7 +73,7 @@ const CpoNoticeInspectionPage: React.FC = () => {
       if (later) navigate('/application-dashboard');
       else if (addressPage) navigate(entryUrl('inspection-date', address.id));
       else if (datePage) navigate(`${base}/inspection${returnQuery}`);
-      else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'application-review' ? '?from=application-review' : ''}`);
+      else navigate(`${base}/${params.get('from') ? 'check' : 'online'}${params.get('from') === 'check-and-submit' ? '?from=check-and-submit' : ''}`);
     } catch (failure) { const message = failure instanceof Error ? failure.message : 'Unable to save the inspection address. Try again.'; setErrors([{ id: inspectionErrorField(message, addressPage, datePage), message }]); }
     finally { setSaving(false); }
   };

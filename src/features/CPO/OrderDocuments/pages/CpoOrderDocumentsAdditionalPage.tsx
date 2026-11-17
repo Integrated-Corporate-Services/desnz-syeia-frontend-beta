@@ -18,7 +18,7 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
   let step: (typeof DOCUMENT_STEPS)[number] = 'additional' as any;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const fromApplicationReview = searchParams.get('from') === 'application-review';
+  const fromApplicationReview = searchParams.get('from') === 'check-and-submit';
   const fromCheck = searchParams.get('from') === 'check' || fromApplicationReview;
   const [data, setData] = useState<OrderDocumentsResponse>({ orderDetails: {}, documents: [] });
   const [loading, setLoading] = useState(true);
@@ -34,8 +34,8 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
   const editable = true;
   const category = step === 'check' ? '' : DOCUMENT_CATEGORIES[step];
   const pageDocuments = data.documents.filter(document => step !== 'check' && DOCUMENT_GROUP_CATEGORIES[step].includes(document.category));
-  const backUrl = fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=application-review' : ''}`
-    : step === 'order' ? `${CPO_BASE_URL}/${applicationId}/task-list` : `${base}/${DOCUMENT_STEPS[DOCUMENT_STEPS.indexOf(step) - 1]}${fromApplicationReview ? '?from=application-review' : ''}`;
+  const backUrl = fromCheck && step !== 'check' ? `${base}/check${fromApplicationReview ? '?from=check-and-submit' : ''}`
+    : step === 'order' ? `${CPO_BASE_URL}/${applicationId}/task-list` : `${base}/${DOCUMENT_STEPS[DOCUMENT_STEPS.indexOf(step) - 1]}${fromApplicationReview ? '?from=check-and-submit' : ''}`;
   useBreadcrumb(<Link className="govuk-back-link" to={backUrl}>Back</Link>);
 
   useEffect(() => {
@@ -77,7 +77,7 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
       setData((current) => result);
       if (saveForLater) { navigate('/application-dashboard'); return; }
       const next = fromCheck ? 'check' : DOCUMENT_STEPS[DOCUMENT_STEPS.indexOf(step) + 1];
-      navigate(step === 'check' ? `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}` : `${base}/${next}${fromApplicationReview ? '?from=application-review' : ''}`);
+      navigate(step === 'check' ? `${CPO_BASE_URL}/${applicationId}/${fromApplicationReview ? 'check-and-submit' : 'task-list'}` : `${base}/${next}${fromApplicationReview ? '?from=check-and-submit' : ''}`);
     } catch (failure) {
       setErrors([{ id: step === 'check' ? 'documents-heading' : 'file-upload-input', message: failure instanceof Error ? failure.message : 'Unable to save documents. Try again.' }]);
     } finally { setSaving(false); }
@@ -128,7 +128,7 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
                 {step === 'order' && (data.orderDetails.includesSpecialLand === false
                   ? <p className="govuk-body">Form 1 applies because the order does not include common land, open space or an allotment. Section 10(2) of the Acquisition of Land Act 1981 and regulation 3 of SI 2004/2595 set the form.</p>
                   : <p className="govuk-body">Your order includes common land, open space or allotment. Check the prescribed form and the certificate requirements under section 19 of the Acquisition of Land Act 1981 before uploading.</p>)}
-                  {step === 'order' && data.orderDetails.includesSpecialLand === true && typeof data.orderDetails.exchangeLand !== 'boolean' && <p className="govuk-body">Complete the <Link className="govuk-link" to={`${CPO_BASE_URL}/${applicationId}/order-details/exchange-land?from=order-documents${fromApplicationReview ? '&return=application-review' : ''}`}>exchange land question</Link> before continuing.</p>}
+                  {step === 'order' && data.orderDetails.includesSpecialLand === true && typeof data.orderDetails.exchangeLand !== 'boolean' && <p className="govuk-body">Complete the <Link className="govuk-link" to={`${CPO_BASE_URL}/${applicationId}/order-details/exchange-land?from=order-documents${fromApplicationReview ? '&return=check-and-submit' : ''}`}>exchange land question</Link> before continuing.</p>}
               </div>
             </details>}
           </> : <>
@@ -136,7 +136,7 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
               const files = data.documents.filter(document => DOCUMENT_GROUP_CATEGORIES[target].includes(document.category));
               return <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{SUMMARY_LABELS[target]}</dt>
                 <dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{files.length ? readOnlyDocuments(files) : target === 'additional' ? 'None uploaded' : 'Not uploaded'}</dd>
-                <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'application-review' : 'check'}`}>Change<span className="govuk-visually-hidden"> {SUMMARY_LABELS[target].toLowerCase()}</span></Link></dd>
+                <dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'check-and-submit' : 'check'}`}>Change<span className="govuk-visually-hidden"> {SUMMARY_LABELS[target].toLowerCase()}</span></Link></dd>
               </div>;
             })}</dl>
           </>}

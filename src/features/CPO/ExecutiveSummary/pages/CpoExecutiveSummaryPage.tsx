@@ -16,7 +16,7 @@ const CpoExecutiveSummaryPage: React.FC = () => {
   const applicationId = useCpoApplicationId();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const exitUrl = getExecutiveSummaryExitUrl(applicationId, searchParams.get('from') === 'application-review');
+  const exitUrl = getExecutiveSummaryExitUrl(applicationId, searchParams.get('from') === 'check-and-submit');
   const { documents, setDocuments, loading, loadFailed, loadError, refreshDocuments } = useExecutiveSummary(applicationId);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<ExecutiveSummaryFormError[]>([]);

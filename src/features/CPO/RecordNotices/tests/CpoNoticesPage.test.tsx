@@ -61,8 +61,8 @@ describe('CPO notices journey', () => {
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/cpo/app/task-list');
   });
   it('redirects a legacy requirements URL into the combined journey', async () => {
-    renderStep('legacy', '?from=application-review'); await ready();
-    expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/requirements?from=application-review', { replace: true });
+    renderStep('legacy', '?from=check-and-submit'); await ready();
+    expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/requirements?from=check-and-submit', { replace: true });
   });
   it('preserves requirements acknowledgement when saving for later', async () => {
     renderStep('requirements'); await ready();
@@ -88,6 +88,12 @@ describe('CPO notices journey', () => {
     renderStep('website'); await ready(); setDate('liveDate', '14');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'website', expect.objectContaining({ liveDate: '2026-10-14' }), false));
+  });
+  it('rejects a site notice date in the future without saving', async () => {
+    renderStep('site'); await ready(); setDate('completionDate', '1', '1', '2099');
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(await screen.findAllByText('Date the site notices were displayed cannot be in the future')).not.toHaveLength(0);
+    expect(cpoNoticesService.save).not.toHaveBeenCalled();
   });
   it('saves partial forms for later without completing the section', async () => {
     stored.record.inspection = { format: 'reference', addresses: [] };
@@ -116,13 +122,13 @@ describe('CPO notices journey', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/check'));
   });
   it('preserves the application review return path through publicity rechecking', async () => {
-    renderStep('website', '?from=application-review'); await ready();
+    renderStep('website', '?from=check-and-submit'); await ready();
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/check?from=application-review'));
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/check?from=check-and-submit'));
   });
   it('returns a confirmed publicity review to the whole application', async () => {
-    renderStep('check', '?from=application-review'); await ready();
-    expect(screen.getByRole('link', { name: 'Change enter the website address' })).toHaveAttribute('href', '/cpo/app/record-notices/online?from=application-review');
+    renderStep('check', '?from=check-and-submit'); await ready();
+    expect(screen.getByRole('link', { name: 'Change enter the website address' })).toHaveAttribute('href', '/cpo/app/record-notices/online?from=check-and-submit');
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/cpo/app/check-and-submit'));
   });
