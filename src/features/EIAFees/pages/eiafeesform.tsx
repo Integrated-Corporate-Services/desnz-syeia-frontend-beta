@@ -44,7 +44,14 @@ const EIAFeesForm: React.FC = () => {
     );
 
     const { eiaFees, fetchEiaFees, createEiaFees, updateEiaFees } = useEiaFees();
-    const { loading: requirementLoading, mandatory, highVoltage, sensitiveArea } = useEiaScreeningRequirement(applicationId);
+    const {
+        loading: requirementLoading,
+        failed: requirementFailed,
+        retry: retryRequirement,
+        mandatory,
+        highVoltage,
+        sensitiveArea,
+    } = useEiaScreeningRequirement(applicationId);
     const { consultationsStarted, loading: consultationsLoading } = useConsultationsStarted(applicationId);
     const [assessment, setAssessment] = useState<EiaAssessment | ''>('');
     const [errors, setErrors] = useState<ValidationError[]>([]);
@@ -91,6 +98,8 @@ const EIAFeesForm: React.FC = () => {
             return;
         }
         // Save for later keeps a chosen option but does not ask for one.
+        // The options depend on the screening requirement, so nothing is saved until it has loaded.
+        if (requirementFailed) return;
         if (saveType === 'later' && !assessment) {
             navigate(taskListUrl);
             return;
@@ -120,6 +129,24 @@ const EIAFeesForm: React.FC = () => {
 
     if (consultationsStarted) {
         return <EIAFeesSummary />;
+    }
+
+    // Without the requirement we cannot tell which options apply, so show the error and a retry instead of the question.
+    if (requirementFailed) {
+        return (
+            <>
+                <PageTitle title={EIA_CONTENT.PAGE_TITLE} />
+                <div className="govuk-grid-row">
+                    <div className="govuk-grid-column-two-thirds">
+                        <ErrorSummary errors={[{ fieldId: 'general', message: EIA_FEES_ERROR_MESSAGES.API.REQUIREMENT_LOAD_FAILED }]} />
+                        <h1 className="govuk-heading-l">{EIA_CONTENT.PAGE_TITLE}</h1>
+                        <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button" onClick={retryRequirement}>
+                            Try again
+                        </button>
+                    </div>
+                </div>
+            </>
+        );
     }
 
     return (

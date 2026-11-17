@@ -8,11 +8,12 @@ import { ConsultationStatus } from '../constants/consultationStatus';
  * Returns object with consultationsStarted boolean and loading state
  *
  * @param applicationId - The application ID to check consultations for
- * @returns object - { consultationsStarted: boolean, loading: boolean }
+ * @returns object - { consultationsStarted: boolean, loading: boolean, checked: boolean }
+ * (checked is true once the consultations have been fetched; loading is false before the fetch starts)
  */
-export function useConsultationsStarted(applicationId: string | undefined): { consultationsStarted: boolean; loading: boolean } {
+export function useConsultationsStarted(applicationId: string | undefined): { consultationsStarted: boolean; loading: boolean; checked: boolean } {
     const { user } = useAuthUser();
-    const { consultations, loading } = useConsultationDetails(applicationId, user?.user_id);
+    const { consultations, loading, checked } = useConsultationDetails(applicationId, user?.user_id);
 
     const consultationsStarted = useMemo(() => {
         if (!consultations || consultations.length === 0) {
@@ -22,5 +23,5 @@ export function useConsultationsStarted(applicationId: string | undefined): { co
         return consultations.some((consultation) => consultation.status.toLowerCase() !== ConsultationStatus.NOT_STARTED.toLowerCase());
     }, [consultations]);
 
-    return { consultationsStarted, loading };
+    return { consultationsStarted, loading, checked };
 }

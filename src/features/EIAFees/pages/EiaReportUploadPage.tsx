@@ -9,6 +9,7 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { useAuthUserContext } from '../../../context/AuthUserContext';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useEiaFees } from '../../../hooks/useEiaFees';
+import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import type { AuthUser } from '../../../types/auth';
 import type { ApplicationDocument, UploadedFile } from '../../../types/fileUpload';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
@@ -47,6 +48,9 @@ const EiaReportUploadPage: React.FC = () => {
     );
 
     const { eiaFees, loading, error: loadError, fetchEiaFees, updateEiaFees } = useEiaFees();
+    const { consultationsStarted, loading: consultationsLoading, checked: consultationsChecked } = useConsultationsStarted(applicationId);
+    // Wait for a finished check: the hook reports loading false before its first fetch starts.
+    const consultationsPending = consultationsLoading || !consultationsChecked;
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
     const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
     const [fileErrors, setFileErrors] = useState<string[]>([]);
@@ -58,6 +62,11 @@ const EiaReportUploadPage: React.FC = () => {
     useEffect(() => {
         if (applicationId) fetchEiaFees(applicationId);
     }, [applicationId, fetchEiaFees]);
+
+    // Once consultations have started the EIA answer is read-only, as on the question page.
+    useEffect(() => {
+        if (!consultationsPending && consultationsStarted) navigate(eiaUrl, { replace: true });
+    }, [consultationsPending, consultationsStarted, eiaUrl, navigate]);
 
     useEffect(() => {
         // No saved answer yet: the assessment question comes first.
@@ -76,10 +85,11 @@ const EiaReportUploadPage: React.FC = () => {
     }, [eiaFees, loadError, applicationId, eiaUrl, navigate]);
 
     useEffect(() => {
-        if (errors.length > 0) errorSummaryRef.current?.focus();
-    }, [errors]);
+        if (errors.length > 0 || fileErrors.length > 0) errorSummaryRef.current?.focus();
+    }, [errors, fileErrors]);
 
     const handleSubmit = async (saveType: 'continue' | 'later') => {
+        if (consultationsPending || consultationsStarted) return;
         if (fileUploadRef.current?.isBusy()) {
             setFileErrors([SCAN_IN_PROGRESS]);
             return;
@@ -124,13 +134,18 @@ const EiaReportUploadPage: React.FC = () => {
         }
     };
 
-    if (loading && !eiaFees) return <p className="govuk-body">Loading...</p>;
+    // FileUpload is not mounted until we know the application is still editable.
+    if (consultationsPending || consultationsStarted || (loading && !eiaFees)) return <p className="govuk-body">Loading...</p>;
 
     const reportError = errors.find((e) => e.field === EIAFeesErrorField.EIA_REPORT)?.message;
-    const summaryErrors = errors.map((e) => ({
-        fieldId: e.field === EIAFeesErrorField.EIA_REPORT ? FILE_INPUT_ID : e.field,
-        message: e.message,
-    }));
+    // File type, size and scan errors go in the summary too, linked to the file input.
+    const summaryErrors = [
+        ...errors.map((e) => ({
+            fieldId: e.field === EIAFeesErrorField.EIA_REPORT ? FILE_INPUT_ID : e.field,
+            message: e.message,
+        })),
+        ...fileErrors.map((message) => ({ fieldId: FILE_INPUT_ID, message })),
+    ];
 
     return (
         <>
@@ -149,7 +164,7 @@ const EiaReportUploadPage: React.FC = () => {
                             </p>
                         )}
                         {fileErrors.map((error, index) => (
-                            <p key={index} className="govuk-error-message">
+                            <p key={index} className="govuk-error-message" id={`${FILE_INPUT_ID}-error-${index}`}>
                                 <span className="govuk-visually-hidden">Error:</span> {error}
                             </p>
                         ))}

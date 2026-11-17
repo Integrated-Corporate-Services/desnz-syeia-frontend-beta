@@ -6,6 +6,8 @@ import log from "../logger";
 interface UseConsultationDetailsReturn {
   consultations: ConsultationDetails[];
   loading: boolean;
+  /** True once a fetch has finished for the current application and user. */
+  checked: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 }
@@ -26,6 +28,8 @@ export const useConsultationDetails = (
   const [consultations, setConsultations] = useState<ConsultationDetails[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkedKey, setCheckedKey] = useState<string | null>(null);
+  const key = applicationId && userId ? `${applicationId}|${userId}` : null;
 
   const fetchConsultations = useCallback(async () => {
     if (!applicationId || !userId) {
@@ -54,6 +58,7 @@ export const useConsultationDetails = (
       setError(errorMessage);
     } finally {
       setLoading(false);
+      setCheckedKey(`${applicationId}|${userId}`);
     }
   }, [applicationId, userId]);
 
@@ -64,6 +69,7 @@ export const useConsultationDetails = (
   return {
     consultations,
     loading,
+    checked: key !== null && checkedKey === key,
     error,
     refetch: fetchConsultations,
   };

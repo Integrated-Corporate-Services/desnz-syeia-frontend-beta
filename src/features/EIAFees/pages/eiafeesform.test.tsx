@@ -8,7 +8,8 @@ import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 const createEiaFees = vi.fn();
 const updateEiaFees = vi.fn();
 let savedFees: Record<string, unknown> | null = null;
-let requirement = { loading: false, mandatory: false, highVoltage: false, sensitiveArea: false };
+const retry = vi.fn();
+let requirement = { loading: false, failed: false, retry, mandatory: false, highVoltage: false, sensitiveArea: false };
 
 vi.mock('../../../context/AuthUserContext', () => ({ useAuthUserContext: () => ({ user: { user_id: 'user-1' } }) }));
 vi.mock('../../../hooks/useConsultationsStarted', () => ({ useConsultationsStarted: () => ({ consultationsStarted: false, loading: false }) }));
@@ -37,7 +38,7 @@ describe('EIA fees page (SYEIA-1485)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     savedFees = null;
-    requirement = { loading: false, mandatory: false, highVoltage: false, sensitiveArea: false };
+    requirement = { loading: false, failed: false, retry, mandatory: false, highVoltage: false, sensitiveArea: false };
     createEiaFees.mockResolvedValue({});
     updateEiaFees.mockResolvedValue({});
   });
@@ -50,7 +51,7 @@ describe('EIA fees page (SYEIA-1485)', () => {
   });
 
   it('offers full EIA first and lists only the reasons that apply when screening is mandatory (Image 3)', () => {
-    requirement = { loading: false, mandatory: true, highVoltage: false, sensitiveArea: true };
+    requirement = { ...requirement, mandatory: true, highVoltage: false, sensitiveArea: true };
     renderPage();
     expect(optionLabels()).toEqual(['Full EIA', 'EIA screening']);
     expect(screen.getByText('route passes through one or more sensitive areas')).toBeInTheDocument();
@@ -82,10 +83,24 @@ describe('EIA fees page (SYEIA-1485)', () => {
   });
 
   it('leaves an old "No" unselected when screening is mandatory', () => {
-    requirement = { loading: false, mandatory: true, highVoltage: true, sensitiveArea: false };
+    requirement = { ...requirement, mandatory: true, highVoltage: true, sensitiveArea: false };
     savedFees = { eiaFeeId: 'e-1', applicationId: APP, isEiaDevelopment: false, screeningOnly: false };
     renderPage();
     screen.getAllByRole('radio').forEach((radio) => expect(radio).not.toBeChecked());
+  });
+
+  it('shows an error and Try again instead of the options when the screening requirement cannot be loaded', () => {
+    requirement = { ...requirement, failed: true };
+    savedFees = { eiaFeeId: 'e-1', applicationId: APP, isEiaDevelopment: false, screeningOnly: false };
+    renderPage();
+    expect(screen.getByText('We could not check whether an EIA screening decision is mandatory for this application. Try again.')).toBeInTheDocument();
+    expect(screen.queryAllByRole('radio')).toHaveLength(0);
+    expect(screen.queryByRole('button', { name: 'Save and continue' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(retry).toHaveBeenCalledTimes(1);
+    expect(createEiaFees).not.toHaveBeenCalled();
+    expect(updateEiaFees).not.toHaveBeenCalled();
   });
 
   it('Save for later returns to the task list without asking for an option', async () => {

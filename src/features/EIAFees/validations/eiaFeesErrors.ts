@@ -22,5 +22,6 @@ export const EIA_FEES_ERROR_MESSAGES = {
     API: {
         SUBMIT_FAILED: 'Failed to submit EIA Fees. Please try again.',
         UNKNOWN_ERROR: 'An unexpected error occurred. Please try again.',
+        REQUIREMENT_LOAD_FAILED: 'We could not check whether an EIA screening decision is mandatory for this application. Try again.',
     },
 };
