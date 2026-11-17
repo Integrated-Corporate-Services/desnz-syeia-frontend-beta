@@ -48,9 +48,17 @@ const EiaReportUploadPage: React.FC = () => {
     );
 
     const { eiaFees, loading, error: loadError, fetchEiaFees, updateEiaFees } = useEiaFees();
-    const { consultationsStarted, loading: consultationsLoading, checked: consultationsChecked } = useConsultationsStarted(applicationId);
-    // Wait for a finished check: the hook reports loading false before its first fetch starts.
+    const {
+        consultationsStarted,
+        loading: consultationsLoading,
+        checked: consultationsChecked,
+        error: consultationsError,
+        retry: retryConsultations,
+    } = useConsultationsStarted(applicationId);
+    // Upload, delete and save need a successful check: the hook reports loading false before its first fetch starts,
+    // and a failed fetch leaves checked false.
     const consultationsPending = consultationsLoading || !consultationsChecked;
+    const consultationsFailed = !consultationsLoading && !consultationsChecked && !!consultationsError;
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
     const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
     const [fileErrors, setFileErrors] = useState<string[]>([]);
@@ -135,6 +143,23 @@ const EiaReportUploadPage: React.FC = () => {
     };
 
     // FileUpload is not mounted until we know the application is still editable.
+    if (consultationsFailed) {
+        return (
+            <>
+                <PageTitle title={EIA_CONTENT.UPLOAD_TITLE} />
+                <div className="govuk-grid-row">
+                    <div className="govuk-grid-column-two-thirds">
+                        <ErrorSummary errors={[{ fieldId: 'general', message: EIA_FEES_ERROR_MESSAGES.API.CONSULTATIONS_LOAD_FAILED }]} />
+                        <h1 className="govuk-heading-l">{EIA_CONTENT.UPLOAD_TITLE}</h1>
+                        <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button" onClick={retryConsultations}>
+                            Try again
+                        </button>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
     if (consultationsPending || consultationsStarted || (loading && !eiaFees)) return <p className="govuk-body">Loading...</p>;
 
     const reportError = errors.find((e) => e.field === EIAFeesErrorField.EIA_REPORT)?.message;

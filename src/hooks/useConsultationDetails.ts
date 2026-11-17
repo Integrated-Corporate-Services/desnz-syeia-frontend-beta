@@ -6,7 +6,7 @@ import log from "../logger";
 interface UseConsultationDetailsReturn {
   consultations: ConsultationDetails[];
   loading: boolean;
-  /** True once a fetch has finished for the current application and user. */
+  /** True once a fetch has succeeded for the current application and user (a failed fetch leaves it false). */
   checked: boolean;
   error: string | null;
   refetch: () => Promise<void>;
@@ -48,6 +48,7 @@ export const useConsultationDetails = (
       );
       const data = await fetchConsultationDetails(applicationId, userId);
       setConsultations(Array.isArray(data) ? data : []);
+      setCheckedKey(`${applicationId}|${userId}`);
       log.debug("Consultation details response:", data);
     } catch (err: unknown) {
       const errorMessage =
@@ -58,7 +59,6 @@ export const useConsultationDetails = (
       setError(errorMessage);
     } finally {
       setLoading(false);
-      setCheckedKey(`${applicationId}|${userId}`);
     }
   }, [applicationId, userId]);
 

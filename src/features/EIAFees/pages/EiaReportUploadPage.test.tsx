@@ -8,7 +8,9 @@ import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 const updateEiaFees = vi.fn();
 const triggerUpload = vi.fn();
 let savedFees: Record<string, unknown> | null = null;
-let consultations = { consultationsStarted: false, loading: false, checked: true };
+const retryConsultations = vi.fn();
+type ConsultationState = { consultationsStarted: boolean; loading: boolean; checked: boolean; error: string | null; retry: () => void };
+let consultations: ConsultationState = { consultationsStarted: false, loading: false, checked: true, error: null, retry: retryConsultations };
 
 vi.mock('../../../context/AuthUserContext', () => ({ useAuthUserContext: () => ({ user: { user_id: 'user-1' } }) }));
 vi.mock('../../../hooks/useConsultationsStarted', () => ({ useConsultationsStarted: () => consultations }));
@@ -46,7 +48,7 @@ describe('Upload your EIA report (SYEIA-1485)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     savedFees = { ...FULL_EIA, uploadedFiles: [], applicationDocuments: [] };
-    consultations = { consultationsStarted: false, loading: false, checked: true };
+    consultations = { consultationsStarted: false, loading: false, checked: true, error: null, retry: retryConsultations };
     triggerUpload.mockResolvedValue({ uploadedFiles: [], applicationDocuments: [], scanErrors: [] });
     updateEiaFees.mockResolvedValue({});
   });
@@ -76,20 +78,32 @@ describe('Upload your EIA report (SYEIA-1485)', () => {
   });
 
   it('does not show the upload once consultations have started and goes to the read-only EIA page', async () => {
-    consultations = { consultationsStarted: true, loading: false, checked: true };
+    consultations = { ...consultations, consultationsStarted: true };
     renderPage();
     expect(await screen.findByRole('heading', { name: 'EIA question page' })).toBeInTheDocument();
     expect(screen.queryByTestId('file-upload')).not.toBeInTheDocument();
   });
 
   it.each([
-    ['while it is loading', { consultationsStarted: false, loading: true, checked: false }],
-    ['before it has started', { consultationsStarted: false, loading: false, checked: false }],
+    ['while it is loading', { loading: true, checked: false }],
+    ['before it has started', { loading: false, checked: false }],
   ])('waits for the consultation check before showing the upload (%s)', (_label, state) => {
-    consultations = state;
+    consultations = { ...consultations, ...state };
     renderPage();
     expect(screen.getByText('Loading...')).toBeInTheDocument();
     expect(screen.queryByTestId('file-upload')).not.toBeInTheDocument();
+  });
+
+  it('shows an error and Try again, with no upload or save, when the consultation check fails', () => {
+    consultations = { ...consultations, checked: false, error: 'Failed to fetch consultation details' };
+    renderPage();
+    expect(screen.getByText('We could not check whether consultations have started for this application. Try again.')).toBeInTheDocument();
+    expect(screen.queryByTestId('file-upload')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save and continue' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(retryConsultations).toHaveBeenCalledTimes(1);
+    expect(updateEiaFees).not.toHaveBeenCalled();
   });
 
   it('sends the applicant back to the question when the answer is not a full EIA', async () => {
