@@ -22,6 +22,7 @@ import { EIA_FEES_ERROR_MESSAGES, EIAFeesErrorField, validateEiaReport, type Val
 
 const logger = createLogger('EiaReportUploadPage');
 const SCAN_IN_PROGRESS = 'File scan is in progress. Wait for the scan to finish before continuing.';
+const DELETE_IN_PROGRESS = 'A file is being deleted. Wait for it to finish before continuing.';
 // The error summary links to the file input itself.
 const FILE_INPUT_ID = 'file-upload-input';
 
@@ -117,11 +118,26 @@ const EiaReportUploadPage: React.FC = () => {
     }, [errors, fileErrors]);
 
     const handleSubmit = async (saveType: 'continue' | 'later') => {
-        if (consultationsPending || locked) return;
+        if (consultationsPending || locked || saving) return;
         if (fileUploadRef.current?.isBusy()) {
             setFileErrors([SCAN_IN_PROGRESS]);
             return;
         }
+        // The report count below must not include a file whose delete is still in flight.
+        if (fileUploadRef.current?.isDeleting?.()) {
+            setFileErrors([DELETE_IN_PROGRESS]);
+            return;
+        }
+        // Saving also blocks Delete, so the file list can't change between the count and the save.
+        setSaving(true);
+        try {
+            await uploadAndSave(saveType);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const uploadAndSave = async (saveType: 'continue' | 'later') => {
         let newlyUploaded: UploadedFile[] = [];
         if (fileUploadRef.current) {
             try {
@@ -144,7 +160,6 @@ const EiaReportUploadPage: React.FC = () => {
         setErrors(validationErrors);
         if (validationErrors.length > 0 || !eiaFees?.eiaFeeId) return;
 
-        setSaving(true);
         try {
             // Saving the answer again lets the backend mark the section complete now the report is there.
             await updateEiaFees({
@@ -157,8 +172,6 @@ const EiaReportUploadPage: React.FC = () => {
             navigate(saveType === 'later' ? taskListUrl : getNextPageUrl(TASK_NAMES.EIA_FEES, applicationId));
         } catch {
             setErrors([{ field: 'general', message: EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED }]);
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -228,6 +241,7 @@ const EiaReportUploadPage: React.FC = () => {
                             uploadedFiles={uploadedFiles}
                             applicationDocuments={applicationDocuments}
                             uploadImmediately={true}
+                            deleteDisabled={saving}
                             onUploaded={(files, documents) => {
                                 setUploadedFiles((prev) => [...prev, ...files]);
                                 setApplicationDocuments((prev) => [...prev, ...documents]);

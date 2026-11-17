@@ -86,6 +86,7 @@ export interface FileUploadProps {
   uploadImmediately?: boolean; // New prop to control upload timing
   onPendingFilesChange?: (files: File[]) => void; // New prop to notify parent of pending files
   uploadEndpoints?: { presignedUrl: string; confirm: string };
+  deleteDisabled?: boolean; // Ignore Delete clicks, e.g. while the parent page is saving
 }
 
 export interface FileUploadHandle {
@@ -96,6 +97,7 @@ export interface FileUploadHandle {
   }>;
   getPendingFiles: () => File[];
   isBusy: () => boolean;
+  isDeleting?: () => boolean;
 }
 
 const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
@@ -122,6 +124,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   uploadImmediately = false, // Changed: Wait for "Save and Continue" by default
   onPendingFilesChange,
   uploadEndpoints,
+  deleteDisabled = false,
 }, ref) => {
   // Get user from auth context
   const { user } = useAuthUserContext();
@@ -131,6 +134,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
   const [pendingFiles, setPendingFiles] = useState<File[]>([]); // New state for files awaiting upload
   const [rejectedFiles, setRejectedFiles] = useState<RejectedFile[]>([]); // Infected/failed-scan files - kept visible so the user can delete them
   const [isScanning, setIsScanning] = useState<boolean>(false);
+  // Deletes in flight, read synchronously so a parent can hold a save until the file list is settled.
+  const deletingCount = useRef(0);
 
   const onValidationErrorsRef = useRef(onValidationErrors);
   const onPendingFilesChangeRef = useRef(onPendingFilesChange);
@@ -172,6 +177,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
     },
     getPendingFiles: () => pendingFiles,
     isBusy: () => isScanning,
+    isDeleting: () => deletingCount.current > 0,
   }));
 
   // Notify parent when pending files change
@@ -655,6 +661,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
 
   // Handle file deletion from S3
   const handleDeleteFile = async (fileId: string, s3Key: string) => {
+    deletingCount.current += 1;
     try {
       if (!applicationId) {
         const msg = 'Application ID is required to delete files';
@@ -699,6 +706,8 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
         errorMessage: errorMsg,
         error: err
       });
+    } finally {
+      deletingCount.current -= 1;
     }
   };
 
@@ -768,6 +777,7 @@ const FileUpload = forwardRef<FileUploadHandle, FileUploadProps>(({
                       className="govuk-link"
                       onClick={async (e) => {
                         e.preventDefault();
+                        if (deleteDisabled) return;
                         if (onDeleteFile) {
                           await handleDeleteFile(file.id, file.s3Key);
                         } else if (onRemoveFile) {

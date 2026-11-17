@@ -7,6 +7,7 @@ import { BreadcrumbProvider } from '../../../context/BreadcrumbContext';
 
 const updateEiaFees = vi.fn();
 const triggerUpload = vi.fn();
+let deleting = false;
 let savedFees: Record<string, unknown> | null = null;
 let hookError: string | null = null;
 const retryConsultations = vi.fn();
@@ -21,10 +22,10 @@ vi.mock('../../../hooks/useEiaFees', () => ({
   useEiaFees: () => ({ eiaFees: savedFees, loading: false, error: hookError, fetchEiaFees: vi.fn(), updateEiaFees }),
 }));
 vi.mock('../../../components/FileUpload', () => ({
-  default: React.forwardRef((props: { onValidationErrors?: (errors: string[]) => void; uploadedFiles?: { filename: string }[] }, ref) => {
-    React.useImperativeHandle(ref, () => ({ triggerUpload, isBusy: () => false, getPendingFiles: () => [] }));
+  default: React.forwardRef((props: { onValidationErrors?: (errors: string[]) => void; uploadedFiles?: { filename: string }[]; deleteDisabled?: boolean }, ref) => {
+    React.useImperativeHandle(ref, () => ({ triggerUpload, isBusy: () => false, isDeleting: () => deleting, getPendingFiles: () => [] }));
     return (
-      <div data-testid="file-upload">
+      <div data-testid="file-upload" data-delete-disabled={String(!!props.deleteDisabled)}>
         <ul aria-label="Uploaded files">{(props.uploadedFiles ?? []).map((f) => <li key={f.filename}>{f.filename}</li>)}</ul>
         <input id="file-upload-input" type="file" aria-label="Upload a file" />
         <button type="button" onClick={() => props.onValidationErrors?.(['The selected file must be smaller than 50MB'])}>Pick a large file</button>
@@ -54,6 +55,7 @@ describe('Upload your EIA report (SYEIA-1485)', () => {
     savedFees = { ...FULL_EIA, uploadedFiles: [], applicationDocuments: [] };
     hookError = null;
     draftCheck = 'locked';
+    deleting = false;
     consultations = { consultationsStarted: false, loading: false, checked: true, error: null, retry: retryConsultations };
     triggerUpload.mockResolvedValue({ uploadedFiles: [], applicationDocuments: [], scanErrors: [] });
     updateEiaFees.mockResolvedValue({});
@@ -88,6 +90,29 @@ describe('Upload your EIA report (SYEIA-1485)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
     await waitFor(() => expect(updateEiaFees).toHaveBeenCalledTimes(2));
     expect(screen.queryByText('Select a file to upload')).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Task list page' })).toBeInTheDocument();
+  });
+
+  it('does not save while a report delete is still in flight, so a stale file count is never used', async () => {
+    savedFees = { ...FULL_EIA, uploadedFiles: [{ id: 'f-1', filename: 'eia.pdf' }], applicationDocuments: [{ documentId: 'd-1', fileId: 'f-1' }] };
+    deleting = true;
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    expect(await screen.findByRole('link', { name: 'A file is being deleted. Wait for it to finish before continuing.' })).toHaveAttribute('href', '#file-upload-input');
+    expect(triggerUpload).not.toHaveBeenCalled();
+    expect(updateEiaFees).not.toHaveBeenCalled();
+  });
+
+  it('blocks Delete while the save is running', async () => {
+    triggerUpload.mockResolvedValue({ uploadedFiles: [{ id: 'f-1', filename: 'eia.pdf' }], applicationDocuments: [{ documentId: 'd-1', fileId: 'f-1' }], scanErrors: [] });
+    let finishSave: () => void = () => {};
+    updateEiaFees.mockImplementationOnce(() => new Promise((resolve) => { finishSave = () => resolve({}); }));
+    renderPage();
+    expect(screen.getByTestId('file-upload')).toHaveAttribute('data-delete-disabled', 'false');
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(updateEiaFees).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId('file-upload')).toHaveAttribute('data-delete-disabled', 'true');
+    await act(async () => { finishSave(); });
     expect(await screen.findByRole('heading', { name: 'Task list page' })).toBeInTheDocument();
   });
 
