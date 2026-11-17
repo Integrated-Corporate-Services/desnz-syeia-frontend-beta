@@ -3,6 +3,7 @@ import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import PaginationComponent from "./PaginationComponent";
 import { formatUserRoleLabel } from "../../../utils/roleUtils";
 import { ADMIN_COMMON_CONSTANTS, USER_DETAILS_CONSTANTS } from "../constants/userManagementConstants";
+import { formatLastLogin } from "../utils/userDetails";
 import "../../../styles/DashboardMobile.css";
 
 interface User {
@@ -16,15 +17,6 @@ interface User {
 }
 
 const formatRole = formatUserRoleLabel;
-
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return 'Never';
-  return new Date(dateString).toLocaleDateString('en-GB', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
-  });
-};
 
 interface ActiveUsersTabProps {
   totalResults: number;
@@ -128,7 +120,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                       </strong>
                     </td>
                     <td className="govuk-table__cell">
-                      {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Never'}
+                      {formatLastLogin(user.lastLogin)}
                     </td>
                     <td className="govuk-table__cell">
                       {user.role !== "SYSTEM" && (
@@ -178,7 +170,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                     </div>
                     <div className="user-card__row">
                       <span className="user-card__label">Last login: </span>
-                      <span className="user-card__value">{formatDate(user.lastLogin)}</span>
+                      <span className="user-card__value">{formatLastLogin(user.lastLogin)}</span>
                     </div>
                   </div>
                   {user.role !== "SYSTEM" && (

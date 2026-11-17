@@ -111,7 +111,6 @@ import { isFirFeatureDisabled, isNotificationsFeatureDisabled, isYourDetailsFeat
 import { isManualReassignmentEnabled } from '../config/appConfig';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
-import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
 // Old S37 ApplicationSummary - keep for S37 backward compatibility
@@ -507,12 +506,6 @@ export const ROUTE_CONFIG: RouteConfig[] = [
             {
                 path: '/admin/organisations/:organisationId/team-coordinators',
                 component: TeamCoordinatorsPage,
-                auth: true,
-                layout: true,
-            },
-            {
-                path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
-                component: ManageTeamCoordinatorPage,
                 auth: true,
                 layout: true,
             },

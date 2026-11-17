@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useManageUsersNavigation } from '../../../hooks';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { ACCESS_REVOKED_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 
 const AccessRevokedPage: React.FC = () => {
   const location = useLocation();
@@ -17,44 +18,36 @@ const AccessRevokedPage: React.FC = () => {
         navigateToDashboard();
       }}
     >
-      Back
+      {ADMIN_COMMON_CONSTANTS.BACK}
     </a>
   );
 
   const state = location.state as { userName?: string; userEmail?: string } | null;
-  const userName = state?.userName || 'the user';
+  const userName = state?.userName || ACCESS_REVOKED_CONSTANTS.DEFAULT_USER_NAME;
   const userEmail = state?.userEmail || '';
 
   return (
     <>
-      <PageTitle title="Access revoked" />
-            <div className="govuk-width-container">
+      <PageTitle title={ACCESS_REVOKED_CONSTANTS.TITLE} />
+      <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <div className="govuk-panel" style={{ backgroundColor: '#00703c', color: '#ffffff' }}>
-              <h1 className="govuk-panel__title" style={{ color: '#ffffff' }}>
-                Access revoked
-              </h1>
-              <div className="govuk-panel__body" style={{ color: '#ffffff' }}>
-                {userName} can no longer sign in and use the service
+            <div className="govuk-panel govuk-panel--confirmation">
+              <h1 className="govuk-panel__title">{ACCESS_REVOKED_CONSTANTS.TITLE}</h1>
+              <div className="govuk-panel__body">
+                {ACCESS_REVOKED_CONSTANTS.PANEL_BODY(userName)}
                 {userEmail && (
                   <>
                     <br />
-                    <strong style={{ color: '#ffffff' }}>{userEmail}</strong>
+                    <strong className="govuk-!-text-break-word">{userEmail}</strong>
                   </>
                 )}
               </div>
             </div>
 
-            <h2 className="govuk-heading-m">What happens next</h2>
-
-            <p className="govuk-body">
-              The user has been notified by email that their access has been revoked. They will no longer be able to sign in to the service.
-            </p>
-
-            <p className="govuk-body">
-              If their access needs to be restored in the future, you or another can reinstate their account from the Manage users section.
-            </p>
+            <h2 className="govuk-heading-m">{ACCESS_REVOKED_CONSTANTS.WHAT_HAPPENS_NEXT}</h2>
+            <p className="govuk-body">{ACCESS_REVOKED_CONSTANTS.NOTIFIED}</p>
+            <p className="govuk-body">{ACCESS_REVOKED_CONSTANTS.REINSTATE}</p>
 
             <button
               type="button"
@@ -63,13 +56,12 @@ const AccessRevokedPage: React.FC = () => {
                 e.preventDefault();
                 navigateToDashboard();
               }}
-              style={{ backgroundColor: '#00703c', boxShadow: '0 2px 0 #002d18' }}
             >
-              Return to dashboard
+              {ADMIN_COMMON_CONSTANTS.RETURN_TO_DASHBOARD}
             </button>
           </div>
         </div>
-          </div>
+      </div>
     </>
   );
 };

@@ -9,6 +9,7 @@ import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { REVOKE_USER_ACCESS_CONSTANTS, USER_DETAILS_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
 import { findUserForOrganisation } from '../utils/findUserForOrganisation';
+import { formatLastLogin, formatApplicantType } from '../utils/userDetails';
 
 const RevokeUserAccessPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -77,20 +78,6 @@ const RevokeUserAccessPage: React.FC = () => {
     );
   }
 
-  const formatLastLogin = (lastLogin: string | null) => {
-    if (!lastLogin) return USER_DETAILS_CONSTANTS.LAST_LOGIN_NEVER;
-    const date = new Date(lastLogin);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    }) + ' at ' + date.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  };
-
   const formatRole = formatUserRoleLabel;
 
   if (!user) {
@@ -144,7 +131,9 @@ const RevokeUserAccessPage: React.FC = () => {
               </div>
             )}
             <p className="govuk-body">
-              {REVOKE_USER_ACCESS_CONSTANTS.WARNING}
+              {user.role === ROLES.APPLICANT_TEAM_COORDINATOR
+                ? REVOKE_USER_ACCESS_CONSTANTS.WARNING_TEAM_COORDINATOR
+                : REVOKE_USER_ACCESS_CONSTANTS.WARNING}
             </p>
 
             <dl className="govuk-summary-list govuk-!-margin-bottom-6">
@@ -163,6 +152,10 @@ const RevokeUserAccessPage: React.FC = () => {
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.PHONE_NUMBER}</dt>
                 <dd className="govuk-summary-list__value">{user.phone || USER_DETAILS_CONSTANTS.NOT_PROVIDED}</dd>
+              </div>
+              <div className="govuk-summary-list__row">
+                <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.APPLICANT_TYPE}</dt>
+                <dd className="govuk-summary-list__value">{formatApplicantType(user)}</dd>
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.ROLE}</dt>

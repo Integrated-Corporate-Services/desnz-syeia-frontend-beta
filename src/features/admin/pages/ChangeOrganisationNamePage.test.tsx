@@ -55,8 +55,8 @@ describe('ChangeOrganisationNamePage', () => {
   it('pre-populates the current name and links back to manage organisation', () => {
     renderPage();
 
-    expect(screen.getByRole('heading', { name: 'Organisation name' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Enter the name of the organisation')).toHaveValue('SSE Networks');
+    expect(screen.getByRole('heading', { name: 'Enter the organisation name' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Enter the organisation name')).toHaveValue('SSE Networks');
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute(
       'href',
       '/admin/organisation/organisation-123/settings'
@@ -75,7 +75,7 @@ describe('ChangeOrganisationNamePage', () => {
     ['a'.repeat(256), 'Organisation name must be 255 characters or fewer'],
   ])('shows client-side validation and does not submit invalid input', async (value, message) => {
     renderPage();
-    fireEvent.change(screen.getByLabelText('Enter the name of the organisation'), { target: { value } });
+    fireEvent.change(screen.getByLabelText('Enter the organisation name'), { target: { value } });
 
     fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
 
@@ -85,7 +85,7 @@ describe('ChangeOrganisationNamePage', () => {
       'href',
       '#organisationName'
     );
-    expect(screen.getByLabelText('Enter the name of the organisation')).toHaveAttribute(
+    expect(screen.getByLabelText('Enter the organisation name')).toHaveAttribute(
       'aria-describedby',
       'organisationName-error'
     );
@@ -98,7 +98,7 @@ describe('ChangeOrganisationNamePage', () => {
       validationErrors: { organisationName: 'An organisation with this name already exists' },
     });
     renderPage();
-    fireEvent.change(screen.getByLabelText('Enter the name of the organisation'), {
+    fireEvent.change(screen.getByLabelText('Enter the organisation name'), {
       target: { value: 'Existing Network' },
     });
 
@@ -112,7 +112,7 @@ describe('ChangeOrganisationNamePage', () => {
   it('submits a trimmed name and returns to manage organisation on success', async () => {
     vi.mocked(organisationService.updateOrganisationName).mockResolvedValue({ success: true });
     renderPage();
-    fireEvent.change(screen.getByLabelText('Enter the name of the organisation'), {
+    fireEvent.change(screen.getByLabelText('Enter the organisation name'), {
       target: { value: '  National Grid  ' },
     });
 

@@ -36,7 +36,7 @@ const UserAccessRevokedPage: React.FC = () => {
           <div className="govuk-warning-text">
               <span className="govuk-warning-text__icon" aria-hidden="true">!</span>
               <strong className="govuk-warning-text__text">
-                <span className="govuk-warning-text__assistive">Warning</span>
+                <span className="govuk-visually-hidden">Warning</span>
                 You have been automatically signed out for security purposes.
               </strong>
             </div>
