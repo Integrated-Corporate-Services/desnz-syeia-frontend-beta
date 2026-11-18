@@ -17,6 +17,8 @@ export const NOTIFICATION_TYPES = {
   APPLICATION_STATUS_CHANGED: 'APPLICATION_STATUS_CHANGED',
   // SYEIA-2402: an application reassigned. Shown as text, with the application reference as a link.
   APPLICATION_REASSIGNED: 'APPLICATION_REASSIGNED',
+  // SYEIA-2172: an Ultra Superuser revoked a user's access to the Team Coordinator's organisation; text only.
+  USER_ACCESS_REVOKED: 'USER_ACCESS_REVOKED',
 } as const;
 
 export const NOTIFICATIONS_PAGE_SIZE = 10;
