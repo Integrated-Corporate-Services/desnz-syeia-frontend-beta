@@ -81,6 +81,7 @@ const UserManagementDashboard: React.FC = () => {
                 usersError={usersError}
                 usersLoading={usersLoading}
                 paginatedUsers={paginatedUsers}
+                showOrganisation={isSuperUser}
                 navigateToRevokeUser={navigateToRevokeUser}
                 currentPage={currentPage}
                 totalPages={totalPages}
