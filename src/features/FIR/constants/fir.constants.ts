@@ -13,12 +13,16 @@ export const FIR_CATEGORY_LABELS: Record<string, string> = {
   FIR_NWL_APPLICATION_PLAN: 'Application plan',
   FIR_NWL_EVIDENCE_OF_NEGOTIATIONS: 'Evidence of negotiations',
   FIR_NWL_ADDITIONAL_DOCUMENTS: 'Additional documents',
-  FIR_CPO_ORDER_DOCUMENTS: 'Order documents',
-  FIR_CPO_STATEMENT_OF_REASONS: 'Statement of reasons',
+  FIR_CPO_ORDER_DOCUMENTS: 'The order documents',
+  FIR_CPO_STATEMENT_OF_REASONS: 'Statement of reasons and related documents',
   FIR_CPO_SCHEDULE_OF_LAND: 'Schedule of land',
   FIR_CPO_ENVIRONMENTAL_INFORMATION: 'Environmental information',
   FIR_CPO_SUPPORTING_EVIDENCE: 'Supporting evidence',
   FIR_CPO_ADDITIONAL_DOCUMENTS: 'Additional documents',
+  FIR_CPO_EXECUTIVE_SUMMARY: 'Executive summary',
+  FIR_CPO_NEWSPAPER_NOTICE: 'Newspaper notice',
+  FIR_CPO_SITE_NOTICE: 'Site notice',
+  FIR_CPO_STATEMENT_OF_SERVICE: 'Statement of service',
 };
 
 export const S37_FIR_CATEGORY_GROUPS: Array<{ heading?: string; categories: string[] }> = [
@@ -61,16 +65,20 @@ export const CPO_FIR_CATEGORY_GROUPS: Array<{ heading: string; categories: strin
     categories: [
       'FIR_CPO_ORDER_DOCUMENTS',
       'FIR_CPO_STATEMENT_OF_REASONS',
-      'FIR_CPO_SCHEDULE_OF_LAND',
+      'FIR_CPO_EXECUTIVE_SUMMARY',
     ],
   },
   {
-    heading: 'Environmental and land',
-    categories: ['FIR_CPO_ENVIRONMENTAL_INFORMATION'],
+    heading: 'Public notices',
+    categories: ['FIR_CPO_NEWSPAPER_NOTICE', 'FIR_CPO_SITE_NOTICE'],
   },
   {
-    heading: 'Supporting evidence',
-    categories: ['FIR_CPO_SUPPORTING_EVIDENCE', 'FIR_CPO_ADDITIONAL_DOCUMENTS'],
+    heading: 'Statement of service',
+    categories: ['FIR_CPO_STATEMENT_OF_SERVICE'],
+  },
+  {
+    heading: 'Additional information',
+    categories: ['FIR_CPO_ADDITIONAL_DOCUMENTS'],
   },
 ];
 
