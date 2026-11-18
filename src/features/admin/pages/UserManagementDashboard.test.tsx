@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import UserManagementDashboard from './UserManagementDashboard';
@@ -51,5 +51,23 @@ describe('UserManagementDashboard wording (SYEIA-2703)', () => {
     expect(screen.getByText('Manage access request and users for your Organisation')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Access requests (0)' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Access requests' })).toBeInTheDocument();
+  });
+});
+
+// SYEIA-2168: only Ultrasuperusers see the Organisation column on the Active users tab.
+describe('UserManagementDashboard Active users Organisation column (SYEIA-2168)', () => {
+  const activeUsersHeaders = () =>
+    within(document.getElementById('active-users')!).getAllByRole('columnheader', { hidden: true }).map((th) => th.textContent?.trim());
+
+  it('is shown to Ultrasuperusers', () => {
+    isSuperUser = true;
+    renderPage();
+    expect(activeUsersHeaders()).toContain('Organisation');
+  });
+
+  it('is not shown to team coordinators', () => {
+    isSuperUser = false;
+    renderPage();
+    expect(activeUsersHeaders()).not.toContain('Organisation');
   });
 });

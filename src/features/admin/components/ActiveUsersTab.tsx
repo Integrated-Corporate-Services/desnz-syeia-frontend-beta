@@ -23,6 +23,7 @@ interface ActiveUsersTabProps {
   usersError: string;
   usersLoading: boolean;
   paginatedUsers: User[];
+  showOrganisation: boolean;
   navigateToRevokeUser: (userId: string) => void;
   currentPage: number;
   totalPages: number;
@@ -35,6 +36,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
   usersLoading,
   navigateToRevokeUser,
   paginatedUsers,
+  showOrganisation,
   currentPage,
   totalPages,
   handlePageChange,
@@ -75,9 +77,11 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                 <th scope="col" className="govuk-table__header">
                   Name
                 </th>
-                <th scope="col" className="govuk-table__header">
-                  {USER_DETAILS_CONSTANTS.ORGANISATION}
-                </th>
+                {showOrganisation && (
+                  <th scope="col" className="govuk-table__header">
+                    {USER_DETAILS_CONSTANTS.ORGANISATION}
+                  </th>
+                )}
                 <th scope="col" className="govuk-table__header">
                   Email
                 </th>
@@ -100,7 +104,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                 <tr className="govuk-table__row">
                   <td
                     className="govuk-table__cell"
-                    colSpan={7}
+                    colSpan={showOrganisation ? 7 : 6}
                   >
                     <p className="govuk-body">No active users found.</p>
                   </td>
@@ -109,7 +113,9 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                 paginatedUsers.map((user) => (
                   <tr key={`${user.id}-${user.organisation}`} className="govuk-table__row">
                     <td className="govuk-table__cell">{user.fullName}</td>
-                    <td className="govuk-table__cell">{user.organisation || ADMIN_COMMON_CONSTANTS.NOT_APPLICABLE}</td>
+                    {showOrganisation && (
+                      <td className="govuk-table__cell">{user.organisation || ADMIN_COMMON_CONSTANTS.NOT_APPLICABLE}</td>
+                    )}
                     <td className="govuk-table__cell active-users-email">{user.email}</td>
                     <td className="govuk-table__cell">
                       {formatRole(user.role)}
@@ -156,10 +162,12 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                     </div>
                   </div>
                   <div className="user-card__body">
-                    <div className="user-card__row">
-                      <span className="user-card__label">Organisation: </span>
-                      <span className="user-card__value">{user.organisation || ADMIN_COMMON_CONSTANTS.NOT_APPLICABLE}</span>
-                    </div>
+                    {showOrganisation && (
+                      <div className="user-card__row">
+                        <span className="user-card__label">Organisation: </span>
+                        <span className="user-card__value">{user.organisation || ADMIN_COMMON_CONSTANTS.NOT_APPLICABLE}</span>
+                      </div>
+                    )}
                     <div className="user-card__row">
                       <span className="user-card__label">Email: </span>
                       <span className="user-card__value active-users-email">{user.email}</span>

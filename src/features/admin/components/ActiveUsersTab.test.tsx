@@ -18,13 +18,14 @@ const activeUser = (overrides: Partial<React.ComponentProps<typeof ActiveUsersTa
   ...overrides,
 });
 
-const renderTab = (users = [activeUser()]) =>
+const renderTab = (users = [activeUser()], showOrganisation = true) =>
   render(
     <ActiveUsersTab
       totalResults={users.length}
       usersError=""
       usersLoading={false}
       paginatedUsers={users}
+      showOrganisation={showOrganisation}
       navigateToRevokeUser={vi.fn()}
       currentPage={1}
       totalPages={1}
@@ -41,7 +42,7 @@ describe('ActiveUsersTab', () => {
     emails.forEach((email) => expect(email).toHaveClass('active-users-email'));
   });
 
-  // SYEIA-2168: the table shows each user's organisation, in the column order of the design.
+  // SYEIA-2168: the Ultra Superuser's table shows each user's organisation, in the column order of the design.
   it('shows an Organisation column after Name', () => {
     renderTab();
 
@@ -75,7 +76,7 @@ describe('ActiveUsersTab', () => {
       activeUser({ id: 'agent-1', fullName: 'David Clarke-Agent', email: 'david.agent@example.test', organisation: 'National Grid Electricity Distribution' }),
     ];
     const nextPageUsers = [activeUser({ id: 'user-2', fullName: 'Emma Davies', email: 'emma@example.test', organisation: 'SP Manweb' })];
-    const props = { totalResults: 3, usersError: '', usersLoading: false, navigateToRevokeUser: vi.fn(), currentPage: 1, totalPages: 2, handlePageChange: vi.fn() };
+    const props = { totalResults: 3, usersError: '', usersLoading: false, showOrganisation: true, navigateToRevokeUser: vi.fn(), currentPage: 1, totalPages: 2, handlePageChange: vi.fn() };
     const { rerender } = render(<ActiveUsersTab {...props} paginatedUsers={multiOrg} />);
 
     const firstPage = within(screen.getByRole('table')).getAllByRole('row').slice(1).map((tr) => tr.textContent);
@@ -95,5 +96,33 @@ describe('ActiveUsersTab', () => {
 
     const emptyCell = within(screen.getByRole('table')).getByText('No active users found.').closest('td');
     expect(emptyCell).toHaveAttribute('colspan', '7');
+  });
+
+  // SYEIA-2168: a team coordinator only sees users of their own organisation, so the column is not shown.
+  describe('for a team coordinator', () => {
+    it('does not show the Organisation column', () => {
+      renderTab([activeUser()], false);
+
+      const headers = within(screen.getByRole('table')).getAllByRole('columnheader').map((th) => th.textContent?.trim());
+      expect(headers).toEqual(['Name', 'Email', 'Role', 'Status', 'Last login', 'Action(s)']);
+
+      const cells = within(screen.getByRole('table')).getAllByRole('cell').map((td) => td.textContent?.trim());
+      expect(cells.slice(0, 2)).toEqual(['Longemail Testuser', longEmail]);
+    });
+
+    it('does not show the organisation on the mobile card', () => {
+      renderTab([activeUser()], false);
+
+      const card = screen.getByRole('listitem');
+      expect(within(card).queryByText('Organisation:')).not.toBeInTheDocument();
+      expect(screen.queryByText('National Grid')).not.toBeInTheDocument();
+    });
+
+    it('spans the remaining six columns with the empty message', () => {
+      renderTab([], false);
+
+      const emptyCell = within(screen.getByRole('table')).getByText('No active users found.').closest('td');
+      expect(emptyCell).toHaveAttribute('colspan', '6');
+    });
   });
 });
