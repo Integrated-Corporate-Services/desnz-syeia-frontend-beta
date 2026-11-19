@@ -53,6 +53,23 @@ describe('ActiveUsersTab', () => {
     expect(cells.slice(0, 2)).toEqual(['Longemail Testuser', 'National Grid']);
   });
 
+  // SYEIA-2168 AC2: last login is the date only, as in the design ("05 March 2025"), in the table and the mobile card.
+  it('shows last login as a date with no time', () => {
+    renderTab([activeUser({ lastLogin: new Date(2025, 2, 5, 14, 20).toISOString() })]);
+
+    const cells = within(screen.getByRole('table')).getAllByRole('cell').map((td) => td.textContent?.trim());
+    expect(cells[5]).toBe('05 March 2025');
+    expect(screen.getAllByText('05 March 2025')).toHaveLength(2);
+    expect(screen.queryByText(/2:20pm/)).not.toBeInTheDocument();
+  });
+
+  it('shows "Never" for a user who has not signed in', () => {
+    renderTab();
+
+    const cells = within(screen.getByRole('table')).getAllByRole('cell').map((td) => td.textContent?.trim());
+    expect(cells[5]).toBe('Never');
+  });
+
   it('lists every organisation of a user who belongs to more than one', () => {
     renderTab([activeUser({ organisation: 'National Grid, SSE Networks' })]);
 
