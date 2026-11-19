@@ -48,6 +48,13 @@ const CpoApplicationSummaryPage: React.FC = () => {
       {loading && <p className="govuk-body" role="status">Loading the application...</p>}
       {!loading && !data && <button className="govuk-button govuk-button--secondary" type="button" onClick={retry}>Try again</button>}
       {data && status && <>
+        {!isFirFeatureDisabled() && (
+          <FirSummaryCard
+            applicationId={applicationId}
+            basePath={`${CPO_BASE_URL}/${applicationId}/further-information-requests`}
+            placement="top"
+          />
+        )}
         <div className="govuk-summary-card">
           <div className="govuk-summary-card__title-wrapper"><h2 className="govuk-summary-card__title">Summary</h2></div>
           <div className="govuk-summary-card__content"><dl className="govuk-summary-list">
@@ -73,13 +80,6 @@ const CpoApplicationSummaryPage: React.FC = () => {
             </div>
           </dl></div>
         </div>
-        {!isFirFeatureDisabled() && (
-          <FirSummaryCard
-            applicationId={applicationId}
-            basePath={`${CPO_BASE_URL}/${applicationId}/further-information-requests`}
-            placement="top"
-          />
-        )}
         {/* A native button, as on S37 and NWL: it renders after the async lookups, so Enter and Space must work without GOV.UK Frontend's init. */}
         {canWithdraw && <button className="govuk-button govuk-button--secondary" type="button" data-module="govuk-button"
           onClick={() => navigate(`${base}/withdraw`, { state: { desnzRef: reference, formType: 'CPO' } })}>

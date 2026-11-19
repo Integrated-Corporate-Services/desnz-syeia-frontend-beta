@@ -89,6 +89,9 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
       <FirErrorSummary error={error} />
       {request && (
         <form onSubmit={submit} noValidate>
+          {!acceptsDocuments && (
+            <p className="govuk-body">You must provide the requested information here if you have not uploaded any documents.</p>
+          )}
           {acceptsDocuments && selectedCategories.map((category) => (
             <div className="govuk-!-margin-bottom-6" key={category}>
               <div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-4" aria-hidden="true" />
@@ -127,10 +130,7 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
           {acceptsDocuments && selectedCategories.length > 0 && (
             <div className="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-6" aria-hidden="true" />
           )}
-          <div className="govuk-form-group">
-            <label className="govuk-label govuk-label--s" htmlFor="additional-information">
-              Additional information{acceptsDocuments ? ' (optional)' : ''}
-            </label>
+          {!acceptsDocuments && (
             <textarea
               className="govuk-textarea"
               id="additional-information"
@@ -140,9 +140,25 @@ export const FirResponseForm: React.FC<FirResponseFormProps> = ({ acceptsDocumen
               onChange={(event) => setComment(event.target.value)}
               aria-describedby="additional-information-hint"
             />
-            <div id="additional-information-hint" className="govuk-hint" aria-live="polite">
-              You can enter up to {(4000 - comment.length).toLocaleString()} characters.
+          )}
+          {acceptsDocuments && (
+            <div className="govuk-form-group">
+              <label className="govuk-label govuk-label--s" htmlFor="additional-information">
+                Additional information (optional)
+              </label>
+              <textarea
+                className="govuk-textarea"
+                id="additional-information"
+                rows={5}
+                maxLength={4000}
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                aria-describedby="additional-information-hint"
+              />
             </div>
+          )}
+          <div id="additional-information-hint" className="govuk-hint" aria-live="polite">
+            You can enter up to 4,000 characters.
           </div>
           <button className="govuk-button" type="submit">Submit</button>
         </form>
