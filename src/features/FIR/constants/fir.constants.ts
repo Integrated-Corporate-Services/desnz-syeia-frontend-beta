@@ -61,24 +61,16 @@ export const NWL_FIR_CATEGORY_GROUPS: Array<{ heading: string; categories: strin
 
 export const CPO_FIR_CATEGORY_GROUPS: Array<{ heading: string; categories: string[] }> = [
   {
-    heading: 'Order documents',
+    heading: '',
     categories: [
+      'FIR_CPO_EXECUTIVE_SUMMARY',
       'FIR_CPO_ORDER_DOCUMENTS',
       'FIR_CPO_STATEMENT_OF_REASONS',
-      'FIR_CPO_EXECUTIVE_SUMMARY',
+      'FIR_CPO_NEWSPAPER_NOTICE',
+      'FIR_CPO_SITE_NOTICE',
+      'FIR_CPO_STATEMENT_OF_SERVICE',
+      'FIR_CPO_ADDITIONAL_DOCUMENTS',
     ],
-  },
-  {
-    heading: 'Public notices',
-    categories: ['FIR_CPO_NEWSPAPER_NOTICE', 'FIR_CPO_SITE_NOTICE'],
-  },
-  {
-    heading: 'Statement of service',
-    categories: ['FIR_CPO_STATEMENT_OF_SERVICE'],
-  },
-  {
-    heading: 'Additional information',
-    categories: ['FIR_CPO_ADDITIONAL_DOCUMENTS'],
   },
 ];
 

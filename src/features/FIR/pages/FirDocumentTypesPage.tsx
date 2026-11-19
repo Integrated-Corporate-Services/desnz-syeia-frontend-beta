@@ -61,7 +61,7 @@ export const FirDocumentTypesPage: React.FC = () => {
             <p className="govuk-hint">You can select more than one type of document.</p>
             {categoryGroups.map((group) => (
               <div className="govuk-checkboxes govuk-!-margin-bottom-5" key={group.heading || 's37'}>
-                {group.heading && <h2 className="govuk-heading-m">{group.heading}</h2>}
+                {!isCpo && group.heading && <h2 className="govuk-heading-m">{group.heading}</h2>}
                 {group.categories.map((category) => (
                   <div className="govuk-checkboxes__item" key={category}>
                     <input className="govuk-checkboxes__input" id={category} type="checkbox" checked={selected.includes(category)} onChange={() => saveSelectedCategories(selected.includes(category) ? selected.filter((item) => item !== category) : [...selected, category])} />
