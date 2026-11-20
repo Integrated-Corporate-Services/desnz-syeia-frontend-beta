@@ -6,6 +6,8 @@ import log from "../logger";
 interface UseConsultationDetailsReturn {
   consultations: ConsultationDetails[];
   loading: boolean;
+  /** True once a fetch has succeeded for the current application and user (a failed fetch leaves it false). */
+  checked: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 }
@@ -26,6 +28,8 @@ export const useConsultationDetails = (
   const [consultations, setConsultations] = useState<ConsultationDetails[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkedKey, setCheckedKey] = useState<string | null>(null);
+  const key = applicationId && userId ? `${applicationId}|${userId}` : null;
 
   const fetchConsultations = useCallback(async () => {
     if (!applicationId || !userId) {
@@ -44,6 +48,7 @@ export const useConsultationDetails = (
       );
       const data = await fetchConsultationDetails(applicationId, userId);
       setConsultations(Array.isArray(data) ? data : []);
+      setCheckedKey(`${applicationId}|${userId}`);
       log.debug("Consultation details response:", data);
     } catch (err: unknown) {
       const errorMessage =
@@ -64,6 +69,7 @@ export const useConsultationDetails = (
   return {
     consultations,
     loading,
+    checked: key !== null && checkedKey === key,
     error,
     refetch: fetchConsultations,
   };

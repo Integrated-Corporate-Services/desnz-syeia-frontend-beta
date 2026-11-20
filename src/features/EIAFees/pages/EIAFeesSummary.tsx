@@ -5,6 +5,11 @@ import { useEiaFees } from '../../../hooks/useEiaFees';
 import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import EiaFeesSummaryCard from '../component/EiaFeesSummaryCard';
+import { EIA_ASSESSMENT, EIA_CONTENT } from '../constants/eiaAssessment';
+import { useEditableDraft } from '../hooks/useEditableDraft';
+import { useEiaFeesCompletion } from '../hooks/useEiaFeesCompletion';
+import { getEiaAssessment } from '../utils/eiaAssessment';
 
 /**
  * Read-only EIA Fees Summary Page
@@ -13,6 +18,14 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 const EIAFeesSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
     const { eiaFees, fetchEiaFees, loading } = useEiaFees();
+    // SYEIA-1485 recovery: a full EIA without a report on a draft can still have the report uploaded, and one whose
+    // report was uploaded but whose save failed (section not Completed) can still finish that save.
+    const fullEia = !loading && !!eiaFees
+        && getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) === EIA_ASSESSMENT.FULL_EIA;
+    const reportMissing = fullEia && (eiaFees?.applicationDocuments ?? []).length === 0;
+    const completionPending = useEiaFeesCompletion(applicationId, fullEia && !reportMissing) === 'incomplete';
+    const recoveryNeeded = reportMissing || completionPending;
+    const canUploadReport = useEditableDraft(applicationId, recoveryNeeded) === 'editable' && recoveryNeeded;
 
     useBreadcrumb(
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -55,24 +68,22 @@ const EIAFeesSummary: React.FC = () => {
                         {loading ? (
                             <p className="govuk-body">Loading...</p>
                         ) : (
-                            <div className="govuk-summary-card">
-                                <div className="govuk-summary-card__title-wrapper">
-                                    <h2 className="govuk-summary-card__title">EIA</h2>
-                                </div>
-                                <div className="govuk-summary-card__content">
-                                    <dl className="govuk-summary-list">
-                                        <div className="govuk-summary-list__row">
-                                            <dt className="govuk-summary-list__key">Is this an EIA development?</dt>
-                                            <dd className="govuk-summary-list__value">{eiaFees?.isEiaDevelopment !== undefined ? (eiaFees.isEiaDevelopment ? 'Yes' : 'No') : '-'}</dd>
-                                        </div>
-                                        {eiaFees?.isEiaDevelopment && (
-                                            <div className="govuk-summary-list__row">
-                                                <dt className="govuk-summary-list__key">Is this screening only?</dt>
-                                                <dd className="govuk-summary-list__value">{eiaFees?.screeningOnly !== undefined ? (eiaFees.screeningOnly ? 'Yes' : 'No') : '-'}</dd>
-                                            </div>
-                                        )}
-                                    </dl>
-                                </div>
+                            <EiaFeesSummaryCard
+                                title="EIA"
+                                isEiaDevelopment={eiaFees?.isEiaDevelopment}
+                                screeningOnly={eiaFees?.screeningOnly}
+                                reportNames={(eiaFees?.applicationDocuments ?? []).map((doc) => doc.title).filter((title): title is string => !!title)}
+                            />
+                        )}
+
+                        {canUploadReport && (
+                            <div className="govuk-inset-text">
+                                <p className="govuk-body">
+                                    {reportMissing ? EIA_CONTENT.REPORT_MISSING_AFTER_CONSULTATION : EIA_CONTENT.REPORT_NOT_SAVED_AFTER_CONSULTATION}
+                                </p>
+                                <Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/eia-fees/upload-eia-report`}>
+                                    {reportMissing ? EIA_CONTENT.UPLOAD_TITLE : EIA_CONTENT.FINISH_SAVING_REPORT}
+                                </Link>
                             </div>
                         )}
 

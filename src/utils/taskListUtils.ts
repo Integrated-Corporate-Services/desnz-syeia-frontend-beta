@@ -429,13 +429,17 @@ export function applyTaskDependencies(sections: TaskListSection[], progress?: { 
         if (section.title === 'Consultations') {
             const locationCompleted = areAllTasksInSectionCompleted('Location');
             const consultationsCompleted = isTaskCompleted('Consultations');
+            // SYEIA-1485: EIA fees stays "In progress" only while a full EIA has no report. Starting a consultation locks
+            // the EIA answer, so the report has to be uploaded first. Consultations already under way are not blocked.
+            const eiaReportPending = progress?.find((p) => p.subsection_name === 'EIA fees')?.status === 'In progress';
 
             return {
                 ...section,
                 items: section.items.map((item) => {
                     // Consultations item depends only on Location being completed
                     if (item.name === 'Consultations') {
-                        if (!locationCompleted) {
+                        const consultationsUnderWay = item.status === 'In progress' || item.status === 'Completed';
+                        if (!locationCompleted || (eiaReportPending && !consultationsUnderWay)) {
                             return {
                                 ...item,
                                 status: 'Cannot start yet',

@@ -152,11 +152,6 @@ export const SUPPORTING_INFO_QUESTIONS = {
   SUPPORTING_INFO_DOCS: 'Supporting information documents'
 } as const;
 
-// EIA questions
-export const EIA_QUESTIONS = {
-  REQUIRES_FULL_EIA: 'Does this application require a full EIA?',
-  SCREENING_ONLY: 'Is this application for screening only?'
-} as const;
 
 export const VALIDATION_MESSAGES = {
   DECLARATION_REQUIRED: 'You must confirm you have read and understood the information',
