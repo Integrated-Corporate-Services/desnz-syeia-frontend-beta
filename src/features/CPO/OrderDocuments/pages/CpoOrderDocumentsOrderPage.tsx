@@ -121,7 +121,7 @@ const CpoOrderDocumentsOrderPage: React.FC = () => {
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${heading}`} />
     <div className="govuk-width-container cpo-order-details cpo-document-uploads">
-    <div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
+    <div className="govuk-grid-row"><div className="govuk-grid-column-three-quarters">
       {errors.length > 0 && <div className="govuk-error-summary" ref={errorSummary} tabIndex={-1} role="alert" aria-labelledby="documents-error-title">
         <h2 className="govuk-error-summary__title" id="documents-error-title">There is a problem</h2>
         <div className="govuk-error-summary__body"><ul className="govuk-list govuk-error-summary__list">{errors.map((error, index) => <li key={`${error.id}-${index}`}><a href={`#${error.id}`}>{error.message}</a></li>)}</ul></div>
