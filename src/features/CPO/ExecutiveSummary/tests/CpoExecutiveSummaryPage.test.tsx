@@ -89,11 +89,9 @@ describe('CPO executive summary', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/check-and-submit'));
   });
 
-  it('saves an unfinished executive summary for later without completing it', async () => {
+  it('does not show Save for later', async () => {
     renderPage(); await ready();
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(cpoExecutiveSummaryService.save).toHaveBeenCalledWith('application-id', true));
-    expect(navigateMock).toHaveBeenCalledWith('/application-dashboard');
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
 
   it('shows an error when the template cannot be downloaded', async () => {

@@ -7,6 +7,7 @@ import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
 import { cpoNoticesService } from '../services/cpoNoticesService';
 import type { InspectionAddress, NoticesResponse } from '../types/notices';
 import { inspectionAddresses, inspectionAddressText, inspectionErrorField, noticeDateText, validNoticeDate } from '../utils/noticeRecord';
+import { CPO_SHOW_SAVE_FOR_LATER } from '../../../../constants/cpo';
 
 const emptyAddress = (): InspectionAddress => ({ id: crypto.randomUUID(), line1: '', line2: '', townCity: '', county: '', postcode: '', from: '' });
 type FormError = { id: string; message: string };
@@ -108,7 +109,7 @@ const CpoNoticeInspectionPage: React.FC = () => {
             </>}
         {canEdit && (addressPage || datePage
           ? <div className="govuk-button-group"><button className="govuk-button" type="submit">Continue</button></div>
-          : <div className="govuk-button-group">{!!list.length && <button className="govuk-button" type="submit">Save and continue</button>}<button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>)}
+          : <div className="govuk-button-group">{!!list.length && <button className="govuk-button" type="submit">Save and continue</button>}{CPO_SHOW_SAVE_FOR_LATER && <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button>}</div>)}
       </fieldset></form>
     </div></div></div>
   </>;

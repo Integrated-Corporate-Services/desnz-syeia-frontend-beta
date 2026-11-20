@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
 import FileUpload, { type FileUploadHandle } from '../../../../components/FileUpload';
-import { CPO_BASE_URL } from '../../../../constants/cpo';
+import { CPO_BASE_URL, CPO_SHOW_SAVE_FOR_LATER } from '../../../../constants/cpo';
 import { downloadS3FileOnSameTab } from '../../../../utils/s3DownloadUtil';
 import { cpoOrderDocumentsService } from '../services/cpoOrderDocumentsService';
 import { DOCUMENT_CATEGORIES, DOCUMENT_GROUP_CATEGORIES, DOCUMENT_STEPS, ORDER_DOCUMENTS_COPY as COPY, ORDER_DOCUMENTS_SUMMARY_LABELS as SUMMARY_LABELS } from '../constants/orderDocumentsConstants';
@@ -140,7 +140,7 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
               </div>;
             })}</dl>
           </>}
-          <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>
+          <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button>{CPO_SHOW_SAVE_FOR_LATER && <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button>}</div>
         </fieldset>
       </form>
       {saving && <p className="govuk-body" role="status">Saving order documents...</p>}

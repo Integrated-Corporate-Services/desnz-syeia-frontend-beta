@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
-import { CPO_BASE_URL } from '../../../../constants/cpo';
+import { CPO_BASE_URL, CPO_SHOW_SAVE_FOR_LATER } from '../../../../constants/cpo';
 import { cpoPreSubmissionMeetingService } from '../services/cpoPreSubmissionMeetingService';
 import type { CpoMeetingAnswer, CpoMeetingVersions } from '../types/preSubmissionMeeting';
 import { useCpoApplicationId } from '../hooks/useCpoApplicationId';
@@ -177,7 +177,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
               {loading && <p className="govuk-body" role="status">Loading your answer...</p>}
               <div className="govuk-button-group">
                 <button className="govuk-button" type="submit" disabled={loading || saving || loadFailed}>Save and continue</button>
-                <button className="govuk-button govuk-button--secondary" type="button" disabled={loading || saving || loadFailed} onClick={() => void save(false)}>Save for later</button>
+                {CPO_SHOW_SAVE_FOR_LATER && <button className="govuk-button govuk-button--secondary" type="button" disabled={loading || saving || loadFailed} onClick={() => void save(false)}>Save for later</button>}
               </div>
               {saving && <p className="govuk-body" role="status">Saving your answer...</p>}
             </form>
