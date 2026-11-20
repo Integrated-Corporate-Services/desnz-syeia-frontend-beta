@@ -30,6 +30,9 @@ export const EIA_CONTENT = {
   UPLOAD_TITLE: 'Upload your EIA report',
   // Shown when a full EIA has no report but consultations have already started (SYEIA-1485 recovery).
   REPORT_MISSING_AFTER_CONSULTATION: 'You chose a full EIA but have not uploaded your EIA report. You need to upload it before you can submit this application.',
+  // Shown when the report was uploaded but saving the answer failed, so the EIA section is not complete yet.
+  REPORT_NOT_SAVED_AFTER_CONSULTATION: 'Your EIA report has been uploaded, but this section has not been saved. Select Save and continue to complete it.',
+  FINISH_SAVING_REPORT: 'Finish saving your EIA report',
   SUMMARY_ASSESSMENT: 'EIA assessment',
   SUMMARY_REPORT: 'EIA report',
 };

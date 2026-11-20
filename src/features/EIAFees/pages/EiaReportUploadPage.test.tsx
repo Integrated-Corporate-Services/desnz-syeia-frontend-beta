@@ -18,6 +18,8 @@ vi.mock('../../../context/AuthUserContext', () => ({ useAuthUserContext: () => (
 vi.mock('../../../hooks/useConsultationsStarted', () => ({ useConsultationsStarted: () => consultations }));
 let draftCheck = 'locked';
 vi.mock('../hooks/useEditableDraft', () => ({ useEditableDraft: (_id: string, enabled: boolean) => (enabled ? draftCheck : 'idle') }));
+let completionCheck = 'complete';
+vi.mock('../hooks/useEiaFeesCompletion', () => ({ useEiaFeesCompletion: (_id: string, enabled: boolean) => (enabled ? completionCheck : 'idle') }));
 vi.mock('../../../hooks/useEiaFees', () => ({
   useEiaFees: () => ({ eiaFees: savedFees, loading: false, error: hookError, fetchEiaFees: vi.fn(), updateEiaFees }),
 }));
@@ -55,6 +57,7 @@ describe('Upload your EIA report (SYEIA-1485)', () => {
     savedFees = { ...FULL_EIA, uploadedFiles: [], applicationDocuments: [] };
     hookError = null;
     draftCheck = 'locked';
+    completionCheck = 'complete';
     deleting = false;
     consultations = { consultationsStarted: false, loading: false, checked: true, error: null, retry: retryConsultations };
     triggerUpload.mockResolvedValue({ uploadedFiles: [], applicationDocuments: [], scanErrors: [] });
@@ -176,6 +179,40 @@ describe('Upload your EIA report (SYEIA-1485)', () => {
   it('keeps the page read-only after consultations start when the report is already uploaded', async () => {
     consultations = { ...consultations, consultationsStarted: true };
     draftCheck = 'editable';
+    savedFees = { ...FULL_EIA, uploadedFiles: [{ id: 'f-1', filename: 'eia.pdf' }], applicationDocuments: [{ documentId: 'd-1', fileId: 'f-1', title: 'eia.pdf' }] };
+    renderPage();
+    expect(await screen.findByRole('heading', { name: 'EIA question page' })).toBeInTheDocument();
+    expect(screen.queryByTestId('file-upload')).not.toBeInTheDocument();
+  });
+
+  // Copilot review: a report uploaded during recovery whose answer save failed must still be savable after a reload.
+  it('keeps the page open after consultations start when the report is uploaded but the section was never saved', async () => {
+    consultations = { ...consultations, consultationsStarted: true };
+    draftCheck = 'editable';
+    completionCheck = 'incomplete';
+    savedFees = { ...FULL_EIA, uploadedFiles: [{ id: 'f-1', filename: 'eia.pdf' }], applicationDocuments: [{ documentId: 'd-1', fileId: 'f-1', title: 'eia.pdf' }] };
+    renderPage();
+    expect(await screen.findByTestId('file-upload')).toBeInTheDocument();
+    expect(screen.getByText(/Your EIA report has been uploaded, but this section has not been saved/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Save and continue' }));
+    await waitFor(() => expect(updateEiaFees).toHaveBeenCalledWith(expect.objectContaining({ eiaFeeId: 'e-1', isEiaDevelopment: true, screeningOnly: true })));
+    expect(await screen.findByRole('heading', { name: 'Task list page' })).toBeInTheDocument();
+  });
+
+  it('waits for the EIA fees status before deciding, after consultations start with a report uploaded', () => {
+    consultations = { ...consultations, consultationsStarted: true };
+    draftCheck = 'editable';
+    completionCheck = 'loading';
+    savedFees = { ...FULL_EIA, uploadedFiles: [{ id: 'f-1', filename: 'eia.pdf' }], applicationDocuments: [{ documentId: 'd-1', fileId: 'f-1', title: 'eia.pdf' }] };
+    renderPage();
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'EIA question page' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the section read-only when the report was saved but the application is not an editable draft', async () => {
+    consultations = { ...consultations, consultationsStarted: true };
+    draftCheck = 'locked';
+    completionCheck = 'incomplete';
     savedFees = { ...FULL_EIA, uploadedFiles: [{ id: 'f-1', filename: 'eia.pdf' }], applicationDocuments: [{ documentId: 'd-1', fileId: 'f-1', title: 'eia.pdf' }] };
     renderPage();
     expect(await screen.findByRole('heading', { name: 'EIA question page' })).toBeInTheDocument();

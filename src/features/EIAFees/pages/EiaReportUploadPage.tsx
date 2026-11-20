@@ -11,6 +11,7 @@ import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
 import { useEiaFees } from '../../../hooks/useEiaFees';
 import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
 import { useEditableDraft } from '../hooks/useEditableDraft';
+import { useEiaFeesCompletion } from '../hooks/useEiaFeesCompletion';
 import type { AuthUser } from '../../../types/auth';
 import type { ApplicationDocument, UploadedFile } from '../../../types/fileUpload';
 import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
@@ -64,10 +65,14 @@ const EiaReportUploadPage: React.FC = () => {
     // Recovery: a full EIA left without a report when consultations started can still have its report uploaded,
     // while the application is an editable draft. Any other answer stays read-only once consultations start.
     const savedAnswerLoaded = !!eiaFees && eiaFees.applicationId === applicationId;
-    const reportMissing = savedAnswerLoaded
-        && getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) === EIA_ASSESSMENT.FULL_EIA
-        && (eiaFees.applicationDocuments ?? []).length === 0;
-    const recoveryCheckNeeded = consultationsChecked && consultationsStarted && reportMissing;
+    const fullEia = savedAnswerLoaded && getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) === EIA_ASSESSMENT.FULL_EIA;
+    const reportMissing = fullEia && (eiaFees.applicationDocuments ?? []).length === 0;
+    // A report uploaded during recovery whose answer save then failed leaves the section In progress: the page stays
+    // open (for an editable draft) so Save can be retried.
+    const completionCheck = useEiaFeesCompletion(applicationId, consultationsChecked && consultationsStarted && fullEia && !reportMissing);
+    const completionPending = fullEia && !reportMissing && completionCheck === 'incomplete';
+    const completionUnknown = fullEia && !reportMissing && (completionCheck === 'idle' || completionCheck === 'loading');
+    const recoveryCheckNeeded = consultationsChecked && consultationsStarted && (reportMissing || completionPending);
     const draftCheck = useEditableDraft(applicationId, recoveryCheckNeeded);
     const [recovering, setRecovering] = useState(false);
     useEffect(() => {
@@ -75,7 +80,7 @@ const EiaReportUploadPage: React.FC = () => {
     }, [recoveryCheckNeeded, draftCheck]);
     const locked = consultationsStarted && !recovering;
     const lockConfirmed = consultationsStarted && !recovering
-        && ((savedAnswerLoaded && !reportMissing) || (!!loadError && !eiaFees) || draftCheck === 'locked');
+        && ((savedAnswerLoaded && !reportMissing && !completionPending && !completionUnknown) || (!!loadError && !eiaFees) || draftCheck === 'locked');
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
     const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
     const [fileErrors, setFileErrors] = useState<string[]>([]);
@@ -213,7 +218,9 @@ const EiaReportUploadPage: React.FC = () => {
                     <ErrorSummary ref={errorSummaryRef} errors={summaryErrors} />
                     <h1 className="govuk-heading-l">{EIA_CONTENT.UPLOAD_TITLE}</h1>
                     {recovering && (
-                        <div className="govuk-inset-text">{EIA_CONTENT.REPORT_MISSING_AFTER_CONSULTATION}</div>
+                        <div className="govuk-inset-text">
+                            {reportMissing ? EIA_CONTENT.REPORT_MISSING_AFTER_CONSULTATION : EIA_CONTENT.REPORT_NOT_SAVED_AFTER_CONSULTATION}
+                        </div>
                     )}
                     <p className="govuk-body">
                         You need to submit an EIA report as part of your request for a full environmental impact assessment (EIA).

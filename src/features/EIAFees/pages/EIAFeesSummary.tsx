@@ -8,6 +8,7 @@ import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import EiaFeesSummaryCard from '../component/EiaFeesSummaryCard';
 import { EIA_ASSESSMENT, EIA_CONTENT } from '../constants/eiaAssessment';
 import { useEditableDraft } from '../hooks/useEditableDraft';
+import { useEiaFeesCompletion } from '../hooks/useEiaFeesCompletion';
 import { getEiaAssessment } from '../utils/eiaAssessment';
 
 /**
@@ -17,11 +18,14 @@ import { getEiaAssessment } from '../utils/eiaAssessment';
 const EIAFeesSummary: React.FC = () => {
     const applicationId = useGetApplicationId();
     const { eiaFees, fetchEiaFees, loading } = useEiaFees();
-    // SYEIA-1485 recovery: a full EIA without a report on a draft can still have the report uploaded.
-    const reportMissing = !loading && !!eiaFees
-        && getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) === EIA_ASSESSMENT.FULL_EIA
-        && (eiaFees.applicationDocuments ?? []).length === 0;
-    const canUploadReport = useEditableDraft(applicationId, reportMissing) === 'editable' && reportMissing;
+    // SYEIA-1485 recovery: a full EIA without a report on a draft can still have the report uploaded, and one whose
+    // report was uploaded but whose save failed (section not Completed) can still finish that save.
+    const fullEia = !loading && !!eiaFees
+        && getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) === EIA_ASSESSMENT.FULL_EIA;
+    const reportMissing = fullEia && (eiaFees?.applicationDocuments ?? []).length === 0;
+    const completionPending = useEiaFeesCompletion(applicationId, fullEia && !reportMissing) === 'incomplete';
+    const recoveryNeeded = reportMissing || completionPending;
+    const canUploadReport = useEditableDraft(applicationId, recoveryNeeded) === 'editable' && recoveryNeeded;
 
     useBreadcrumb(
         <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
@@ -74,9 +78,11 @@ const EIAFeesSummary: React.FC = () => {
 
                         {canUploadReport && (
                             <div className="govuk-inset-text">
-                                <p className="govuk-body">{EIA_CONTENT.REPORT_MISSING_AFTER_CONSULTATION}</p>
+                                <p className="govuk-body">
+                                    {reportMissing ? EIA_CONTENT.REPORT_MISSING_AFTER_CONSULTATION : EIA_CONTENT.REPORT_NOT_SAVED_AFTER_CONSULTATION}
+                                </p>
                                 <Link className="govuk-link" to={`${S37_BASE_URL}/${applicationId}/eia-fees/upload-eia-report`}>
-                                    {EIA_CONTENT.UPLOAD_TITLE}
+                                    {reportMissing ? EIA_CONTENT.UPLOAD_TITLE : EIA_CONTENT.FINISH_SAVING_REPORT}
                                 </Link>
                             </div>
                         )}
