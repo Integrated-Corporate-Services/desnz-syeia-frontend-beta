@@ -13,6 +13,7 @@ export interface User {
   phone?: string;
   location?: string;
   agencyName?: string;
+  isAgent?: boolean;
 }
 
 export interface CreateUserData {

@@ -1,6 +1,7 @@
 ﻿import { S37_BASE_URL } from './s37';
 // import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
+import { CPO_BASE_URL } from './cpo';
 import TaskList from '../features/TaskList/pages/TaskList';
 import {
   PrivacyNoticePage,
@@ -112,7 +113,6 @@ import { isFirFeatureDisabled, isNotificationsFeatureDisabled, isYourDetailsFeat
 import { isManualReassignmentEnabled } from '../config/appConfig';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
-import ManageTeamCoordinatorPage from '../features/admin/pages/ManageTeamCoordinatorPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
 import CheckYourAnswers from '../features/CheckYourAnswers/pages/CheckYourAnswers';
 // Old S37 ApplicationSummary - keep for S37 backward compatibility
@@ -246,6 +246,48 @@ const FIR_ROUTES: RouteConfig[] = [
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/submitted`,
+        component: FurtherInformationSubmittedPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests`,
+        component: FurtherInformationRequestsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/respond`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/upload-decision`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/document-types`,
+        component: FirDocumentTypesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-information`,
+        component: FirTextResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-documents`,
+        component: FirDocumentResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/submitted`,
         component: FurtherInformationSubmittedPage,
         auth: true,
         layout: true,
@@ -508,12 +550,6 @@ export const ROUTE_CONFIG: RouteConfig[] = [
             {
                 path: '/admin/organisations/:organisationId/team-coordinators',
                 component: TeamCoordinatorsPage,
-                auth: true,
-                layout: true,
-            },
-            {
-                path: '/admin/organisations/:organisationId/team-coordinators/:coordinatorId',
-                component: ManageTeamCoordinatorPage,
                 auth: true,
                 layout: true,
             },

@@ -7,6 +7,8 @@ import { APPLICATION_SUMMARY_CONSTANTS } from '../../../ApplicationSummary/const
 import { WithdrawalNotificationBanner } from '../../../ApplicationSummary/components/WithdrawalNotificationBanner';
 import { ApplicationSummaryBreadcrumbs } from '../../../ApplicationSummary/components/ApplicationSummaryBreadcrumbs';
 import { noticeDateText } from '../../RecordNotices/utils/noticeRecord';
+import { FirSummaryCard } from '../../../FIR/components/FirSummaryCard';
+import { isFirFeatureDisabled } from '../../../../utils/disabledFormTypes';
 import { useCpoApplicationId } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationId';
 import CpoApplicationAnswers from '../../CheckAndSubmitApplication/components/CpoApplicationAnswers';
 import { useCpoApplicationAnswers } from '../../CheckAndSubmitApplication/hooks/useCpoApplicationAnswers';
@@ -46,6 +48,13 @@ const CpoApplicationSummaryPage: React.FC = () => {
       {loading && <p className="govuk-body" role="status">Loading the application...</p>}
       {!loading && !data && <button className="govuk-button govuk-button--secondary" type="button" onClick={retry}>Try again</button>}
       {data && status && <>
+        {!isFirFeatureDisabled() && (
+          <FirSummaryCard
+            applicationId={applicationId}
+            basePath={`${CPO_BASE_URL}/${applicationId}/further-information-requests`}
+            placement="top"
+          />
+        )}
         <div className="govuk-summary-card">
           <div className="govuk-summary-card__title-wrapper"><h2 className="govuk-summary-card__title">Summary</h2></div>
           <div className="govuk-summary-card__content"><dl className="govuk-summary-list">

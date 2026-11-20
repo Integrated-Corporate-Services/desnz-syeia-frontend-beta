@@ -20,6 +20,10 @@ export const USER_DETAILS_CONSTANTS = {
     PHONE_NUMBER: 'Phone number',
     ROLE: 'Role',
     AGENCY_NAME: 'Agency name',
+    AGENT_OR_EMPLOYEE: 'Agent or Employee',
+    APPLICANT_TYPE: 'Applicant type',
+    AGENT: 'Agent',
+    EMPLOYEE: 'Employee',
     STATUS: 'Status',
     STATUS_ACTIVE: 'Active',
     LAST_LOGIN: 'Last login',
@@ -105,7 +109,7 @@ export const TEAM_COORDINATORS_CONSTANTS = {
 };
 
 export const MANAGE_USER_CONSTANTS = {
-    TITLE: 'Manage user',
+    TITLE: 'Manage user access',
     NOT_FOUND_MESSAGE: 'The user you are trying to manage could not be found.',
     CHANGE: 'Change',
     CHANGE_ROLE_HIDDEN: ' role',
@@ -131,8 +135,17 @@ export const CHANGE_USER_ROLE_CONSTANTS = {
 export const REVOKE_USER_ACCESS_CONSTANTS = {
     TITLE: 'Revoke access',
     NOT_FOUND_MESSAGE: 'The user you are trying to revoke access for could not be found.',
-    WARNING: "This action cannot be undone. This user will no longer be able to coordinate access requests for this organisation and will no longer be able to submit applications on the organisation's behalf.",
+    WARNING: 'This user will no longer be able to view, change or submit applications for this organisation.',
     REVOKING: 'Revoking access...',
+};
+
+export const ACCESS_REVOKED_CONSTANTS = {
+    TITLE: 'Access revoked',
+    PANEL_BODY: (userName: string) => `${userName} can no longer sign in and use the service`,
+    DEFAULT_USER_NAME: 'the user',
+    WHAT_HAPPENS_NEXT: 'What happens next',
+    NOTIFIED: 'The user has been notified by email that their access has been revoked. They will no longer be able to sign in to the service.',
+    REINSTATE: 'If their access needs to be restored, it can be reinstated later from the User Management Dashboard.',
 };
 
 export const REVIEW_REQUEST_PAGE_CONSTANTS = {

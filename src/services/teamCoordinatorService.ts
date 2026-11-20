@@ -1,14 +1,11 @@
 import axios from "axios";
 import { createLogger } from "../utils/logger";
-import {
-  TeamCoordinator,
-  UpdateTeamCoordinatorData,
-} from "../types/organisation";
+import { TeamCoordinator } from "../types/organisation";
 
 const logger = createLogger("teamCoordinatorService");
 
 // Re-export for backward compatibility
-export type { TeamCoordinator, UpdateTeamCoordinatorData };
+export type { TeamCoordinator };
 
 /**
  * Get all team coordinators for the user's organisation
@@ -35,49 +32,3 @@ export const getTeamCoordinators = async (
   }
 };
 
-/**
- * Get a specific team coordinator by ID
- */
-export const getTeamCoordinatorById = async (
-  organisationId: string,
-  coordinatorId: string,
-): Promise<TeamCoordinator> => {
-  try {
-    const url = `/api/admin/organisations/${organisationId}/team-coordinators/${coordinatorId}`;
-    const response = await axios.get(url);
-    return response.data;
-  } catch (error: any) {
-    logger.error("Failed to fetch team coordinator", {
-      error: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      organisationId,
-      coordinatorId,
-    });
-    throw error;
-  }
-};
-
-/**
- * Update team coordinator details
- */
-export const updateTeamCoordinator = async (
-  organisationId: string,
-  coordinatorId: string,
-  updates: UpdateTeamCoordinatorData,
-): Promise<TeamCoordinator> => {
-  try {
-    const response = await axios.put(
-      `/api/admin/organisations/${organisationId}/team-coordinators/${coordinatorId}`,
-      updates,
-    );
-    return response.data;
-  } catch (error: any) {
-    logger.error("Failed to update team coordinator", {
-      error: error.message,
-      organisationId,
-      coordinatorId,
-    });
-    throw error;
-  }
-};

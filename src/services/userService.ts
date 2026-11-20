@@ -44,6 +44,7 @@ class UserService {
         status: user.status,
         lastLogin: user.last_login_at,
         agencyName: user.agency_name || null,
+        isAgent: user.is_agent === true,
       }));
       return {
         success: true,
