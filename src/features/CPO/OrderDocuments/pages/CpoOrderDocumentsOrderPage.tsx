@@ -14,7 +14,7 @@ import '../../styles/cpo.css';
 const COPY: Record<UploadStep, { heading: string; description: string; uploadTitle: string; hint: string; guidanceTitle: string; points: string[] }> = {
   order: {
     heading: 'Upload the order documents', description: 'The order documents include:',
-    uploadTitle: 'Upload an order document', hint: 'Upload them as separate files.', guidanceTitle: 'Order and map requirements',
+    uploadTitle: 'Upload an order document', hint: '', guidanceTitle: 'Order and map requirements',
     points: ['the digitally certified order', 'all digitally certified order maps'],
   },
   maps: {
