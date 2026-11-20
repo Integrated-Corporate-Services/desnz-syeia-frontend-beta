@@ -76,7 +76,7 @@ const CpoPreSubmissionMeetingConfirmationPage: React.FC = () => {
                   )}
                 </ul>
                 <h2 className="govuk-heading-s">Public notices</h2>
-                <p className="govuk-body">You should use the DESNZ reference number in all your public notices.</p>
+                <p className="govuk-body">You should use this DESNZ reference number in all your public notices.</p>
                 <Link className="govuk-button" to={`${CPO_BASE_URL}/${applicationId}/task-list`}>Continue</Link>
               </>
             ) : null}
