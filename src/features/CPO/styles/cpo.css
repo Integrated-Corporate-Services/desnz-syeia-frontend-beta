@@ -73,3 +73,9 @@
     align-self: start;
   }
 }
+
+.cpo-order-documents-upload-guidance {
+  box-sizing: border-box;
+  max-width: 540px;
+  font-size: 16px;
+}
