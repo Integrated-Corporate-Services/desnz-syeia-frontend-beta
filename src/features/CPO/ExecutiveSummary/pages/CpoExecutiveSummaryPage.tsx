@@ -11,7 +11,6 @@ import { cpoExecutiveSummaryService } from '../services/cpoExecutiveSummaryServi
 import type { ExecutiveSummaryFormError } from '../types/executiveSummary';
 import { getExecutiveSummaryExitUrl } from '../utils/executiveSummaryNavigation';
 import '../../styles/cpo.css';
-import { CPO_SHOW_SAVE_FOR_LATER } from '../../../../constants/cpo';
 
 const CpoExecutiveSummaryPage: React.FC = () => {
   const applicationId = useCpoApplicationId();
@@ -104,7 +103,7 @@ const CpoExecutiveSummaryPage: React.FC = () => {
               onDeleteFile={(id) => setDocuments((current) => current.filter((document) => document.file_id !== id))}
               onUploaded={() => { void refreshDocuments().catch(() => setErrors(toUploadErrors(['Unable to refresh uploaded documents. Refresh the page.']))); }}
             />
-            <div className="govuk-button-group govuk-!-margin-top-6"><button className="govuk-button" type="submit">Save and continue</button>{CPO_SHOW_SAVE_FOR_LATER && <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button>}</div>
+            <div className="govuk-button-group govuk-!-margin-top-6"><button className="govuk-button" type="submit">Save and continue</button>{/* SYEIA-2918: Save for later hidden until functionality is built. Uncomment to restore. */}{/* <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button> */}</div>
           </fieldset>
         </form>
         {saving && <p className="govuk-body" role="status">Saving executive summary...</p>}

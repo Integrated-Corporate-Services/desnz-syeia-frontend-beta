@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PageTitle from '../../../../components/PageTitle';
-import { CPO_BASE_URL, CPO_SHOW_SAVE_FOR_LATER } from '../../../../constants/cpo';
+import { CPO_BASE_URL } from '../../../../constants/cpo';
 import { cpoOrderDetailsService, nextOrderStep } from '../services/cpoOrderDetailsService';
 import { COPY, EMPTY_ORDER_DETAILS, ORDER_STEPS, RELATED_TYPE_LABELS, emptyRelated } from '../constants/orderDetailsConstants';
 import type { OrderDetails, OrderStep, RelatedApplication, RelatedType } from '../types/orderDetails';
@@ -240,7 +240,7 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
               {summaryRow('Enter an explanation of what the order is for', details.purpose || 'Not answered', 'purpose')}
             </dl>
           </>}
-          <div className="govuk-button-group govuk-!-margin-top-6"><button className="govuk-button" type="submit">Save and continue</button>{CPO_SHOW_SAVE_FOR_LATER && <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button>}</div>
+          <div className="govuk-button-group govuk-!-margin-top-6"><button className="govuk-button" type="submit">Save and continue</button>{/* SYEIA-2918: Save for later hidden until functionality is built. Uncomment to restore. */}{/* <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button> */}</div>
         </fieldset>
       </form>
       {saving && <p className="govuk-body" role="status">Saving order details...</p>}
