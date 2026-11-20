@@ -300,7 +300,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   </p>
                 )}
                 <input
-                  className={`govuk-input${
+                  className={`govuk-input govuk-input--width-20${
                     emailInputError ? " govuk-input--error" : ""
                   }`}
                   id="emailAddress"
@@ -355,7 +355,7 @@ const NetworkOperatorDetails: React.FC = () => {
                   </p>
                 )}
                 <input
-                  className={`govuk-input${
+                  className={`govuk-input govuk-input--width-20${
                     errors.includes(FORM_ERRORS.MISSING_REFERENCE) ||
                     errors.includes(FORM_ERRORS.INVALID_REFERENCE)
                       ? " govuk-input--error"
