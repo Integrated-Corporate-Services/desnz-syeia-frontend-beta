@@ -2,6 +2,8 @@ import React from "react";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import PaginationComponent from "./PaginationComponent";
 import { formatUserRoleLabel } from "../../../utils/roleUtils";
+import { ADMIN_COMMON_CONSTANTS, USER_DETAILS_CONSTANTS } from "../constants/userManagementConstants";
+import { formatLastLoginDate } from "../utils/userDetails";
 import "../../../styles/DashboardMobile.css";
 
 interface User {
@@ -16,20 +18,12 @@ interface User {
 
 const formatRole = formatUserRoleLabel;
 
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return 'Never';
-  return new Date(dateString).toLocaleDateString('en-GB', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric' 
-  });
-};
-
 interface ActiveUsersTabProps {
   totalResults: number;
   usersError: string;
   usersLoading: boolean;
   paginatedUsers: User[];
+  showOrganisation: boolean;
   navigateToRevokeUser: (userId: string) => void;
   currentPage: number;
   totalPages: number;
@@ -42,6 +36,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
   usersLoading,
   navigateToRevokeUser,
   paginatedUsers,
+  showOrganisation,
   currentPage,
   totalPages,
   handlePageChange,
@@ -82,6 +77,11 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                 <th scope="col" className="govuk-table__header">
                   Name
                 </th>
+                {showOrganisation && (
+                  <th scope="col" className="govuk-table__header">
+                    {USER_DETAILS_CONSTANTS.ORGANISATION}
+                  </th>
+                )}
                 <th scope="col" className="govuk-table__header">
                   Email
                 </th>
@@ -104,15 +104,18 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                 <tr className="govuk-table__row">
                   <td
                     className="govuk-table__cell"
-                    colSpan={7}
+                    colSpan={showOrganisation ? 7 : 6}
                   >
                     <p className="govuk-body">No active users found.</p>
                   </td>
                 </tr>
               ) : (
                 paginatedUsers.map((user) => (
-                  <tr key={user.id} className="govuk-table__row">
+                  <tr key={`${user.id}-${user.organisation}`} className="govuk-table__row">
                     <td className="govuk-table__cell">{user.fullName}</td>
+                    {showOrganisation && (
+                      <td className="govuk-table__cell">{user.organisation || ADMIN_COMMON_CONSTANTS.NOT_APPLICABLE}</td>
+                    )}
                     <td className="govuk-table__cell active-users-email">{user.email}</td>
                     <td className="govuk-table__cell">
                       {formatRole(user.role)}
@@ -123,7 +126,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                       </strong>
                     </td>
                     <td className="govuk-table__cell">
-                      {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Never'}
+                      {formatLastLoginDate(user.lastLogin)}
                     </td>
                     <td className="govuk-table__cell">
                       {user.role !== "SYSTEM" && (
@@ -151,7 +154,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
               <p className="govuk-body">No active users found.</p>
             ) : (
               paginatedUsers.map((user) => (
-                <div key={`card-${user.id}`} className="user-card" role="listitem">
+                <div key={`card-${user.id}-${user.organisation}`} className="user-card" role="listitem">
                   <div className="user-card__header">
                     <div className="user-card__name">{user.fullName}</div>
                     <div className="user-card__status">
@@ -159,10 +162,12 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                     </div>
                   </div>
                   <div className="user-card__body">
-                    <div className="user-card__row">
-                      <span className="user-card__label">Organisation: </span>
-                      <span className="user-card__value">{user.organisation || 'SSE Networks'}</span>
-                    </div>
+                    {showOrganisation && (
+                      <div className="user-card__row">
+                        <span className="user-card__label">Organisation: </span>
+                        <span className="user-card__value">{user.organisation || ADMIN_COMMON_CONSTANTS.NOT_APPLICABLE}</span>
+                      </div>
+                    )}
                     <div className="user-card__row">
                       <span className="user-card__label">Email: </span>
                       <span className="user-card__value active-users-email">{user.email}</span>
@@ -173,7 +178,7 @@ export const ActiveUsersTab: React.FC<ActiveUsersTabProps> = ({
                     </div>
                     <div className="user-card__row">
                       <span className="user-card__label">Last login: </span>
-                      <span className="user-card__value">{formatDate(user.lastLogin)}</span>
+                      <span className="user-card__value">{formatLastLoginDate(user.lastLogin)}</span>
                     </div>
                   </div>
                   {user.role !== "SYSTEM" && (

@@ -14,7 +14,7 @@ export { useManageUsersNavigation } from './useManageUsersNavigation';export { u
 export { useAddUserNavigation } from './useAddUserNavigation';
 export { useOrganisations } from './useOrganisations';
 export { useOrganisation } from './useOrganisation';
-export { useTeamCoordinators, useTeamCoordinator } from './useTeamCoordinators';
+export { useTeamCoordinators } from './useTeamCoordinators';
 export { useApprovedDomains } from './useApprovedDomains';
 export { useApplicationNavigation } from './useApplicationNavigation';
 export { useGetAccessRequest } from './useGetAccessRequest';

@@ -5,6 +5,8 @@ import { useOrganisation } from '../../../hooks';
 import organisationService from '../../../services/organisationService';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 
+const HEADING = 'Enter the organisation name';
+
 const ChangeOrganisationNamePage: React.FC = () => {
   const { organisationId = '' } = useParams<{ organisationId: string }>();
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ const ChangeOrganisationNamePage: React.FC = () => {
 
   return (
     <>
-      <PageTitle title="Change organisation name" />
+      <PageTitle title={`${errorMessage ? 'Error: ' : ''}${HEADING}`} />
       <div className="govuk-width-container">
         <div className="govuk-main-wrapper govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
@@ -74,12 +76,13 @@ const ChangeOrganisationNamePage: React.FC = () => {
                 </div>
               </div>
             )}
-            <h1 className="govuk-heading-l">Organisation name</h1>
-            {loading ? <p className="govuk-body">Loading...</p> : (
+            {loading ? <><h1 className="govuk-heading-l">{HEADING}</h1><p className="govuk-body">Loading...</p></> : (
               <>
                 <form noValidate onSubmit={handleSubmit}>
                   <div className={`govuk-form-group${fieldError ? ' govuk-form-group--error' : ''}`}>
-                    <label className="govuk-label" htmlFor="organisationName">Enter the name of the organisation</label>
+                    <h1 className="govuk-label-wrapper">
+                      <label className="govuk-label govuk-label--l" htmlFor="organisationName">{HEADING}</label>
+                    </h1>
                     {fieldError && <p id="organisationName-error" className="govuk-error-message"><span className="govuk-visually-hidden">Error:</span> {fieldError}</p>}
                     <input aria-describedby={fieldError ? 'organisationName-error' : undefined} className={`govuk-input govuk-input--width-20${fieldError ? ' govuk-input--error' : ''}`} id="organisationName" value={organisationName} onChange={(event) => setOrganisationName(event.target.value)} />
                   </div>
