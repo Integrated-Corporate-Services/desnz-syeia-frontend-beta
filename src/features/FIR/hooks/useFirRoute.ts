@@ -8,7 +8,7 @@ export const useFirRoute = () => {
   const location = useLocation();
 
   const requestPath = applicationId
-    ? `${location.pathname.startsWith('/nwl/') ? '/nwl' : '/s-37'}/${applicationId}/further-information-requests`
+    ? `${location.pathname.startsWith('/nwl/') ? '/nwl' : location.pathname.startsWith('/cpo/') ? '/cpo' : '/s-37'}/${applicationId}/further-information-requests`
     : '';
 
   return { applicationId, requestId, requestPath, location };

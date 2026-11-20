@@ -1,6 +1,7 @@
 ﻿import { S37_BASE_URL } from './s37';
 // import { TLP_BASE_URL } from './tlp';
 import { NWL_BASE_URL } from './nwl';
+import { CPO_BASE_URL } from './cpo';
 import TaskList from '../features/TaskList/pages/TaskList';
 import {
   PrivacyNoticePage,
@@ -244,6 +245,48 @@ const FIR_ROUTES: RouteConfig[] = [
     },
     {
         path: `${NWL_BASE_URL}/:applicationId/further-information-requests/:requestId/submitted`,
+        component: FurtherInformationSubmittedPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests`,
+        component: FurtherInformationRequestsPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/respond`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/upload-decision`,
+        component: FirUploadDecisionPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/document-types`,
+        component: FirDocumentTypesPage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-information`,
+        component: FirTextResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/provide-documents`,
+        component: FirDocumentResponsePage,
+        auth: true,
+        layout: true,
+    },
+    {
+        path: `${CPO_BASE_URL}/:applicationId/further-information-requests/:requestId/submitted`,
         component: FurtherInformationSubmittedPage,
         auth: true,
         layout: true,
