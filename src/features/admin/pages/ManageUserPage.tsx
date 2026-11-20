@@ -88,7 +88,11 @@ const ManageUserPage: React.FC = () => {
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.AGENT_OR_EMPLOYEE}</dt>
-                <dd className="govuk-summary-list__value">{formatApplicantType(user)}</dd>
+                <dd className="govuk-summary-list__value">
+                  <strong className="govuk-tag govuk-tag--blue">
+                    {formatApplicantType(user)}
+                  </strong>
+                </dd>
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.ROLE}</dt>

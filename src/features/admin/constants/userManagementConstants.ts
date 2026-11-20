@@ -109,7 +109,7 @@ export const TEAM_COORDINATORS_CONSTANTS = {
 };
 
 export const MANAGE_USER_CONSTANTS = {
-    TITLE: 'Manage user',
+    TITLE: 'Manage user access',
     NOT_FOUND_MESSAGE: 'The user you are trying to manage could not be found.',
     CHANGE: 'Change',
     CHANGE_ROLE_HIDDEN: ' role',
