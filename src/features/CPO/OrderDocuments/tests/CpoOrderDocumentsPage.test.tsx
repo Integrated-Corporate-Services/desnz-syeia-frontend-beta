@@ -109,13 +109,11 @@ describe('CPO order documents journey', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('contains a virus'));
     expect(navigateMock).not.toHaveBeenCalled();
   });
-  it('saves unfinished uploads for later without completing them', async () => {
+  it('does not show Save for later', async () => {
     stored.documents = [];
     renderStep();
     await ready();
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/application-dashboard'));
-    expect(cpoOrderDocumentsService.save).toHaveBeenCalledWith('application-id', 'order', true, null);
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
   it('returns a changed document group directly to review', async () => {
     renderStep('maps', '?from=check');

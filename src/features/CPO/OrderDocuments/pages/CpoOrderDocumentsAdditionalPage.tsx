@@ -140,7 +140,7 @@ const CpoOrderDocumentsAdditionalPage: React.FC = () => {
               </div>;
             })}</dl>
           </>}
-          <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>
+          <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button>{/* SYEIA-2918: Save for later hidden until functionality is built. Uncomment to restore. */}{/* <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button> */}</div>
         </fieldset>
       </form>
       {saving && <p className="govuk-body" role="status">Saving order documents...</p>}
