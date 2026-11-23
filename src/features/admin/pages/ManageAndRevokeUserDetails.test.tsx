@@ -67,6 +67,17 @@ describe('Revoke access (SYEIA-2171, 2182)', () => {
     expect(shown('Last login')).toBe('22 February 2026 at 10:32am');
   });
 
+  // SYEIA-2927: Applicant type uses the same blue GOV.UK tag as Manage user, for employee and agent
+  it.each([
+    ['an employee', 'u1', 'Employee'],
+    ['an agent', 'u2', 'Agent'],
+  ])('shows a blue applicant type tag for %s', (_who, id, label) => {
+    mount(`/admin/revoke-user/${id}`);
+    const tag = screen.getByText('Applicant type', { selector: 'dt' }).parentElement?.querySelector('dd .govuk-tag');
+    expect(tag).toHaveTextContent(label);
+    expect(tag).toHaveClass('govuk-tag', 'govuk-tag--blue');
+  });
+
   // The SYEIA-2171 screen has one consequence line for every user (PR #615 review).
   it.each([['an applicant', 'u1'], ['an agent', 'u2'], ['a team coordinator', 'u3']])(
     'shows the 2171 consequence line for %s',

@@ -153,7 +153,11 @@ const RevokeUserAccessPage: React.FC = () => {
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.APPLICANT_TYPE}</dt>
-                <dd className="govuk-summary-list__value">{formatApplicantType(user)}</dd>
+                <dd className="govuk-summary-list__value">
+                  <strong className="govuk-tag govuk-tag--blue">
+                    {formatApplicantType(user)}
+                  </strong>
+                </dd>
               </div>
               <div className="govuk-summary-list__row">
                 <dt className="govuk-summary-list__key">{USER_DETAILS_CONSTANTS.ROLE}</dt>
