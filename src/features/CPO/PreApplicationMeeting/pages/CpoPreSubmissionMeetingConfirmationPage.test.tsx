@@ -133,15 +133,18 @@ describe('CPO meeting confirmation journey', () => {
     }
   );
 
-  it('does not confirm a request saved for later, including a direct visit to confirmation', async () => {
+  it('does not confirm an incomplete meeting, including a direct visit to confirmation', async () => {
     const page = renderJourney();
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Save for later' })).toBeEnabled());
-    fireEvent.click(screen.getByLabelText('No, I would like a pre-application meeting'));
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await screen.findByRole('heading', { name: 'Applications' });
-    expect(application.requested_at).toBeNull();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save and continue' })).toBeEnabled());
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
 
     page.unmount();
+    application = {
+      ...application,
+      answer: 'No, I would like a pre-application meeting',
+      requested_at: null,
+      completed_at: null,
+    };
     renderJourney(confirmationPath);
     expect(await screen.findByRole('heading', {
       name: 'Have you had a pre-application meeting?',

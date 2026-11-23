@@ -252,7 +252,7 @@ const CpoNoticeSitePage: React.FC = () => {
             {NOTICE_STEPS.filter(target => !['check', 'requirements', 'inspection'].includes(target)).map(target => <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{NOTICE_LABELS[target]}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{reviewValue(target)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'check-and-submit' : 'check'}`}>Change<span className="govuk-visually-hidden"> {NOTICE_LABELS[target]?.toLowerCase()}</span></Link></dd></div>)}
           </dl>
         </>}
-        {editable && <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void submit(true)}>Save for later</button></div>}
+        {editable && <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button>{/* SYEIA-2918: Save for later hidden until functionality is built. Uncomment to restore. */}{/* <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void submit(true)}>Save for later</button> */}</div>}
       </fieldset></form>
       {saving && <p className="govuk-body" role="status">Saving publicity record...</p>}
     </div></div></div>

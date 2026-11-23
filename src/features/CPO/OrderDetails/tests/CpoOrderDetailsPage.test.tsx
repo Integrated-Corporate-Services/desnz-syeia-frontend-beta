@@ -64,12 +64,10 @@ describe('CPO order details journey', () => {
     expect(cpoOrderDetailsService.save).toHaveBeenCalledWith('application-id', 'name', { orderName: 'North Ridge CPO' }, false);
   });
 
-  it('saves an unfinished name for later', async () => {
+  it('does not show Save for later on the order title step', async () => {
     renderStep();
     await ready();
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/application-dashboard'));
-    expect(cpoOrderDetailsService.save).toHaveBeenCalledWith('application-id', 'name', { orderName: '' }, true);
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
 
   it('restores a saved purpose and rejects more than 4000 characters', async () => {
@@ -161,12 +159,10 @@ describe('CPO order details journey', () => {
     await waitFor(() => expect(stored.relatedApplications[0].relationship).toBe('Depends on this order'));
   });
 
-  it('preserves an unfinished related application when saving for later', async () => {
+  it('does not show Save for later on the add related application step', async () => {
     renderStep('add-related-application');
     await ready();
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/application-dashboard'));
-    expect(stored.relatedApplications[0]).toMatchObject({ type: '', relationship: '' });
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
 
   it('shows only Change actions for related applications', async () => {
@@ -284,10 +280,9 @@ describe('CPO order details journey', () => {
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/cpo/application-id/order-details/check'));
   });
 
-  it('keeps an unfinished order review incomplete when saving for later', async () => {
+  it('does not show Save for later on the order review step', async () => {
     renderStep('check'); await ready();
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(cpoOrderDetailsService.save).toHaveBeenCalledWith('application-id', 'check', {}, true));
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
 
   it('returns a completed common-land answer to the document journey', async () => {

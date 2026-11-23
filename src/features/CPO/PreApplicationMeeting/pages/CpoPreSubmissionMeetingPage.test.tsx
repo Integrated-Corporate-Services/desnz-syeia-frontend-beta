@@ -75,12 +75,10 @@ describe('CPO pre-submission meeting', () => {
     expect(cpoPreSubmissionMeetingService.save).not.toHaveBeenCalled();
   });
 
-  it('saves an unanswered draft for later without completing it', async () => {
+  it('does not show Save for later', async () => {
     renderPage();
     await waitForForm();
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/application-dashboard'));
-    expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer: null, reason: '' }, false);
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
 
   it('restores the saved answer', async () => {
@@ -118,7 +116,7 @@ describe('CPO pre-submission meeting', () => {
     renderPage();
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Unable to load'));
     expect(screen.getByRole('button', { name: 'Save and continue' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Save for later' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
     expect(cpoPreSubmissionMeetingService.save).not.toHaveBeenCalled();
   });
 
@@ -155,11 +153,10 @@ describe('CPO pre-submission meeting', () => {
     await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer: 'Yes, I’ve had this meeting', reason: '' }, true));
   });
 
-  it('allows saving an unfinished reason for later', async () => {
+  it('does not show Save for later after choosing that a meeting is not needed', async () => {
     renderPage(); await waitForForm();
     fireEvent.click(screen.getByLabelText("No, I don’t need this meeting"));
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(cpoPreSubmissionMeetingService.save).toHaveBeenCalledWith('application-id', versions, { answer: 'No, I don’t need this meeting', reason: '' }, false));
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
 
   it('sends a completed meeting to its confirmation page instead of the form', async () => {

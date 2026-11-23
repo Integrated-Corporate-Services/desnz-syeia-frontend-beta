@@ -177,7 +177,7 @@ const CpoPreSubmissionMeetingPage: React.FC = () => {
               {loading && <p className="govuk-body" role="status">Loading your answer...</p>}
               <div className="govuk-button-group">
                 <button className="govuk-button" type="submit" disabled={loading || saving || loadFailed}>Save and continue</button>
-                <button className="govuk-button govuk-button--secondary" type="button" disabled={loading || saving || loadFailed} onClick={() => void save(false)}>Save for later</button>
+                {/* SYEIA-2918: Save for later hidden until functionality is built. Uncomment to restore. */}{/* <button className="govuk-button govuk-button--secondary" type="button" disabled={loading || saving || loadFailed} onClick={() => void save(false)}>Save for later</button> */}
               </div>
               {saving && <p className="govuk-body" role="status">Saving your answer...</p>}
             </form>
