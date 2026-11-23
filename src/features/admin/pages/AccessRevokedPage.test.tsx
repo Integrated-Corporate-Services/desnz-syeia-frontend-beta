@@ -27,14 +27,26 @@ describe('AccessRevokedPage (SYEIA-2172)', () => {
   it("shows the user's name and email, letting a long email wrap", () => {
     renderPage({ userName: 'Jane Austen', userEmail: 'jane@example.test' });
     expect(screen.getByRole('heading', { level: 1, name: 'Access revoked' })).toBeInTheDocument();
-    expect(screen.getByText(/Jane Austen can no longer sign in and use the service/)).toBeInTheDocument();
+    expect(screen.getByText('Jane Austen')).toBeInTheDocument();
+    expect(screen.queryByText(/Jane Austen can no longer sign in and use the service/)).not.toBeInTheDocument();
     expect(screen.getByText('jane@example.test')).toHaveClass('govuk-!-text-break-word');
   });
 
-  it('says access can be reinstated later from the User Management Dashboard', () => {
+  it('says access can be reinstated within 180 days from the User Management Dashboard', () => {
     renderPage({ userName: 'Jane Austen' });
+    expect(
+      screen.getByText(
+        'The user has been notified by email that their access has been revoked. They will no longer be able to sign in to the service.'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'They have 180 days to ask for their access to be reinstated. After 180 days they will need to create a new access request.'
+      )
+    ).toBeInTheDocument();
     expect(screen.getByText(/reinstated later from the User Management Dashboard/)).toBeInTheDocument();
     expect(screen.queryByText(/you or another/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/30 days/)).not.toBeInTheDocument();
   });
 
   it('Return to dashboard goes to the User Management dashboard', () => {

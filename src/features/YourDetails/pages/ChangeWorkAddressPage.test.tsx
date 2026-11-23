@@ -113,4 +113,21 @@ describe('ChangeWorkAddressPage', () => {
     expect(sessionStorage.getItem(SUCCESS_BANNER_KEY)).toBe('work address');
     expect(navigateMock).toHaveBeenCalledWith('/your-details');
   });
+
+  it('hides Save for later and still shows Save and continue', async () => {
+    render(
+      <BreadcrumbProvider>
+        <MemoryRouter>
+          <ChangeWorkAddressPage />
+        </MemoryRouter>
+      </BreadcrumbProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Change your work address' })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Save and continue' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
+  });
 });
