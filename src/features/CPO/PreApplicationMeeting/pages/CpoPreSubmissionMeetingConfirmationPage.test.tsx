@@ -59,7 +59,7 @@ const expectConfirmation = (answer: CpoMeetingAnswer) => {
   }
   expect(screen.getByRole('heading', { name: 'Public notices' })).toBeInTheDocument();
   expect(screen.getByText(
-    'You should use the DESNZ reference number in all your public notices.'
+    'You should use this DESNZ reference number in all your public notices.'
   )).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Continue' })).toHaveAttribute(
     'href', '/cpo/application-id/task-list'

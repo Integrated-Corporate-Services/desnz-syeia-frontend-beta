@@ -62,7 +62,6 @@ describe('CPO order documents journey', () => {
     renderStep();
     await ready();
     expect(screen.getByText(/Form 1 applies because/)).toBeInTheDocument();
-    expect(screen.getByText('Upload them as separate files.')).toBeInTheDocument();
   });
   it('does not guess a form number when special land is included', async () => {
     stored.orderDetails.includesSpecialLand = true;

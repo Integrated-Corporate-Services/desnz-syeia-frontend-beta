@@ -117,8 +117,8 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
   );
 
   const validate = (): FormError[] => {
-    if ((step === 'name' || step === 'check') && !details.orderName.trim()) return [{ id: step === 'check' ? 'order-heading' : 'orderName', message: 'Enter the title of the order' }];
-    if ((step === 'purpose' || step === 'check') && (!details.purpose.trim() || details.purpose.length > 4000)) return [{ id: step === 'check' ? 'order-heading' : 'purpose', message: details.purpose.length > 4000 ? 'What the order is for must be 4,000 characters or fewer' : 'Enter an explanation of what the order is for' }];
+    if ((step === 'name' || step === 'check') && !details.orderName.trim()) return [{ id: step === 'check' ? 'order-heading' : 'orderName', message: 'Enter the order title' }];
+    if ((step === 'purpose' || step === 'check') && (!details.purpose.trim() || details.purpose.length > 4000)) return [{ id: step === 'check' ? 'order-heading' : 'purpose', message: details.purpose.length > 4000 ? 'What the order is for must be 4,000 characters or fewer' : 'Explain what the order is for' }];
     if (step === 'special-land' && details.includesSpecialLand === null) return [{ id: 'special-land-yes', message: 'Select yes or no for common land, open space or allotment' }];
     if (step === 'exchange-land' && details.exchangeLand === null) return [{ id: 'exchange-land-yes', message: 'Select yes or no for exchange land' }];
     if (step === 'related-applications' && details.hasRelatedApplications === null) return [{ id: 'related-applications-yes', message: 'Select yes or no for related applications' }];
@@ -236,8 +236,8 @@ const CpoOrderDetailsPage: React.FC<Props> = ({ fixedStep }) => {
           </>}
           {step === 'check' && <>
             <dl className="govuk-summary-list">
-              {summaryRow('Enter the title of the order', details.orderName || 'Not answered', 'name')}
-              {summaryRow('Enter an explanation of what the order is for', details.purpose || 'Not answered', 'purpose')}
+              {summaryRow('Enter the order title', details.orderName || 'Not answered', 'name')}
+              {summaryRow('Explain what the order is for', details.purpose || 'Not answered', 'purpose')}
             </dl>
           </>}
           <div className="govuk-button-group govuk-!-margin-top-6"><button className="govuk-button" type="submit">Save and continue</button>{/* SYEIA-2918: Save for later hidden until functionality is built. Uncomment to restore. */}{/* <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button> */}</div>

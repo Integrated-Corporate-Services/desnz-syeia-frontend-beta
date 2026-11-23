@@ -14,7 +14,7 @@ import '../../styles/cpo.css';
 const COPY: Record<UploadStep, { heading: string; description: string; uploadTitle: string; hint: string; guidanceTitle: string; points: string[] }> = {
   order: {
     heading: 'Upload the order documents', description: 'The order documents include:',
-    uploadTitle: 'Upload an order document', hint: 'Upload them as separate files.', guidanceTitle: 'Order and map requirements',
+    uploadTitle: 'Upload an order document', hint: '', guidanceTitle: 'Order and map requirements',
     points: ['the digitally certified order', 'all digitally certified order maps'],
   },
   maps: {
@@ -121,7 +121,7 @@ const CpoOrderDocumentsOrderPage: React.FC = () => {
   return <>
     <PageTitle title={`${errors.length ? 'Error: ' : ''}${heading}`} />
     <div className="govuk-width-container cpo-order-details cpo-document-uploads">
-    <div className="govuk-grid-row"><div className="govuk-grid-column-two-thirds">
+    <div className="govuk-grid-row"><div className="govuk-grid-column-three-quarters">
       {errors.length > 0 && <div className="govuk-error-summary" ref={errorSummary} tabIndex={-1} role="alert" aria-labelledby="documents-error-title">
         <h2 className="govuk-error-summary__title" id="documents-error-title">There is a problem</h2>
         <div className="govuk-error-summary__body"><ul className="govuk-list govuk-error-summary__list">{errors.map((error, index) => <li key={`${error.id}-${index}`}><a href={`#${error.id}`}>{error.message}</a></li>)}</ul></div>
@@ -139,6 +139,7 @@ const CpoOrderDocumentsOrderPage: React.FC = () => {
             {(step === 'order' || step === 'additional') && <ul className="govuk-list govuk-list--bullet">{COPY[step].points.map(point => <li key={point}>{point}</li>)}</ul>}
             {step === 'order' && <div className="govuk-inset-text">If your file is larger than 25MB and cannot be uploaded, please contact our team at <a className="govuk-link" href="mailto:compulsorypurchaseorders@energysecurity.gov.uk">compulsorypurchaseorders@energysecurity.gov.uk</a> to arrange another way to send the file. Remember to include this application's DESNZ reference number in your email.</div>}
             {errors.filter((error) => error.id === 'file-upload-input').map((error, index) => <p className="govuk-error-message" id={`documents-upload-error-${index}`} key={index}><span className="govuk-visually-hidden">Error:</span> {error.message}</p>)}
+            {pageDocuments.length > 0 && <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2>}
             {editable ? <FileUpload key={step} ref={uploadRef} title={COPY[step].uploadTitle} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`}
               uploadImmediately
               uploadedFiles={pageDocuments.map((document) => ({ id: document.file_id, storageProvider: 'aws_s3', s3Key: document.s3_key, bucketName: '', virtualFolder: document.s3_key ? document.s3_key.split('/').slice(0, -1).join('/') : '', filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp }))}

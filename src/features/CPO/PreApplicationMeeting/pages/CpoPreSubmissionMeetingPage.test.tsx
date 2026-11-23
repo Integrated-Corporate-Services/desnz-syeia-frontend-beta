@@ -211,7 +211,7 @@ describe('CPO pre-submission meeting', () => {
     expect(screen.getByRole('link', { name: 'compulsorypurchaseorders@energysecurity.gov.uk' })).toHaveAttribute('href', 'mailto:compulsorypurchaseorders@energysecurity.gov.uk');
     expect(screen.getByText('you must complete the executive summary before you have the pre-application meeting')).toBeInTheDocument();
     expect(screen.getByText('you can continue working on your application now')).toBeInTheDocument();
-    expect(screen.getByText('You should use the DESNZ reference number in all your public notices.')).toBeInTheDocument();
+    expect(screen.getByText('You should use this DESNZ reference number in all your public notices.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Continue' })).toHaveAttribute('href', '/cpo/application-id/task-list');
   });
 
