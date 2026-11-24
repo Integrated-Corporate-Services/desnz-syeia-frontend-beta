@@ -149,9 +149,10 @@ const ChangeWorkAddressPage: React.FC = () => {
     }
   };
 
-  const handleSaveForLater = () => {
-    navigate('/your-details');
-  };
+  // Save for later hidden until functionality is built. Uncomment to restore.
+  // const handleSaveForLater = () => {
+  //   navigate('/your-details');
+  // };
 
   return (
     <>
@@ -282,13 +283,14 @@ const ChangeWorkAddressPage: React.FC = () => {
                 <button type="submit" className="govuk-button" disabled={saving}>
                   {saving ? 'Saving...' : 'Save and continue'}
                 </button>
-                <button
+                {/* Save for later hidden until functionality is built. Uncomment to restore. */}
+                {/* <button
                   type="button"
                   className="govuk-button govuk-button--secondary"
                   onClick={handleSaveForLater}
                 >
                   Save for later
-                </button>
+                </button> */}
               </div>
             </form>
           </>

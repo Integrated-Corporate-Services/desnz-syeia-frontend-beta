@@ -141,10 +141,13 @@ export const REVOKE_USER_ACCESS_CONSTANTS = {
 
 export const ACCESS_REVOKED_CONSTANTS = {
     TITLE: 'Access revoked',
-    PANEL_BODY: (userName: string) => `${userName} can no longer sign in and use the service`,
+    // SYEIA-2936: banner body is the design line; email is rendered separately.
+    PANEL_BODY: (userName: string) => `${userName} no longer has access to this service for your organisation.`,
     DEFAULT_USER_NAME: 'the user',
     WHAT_HAPPENS_NEXT: 'What happens next',
     NOTIFIED: 'The user has been notified by email that their access has been revoked. They will no longer be able to sign in to the service.',
+    // SYEIA-2936 / SYEIA-2172: agreed reinstatement window is 180 days (design screenshot may still show 30).
+    REINSTATE_WINDOW: 'They have 180 days to ask for their access to be reinstated. After 180 days they will need to create a new access request.',
     REINSTATE: 'If their access needs to be restored, it can be reinstated later from the User Management Dashboard.',
 };
 

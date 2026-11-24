@@ -47,6 +47,7 @@ const AccessRevokedPage: React.FC = () => {
 
             <h2 className="govuk-heading-m">{ACCESS_REVOKED_CONSTANTS.WHAT_HAPPENS_NEXT}</h2>
             <p className="govuk-body">{ACCESS_REVOKED_CONSTANTS.NOTIFIED}</p>
+            <p className="govuk-body">{ACCESS_REVOKED_CONSTANTS.REINSTATE_WINDOW}</p>
             <p className="govuk-body">{ACCESS_REVOKED_CONSTANTS.REINSTATE}</p>
 
             <button
