@@ -139,6 +139,7 @@ const CpoOrderDocumentsReasonsPage: React.FC = () => {
             {(step === 'order' || step === 'additional') && <ul className="govuk-list govuk-list--bullet">{COPY[step].points.map(point => <li key={point}>{point}</li>)}</ul>}
             {step === 'order' && <div className="govuk-inset-text">If your file is larger than 25MB and cannot be uploaded, please contact our team at <a className="govuk-link" href="mailto:compulsorypurchaseorders@energysecurity.gov.uk">compulsorypurchaseorders@energysecurity.gov.uk</a> to arrange another way to send the file. Remember to include this application's DESNZ reference number in your email.</div>}
             {errors.filter((error) => error.id === 'file-upload-input').map((error, index) => <p className="govuk-error-message" id={`documents-upload-error-${index}`} key={index}><span className="govuk-visually-hidden">Error:</span> {error.message}</p>)}
+            {pageDocuments.length > 0 && <h2 className="govuk-heading-s govuk-!-margin-bottom-2">Documents uploaded</h2>}
             {editable ? <FileUpload key={step} ref={uploadRef} title={COPY[step].uploadTitle} titleHeadingLevel="h2" category={category} subCategory={step.toUpperCase()} applicationId={applicationId} prefix={`${applicationId}/${category}`}
               uploadImmediately
               uploadedFiles={pageDocuments.map((document) => ({ id: document.file_id, storageProvider: 'aws_s3', s3Key: document.s3_key, bucketName: '', virtualFolder: document.s3_key ? document.s3_key.split('/').slice(0, -1).join('/') : '', filename: document.filename, fileContentType: document.file_content_type, fileSizeBytes: document.file_size_bytes, uploadedAtTimestamp: document.uploaded_at_timestamp }))}
@@ -163,7 +164,7 @@ const CpoOrderDocumentsReasonsPage: React.FC = () => {
               </div>;
             })}</dl>
           </>}
-          <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button></div>
+          <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button>{/* SYEIA-2918: Save for later hidden until functionality is built. Uncomment to restore. */}{/* <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void save(true)}>Save for later</button> */}</div>
         </fieldset>
       </form>
       {saving && <p className="govuk-body" role="status">Saving order documents...</p>}

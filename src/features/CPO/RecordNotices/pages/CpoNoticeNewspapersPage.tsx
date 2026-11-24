@@ -128,7 +128,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
     {errorFor('notice-location') && <p className="govuk-error-message" id="notice-location-error">{errorFor('notice-location')}</p>}
     <input className={`govuk-input${errorFor('notice-location') ? ' govuk-input--error' : ''}`} id="notice-location" type={key === 'url' ? 'url' : 'text'} maxLength={key === 'url' ? 2000 : 1000} aria-describedby={errorFor('notice-location') ? 'notice-location-error' : undefined} value={answer[key] || ''} onChange={(event) => update(key, event.target.value)} />
   </div>;
-  const dateInput = (key: 'from' | 'until' | 'liveDate' | 'completionDate' | 'firstDate' | 'secondDate', label: string, example?: string) => <DateInput id={key} label={label} example={example} value={answer[key]} onChange={(value) => update(key, value)} error={errorFor(`${key}-day`)} />;
+  const dateInput = (key: 'from' | 'until' | 'liveDate' | 'completionDate' | 'firstDate' | 'secondDate', label: string, example?: string, hintClassName?: string) => <DateInput id={key} label={label} example={example} value={answer[key]} onChange={(value) => update(key, value)} error={errorFor(`${key}-day`)} hintClassName={hintClassName} />;
   const removeDocument = async (documentId: string, fileId: string) => {
     if (blocked) return;
     setSaving(true); setErrors([]);
@@ -245,7 +245,10 @@ const CpoNoticeNewspapersPage: React.FC = () => {
                 setErrors(messages.map((message) => ({ id: 'file-upload-input', message })));
               }} />
           </>}
-          {step === 'newspapers' ? <>{dateInput('firstDate', 'First date it appeared')}{dateInput('secondDate', 'Second date it appeared', '3 4 2026')}</> : dateInput('completionDate', step === 'site' ? 'Enter the date you displayed the most recent notice' : 'Enter the date the last person was served a notice (optional)')}
+          {step === 'newspapers' ? <>
+            {dateInput('firstDate', 'First date it appeared', undefined, 'govuk-!-margin-bottom-6')}
+            {dateInput('secondDate', 'Second date it appeared', '3 4 2026', 'govuk-!-margin-bottom-6')}
+          </> : dateInput('completionDate', step === 'site' ? 'Enter the date you displayed the most recent notice' : 'Enter the date the last person was served a notice (optional)')}
         </>}
         {step === 'check' && <>
           <dl className="govuk-summary-list">
@@ -253,7 +256,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
             {NOTICE_STEPS.filter(target => !['check', 'requirements', 'inspection'].includes(target)).map(target => <div className="govuk-summary-list__row" key={target}><dt className="govuk-summary-list__key">{NOTICE_LABELS[target]}</dt><dd className="govuk-summary-list__value" style={{ overflowWrap: 'anywhere' }}>{reviewValue(target)}</dd><dd className="govuk-summary-list__actions"><Link className="govuk-link" to={`${base}/${target}?from=${fromApplicationReview ? 'check-and-submit' : 'check'}`}>Change<span className="govuk-visually-hidden"> {NOTICE_LABELS[target]?.toLowerCase()}</span></Link></dd></div>)}
           </dl>
         </>}
-        {editable && <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button><button className="govuk-button govuk-button--secondary" type="button" onClick={() => void submit(true)}>Save for later</button></div>}
+        {editable && <div className="govuk-button-group"><button className="govuk-button" type="submit">Save and continue</button>{/* SYEIA-2918: Save for later hidden until functionality is built. Uncomment to restore. */}{/* <button className="govuk-button govuk-button--secondary" type="button" onClick={() => void submit(true)}>Save for later</button> */}</div>}
       </fieldset></form>
       {saving && <p className="govuk-body" role="status">Saving publicity record...</p>}
     </div></div></div>

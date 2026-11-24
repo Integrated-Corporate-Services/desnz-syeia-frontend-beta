@@ -29,7 +29,6 @@ const renderStep = (step: string, query = '') => render(<BreadcrumbProvider><Mem
   <Route path="/cpo/:applicationId/record-notices/:noticeStep" element={<CpoNoticesPage />} />
 </Routes></MemoryRouter></BreadcrumbProvider>);
 const ready = () => waitFor(() => expect(screen.getByRole('button', { name: 'Save and continue' })).toBeEnabled());
-const readyLater = () => waitFor(() => expect(screen.getByRole('button', { name: 'Save for later' })).toBeEnabled());
 const setDate = (id: string, day = '7', month = '10', year = '2026') => {
   for (const [part, value] of [['day', day], ['month', month], ['year', year]]) fireEvent.change(document.getElementById(`${id}-${part}`)!, { target: { value } });
 };
@@ -64,10 +63,9 @@ describe('CPO notices journey', () => {
     renderStep('legacy', '?from=check-and-submit'); await ready();
     expect(navigate).toHaveBeenCalledWith('/cpo/app/record-notices/requirements?from=check-and-submit', { replace: true });
   });
-  it('preserves requirements acknowledgement when saving for later', async () => {
+  it('does not show Save for later on the notice requirements step', async () => {
     renderStep('requirements'); await ready();
-    fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'requirements', { format: 'reference', acknowledged: true }, true));
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
   it('returns a changed requirement acknowledgement to combined review', async () => {
     renderStep('requirements', '?from=check'); await ready();
@@ -95,11 +93,11 @@ describe('CPO notices journey', () => {
     expect(await screen.findAllByText('Date the site notices were displayed cannot be in the future')).not.toHaveLength(0);
     expect(cpoNoticesService.save).not.toHaveBeenCalled();
   });
-  it('saves partial forms for later without completing the section', async () => {
+  it('does not show Save for later on an incomplete inspection list', async () => {
     stored.record.inspection = { format: 'reference', addresses: [] };
-    renderStep('inspection'); await readyLater(); fireEvent.click(screen.getByRole('button', { name: 'Save for later' }));
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/application-dashboard'));
-    expect(cpoNoticesService.save).toHaveBeenCalledWith('app', 'inspection', expect.objectContaining({ format: 'reference', addresses: [] }), true);
+    renderStep('inspection');
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Record order inspection addresses' })).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
   it('uses immediate uploads without a separate Upload document action', async () => {
     renderStep('newspapers'); await ready();
@@ -143,7 +141,7 @@ describe('CPO notices journey', () => {
     vi.mocked(cpoNoticesService.get).mockRejectedValue(new Error('Unable to load publicity'));
     renderStep('inspection'); await screen.findByRole('alert');
     await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus());
-    expect(screen.getByRole('button', { name: 'Save for later' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Save for later' })).not.toBeInTheDocument();
   });
   it('removes the document through the existing API and saves the updated evidence list', async () => {
     stored.documents = [{ document_id: 'doc', file_id: 'file', category: 'CPO_NEWSPAPER_NOTICES', filename: 'notice.pdf', s3_key: 'path/notice.pdf' } as NoticesResponse['documents'][number]];
@@ -173,7 +171,8 @@ describe('CPO notices journey', () => {
   });
   it('hides Save and continue on the inspection list until an address is added', async () => {
     stored.record.inspection = { format: 'reference', addresses: [] };
-    renderStep('inspection'); await readyLater();
+    renderStep('inspection');
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Add an address' })).toBeInTheDocument());
     expect(screen.queryByRole('button', { name: 'Save and continue' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Add an address' })).toBeInTheDocument();
   });
