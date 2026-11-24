@@ -128,7 +128,7 @@ const CpoNoticeNewspapersPage: React.FC = () => {
     {errorFor('notice-location') && <p className="govuk-error-message" id="notice-location-error">{errorFor('notice-location')}</p>}
     <input className={`govuk-input${errorFor('notice-location') ? ' govuk-input--error' : ''}`} id="notice-location" type={key === 'url' ? 'url' : 'text'} maxLength={key === 'url' ? 2000 : 1000} aria-describedby={errorFor('notice-location') ? 'notice-location-error' : undefined} value={answer[key] || ''} onChange={(event) => update(key, event.target.value)} />
   </div>;
-  const dateInput = (key: 'from' | 'until' | 'liveDate' | 'completionDate' | 'firstDate' | 'secondDate', label: string, example?: string) => <DateInput id={key} label={label} example={example} value={answer[key]} onChange={(value) => update(key, value)} error={errorFor(`${key}-day`)} />;
+  const dateInput = (key: 'from' | 'until' | 'liveDate' | 'completionDate' | 'firstDate' | 'secondDate', label: string, example?: string, hintClassName?: string) => <DateInput id={key} label={label} example={example} value={answer[key]} onChange={(value) => update(key, value)} error={errorFor(`${key}-day`)} hintClassName={hintClassName} />;
   const removeDocument = async (documentId: string, fileId: string) => {
     if (blocked) return;
     setSaving(true); setErrors([]);
@@ -245,7 +245,10 @@ const CpoNoticeNewspapersPage: React.FC = () => {
                 setErrors(messages.map((message) => ({ id: 'file-upload-input', message })));
               }} />
           </>}
-          {step === 'newspapers' ? <>{dateInput('firstDate', 'First date it appeared')}{dateInput('secondDate', 'Second date it appeared', '3 4 2026')}</> : dateInput('completionDate', step === 'site' ? 'Enter the date you displayed the most recent notice' : 'Enter the date the last person was served a notice (optional)')}
+          {step === 'newspapers' ? <>
+            {dateInput('firstDate', 'First date it appeared', undefined, 'govuk-!-margin-bottom-6')}
+            {dateInput('secondDate', 'Second date it appeared', '3 4 2026', 'govuk-!-margin-bottom-6')}
+          </> : dateInput('completionDate', step === 'site' ? 'Enter the date you displayed the most recent notice' : 'Enter the date the last person was served a notice (optional)')}
         </>}
         {step === 'check' && <>
           <dl className="govuk-summary-list">

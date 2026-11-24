@@ -104,6 +104,14 @@ body {
   }
 }
 
+/* Widen the key (label) column of the inspection address summary list so longer
+   labels such as "Available to inspect from" have more room on desktop. */
+@media (min-width: 40.0625em) {
+  .cpo-notice-inspection-summary-list .govuk-summary-list__key {
+    width: 35%;
+  }
+}
+
 a:focus,
 button:focus,
 [tabindex]:focus {
