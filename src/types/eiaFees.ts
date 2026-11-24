@@ -1,3 +1,5 @@
+import type { ApplicationDocument, UploadedFile } from './fileUpload';
+
 export interface EiaFees {
   eiaFeeId?: string;
   eiaId?: string;
@@ -8,4 +10,6 @@ export interface EiaFees {
   updatedAt: string;
   createdBy?: string;
   updatedBy: string;
+  uploadedFiles?: UploadedFile[];
+  applicationDocuments?: ApplicationDocument[];
 }

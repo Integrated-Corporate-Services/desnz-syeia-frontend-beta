@@ -32,6 +32,8 @@ import {
 } from '../constants/applicationSummaryLabels';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import EiaFeesSummaryCard from '../../EIAFees/component/EiaFeesSummaryCard';
+import { isEiaReportMissing } from '../../EIAFees/utils/eiaAssessment';
 
 
 const CheckYourAnswers: React.FC = () => {
@@ -120,6 +122,7 @@ const CheckYourAnswers: React.FC = () => {
     SupportingDocument[]
   >([]);
   const [eiaFees, setEiaFees] = useState<EIAFees | null>(null);
+  const [eiaReportNames, setEiaReportNames] = useState<string[]>([]);
   const [worksOverview, setWorksOverview] = useState<WorksOverview | null>(
     null,
   );
@@ -217,7 +220,15 @@ const CheckYourAnswers: React.FC = () => {
           return value !== undefined && value !== null && value !== "";
         });
 
-        setAllSectionsCompleted(allStarted);
+        // SYEIA-1485: a full EIA also needs its report before the application can be paid for and submitted.
+        const supportingInformation = data.sections?.supportingInformation;
+        const eiaReportMissing = isEiaReportMissing(
+          supportingInformation?.eiaFees?.is_eia_development,
+          supportingInformation?.eiaFees?.screening_only,
+          (supportingInformation?.eiaReportDocuments || []).length,
+        );
+
+        setAllSectionsCompleted(allStarted && !eiaReportMissing);
 
         // Set network operator details - flatten application_party fields
         const networkOpDetails = data.sections?.networkOperator?.details;
@@ -352,6 +363,11 @@ const CheckYourAnswers: React.FC = () => {
           data.sections?.supportingInformation?.supportingDocuments || [],
         );
         setEiaFees(data.sections?.supportingInformation?.eiaFees || null);
+        setEiaReportNames(
+          (data.sections?.supportingInformation?.eiaReportDocuments || [])
+            .map((doc: { title?: string }) => doc.title)
+            .filter(Boolean),
+        );
         // Set consultations data
         setConsultations(
           Array.isArray(data.sections?.consultations)
@@ -1359,59 +1375,12 @@ const CheckYourAnswers: React.FC = () => {
                 </dl>
               </div>
             </div>
-            {/* EIA fees summary card - updated to use eiaFees from state */}
-            <div className="govuk-summary-card">
-              <div className="govuk-summary-card__title-wrapper">
-                <h2 className="govuk-summary-card__title">EIA fees</h2>
-                {/* {permissions?.canEdit && (
-                  <ul className="govuk-summary-card__actions">
-                    <li className="govuk-summary-card__action">
-                      <Link
-                        className="govuk-link"
-                        to={`${S37_BASE_URL}/${applicationId}/eia-fees`}
-                      >
-                        Change
-                        <span className="govuk-visually-hidden"> EIA fees</span>
-                      </Link>
-                    </li>
-                  </ul>
-                )} */}
-              </div>
-              <div className="govuk-summary-card__content">
-                <dl className="govuk-summary-list">
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Does this application require a full EIA?
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {eiaFees &&
-                        typeof eiaFees.is_eia_development !== "undefined"
-                        ? eiaFees.is_eia_development
-                          ? "Yes"
-                          : "No"
-                        : "-"}
-                    </dd>
-                  </div>
-                  <div className="govuk-summary-list__row">
-                    <dt className="govuk-summary-list__key">
-                      Is this application for screening only?
-                    </dt>
-                    <dd className="govuk-summary-list__value">
-                      {eiaFees &&
-                        typeof eiaFees.is_eia_development !== "undefined" &&
-                        !eiaFees.is_eia_development
-                        ? "No"
-                        : eiaFees &&
-                          typeof eiaFees.screening_only !== "undefined"
-                          ? eiaFees.screening_only
-                            ? "Yes"
-                            : "No"
-                          : "-"}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
+            <EiaFeesSummaryCard
+              title={"EIA fees"}
+              isEiaDevelopment={eiaFees?.is_eia_development}
+              screeningOnly={eiaFees?.screening_only}
+              reportNames={eiaReportNames}
+            />
             <h2 className="govuk-heading-m">Consultation</h2>
             {consultations
               .filter(c => c.status === "Not required")

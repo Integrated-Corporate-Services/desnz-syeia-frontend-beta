@@ -1,0 +1,290 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { S37_BASE_URL } from '../../../constants/s37';
+import { FILE_CATEGORIES } from '../../../constants/fileCategoryConstants';
+import FileUpload, { type FileUploadHandle } from '../../../components/FileUpload';
+import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
+import PageTitle from '../../../components/PageTitle';
+import { useBreadcrumb } from '../../../context/BreadcrumbContext';
+import { useAuthUserContext } from '../../../context/AuthUserContext';
+import { useGetApplicationId } from '../../../hooks/useGetApplicationId';
+import { useEiaFees } from '../../../hooks/useEiaFees';
+import { useConsultationsStarted } from '../../../hooks/useConsultationsStarted';
+import { useEditableDraft } from '../hooks/useEditableDraft';
+import { useEiaFeesCompletion } from '../hooks/useEiaFeesCompletion';
+import type { AuthUser } from '../../../types/auth';
+import type { ApplicationDocument, UploadedFile } from '../../../types/fileUpload';
+import { getNextPageUrl, TASK_NAMES } from '../../../utils/taskListUtils';
+import { createLogger } from '../../../utils/logger';
+import '../../../styles/_file_upload.scss';
+import { EIA_ASSESSMENT, EIA_CONTENT, EIA_REPORT_MAX_FILES } from '../constants/eiaAssessment';
+import { getEiaAssessment, toEiaAnswers } from '../utils/eiaAssessment';
+import { EIA_FEES_ERROR_MESSAGES, EIAFeesErrorField, validateEiaReport, type ValidationError } from '../validations';
+
+const logger = createLogger('EiaReportUploadPage');
+const SCAN_IN_PROGRESS = 'File scan is in progress. Wait for the scan to finish before continuing.';
+const DELETE_IN_PROGRESS = 'A file is being deleted. Wait for it to finish before continuing.';
+// The error summary links to the file input itself.
+const FILE_INPUT_ID = 'file-upload-input';
+
+// SYEIA-1485 Image 4: shown only after the applicant chooses a full EIA.
+const EiaReportUploadPage: React.FC = () => {
+    const navigate = useNavigate();
+    const applicationId = useGetApplicationId();
+    const { user } = useAuthUserContext();
+    const userId = (user as AuthUser)?.user_id;
+    const eiaUrl = `${S37_BASE_URL}/${applicationId}/eia-fees`;
+    const taskListUrl = `${S37_BASE_URL}/${applicationId}/task-list`;
+
+    useBreadcrumb(
+        <nav className="govuk-breadcrumbs" aria-label="Breadcrumb">
+            <ol className="govuk-breadcrumbs__list">
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={taskListUrl}>Task list</Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item">
+                    <Link className="govuk-breadcrumbs__link" to={eiaUrl}>{EIA_CONTENT.BREADCRUMB}</Link>
+                </li>
+                <li className="govuk-breadcrumbs__list-item" aria-current="page">{EIA_CONTENT.UPLOAD_TITLE}</li>
+            </ol>
+        </nav>
+    );
+
+    const { eiaFees, loading, error: loadError, fetchEiaFees, updateEiaFees } = useEiaFees();
+    const {
+        consultationsStarted,
+        loading: consultationsLoading,
+        checked: consultationsChecked,
+        error: consultationsError,
+        retry: retryConsultations,
+    } = useConsultationsStarted(applicationId);
+    // Upload, delete and save need a successful check: the hook reports loading false before its first fetch starts,
+    // and a failed fetch leaves checked false.
+    const consultationsPending = consultationsLoading || !consultationsChecked;
+    const consultationsFailed = !consultationsLoading && !consultationsChecked && !!consultationsError;
+    // Recovery: a full EIA left without a report when consultations started can still have its report uploaded,
+    // while the application is an editable draft. Any other answer stays read-only once consultations start.
+    const savedAnswerLoaded = !!eiaFees && eiaFees.applicationId === applicationId;
+    const fullEia = savedAnswerLoaded && getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) === EIA_ASSESSMENT.FULL_EIA;
+    const reportMissing = fullEia && (eiaFees.applicationDocuments ?? []).length === 0;
+    // A report uploaded during recovery whose answer save then failed leaves the section In progress: the page stays
+    // open (for an editable draft) so Save can be retried.
+    const completionCheck = useEiaFeesCompletion(applicationId, consultationsChecked && consultationsStarted && fullEia && !reportMissing);
+    const completionPending = fullEia && !reportMissing && completionCheck === 'incomplete';
+    const completionUnknown = fullEia && !reportMissing && (completionCheck === 'idle' || completionCheck === 'loading');
+    const recoveryCheckNeeded = consultationsChecked && consultationsStarted && (reportMissing || completionPending);
+    const draftCheck = useEditableDraft(applicationId, recoveryCheckNeeded);
+    const [recovering, setRecovering] = useState(false);
+    useEffect(() => {
+        if (recoveryCheckNeeded && draftCheck === 'editable') setRecovering(true);
+    }, [recoveryCheckNeeded, draftCheck]);
+    const locked = consultationsStarted && !recovering;
+    const lockConfirmed = consultationsStarted && !recovering
+        && ((savedAnswerLoaded && !reportMissing && !completionPending && !completionUnknown) || (!!loadError && !eiaFees) || draftCheck === 'locked');
+    const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+    const [applicationDocuments, setApplicationDocuments] = useState<ApplicationDocument[]>([]);
+    const [fileErrors, setFileErrors] = useState<string[]>([]);
+    const [errors, setErrors] = useState<ValidationError[]>([]);
+    const [saving, setSaving] = useState(false);
+    const fileUploadRef = useRef<FileUploadHandle>(null);
+    const errorSummaryRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (applicationId) fetchEiaFees(applicationId);
+    }, [applicationId, fetchEiaFees]);
+
+    // Once consultations have started the EIA answer is read-only, as on the question page (apart from the recovery above).
+    useEffect(() => {
+        if (!consultationsPending && lockConfirmed) navigate(eiaUrl, { replace: true });
+    }, [consultationsPending, lockConfirmed, eiaUrl, navigate]);
+
+    // No saved answer yet: the assessment question comes first.
+    useEffect(() => {
+        if (loadError && !eiaFees) navigate(eiaUrl, { replace: true });
+    }, [loadError, eiaFees, eiaUrl, navigate]);
+
+    // The file list is taken from the loaded answer once; after that the page owns it, so a failed save
+    // (which changes the shared error) keeps reports uploaded or deleted since the page opened.
+    const filesLoadedFor = useRef<string | null>(null);
+    useEffect(() => {
+        if (!eiaFees || eiaFees.applicationId !== applicationId || filesLoadedFor.current === applicationId) return;
+        // The report belongs to a full EIA only.
+        if (getEiaAssessment(eiaFees.isEiaDevelopment, eiaFees.screeningOnly) !== EIA_ASSESSMENT.FULL_EIA) {
+            navigate(eiaUrl, { replace: true });
+            return;
+        }
+        filesLoadedFor.current = applicationId;
+        setUploadedFiles(eiaFees.uploadedFiles ?? []);
+        setApplicationDocuments(eiaFees.applicationDocuments ?? []);
+    }, [eiaFees, applicationId, eiaUrl, navigate]);
+
+    useEffect(() => {
+        if (errors.length > 0 || fileErrors.length > 0) errorSummaryRef.current?.focus();
+    }, [errors, fileErrors]);
+
+    const handleSubmit = async (saveType: 'continue' | 'later') => {
+        if (consultationsPending || locked || saving) return;
+        if (fileUploadRef.current?.isBusy()) {
+            setFileErrors([SCAN_IN_PROGRESS]);
+            return;
+        }
+        // The report count below must not include a file whose delete is still in flight.
+        if (fileUploadRef.current?.isDeleting?.()) {
+            setFileErrors([DELETE_IN_PROGRESS]);
+            return;
+        }
+        // Saving also blocks Delete, so the file list can't change between the count and the save.
+        setSaving(true);
+        try {
+            await uploadAndSave(saveType);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const uploadAndSave = async (saveType: 'continue' | 'later') => {
+        let newlyUploaded: UploadedFile[] = [];
+        if (fileUploadRef.current) {
+            try {
+                const result = await fileUploadRef.current.triggerUpload();
+                if (result.scanErrors.length > 0) {
+                    setFileErrors(result.scanErrors);
+                    return;
+                }
+                newlyUploaded = result.uploadedFiles;
+                setUploadedFiles((prev) => [...prev, ...result.uploadedFiles]);
+                setApplicationDocuments((prev) => [...prev, ...result.applicationDocuments]);
+            } catch (err) {
+                logger.error('EIA report upload failed', err);
+                setErrors([{ field: 'general', message: EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED }]);
+                return;
+            }
+        }
+
+        const validationErrors = saveType === 'continue' ? validateEiaReport(uploadedFiles.length + newlyUploaded.length) : [];
+        setErrors(validationErrors);
+        if (validationErrors.length > 0 || !eiaFees?.eiaFeeId) return;
+
+        try {
+            // Saving the answer again lets the backend mark the section complete now the report is there.
+            await updateEiaFees({
+                eiaFeeId: eiaFees.eiaFeeId,
+                applicationId,
+                ...toEiaAnswers(EIA_ASSESSMENT.FULL_EIA),
+                updatedAt: new Date().toISOString(),
+                updatedBy: userId,
+            });
+            navigate(saveType === 'later' ? taskListUrl : getNextPageUrl(TASK_NAMES.EIA_FEES, applicationId));
+        } catch {
+            setErrors([{ field: 'general', message: EIA_FEES_ERROR_MESSAGES.API.SUBMIT_FAILED }]);
+        }
+    };
+
+    // FileUpload is not mounted until we know the application is still editable.
+    if (consultationsFailed) {
+        return (
+            <>
+                <PageTitle title={EIA_CONTENT.UPLOAD_TITLE} />
+                <div className="govuk-grid-row">
+                    <div className="govuk-grid-column-two-thirds">
+                        <ErrorSummary errors={[{ fieldId: 'general', message: EIA_FEES_ERROR_MESSAGES.API.CONSULTATIONS_LOAD_FAILED }]} />
+                        <h1 className="govuk-heading-l">{EIA_CONTENT.UPLOAD_TITLE}</h1>
+                        <button type="button" className="govuk-button govuk-button--secondary" data-module="govuk-button" onClick={retryConsultations}>
+                            Try again
+                        </button>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
+    if (consultationsPending || locked || (loading && !eiaFees)) return <p className="govuk-body">Loading...</p>;
+
+    const reportError = errors.find((e) => e.field === EIAFeesErrorField.EIA_REPORT)?.message;
+    // File type, size and scan errors go in the summary too, linked to the file input.
+    const summaryErrors = [
+        ...errors.map((e) => ({
+            fieldId: e.field === EIAFeesErrorField.EIA_REPORT ? FILE_INPUT_ID : e.field,
+            message: e.message,
+        })),
+        ...fileErrors.map((message) => ({ fieldId: FILE_INPUT_ID, message })),
+    ];
+
+    return (
+        <>
+            <PageTitle title={EIA_CONTENT.UPLOAD_TITLE} />
+            <div className="govuk-grid-row">
+                <div className="govuk-grid-column-two-thirds">
+                    <ErrorSummary ref={errorSummaryRef} errors={summaryErrors} />
+                    <h1 className="govuk-heading-l">{EIA_CONTENT.UPLOAD_TITLE}</h1>
+                    {recovering && (
+                        <div className="govuk-inset-text">
+                            {reportMissing ? EIA_CONTENT.REPORT_MISSING_AFTER_CONSULTATION : EIA_CONTENT.REPORT_NOT_SAVED_AFTER_CONSULTATION}
+                        </div>
+                    )}
+                    <p className="govuk-body">
+                        You need to submit an EIA report as part of your request for a full environmental impact assessment (EIA).
+                    </p>
+                    <div className={`govuk-form-group${reportError || fileErrors.length > 0 ? ' govuk-form-group--error' : ''}`}>
+                        {reportError && (
+                            <p className="govuk-error-message" id={`${EIAFeesErrorField.EIA_REPORT}-error`}>
+                                <span className="govuk-visually-hidden">Error:</span> {reportError}
+                            </p>
+                        )}
+                        {fileErrors.map((error, index) => (
+                            <p key={index} className="govuk-error-message" id={`${FILE_INPUT_ID}-error-${index}`}>
+                                <span className="govuk-visually-hidden">Error:</span> {error}
+                            </p>
+                        ))}
+                        <FileUpload
+                            ref={fileUploadRef}
+                            title="Upload a file"
+                            titleHeadingLevel="h2"
+                            prefix={`${applicationId}/${FILE_CATEGORIES.EIA_REPORT}`}
+                            applicationId={applicationId}
+                            category={FILE_CATEGORIES.EIA_REPORT}
+                            addedBy={userId}
+                            maxFiles={EIA_REPORT_MAX_FILES}
+                            uploadedFiles={uploadedFiles}
+                            applicationDocuments={applicationDocuments}
+                            uploadImmediately={true}
+                            deleteDisabled={saving}
+                            onUploaded={(files, documents) => {
+                                setUploadedFiles((prev) => [...prev, ...files]);
+                                setApplicationDocuments((prev) => [...prev, ...documents]);
+                                setErrors([]);
+                            }}
+                            onDeleteFile={(fileId) => {
+                                setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
+                                setApplicationDocuments((prev) => prev.filter((doc) => doc.fileId !== fileId));
+                            }}
+                            onValidationErrors={setFileErrors}
+                        />
+                    </div>
+                    <div className="govuk-button-group">
+                        <button
+                            type="button"
+                            className="govuk-button"
+                            data-module="govuk-button"
+                            disabled={saving}
+                            onClick={() => handleSubmit('continue')}
+                        >
+                            Save and continue
+                        </button>
+                        <button
+                            type="button"
+                            className="govuk-button govuk-button--secondary"
+                            data-module="govuk-button"
+                            disabled={saving}
+                            onClick={() => handleSubmit('later')}
+                        >
+                            Save for later
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default EiaReportUploadPage;
