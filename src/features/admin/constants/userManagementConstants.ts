@@ -141,8 +141,8 @@ export const REVOKE_USER_ACCESS_CONSTANTS = {
 
 export const ACCESS_REVOKED_CONSTANTS = {
     TITLE: 'Access revoked',
-    // SYEIA-2936: banner body is the revoked user's name (email is rendered separately).
-    PANEL_BODY: (userName: string) => userName,
+    // SYEIA-2936: banner body is the design line; email is rendered separately.
+    PANEL_BODY: (userName: string) => `${userName} no longer has access to this service for your organisation.`,
     DEFAULT_USER_NAME: 'the user',
     WHAT_HAPPENS_NEXT: 'What happens next',
     NOTIFIED: 'The user has been notified by email that their access has been revoked. They will no longer be able to sign in to the service.',

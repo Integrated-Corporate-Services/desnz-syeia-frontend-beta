@@ -27,7 +27,9 @@ describe('AccessRevokedPage (SYEIA-2172)', () => {
   it("shows the user's name and email, letting a long email wrap", () => {
     renderPage({ userName: 'Jane Austen', userEmail: 'jane@example.test' });
     expect(screen.getByRole('heading', { level: 1, name: 'Access revoked' })).toBeInTheDocument();
-    expect(screen.getByText('Jane Austen')).toBeInTheDocument();
+    expect(
+      screen.getByText('Jane Austen no longer has access to this service for your organisation.')
+    ).toBeInTheDocument();
     expect(screen.queryByText(/Jane Austen can no longer sign in and use the service/)).not.toBeInTheDocument();
     expect(screen.getByText('jane@example.test')).toHaveClass('govuk-!-text-break-word');
   });
