@@ -6,7 +6,7 @@ import type { WithdrawableObjection } from '../types/objectionJourney';
 /** SYEIA-2946: one objection that is about to be withdrawn. */
 const WithdrawableObjectionSummaryCard: React.FC<{ objection: WithdrawableObjection }> = ({ objection }) => (
   <ObjectionSummaryCard
-    title={`Objection ${objection.objectionReference}`}
+    title={objection.objectionReference}
     rows={[
       { label: 'Objector', value: objection.objectorName },
       { label: 'Objection', value: objection.objectionDetails || NOT_PROVIDED },

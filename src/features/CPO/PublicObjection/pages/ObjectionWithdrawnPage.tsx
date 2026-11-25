@@ -39,17 +39,15 @@ const ObjectionWithdrawnPage: React.FC = () => {
         <div className="govuk-grid-column-two-thirds">
           <div className="govuk-panel govuk-panel--confirmation govuk-!-margin-top-6">
             <h1 className="govuk-panel__title">{title}</h1>
-            <div className="govuk-panel__body">
-              {multiple ? 'Each objector had their own objection reference' : (
-                <>Objection reference<br />{withdrawn.objections[0]?.objectionReference}</>
-              )}
-            </div>
           </div>
           {multiple && <ObjectionReferencesTable objections={withdrawn.objections} />}
           <p className="govuk-body">
-            {multiple
-              ? 'You will receive an email to confirm these objections have been withdrawn.'
-              : `You will receive an email to confirm the objection ${withdrawn.objections[0]?.objectionReference} has been withdrawn.`}
+            {multiple ? 'You will receive an email to confirm these objections have been withdrawn.' : (
+              <>
+                You will receive an email to confirm the objection{' '}
+                <strong>{withdrawn.objections[0]?.objectionReference}</strong> has been withdrawn.
+              </>
+            )}
           </p>
           <h2 className="govuk-heading-m">What happens next</h2>
           <p className="govuk-body">

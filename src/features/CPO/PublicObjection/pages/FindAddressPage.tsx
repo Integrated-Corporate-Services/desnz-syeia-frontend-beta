@@ -71,6 +71,7 @@ const FindAddressPage: React.FC = () => {
               label="Enter your property name or number (optional)"
               hint="For example, The Mill, 116 or Flat 37a."
               isPageHeading={false}
+              widthClass="govuk-!-width-two-thirds"
               value={property}
               onChange={setProperty}
               error={errorFor('property')}

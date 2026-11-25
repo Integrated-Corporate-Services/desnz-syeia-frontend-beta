@@ -55,19 +55,11 @@ const WithdrawConfirmPage: React.FC = () => {
     <ObjectionPage title={copy.heading} backTo={available.length > 1 ? OBJECTION_ROUTES.WITHDRAW : OBJECTION_ROUTES.EMAIL} errors={errors}>
       <span className="govuk-caption-l">Order {journey.reference}</span>
       <h1 className="govuk-heading-l">{copy.heading}</h1>
-      <CpoOrderSummaryCard reference={journey.reference} title={journey.title} />
+      <CpoOrderSummaryCard title={journey.title} />
       {objections.map((objection) => <WithdrawableObjectionSummaryCard key={objection.objectionId} objection={objection} />)}
       <form onSubmit={submit} noValidate>
         <div className={`govuk-form-group govuk-character-count${reasonError ? ' govuk-form-group--error' : ''}`}>
-          <h2 className="govuk-label-wrapper">
-            <label className="govuk-label govuk-label--m" htmlFor="withdrawal-reason">Reason for withdrawing (optional)</label>
-          </h2>
-          <div className="govuk-hint" id="withdrawal-reason-hint">
-            For example, you have reached an agreement with the organisation that made the order.{' '}
-            <a className="govuk-link" href={OBJECTION_GUIDANCE_URL} target="_blank" rel="noreferrer noopener">
-              Read the guidance on objecting to a CPO (opens in a new tab)
-            </a>
-          </div>
+          <label className="govuk-label govuk-label--s" htmlFor="withdrawal-reason">Enter a reason for withdrawal (optional)</label>
           {reasonError && (
             <p className="govuk-error-message" id="withdrawal-reason-error">
               <span className="govuk-visually-hidden">Error:</span> {reasonError}
@@ -78,7 +70,7 @@ const WithdrawConfirmPage: React.FC = () => {
             id="withdrawal-reason"
             name="withdrawal-reason"
             rows={5}
-            aria-describedby={`withdrawal-reason-hint withdrawal-reason-count${reasonError ? ' withdrawal-reason-error' : ''}`}
+            aria-describedby={`withdrawal-reason-count${reasonError ? ' withdrawal-reason-error' : ''}`}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />
@@ -90,6 +82,12 @@ const WithdrawConfirmPage: React.FC = () => {
             {characterCountMessage(reason.length)}
           </div>
         </div>
+        <p className="govuk-body">
+          <a className="govuk-link" href={OBJECTION_GUIDANCE_URL} target="_blank" rel="noreferrer noopener">
+            Read the guidance on objecting to a CPO (opens in a new tab)
+          </a>{' '}
+          to learn more about the process.
+        </p>
         <div className={`govuk-form-group${confirmError ? ' govuk-form-group--error' : ''}`}>
           {confirmError && (
             <p className="govuk-error-message" id="withdraw-confirmed-error">
@@ -111,12 +109,10 @@ const WithdrawConfirmPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="govuk-button-group">
-          <button className="govuk-button govuk-button--warning" type="submit" disabled={saving}>
-            {objections.length > 1 ? 'Withdraw objections' : 'Withdraw objection'}
-          </button>
+        <button className="govuk-button" type="submit" disabled={saving}>Withdraw</button>
+        <p className="govuk-body">
           <Link className="govuk-link" to={OBJECTION_ROUTES.START}>Cancel</Link>
-        </div>
+        </p>
       </form>
     </ObjectionPage>
   );

@@ -87,14 +87,14 @@ describe('Withdraw pages (SYEIA-2943 / SYEIA-2946)', () => {
       renderPage(<WithdrawConfirmPage />);
 
       expect(await screen.findByRole('heading', { level: 1, name: 'Confirm you want to withdraw this objection' })).toBeInTheDocument();
-      const card = screen.getByRole('heading', { level: 2, name: 'Objection OBJ-000108' }).closest('.govuk-summary-card') as HTMLElement;
+      const card = screen.getByRole('heading', { level: 2, name: 'OBJ-000108' }).closest('.govuk-summary-card') as HTMLElement;
       expect(within(card).getByText('Chuck Sanders Snr')).toBeInTheDocument();
       expect(within(card).getByText('objection.pdf')).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', '/object-to-a-cpo');
 
-      fireEvent.change(screen.getByLabelText('Reason for withdrawing (optional)'), { target: { value: 'We have agreed terms.' } });
+      fireEvent.change(screen.getByLabelText('Enter a reason for withdrawal (optional)'), { target: { value: 'We have agreed terms.' } });
       fireEvent.click(screen.getByLabelText('I confirm I want to withdraw this objection and understand this action cannot be undone.'));
-      fireEvent.click(screen.getByRole('button', { name: 'Withdraw objection' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Withdraw' }));
       await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/object-to-a-cpo/objection-withdrawn'));
       expect(withdraw).toHaveBeenCalledWith('We have agreed terms.', true);
     });
@@ -104,9 +104,8 @@ describe('Withdraw pages (SYEIA-2943 / SYEIA-2946)', () => {
       renderPage(<WithdrawConfirmPage />);
 
       expect(await screen.findByRole('heading', { level: 1, name: 'Confirm you want to withdraw these objections' })).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 2, name: 'Objection OBJ-000109' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Withdraw objections' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/object-to-a-cpo/withdraw');
+      expect(screen.getByRole('heading', { level: 2, name: 'OBJ-000109' })).toBeInTheDocument();
+            expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/object-to-a-cpo/withdraw');
     });
 
     it('needs the confirmation ticked', async () => {
@@ -116,7 +115,7 @@ describe('Withdraw pages (SYEIA-2943 / SYEIA-2946)', () => {
       }]));
       renderPage(<WithdrawConfirmPage />);
 
-      fireEvent.click(await screen.findByRole('button', { name: 'Withdraw objection' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Withdraw' }));
       expect(await screen.findByRole('link', { name: 'Confirm that you want to withdraw and understand this cannot be undone' }))
         .toHaveAttribute('href', '#withdraw-confirmed');
       expect(navigateMock).not.toHaveBeenCalled();
@@ -139,7 +138,8 @@ describe('Withdraw pages (SYEIA-2943 / SYEIA-2946)', () => {
       renderPage(<ObjectionWithdrawnPage />);
 
       expect(await screen.findByRole('heading', { level: 1, name: 'Objection withdrawn' })).toBeInTheDocument();
-      expect(screen.getByText('You will receive an email to confirm the objection OBJ-000107 has been withdrawn.')).toBeInTheDocument();
+      expect(screen.getByText(/You will receive an email to confirm the objection/)).toHaveTextContent('You will receive an email to confirm the objection OBJ-000107 has been withdrawn.');
+      expect(screen.getByText('OBJ-000107', { selector: 'strong' })).toBeInTheDocument();
       expect(screen.getByText('We will tell Northtown Power Networks Ltd that you have withdrawn your objection.')).toBeInTheDocument();
       expect(screen.getByText('Your objection stays on record, but it will not be considered in the decision on the CPO.')).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Submit or withdraw another objection to a CPO' })).toHaveAttribute('href', '/object-to-a-cpo');

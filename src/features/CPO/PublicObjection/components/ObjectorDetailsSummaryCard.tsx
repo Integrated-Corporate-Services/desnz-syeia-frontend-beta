@@ -10,8 +10,8 @@ const ObjectorDetailsSummaryCard: React.FC<{ journey: ObjectionJourney }> = ({ j
   <ObjectionSummaryCard
     title="Your details"
     rows={[
-      { id: 'full-name', label: 'Full name', value: journey.fullName || NOT_PROVIDED, changeTo: changeLink(OBJECTION_ROUTES.FULL_NAME) },
       { label: 'Email address', value: journey.email },
+      { id: 'full-name', label: 'Full name', value: journey.fullName || NOT_PROVIDED, changeTo: changeLink(OBJECTION_ROUTES.FULL_NAME) },
       {
         id: 'address',
         label: 'Postal address',
@@ -20,7 +20,7 @@ const ObjectorDetailsSummaryCard: React.FC<{ journey: ObjectionJourney }> = ({ j
       },
       {
         id: 'objector-type',
-        label: 'Submitting the objection for',
+        label: 'Objector type',
         value: journey.objectorType ? OBJECTOR_TYPE_LABELS[journey.objectorType] : NOT_PROVIDED,
         changeTo: changeLink(OBJECTION_ROUTES.WHO_IS_OBJECTING),
       },

@@ -46,16 +46,17 @@ describe('CheckAnswersPage (SYEIA-2933 / SYEIA-2939)', () => {
     expect(within(details).getByText('priya@example.com')).toBeInTheDocument();
     expect(within(details).getByText(/10 Mill Lane/)).toHaveTextContent('10 Mill LaneNorthtownNT1 2AB');
     expect(within(details).getByText('Myself')).toBeInTheDocument();
+    expect(within(details).getAllByRole('term').map((term) => term.textContent)).toEqual(['Email address', 'Full name', 'Postal address', 'Objector type']);
     expect(within(details).getByRole('link', { name: 'Change full name' })).toHaveAttribute('href', '/object-to-a-cpo/your-name?change=true');
     expect(within(details).getByRole('link', { name: 'Change postal address' })).toHaveAttribute('href', '/object-to-a-cpo/find-your-address?change=true');
     expect(within(details).queryByRole('link', { name: 'Change email address' })).not.toBeInTheDocument();
 
-    const objection = card('Objection');
+    const objection = card('The objection');
     expect(within(objection).getByText('The route crosses our farm.')).toBeInTheDocument();
     expect(within(objection).getByText('objection.pdf')).toBeInTheDocument();
-    expect(within(objection).getByRole('link', { name: 'Change objection' })).toHaveAttribute('href', '/object-to-a-cpo/your-objection?change=true');
+    expect(within(objection).getByRole('link', { name: 'Change the objection' })).toHaveAttribute('href', '/object-to-a-cpo/your-objection?change=true');
 
-    expect(screen.queryByRole('heading', { name: 'Objectors' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Objector names' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/object-to-a-cpo/your-objection');
   });
 
@@ -63,11 +64,11 @@ describe('CheckAnswersPage (SYEIA-2933 / SYEIA-2939)', () => {
     vi.spyOn(publicObjectionService, 'get').mockResolvedValue({ ...answered, objectorType: 'organisation', objectorNames: ['Chuck Sanders Snr', 'Chucky Sanders Jnr'] });
     renderPage(<CheckAnswersPage />);
 
-    await screen.findByRole('heading', { level: 2, name: 'Objectors' });
-    const objectors = card('Objectors');
-    const names = objectors.querySelector('.govuk-summary-list__value') as HTMLElement;
-    expect(within(names).getAllByRole('listitem').map((item) => item.textContent)).toEqual(['Chuck Sanders Snr', 'Chucky Sanders Jnr']);
-    expect(within(objectors).getByRole('link', { name: 'Change objectors' })).toHaveAttribute('href', '/object-to-a-cpo/names-of-objectors?change=true');
+    await screen.findByRole('heading', { level: 2, name: 'Objector names' });
+    const objectors = card('Objector names');
+    expect(Array.from(objectors.querySelectorAll('.govuk-summary-list__row')).map((row) => row.textContent))
+      .toEqual(['Objector 1Chuck Sanders Snr', 'Objector 2Chucky Sanders Jnr']);
+    expect(within(objectors).getByRole('link', { name: 'Change objector names' })).toHaveAttribute('href', '/object-to-a-cpo/names-of-objectors?change=true');
     expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/object-to-a-cpo/names-of-objectors');
   });
 

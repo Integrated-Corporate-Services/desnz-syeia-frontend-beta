@@ -1,15 +1,18 @@
 import React from 'react';
 import ObjectionSummaryCard from './ObjectionSummaryCard';
-import { NameList } from './ObjectionAnswerValues';
+import { NOT_PROVIDED } from './ObjectionAnswerValues';
 import { changeLink, OBJECTION_ROUTES } from '../constants/objectionRoutes';
 
-/** SYEIA-2939: everyone the organisation or representative is objecting for. */
-const ObjectorNamesSummaryCard: React.FC<{ objectorNames: string[] }> = ({ objectorNames }) => (
-  <ObjectionSummaryCard
-    title="Objectors"
-    changeTo={changeLink(OBJECTION_ROUTES.OBJECTOR_NAMES)}
-    rows={[{ id: 'objector-name-0', label: 'Names of objectors', value: <NameList names={objectorNames} /> }]}
-  />
-);
+/** SYEIA-2939: everyone the organisation or representative is objecting for, one row each. */
+const ObjectorNamesSummaryCard: React.FC<{ objectorNames: string[] }> = ({ objectorNames }) => {
+  const names = objectorNames.length ? objectorNames : [NOT_PROVIDED];
+  return (
+    <ObjectionSummaryCard
+      title="Objector names"
+      changeTo={changeLink(OBJECTION_ROUTES.OBJECTOR_NAMES)}
+      rows={names.map((name, index) => ({ id: `objector-name-${index}`, label: `Objector ${index + 1}`, value: name }))}
+    />
+  );
+};
 
 export default ObjectorNamesSummaryCard;

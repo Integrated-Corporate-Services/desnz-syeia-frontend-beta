@@ -26,7 +26,7 @@ const CheckAnswersPage: React.FC = () => {
         <>
           <span className="govuk-caption-l">Order {journey.reference}</span>
           <h1 className="govuk-heading-l">{HEADING}</h1>
-          <CpoOrderSummaryCard reference={journey.reference} title={journey.title} />
+          <CpoOrderSummaryCard title={journey.title} />
           <ObjectorDetailsSummaryCard journey={journey} />
           {namesNeeded && <ObjectorNamesSummaryCard objectorNames={journey.objectorNames} />}
           <ObjectionDetailsSummaryCard journey={journey} />

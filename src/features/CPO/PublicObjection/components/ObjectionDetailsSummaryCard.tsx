@@ -7,7 +7,7 @@ import type { ObjectionJourney } from '../types/objectionJourney';
 /** SYEIA-2933: the objection text and the documents that support it. */
 const ObjectionDetailsSummaryCard: React.FC<{ journey: ObjectionJourney }> = ({ journey }) => (
   <ObjectionSummaryCard
-    title="Objection"
+    title="The objection"
     changeTo={changeLink(OBJECTION_ROUTES.OBJECTION)}
     rows={[
       { id: 'objection-details', label: 'Objection', value: journey.objectionDetails || NOT_PROVIDED },
