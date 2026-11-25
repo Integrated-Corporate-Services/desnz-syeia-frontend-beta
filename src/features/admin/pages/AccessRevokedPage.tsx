@@ -4,6 +4,7 @@ import { useManageUsersNavigation } from '../../../hooks';
 import PageTitle from '../../../components/PageTitle';
 import { useBreadcrumb } from '../../../context/BreadcrumbContext';
 import { ACCESS_REVOKED_CONSTANTS, ADMIN_COMMON_CONSTANTS } from '../constants/userManagementConstants';
+import './AccessRevokedPage.css';
 
 const AccessRevokedPage: React.FC = () => {
   const location = useLocation();
@@ -32,9 +33,15 @@ const AccessRevokedPage: React.FC = () => {
       <div className="govuk-width-container">
         <div className="govuk-grid-row">
           <div className="govuk-grid-column-two-thirds">
-            <div className="govuk-panel govuk-panel--confirmation">
+            {/*
+              SYEIA-2936: match the USU Figma confirmation panel typography and
+              spacing. Title stays the GOV.UK 48px/50px panel title. Body uses a
+              scoped class for 24px / 40px line-height (Figma); the GOV.UK
+              font-size-24 override would force 30px line-height.
+            */}
+            <div className="govuk-panel govuk-panel--confirmation govuk-!-margin-bottom-7 access-revoked-panel">
               <h1 className="govuk-panel__title">{ACCESS_REVOKED_CONSTANTS.TITLE}</h1>
-              <div className="govuk-panel__body">
+              <div className="govuk-panel__body access-revoked-panel__body">
                 {ACCESS_REVOKED_CONSTANTS.PANEL_BODY(userName)}
                 {userEmail && (
                   <>
@@ -46,9 +53,9 @@ const AccessRevokedPage: React.FC = () => {
             </div>
 
             <h2 className="govuk-heading-m">{ACCESS_REVOKED_CONSTANTS.WHAT_HAPPENS_NEXT}</h2>
-            <p className="govuk-body">{ACCESS_REVOKED_CONSTANTS.NOTIFIED}</p>
-            <p className="govuk-body">{ACCESS_REVOKED_CONSTANTS.REINSTATE_WINDOW}</p>
-            <p className="govuk-body">{ACCESS_REVOKED_CONSTANTS.REINSTATE}</p>
+            <p className="govuk-body govuk-!-margin-bottom-5">{ACCESS_REVOKED_CONSTANTS.NOTIFIED}</p>
+            <p className="govuk-body govuk-!-margin-bottom-5">{ACCESS_REVOKED_CONSTANTS.REINSTATE_WINDOW}</p>
+            <p className="govuk-body govuk-!-margin-bottom-7">{ACCESS_REVOKED_CONSTANTS.REINSTATE}</p>
 
             <button
               type="button"

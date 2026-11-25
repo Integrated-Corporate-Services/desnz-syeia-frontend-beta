@@ -17,10 +17,14 @@ const renderPage = (state?: { userName?: string; userEmail?: string }) =>
     </BreadcrumbProvider>
   );
 
-describe('AccessRevokedPage (SYEIA-2172)', () => {
-  it('uses the GOV.UK confirmation panel with no inline styles', () => {
+describe('AccessRevokedPage (SYEIA-2936)', () => {
+  it('uses the GOV.UK confirmation panel with Figma typography and no inline styles', () => {
     const { container } = renderPage({ userName: 'Jane Austen', userEmail: 'jane@example.test' });
-    expect(container.querySelector('.govuk-panel')).toHaveClass('govuk-panel--confirmation');
+    const panel = container.querySelector('.govuk-panel');
+    expect(panel).toHaveClass('govuk-panel--confirmation');
+    expect(panel).toHaveClass('govuk-!-margin-bottom-7');
+    expect(panel).toHaveClass('access-revoked-panel');
+    expect(container.querySelector('.govuk-panel__body')).toHaveClass('access-revoked-panel__body');
     expect(container.querySelectorAll('[style]')).toHaveLength(0);
   });
 
@@ -34,20 +38,24 @@ describe('AccessRevokedPage (SYEIA-2172)', () => {
     expect(screen.getByText('jane@example.test')).toHaveClass('govuk-!-text-break-word');
   });
 
-  it('says access can be reinstated within 180 days from the User Management Dashboard', () => {
+  it('shows the Figma What happens next wording, including the 180-day window', () => {
     renderPage({ userName: 'Jane Austen' });
     expect(
       screen.getByText(
-        'The user has been notified by email that their access has been revoked. They will no longer be able to sign in to the service.'
+        'We have sent the user an email to let them know their access to this service has been revoked.'
       )
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        'They have 180 days to ask for their access to be reinstated. After 180 days they will need to create a new access request.'
+        'If their access needs to be reinstated within 180 days, you or another team coordinator in your organisation can do this from the User Management Dashboard.'
       )
     ).toBeInTheDocument();
-    expect(screen.getByText(/reinstated later from the User Management Dashboard/)).toBeInTheDocument();
-    expect(screen.queryByText(/you or another/)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'After 180 days they will need to register for a new account to access the service again.'
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/The user has been notified by email/)).not.toBeInTheDocument();
     expect(screen.queryByText(/30 days/)).not.toBeInTheDocument();
   });
 
