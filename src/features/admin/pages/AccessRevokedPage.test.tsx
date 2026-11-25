@@ -18,9 +18,13 @@ const renderPage = (state?: { userName?: string; userEmail?: string }) =>
   );
 
 describe('AccessRevokedPage (SYEIA-2936)', () => {
-  it('uses the GOV.UK confirmation panel with no inline styles', () => {
+  it('uses the GOV.UK confirmation panel with Figma typography and no inline styles', () => {
     const { container } = renderPage({ userName: 'Jane Austen', userEmail: 'jane@example.test' });
-    expect(container.querySelector('.govuk-panel')).toHaveClass('govuk-panel--confirmation');
+    const panel = container.querySelector('.govuk-panel');
+    expect(panel).toHaveClass('govuk-panel--confirmation');
+    expect(panel).toHaveClass('govuk-!-margin-bottom-7');
+    expect(panel).toHaveClass('access-revoked-panel');
+    expect(container.querySelector('.govuk-panel__body')).toHaveClass('access-revoked-panel__body');
     expect(container.querySelectorAll('[style]')).toHaveLength(0);
   });
 

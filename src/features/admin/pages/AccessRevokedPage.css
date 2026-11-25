@@ -1,0 +1,22 @@
+/* SYEIA-2936: Figma USU Access revoked panel typography and wrapping.
+   Body is 24px with 40px line-height (Figma). The GOV.UK font-size-24
+   utility would force a 30px line-height with !important.
+
+   Live GDS Transport 24px measures the first line of the Figma copy
+   ("… this service for") at ~566px, which is wider than the default
+   550px content box (630px panel, 5px border + 35px padding each side).
+   That dropped "for" onto the second line. Figma's Light cut renders the
+   same string at ~540px. Reduce horizontal padding from 35px to 20px at
+   the desktop breakpoint so the content box is 580px and the wrap matches,
+   without a hardcoded <br>. Vertical padding is unchanged. */
+.access-revoked-panel__body {
+  font-size: 24px;
+  line-height: 40px;
+}
+
+@media (min-width: 40.0625em) {
+  .access-revoked-panel {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
