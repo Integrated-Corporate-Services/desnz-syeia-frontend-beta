@@ -148,4 +148,5 @@ export const CheckBatchPage: React.FC = () => {
   );
 };
 
-export default withMigrationAdmin(CheckBatchPage);
+const CheckBatchRoute = withMigrationAdmin(CheckBatchPage);
+export default CheckBatchRoute;

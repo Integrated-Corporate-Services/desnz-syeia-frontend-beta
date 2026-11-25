@@ -15,7 +15,7 @@ export const MIGRATION_PATHS = {
   APPLICATION: `${MIGRATION_BASE_PATH}/applications/:migratedApplicationId`,
   ADD_DOCUMENT: `${MIGRATION_BASE_PATH}/applications/:migratedApplicationId/documents/new`,
   /** Where "Back" from the first page and the batches list goes. */
-  OPERATIONAL_TASKS: '/admin/reporting',
+  OPERATIONAL_TASKS: '/admin/reporting?tab=operational-tasks&subTab=migration',
 } as const;
 
 export const migrationPaths = {

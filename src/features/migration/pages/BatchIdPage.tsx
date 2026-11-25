@@ -106,4 +106,5 @@ export const BatchIdPage: React.FC = () => {
   );
 };
 
-export default withMigrationAdmin(BatchIdPage);
+const BatchIdRoute = withMigrationAdmin(BatchIdPage);
+export default BatchIdRoute;

@@ -44,4 +44,5 @@ export const BatchConfirmationPage: React.FC = () => {
   );
 };
 
-export default withMigrationAdmin(BatchConfirmationPage);
+const BatchConfirmationRoute = withMigrationAdmin(BatchConfirmationPage);
+export default BatchConfirmationRoute;

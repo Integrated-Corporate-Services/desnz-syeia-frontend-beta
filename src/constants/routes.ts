@@ -110,6 +110,7 @@ import ChangeOrganisationNamePage from '../features/admin/pages/ChangeOrganisati
 import { configService } from '../config/appConfig';
 import { isFirFeatureDisabled, isNotificationsFeatureDisabled, isYourDetailsFeatureDisabled } from '../utils/disabledFormTypes';
 import { isManualReassignmentEnabled } from '../config/appConfig';
+import { getMigrationRoutes } from '../features/migration/routes';
 import ChangeOrganisationAddressPage from '../features/admin/pages/ChangeOrganisationAddressPage';
 import TeamCoordinatorsPage from '../features/admin/pages/TeamCoordinatorsPage';
 import ApprovedEmailDomainsPage from '../features/admin/pages/ApprovedEmailDomainsPage';
@@ -301,6 +302,7 @@ export const ROUTE_CONFIG: RouteConfig[] = [
         auth: true,
         layout: true,
     },
+    ...getMigrationRoutes(),
     ...(isNotificationsFeatureDisabled()
         ? []
         : [

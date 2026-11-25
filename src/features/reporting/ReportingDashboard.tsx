@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { ROLES } from "../../constants/roles";
 import { useAuthUserContext } from "../../context/AuthUserContext";
 import type { AuthUser } from "../../types/auth";
@@ -24,7 +24,10 @@ type DashboardTab = "reports" | "operational-tasks";
 const ReportingDashboard: React.FC = () => {
   const { user } = useAuthUserContext();
   const dashboard = useReportingDashboard();
-  const [activeTab, setActiveTab] = useState<DashboardTab>("reports");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<DashboardTab>(
+    searchParams.get("tab") === "operational-tasks" ? "operational-tasks" : "reports"
+  );
   const role = (user as AuthUser | undefined)?.role as string;
   const canViewReporting = [ROLES.SUPERUSER, ROLES.TECH_ADMIN].includes(role);
   const canViewOperationalTasks = role === ROLES.TECH_ADMIN;

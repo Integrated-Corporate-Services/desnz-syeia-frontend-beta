@@ -107,4 +107,5 @@ export const CasesFilePage: React.FC = () => {
   );
 };
 
-export default withMigrationAdmin(CasesFilePage);
+const CasesFileRoute = withMigrationAdmin(CasesFilePage);
+export default CasesFileRoute;

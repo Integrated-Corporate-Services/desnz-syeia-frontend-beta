@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   APPLICATION_SUMMARY_PDF_APPLICATION_TYPE,
   APPLICATION_SUMMARY_PDF_EXCLUDED_STATUS,
@@ -10,8 +11,9 @@ import {
 import { useApplicationStatusLookup } from "../hooks/useApplicationStatusLookup";
 import { formatDateTime as formatStartedAt } from "../reportingUtils";
 import SubmittedApplicationsSummary from "./SubmittedApplicationsSummary";
+import MigrationTasksPanel from "../../migration/components/MigrationTasksPanel";
 
-type OperationalTasksTab = "summary" | "lookup";
+type OperationalTasksTab = "summary" | "lookup" | "migration";
 
 const formatCurrency = (amountInPence: number | null): string => {
   if (amountInPence === null || amountInPence === undefined) return "Not available";
@@ -37,7 +39,11 @@ const statusTagClass = (status: string | null | undefined): string => {
 };
 
 const OperationalTasks: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<OperationalTasksTab>("summary");
+  const [searchParams] = useSearchParams();
+  // Pages under /admin/migration link back here with ?subTab=migration.
+  const [activeSubTab, setActiveSubTab] = useState<OperationalTasksTab>(() =>
+    searchParams.get("subTab") === "migration" ? "migration" : "summary"
+  );
   const {
     reference,
     setReference,
@@ -89,10 +95,21 @@ const OperationalTasks: React.FC = () => {
               One application
             </button>
           </li>
+          <li className={`govuk-tabs__list-item${activeSubTab === "migration" ? " govuk-tabs__list-item--selected" : ""}`}>
+            <button
+              type="button"
+              className="govuk-tabs__tab reporting-dashboard__tab-button"
+              onClick={() => setActiveSubTab("migration")}
+            >
+              Migration
+            </button>
+          </li>
         </ul>
       </div>
 
       {activeSubTab === "summary" && <SubmittedApplicationsSummary onViewApplication={viewApplication} />}
+
+      {activeSubTab === "migration" && <MigrationTasksPanel />}
 
       {activeSubTab === "lookup" && (
         <>
