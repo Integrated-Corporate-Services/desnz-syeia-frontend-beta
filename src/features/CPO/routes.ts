@@ -15,8 +15,38 @@ import { CpoApplicationSubmittedPage, CpoCheckYourAnswersPage } from './CheckAnd
 import { CpoApplicationSummaryPage } from './ApplicationSummary';
 import WithdrawApplicationPage from '../CheckYourAnswers/pages/WithdrawApplicationPage';
 import WithdrawalConfirmationPage from '../CheckYourAnswers/pages/WithdrawalConfirmationPage';
+import {
+    CheckYourEmailPage,
+    ChooseAddressPage,
+    CpoReferencePage,
+    FindAddressPage,
+    ManualAddressPage,
+    OBJECTION_ROUTES,
+    ObjectionDetailsPage,
+    ObjectionStartPage,
+    ObjectionSubmittedPage,
+    ObjectorEmailPage,
+    ObjectorNamePage,
+    ObjectorNamesPage,
+    WhatDoYouWantToDoPage,
+    WhoIsObjectingPage,
+} from './PublicObjection';
 
 const cpoPageRoutes = [
+    // Public objection journey: no sign-in, the backend holds the journey in the session.
+    { path: OBJECTION_ROUTES.START, component: ObjectionStartPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.REFERENCE, component: CpoReferencePage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.ACTION, component: WhatDoYouWantToDoPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.FULL_NAME, component: ObjectorNamePage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.EMAIL, component: ObjectorEmailPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.CHECK_EMAIL, component: CheckYourEmailPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.ADDRESS, component: FindAddressPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.CHOOSE_ADDRESS, component: ChooseAddressPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.MANUAL_ADDRESS, component: ManualAddressPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.WHO_IS_OBJECTING, component: WhoIsObjectingPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.OBJECTION, component: ObjectionDetailsPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.OBJECTOR_NAMES, component: ObjectorNamesPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.SUBMITTED, component: ObjectionSubmittedPage, auth: false, layout: true },
     { path: `${CPO_BASE_URL}/who-is-applying`, component: CPOWhoIsApplying, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/applicant-details`, component: NetworkOperatorDetails, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/network-operator-contact-details`, component: NetworkOperatorContactDetails, auth: true, layout: true },
