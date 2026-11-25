@@ -80,26 +80,39 @@ export async function uploadCasesFile(batchId: string, file: File): Promise<Case
     csrfHeaders = getCsrfHeaders();
   }
 
-  let response: Response;
-  try {
-    response = await fetch(getApiUrl(migrationApiPaths.casesFile(batchId)), {
+  const send = (headers: { 'X-CSRF-Token'?: string }) =>
+    fetch(getApiUrl(migrationApiPaths.casesFile(batchId)), {
       method: 'PUT',
       credentials: 'include',
       headers: {
         'Content-Type': XLSX_MIME_TYPE,
         // Header values must be Latin-1, so the name is URI encoded. The backend decodes it.
         'X-File-Name': encodeURIComponent(file.name),
-        ...csrfHeaders,
+        ...headers,
       },
       body: file,
     });
+
+  let response: Response;
+  let body: MigrationErrorBody | null = null;
+  try {
+    response = await send(csrfHeaders);
+    if (response.status === 403) {
+      body = (await response.json().catch(() => ({}))) as MigrationErrorBody;
+      if (/csrf/i.test(`${body.error ?? ''} ${body.message ?? ''}`)) {
+        // The cached token was rejected: get a new one and try once more.
+        await fetchCsrfToken();
+        response = await send(getCsrfHeaders());
+        body = null;
+      }
+    }
   } catch (error) {
     logger.warn('Cases file upload failed before a response', { error });
     throw new MigrationApiError(0);
   }
 
   if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as MigrationErrorBody;
+    body = body ?? ((await response.json().catch(() => ({}))) as MigrationErrorBody);
     logger.warn('Cases file upload rejected', { status: response.status, code: body.error });
     throw new MigrationApiError(response.status, { code: body.error, serverMessage: body.message });
   }

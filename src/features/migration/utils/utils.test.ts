@@ -62,6 +62,7 @@ describe('format', () => {
   it('maps scan status and result', () => {
     expect(getScanDisplay('COMPLETED', 'CLEAN').label).toBe('No viruses found');
     expect(getScanDisplay('COMPLETED', 'INFECTED').label).toBe('Virus found');
+    expect(getScanDisplay('COMPLETED', null).label).toBe('Virus check failed');
     expect(getScanDisplay(null, null).label).toBe('Checking for viruses');
   });
 

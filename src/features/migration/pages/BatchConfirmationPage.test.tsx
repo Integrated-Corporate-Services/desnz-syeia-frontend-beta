@@ -26,7 +26,7 @@ describe('BatchConfirmationPage', () => {
     expect(screen.getByRole('heading', { name: 'Migration started' })).toBeInTheDocument();
     expect(screen.getByText('Batch INP-001 has been sent for migration')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'What happens next' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'View this batch' })).toHaveAttribute('href', '/admin/migration/batches/INP-001');
+    expect(screen.getByRole('link', { name: 'View this batch' })).toHaveAttribute('href', '/admin/migration/batches/INP-001/details');
   });
 
   it('keeps the panel after a refresh using sessionStorage', () => {

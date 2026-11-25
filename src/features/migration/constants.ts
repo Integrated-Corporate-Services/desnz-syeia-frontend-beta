@@ -11,7 +11,7 @@ export const MIGRATION_PATHS = {
   NEW_BATCH_CHECK: `${MIGRATION_BASE_PATH}/batches/new/check`,
   NEW_BATCH_CONFIRMATION: `${MIGRATION_BASE_PATH}/batches/new/confirmation`,
   BATCHES: `${MIGRATION_BASE_PATH}/batches`,
-  BATCH_DETAILS: `${MIGRATION_BASE_PATH}/batches/:batchId`,
+  BATCH_DETAILS: `${MIGRATION_BASE_PATH}/batches/:batchId/details`,
   APPLICATION: `${MIGRATION_BASE_PATH}/applications/:migratedApplicationId`,
   ADD_DOCUMENT: `${MIGRATION_BASE_PATH}/applications/:migratedApplicationId/documents/new`,
   /** Where "Back" from the first page and the batches list goes. */
@@ -19,7 +19,7 @@ export const MIGRATION_PATHS = {
 } as const;
 
 export const migrationPaths = {
-  batch: (batchId: string) => `${MIGRATION_BASE_PATH}/batches/${encodeURIComponent(batchId)}`,
+  batch: (batchId: string) => `${MIGRATION_BASE_PATH}/batches/${encodeURIComponent(batchId)}/details`,
   application: (reference: string) => `${MIGRATION_BASE_PATH}/applications/${encodeURIComponent(reference)}`,
   addDocument: (reference: string) =>
     `${MIGRATION_BASE_PATH}/applications/${encodeURIComponent(reference)}/documents/new`,
@@ -54,6 +54,7 @@ export const MIGRATION_ERRORS = {
   APPLICATION_NOT_FOUND: 'Application not found or not migrated',
   BATCH_NOT_FOUND: 'Batch not found',
   SERVICE: 'Sorry, there is a problem with the service. Try again later.',
+  VIRUS_CHECK_NOT_CLEAN: 'The selected file could not be checked for viruses. Try uploading it again',
   TOO_MANY_REQUESTS: 'There have been too many requests. Wait a few minutes and try again.',
 } as const;
 

@@ -133,6 +133,31 @@ describe('migrationApi', () => {
       vi.unstubAllGlobals();
     });
 
+    it('refreshes the CSRF token and retries once after a CSRF 403', async () => {
+      csrfMock.fetchCsrfToken.mockImplementation(async () => {
+        csrfMock.token = 'fresh';
+        return 'fresh';
+      });
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Forbidden', message: 'invalid csrf token' }), { status: 403 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ uploadId: 'u1' }), { status: 200 }));
+      vi.stubGlobal('fetch', fetchMock);
+      await expect(uploadCasesFile('INP-1', file)).resolves.toEqual({ uploadId: 'u1' });
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(fetchMock.mock.calls[1][1].headers['X-CSRF-Token']).toBe('fresh');
+      vi.unstubAllGlobals();
+    });
+
+    it('does not retry a 403 that is not about CSRF', async () => {
+      const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: 'Forbidden', message: 'no access' }), { status: 403 }));
+      vi.stubGlobal('fetch', fetchMock);
+      await expect(uploadCasesFile('INP-1', file)).rejects.toMatchObject({ status: 403 });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(csrfMock.fetchCsrfToken).not.toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    });
+
     it('rejects with the server message on 400', async () => {
       vi.stubGlobal(
         'fetch',

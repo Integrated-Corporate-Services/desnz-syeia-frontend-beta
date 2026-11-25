@@ -55,7 +55,7 @@ const details = (overrides: Partial<MigrationBatchDetails> = {}): MigrationBatch
 });
 
 const renderPage = () =>
-  renderAt(<BatchDetailsRoute />, MIGRATION_PATHS.BATCH_DETAILS, '/admin/migration/batches/INP-001');
+  renderAt(<BatchDetailsRoute />, MIGRATION_PATHS.BATCH_DETAILS, '/admin/migration/batches/INP-001/details');
 
 describe('BatchDetailsPage', () => {
   beforeEach(() => {

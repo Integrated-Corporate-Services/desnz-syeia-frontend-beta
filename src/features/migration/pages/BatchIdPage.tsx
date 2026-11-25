@@ -46,7 +46,11 @@ export const BatchIdPage: React.FC = () => {
     submittingRef.current = true;
     setChecking(true);
     try {
-      await checkBatchId(batchId);
+      const result = await checkBatchId(batchId);
+      if (!result?.available) {
+        setFieldError(MIGRATION_ERRORS.BATCH_ID_TAKEN);
+        return;
+      }
       setBatchId(batchId);
       navigate(MIGRATION_PATHS.NEW_BATCH_FILE);
     } catch (error) {

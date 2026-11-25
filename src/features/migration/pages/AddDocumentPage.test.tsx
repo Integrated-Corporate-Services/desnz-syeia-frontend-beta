@@ -87,12 +87,28 @@ describe('AddDocumentPage', () => {
 
   it('uploads and returns to the application page with a success message', async () => {
     mocks.pendingFiles = [new File(['x'], 'plan.pdf')];
-    mocks.triggerUpload.mockResolvedValue({ uploadedFiles: [{ id: 'f1' }], applicationDocuments: [], scanErrors: [] });
+    mocks.triggerUpload.mockResolvedValue({ uploadedFiles: [{ id: 'f1', scanStatus: 'COMPLETED', scanResult: 'CLEAN' }], applicationDocuments: [], scanErrors: [] });
     renderPage();
     fireEvent.change(await screen.findByLabelText('Document type'), { target: { value: 'NWL_PLAN_INFO|' } });
     submit();
     expect(await screen.findByTestId('location')).toHaveTextContent('/admin/migration/applications/NWL-2025-000123');
     expect(mocks.triggerUpload).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not report success when the scan finished without a CLEAN result', async () => {
+    mocks.pendingFiles = [new File(['x'], 'plan.pdf')];
+    mocks.triggerUpload.mockResolvedValue({ uploadedFiles: [{ id: 'f1', scanStatus: 'COMPLETED', scanResult: null }], applicationDocuments: [], scanErrors: [] });
+    renderPage();
+    fireEvent.change(await screen.findByLabelText('Document type'), { target: { value: 'NWL_PLAN_INFO|' } });
+    submit();
+    expect(await screen.findByRole('link', { name: 'The selected file could not be checked for viruses. Try uploading it again' })).toBeInTheDocument();
+    expect(screen.queryByTestId('location')).not.toBeInTheDocument();
+  });
+
+  it('allows only one file per upload', async () => {
+    renderPage();
+    await screen.findByLabelText('Document type');
+    expect(mocks.lastProps.maxFiles).toBe(1);
   });
 
   it('shows virus scan and upload errors from FileUpload', async () => {

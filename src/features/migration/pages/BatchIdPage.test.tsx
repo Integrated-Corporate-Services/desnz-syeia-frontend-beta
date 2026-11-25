@@ -15,7 +15,7 @@ import BatchIdRoute from './BatchIdPage';
 import { checkBatchId } from '../services/migrationApi';
 import { MigrationApiError } from '../utils/errors';
 import { renderAt } from '../testUtils';
-import { MIGRATION_PATHS, WIZARD_STORAGE_KEY } from '../constants';
+import { MIGRATION_ERRORS, MIGRATION_PATHS, WIZARD_STORAGE_KEY } from '../constants';
 
 const renderPage = () => renderAt(<BatchIdRoute />, MIGRATION_PATHS.NEW_BATCH, MIGRATION_PATHS.NEW_BATCH);
 
@@ -67,6 +67,15 @@ describe('BatchIdPage', () => {
     fireEvent.change(screen.getByLabelText('What is the batch ID?'), { target: { value: 'INP-001' } });
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(await screen.findByText('Sorry, there is a problem with the service. Try again later.')).toBeInTheDocument();
+  });
+
+  it('shows an error and stays on the page when the batch ID is not available', async () => {
+    vi.mocked(checkBatchId).mockResolvedValue({ available: false });
+    renderPage();
+    fireEvent.change(screen.getByLabelText('What is the batch ID?'), { target: { value: 'INP-001' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(await screen.findByRole('link', { name: MIGRATION_ERRORS.BATCH_ID_TAKEN })).toBeInTheDocument();
+    expect(sessionStorage.getItem(WIZARD_STORAGE_KEY)).toBeNull();
   });
 
   it('saves the batch ID and goes to the file page', async () => {

@@ -70,8 +70,10 @@ export const AddDocumentPage: React.FC = () => {
     setSubmitting(true);
     try {
       const result = await uploadRef.current.triggerUpload();
-      if (result.scanErrors.length > 0 || result.uploadedFiles.length === 0) {
-        setFileErrors(result.scanErrors.length > 0 ? result.scanErrors : [MIGRATION_ERRORS.SERVICE]);
+      const notClean = result.uploadedFiles.some((file) => file.scanResult !== 'CLEAN');
+      if (result.scanErrors.length > 0 || result.uploadedFiles.length === 0 || notClean) {
+        const fallback = notClean ? MIGRATION_ERRORS.VIRUS_CHECK_NOT_CLEAN : MIGRATION_ERRORS.SERVICE;
+        setFileErrors(result.scanErrors.length > 0 ? result.scanErrors : [fallback]);
         setAttempt((current) => current + 1);
         return;
       }
@@ -139,6 +141,7 @@ export const AddDocumentPage: React.FC = () => {
               ))}
               <FileUpload
                 ref={uploadRef}
+                maxFiles={1}
                 showTitle={false}
                 hasExternalLabel
                 applicationId={applicationId}

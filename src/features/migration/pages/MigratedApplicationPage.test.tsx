@@ -37,7 +37,7 @@ describe('MigratedApplicationPage', () => {
     renderPage();
     expect(await screen.findByRole('heading', { level: 1, name: 'Migrated application NWL-2025-000123' })).toBeInTheDocument();
     expect(getMigratedApplication).toHaveBeenCalledWith('NWL-2025-000123');
-    expect(screen.getByRole('link', { name: 'INP-25-NOV-001' })).toHaveAttribute('href', '/admin/migration/batches/INP-25-NOV-001');
+    expect(screen.getByRole('link', { name: 'INP-25-NOV-001' })).toHaveAttribute('href', '/admin/migration/batches/INP-25-NOV-001/details');
     expect(screen.getAllByText(APP_ID, { selector: 'dd' }).length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'Application plan' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Wayleave offer' })).toBeInTheDocument();

@@ -51,7 +51,7 @@ export const getScanDisplay = (scanStatus: string | null | undefined, scanResult
   const result = (scanResult || '').toUpperCase();
   if (result === 'INFECTED') return STATUS_DISPLAY.scan.INFECTED;
   const status = (scanStatus || '').toUpperCase();
-  if (status === 'COMPLETED') return STATUS_DISPLAY.scan.CLEAN;
+  if (status === 'COMPLETED') return result === 'CLEAN' ? STATUS_DISPLAY.scan.CLEAN : STATUS_DISPLAY.scan.FAILED;
   return getStatusDisplay('scan', scanStatus || 'PENDING');
 };
 

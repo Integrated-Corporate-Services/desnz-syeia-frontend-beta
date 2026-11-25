@@ -46,7 +46,7 @@ describe('BatchesPage', () => {
     });
     renderPage();
     const table = await screen.findByRole('table');
-    expect(within(table).getByRole('link', { name: 'INP-001' })).toHaveAttribute('href', '/admin/migration/batches/INP-001');
+    expect(within(table).getByRole('link', { name: 'INP-001' })).toHaveAttribute('href', '/admin/migration/batches/INP-001/details');
     expect(within(table).getByText('Waiting for approval')).toHaveClass('govuk-tag', 'govuk-tag--yellow');
     expect(within(table).getByText('Sending to Salesforce failed')).toHaveClass('govuk-tag--red');
     expect(within(table).getAllByText('25 November 2026 at 10:00am')).toHaveLength(2);
