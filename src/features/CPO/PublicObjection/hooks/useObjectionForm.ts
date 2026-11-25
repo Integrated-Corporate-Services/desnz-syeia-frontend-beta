@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { OBJECTION_ROUTES } from '../constants/objectionRoutes';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CHANGE_PARAM, OBJECTION_ROUTES } from '../constants/objectionRoutes';
 import { fieldIdFor, OBJECTION_MESSAGES } from '../constants/objectionContent';
 import { ObjectionFieldErrors, ObjectionJourneyMissing, publicObjectionService } from '../services/publicObjectionService';
 import type { ObjectionJourney } from '../types/objectionJourney';
@@ -23,6 +23,12 @@ export function useObjectionForm({ loadJourney = true } = {}) {
 
   const restart = useCallback(() => navigate(OBJECTION_ROUTES.REFERENCE, { replace: true }), [navigate]);
 
+  // Opened from a Change link on check your answers: keep that across pages and return there after saving.
+  const [searchParams] = useSearchParams();
+  const changing = searchParams.get(CHANGE_PARAM) === 'true';
+  const withChange = useCallback((route: string) => (changing ? `${route}?${CHANGE_PARAM}=true` : route), [changing]);
+  const goNext = (route: string) => navigate(changing ? OBJECTION_ROUTES.CHECK_ANSWERS : route);
+
   useEffect(() => {
     if (!loadJourney) return undefined;
     let active = true;
@@ -37,14 +43,12 @@ export function useObjectionForm({ loadJourney = true } = {}) {
     return () => { active = false; };
   }, [loadJourney, restart]);
 
-  /** Runs a save; returns the updated journey, or null when the save failed and errors are shown. */
-  const save = useCallback(async (work: () => Promise<ObjectionJourney>): Promise<ObjectionJourney | null> => {
+  /** Runs an API call; returns its result, or null when it failed and errors are shown. */
+  const act = useCallback(async <T,>(work: () => Promise<T>): Promise<T | null> => {
     setSaving(true);
     setErrors([]);
     try {
-      const saved = await work();
-      setJourney(saved);
-      return saved;
+      return await work();
     } catch (failure) {
       if (failure instanceof ObjectionFieldErrors) {
         setErrors(failure.errors.map(({ field, message }) => ({ fieldId: fieldIdFor(field), message })));
@@ -59,7 +63,14 @@ export function useObjectionForm({ loadJourney = true } = {}) {
     }
   }, [restart]);
 
+  /** Runs a save; returns the updated journey, or null when the save failed and errors are shown. */
+  const save = useCallback(async (work: () => Promise<ObjectionJourney>): Promise<ObjectionJourney | null> => {
+    const saved = await act(work);
+    if (saved) setJourney(saved);
+    return saved;
+  }, [act]);
+
   const errorFor = (fieldId: string) => errors.find((error) => error.fieldId === fieldId)?.message;
 
-  return { journey, setJourney, loading, saving, errors, errorFor, save, navigate };
+  return { journey, setJourney, loading, saving, errors, setErrors, errorFor, act, save, navigate, changing, withChange, goNext };
 }

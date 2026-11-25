@@ -16,6 +16,7 @@ import { CpoApplicationSummaryPage } from './ApplicationSummary';
 import WithdrawApplicationPage from '../CheckYourAnswers/pages/WithdrawApplicationPage';
 import WithdrawalConfirmationPage from '../CheckYourAnswers/pages/WithdrawalConfirmationPage';
 import {
+    CheckAnswersPage,
     CheckYourEmailPage,
     ChooseAddressPage,
     CpoReferencePage,
@@ -25,11 +26,14 @@ import {
     ObjectionDetailsPage,
     ObjectionStartPage,
     ObjectionSubmittedPage,
+    ObjectionWithdrawnPage,
     ObjectorEmailPage,
     ObjectorNamePage,
     ObjectorNamesPage,
     WhatDoYouWantToDoPage,
     WhoIsObjectingPage,
+    WithdrawConfirmPage,
+    WithdrawSelectPage,
 } from './PublicObjection';
 
 const cpoPageRoutes = [
@@ -46,7 +50,11 @@ const cpoPageRoutes = [
     { path: OBJECTION_ROUTES.WHO_IS_OBJECTING, component: WhoIsObjectingPage, auth: false, layout: true },
     { path: OBJECTION_ROUTES.OBJECTION, component: ObjectionDetailsPage, auth: false, layout: true },
     { path: OBJECTION_ROUTES.OBJECTOR_NAMES, component: ObjectorNamesPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.CHECK_ANSWERS, component: CheckAnswersPage, auth: false, layout: true },
     { path: OBJECTION_ROUTES.SUBMITTED, component: ObjectionSubmittedPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.WITHDRAW, component: WithdrawSelectPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.WITHDRAW_CONFIRM, component: WithdrawConfirmPage, auth: false, layout: true },
+    { path: OBJECTION_ROUTES.WITHDRAWN, component: ObjectionWithdrawnPage, auth: false, layout: true },
     { path: `${CPO_BASE_URL}/who-is-applying`, component: CPOWhoIsApplying, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/applicant-details`, component: NetworkOperatorDetails, auth: true, layout: true },
     { path: `${CPO_BASE_URL}/:applicationId/network-operator-contact-details`, component: NetworkOperatorContactDetails, auth: true, layout: true },

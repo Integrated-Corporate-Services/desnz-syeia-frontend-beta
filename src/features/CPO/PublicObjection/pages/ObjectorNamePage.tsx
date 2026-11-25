@@ -9,7 +9,7 @@ const HEADING = 'Enter your full name';
 
 /** SYEIA-2926: the objector's full name. */
 const ObjectorNamePage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, save, goNext } = useObjectionForm();
   const [fullName, setFullName] = useState('');
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const ObjectorNamePage: React.FC = () => {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (await save(() => publicObjectionService.saveFullName(fullName))) navigate(OBJECTION_ROUTES.EMAIL);
+    if (await save(() => publicObjectionService.saveFullName(fullName))) goNext(OBJECTION_ROUTES.EMAIL);
   };
 
   return (

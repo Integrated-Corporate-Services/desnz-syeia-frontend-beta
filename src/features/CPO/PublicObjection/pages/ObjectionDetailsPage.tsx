@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ObjectionPage from '../components/ObjectionPage';
 import ObjectionDocuments from '../components/ObjectionDocuments';
 import { OBJECTION_ROUTES } from '../constants/objectionRoutes';
-import { OBJECTION_DETAILS_MAX_LENGTH, OBJECTION_GUIDANCE_URL } from '../constants/objectionContent';
+import { characterCountMessage, OBJECTION_DETAILS_MAX_LENGTH, OBJECTION_GUIDANCE_URL } from '../constants/objectionContent';
 import { useObjectionForm } from '../hooks/useObjectionForm';
 import { useDocumentScanPolling } from '../hooks/useDocumentScanPolling';
 import { publicObjectionService } from '../services/publicObjectionService';
@@ -10,16 +10,9 @@ import type { ObjectionDocument, ObjectionJourney } from '../types/objectionJour
 
 const HEADING = 'Provide the objection';
 
-const characterCountMessage = (length: number) => {
-  const remaining = OBJECTION_DETAILS_MAX_LENGTH - length;
-  if (length === 0) return `You can enter up to ${OBJECTION_DETAILS_MAX_LENGTH.toLocaleString('en-GB')} characters`;
-  if (remaining < 0) return `You have ${Math.abs(remaining).toLocaleString('en-GB')} ${remaining === -1 ? 'character' : 'characters'} too many`;
-  return `You have ${remaining.toLocaleString('en-GB')} ${remaining === 1 ? 'character' : 'characters'} remaining`;
-};
-
 /** SYEIA-2932: the objection text and supporting documents. */
 const ObjectionDetailsPage: React.FC = () => {
-  const { journey, setJourney, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, setJourney, saving, errors, errorFor, save, navigate, changing, withChange } = useObjectionForm();
   const [objectionDetails, setObjectionDetails] = useState('');
   const [loaded, setLoaded] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -54,7 +47,8 @@ const ObjectionDetailsPage: React.FC = () => {
     if (!saved) return;
     // Organisations and representatives name every objector next (SYEIA-2937).
     const namesNeeded = saved.objectorType === 'organisation' || saved.objectorType === 'representative';
-    navigate(namesNeeded ? OBJECTION_ROUTES.OBJECTOR_NAMES : OBJECTION_ROUTES.CHECK_ANSWERS);
+    if (namesNeeded && (!changing || !saved.objectorNames.length)) navigate(withChange(OBJECTION_ROUTES.OBJECTOR_NAMES));
+    else navigate(OBJECTION_ROUTES.CHECK_ANSWERS);
   };
 
   const countMessage = characterCountMessage(objectionDetails.length);

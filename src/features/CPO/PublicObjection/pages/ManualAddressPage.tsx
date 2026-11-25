@@ -10,7 +10,7 @@ const EMPTY = { addressLine1: '', addressLine2: '', town: '', county: '', postco
 
 /** SYEIA-2930 AC9: the address typed in by hand. */
 const ManualAddressPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, save, goNext } = useObjectionForm();
   const [address, setAddress] = useState(EMPTY);
   const [loaded, setLoaded] = useState(false);
 
@@ -28,7 +28,7 @@ const ManualAddressPage: React.FC = () => {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (await save(() => publicObjectionService.saveAddress(address))) navigate(OBJECTION_ROUTES.WHO_IS_OBJECTING);
+    if (await save(() => publicObjectionService.saveAddress(address))) goNext(OBJECTION_ROUTES.WHO_IS_OBJECTING);
   };
 
   return (

@@ -21,4 +21,5 @@ export const journeyFixture = (overrides: Partial<ObjectionJourney> = {}): Objec
   ...overrides,
 });
 
-export const renderPage = (page: React.ReactElement) => render(<MemoryRouter>{page}</MemoryRouter>);
+/** Renders a page; pass a URL such as `/page?change=true` to open it from a Change link. */
+export const renderPage = (page: React.ReactElement, url = '/') => render(<MemoryRouter initialEntries={[url]}>{page}</MemoryRouter>);

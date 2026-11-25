@@ -10,6 +10,10 @@ export { default as ManualAddressPage } from './pages/ManualAddressPage';
 export { default as WhoIsObjectingPage } from './pages/WhoIsObjectingPage';
 export { default as ObjectionDetailsPage } from './pages/ObjectionDetailsPage';
 export { default as ObjectorNamesPage } from './pages/ObjectorNamesPage';
+export { default as CheckAnswersPage } from './pages/CheckAnswersPage';
 export { default as ObjectionSubmittedPage } from './pages/ObjectionSubmittedPage';
+export { default as WithdrawSelectPage } from './pages/WithdrawSelectPage';
+export { default as WithdrawConfirmPage } from './pages/WithdrawConfirmPage';
+export { default as ObjectionWithdrawnPage } from './pages/ObjectionWithdrawnPage';
 
 export { OBJECTION_ROUTES } from './constants/objectionRoutes';

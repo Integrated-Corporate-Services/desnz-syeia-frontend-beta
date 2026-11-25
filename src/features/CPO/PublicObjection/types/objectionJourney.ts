@@ -50,5 +50,16 @@ export interface SubmittedObjection {
 /** What the confirmation page shows once the objection has been submitted (SYEIA-2942 / SYEIA-2934). */
 export interface ObjectionSubmission {
   reference: string;
+  /** Only after a withdrawal: who is told about it (SYEIA-2946). */
+  organisation?: string;
   objections: SubmittedObjection[];
+}
+
+/** An objection the verified email address can withdraw (SYEIA-2943 / SYEIA-2946). */
+export interface WithdrawableObjection {
+  objectionId: string;
+  objectionReference: string;
+  objectorName: string;
+  objectionDetails: string;
+  documentNames: string[];
 }

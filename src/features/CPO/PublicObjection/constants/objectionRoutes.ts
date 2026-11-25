@@ -13,9 +13,13 @@ export const OBJECTION_ROUTES = {
   WHO_IS_OBJECTING: `${OBJECTION_BASE_URL}/who-is-objecting`,
   OBJECTOR_NAMES: `${OBJECTION_BASE_URL}/names-of-objectors`,
   OBJECTION: `${OBJECTION_BASE_URL}/your-objection`,
-  // SYEIA-2933 check your answers (not built yet)
   CHECK_ANSWERS: `${OBJECTION_BASE_URL}/check-your-answers`,
   SUBMITTED: `${OBJECTION_BASE_URL}/objection-submitted`,
-  // SYEIA-2943 withdraw journey (not built yet)
   WITHDRAW: `${OBJECTION_BASE_URL}/withdraw`,
+  WITHDRAW_CONFIRM: `${OBJECTION_BASE_URL}/withdraw/confirm`,
+  WITHDRAWN: `${OBJECTION_BASE_URL}/objection-withdrawn`,
 } as const;
+
+/** Added to Change links on check your answers, so the page returns there after saving (SYEIA-2933 AC5). */
+export const CHANGE_PARAM = 'change';
+export const changeLink = (route: string) => `${route}?${CHANGE_PARAM}=true`;

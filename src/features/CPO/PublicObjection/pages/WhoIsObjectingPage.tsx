@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ObjectionPage from '../components/ObjectionPage';
 import { OBJECTION_ROUTES } from '../constants/objectionRoutes';
+import { OBJECTOR_TYPE_LABELS } from '../constants/objectionContent';
 import { useObjectionForm } from '../hooks/useObjectionForm';
 import { publicObjectionService } from '../services/publicObjectionService';
 import type { ObjectorType } from '../types/objectionJourney';
@@ -8,19 +9,19 @@ import type { ObjectorType } from '../types/objectionJourney';
 const HEADING = 'Who are you submitting this objection for?';
 
 const OPTIONS: { value: ObjectorType; id: string; label: string; hint: string }[] = [
-  { value: 'myself', id: 'objector-type', label: 'Myself', hint: 'You are submitting your own objection' },
-  { value: 'organisation', id: 'objector-type-organisation', label: 'An organisation I work for or am a member of', hint: 'You are submitting an objection for your organisation' },
+  { value: 'myself', id: 'objector-type', label: OBJECTOR_TYPE_LABELS.myself, hint: 'You are submitting your own objection' },
+  { value: 'organisation', id: 'objector-type-organisation', label: OBJECTOR_TYPE_LABELS.organisation, hint: 'You are submitting an objection for your organisation' },
   {
     value: 'representative',
     id: 'objector-type-representative',
-    label: 'A person, group or organisation I represent',
+    label: OBJECTOR_TYPE_LABELS.representative,
     hint: 'You are submitting an objection as a 3rd party representative, such as a solicitor, land agent or family member',
   },
 ];
 
 /** SYEIA-2931: who the objection is for; decides whether objector names are asked for. */
 const WhoIsObjectingPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, save, navigate, changing, withChange } = useObjectionForm();
   const [objectorType, setObjectorType] = useState<ObjectorType | null>(null);
   const error = errorFor('objector-type');
 
@@ -30,7 +31,12 @@ const WhoIsObjectingPage: React.FC = () => {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (await save(() => publicObjectionService.chooseObjectorType(objectorType))) navigate(OBJECTION_ROUTES.OBJECTION);
+    const saved = await save(() => publicObjectionService.chooseObjectorType(objectorType));
+    if (!saved) return;
+    if (!changing) navigate(OBJECTION_ROUTES.OBJECTION);
+    // Changing to an organisation or representative from check your answers still needs the objector names.
+    else if (saved.objectorType !== 'myself' && !saved.objectorNames.length) navigate(withChange(OBJECTION_ROUTES.OBJECTOR_NAMES));
+    else navigate(OBJECTION_ROUTES.CHECK_ANSWERS);
   };
 
   return (

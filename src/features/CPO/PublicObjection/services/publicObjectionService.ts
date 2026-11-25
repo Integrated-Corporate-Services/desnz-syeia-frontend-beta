@@ -8,6 +8,7 @@ import type {
   ObjectionJourney,
   ObjectionSubmission,
   ObjectorType,
+  WithdrawableObjection,
 } from '../types/objectionJourney';
 
 /** The API rejected one or more answers; each error names the field it belongs to. */
@@ -26,7 +27,8 @@ export class ObjectionJourneyMissing extends Error {
   }
 }
 
-const endpoint = (path = '') => buildBackendUrl(`/api/cpo/public-objection/journey${path}`);
+const BASE_PATH = '/api/cpo/public-objection';
+const endpoint = (path = '') => buildBackendUrl(`${BASE_PATH}/journey${path}`);
 
 const readJourney = async <T = ObjectionJourney>(response: Response): Promise<T> => {
   if (response.ok) return response.json();
@@ -46,8 +48,11 @@ const csrf = async () => {
   return csrfHeaders;
 };
 
-const send = async (method: 'POST' | 'PUT' | 'DELETE', path: string, body: Record<string, unknown> = {}) =>
-  readJourney(await fetch(endpoint(path), {
+const read = async <T = ObjectionJourney>(url: string) =>
+  readJourney<T>(await fetch(url, { credentials: 'include', headers: { 'X-Correlation-ID': generateCorrelationId() } }));
+
+const send = async <T = ObjectionJourney>(method: 'POST' | 'PUT' | 'DELETE', path: string, body: Record<string, unknown> = {}) =>
+  readJourney<T>(await fetch(endpoint(path), {
     method,
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': generateCorrelationId(), ...(await csrf()) },
@@ -69,29 +74,26 @@ const sendFile = async (file: File) =>
   }));
 
 export const publicObjectionService = {
-  get: async (): Promise<ObjectionJourney> =>
-    readJourney(await fetch(endpoint(), {
-      credentials: 'include',
-      headers: { 'X-Correlation-ID': generateCorrelationId() },
-    })),
+  get: () => read(endpoint()),
   start: (reference: string) => send('POST', '', { reference }),
   chooseAction: (action: ObjectionAction | null) => send('PUT', '/action', { action }),
   saveFullName: (fullName: string) => send('PUT', '/full-name', { fullName }),
   saveEmail: (email: string) => send('PUT', '/email', { email }),
   verifySecurityCode: (securityCode: string) => send('POST', '/security-code', { securityCode }),
   resendSecurityCode: () => send('POST', '/security-code/resend'),
-  saveObjectionDetails: (objectionDetails: string) => send('PUT', '/objection', { objectionDetails }),
-  uploadDocument: (file: File) => sendFile(file),
-  removeDocument: (fileId: string) => send('DELETE', `/documents/${encodeURIComponent(fileId)}`),
   searchAddress: (postcode: string, property: string) => send('POST', '/address/search', { postcode, property }),
   selectAddress: (addressId: string) => send('PUT', '/address/select', { addressId }),
   saveAddress: (address: { addressLine1: string; addressLine2: string; town: string; county: string; postcode: string }) =>
     send('PUT', '/address', address),
   chooseObjectorType: (objectorType: ObjectorType | null) => send('PUT', '/objector-type', { objectorType }),
+  saveObjectionDetails: (objectionDetails: string) => send('PUT', '/objection', { objectionDetails }),
+  uploadDocument: (file: File) => sendFile(file),
+  removeDocument: (fileId: string) => send('DELETE', `/documents/${encodeURIComponent(fileId)}`),
   saveObjectorNames: (objectorNames: string[]) => send('PUT', '/objector-names', { objectorNames }),
-  getSubmission: async (): Promise<ObjectionSubmission> =>
-    readJourney<ObjectionSubmission>(await fetch(buildBackendUrl('/api/cpo/public-objection/submitted'), {
-      credentials: 'include',
-      headers: { 'X-Correlation-ID': generateCorrelationId() },
-    })),
+  submit: () => send<ObjectionSubmission>('POST', '/submit'),
+  getSubmission: () => read<ObjectionSubmission>(buildBackendUrl(`${BASE_PATH}/submitted`)),
+  getWithdrawable: () => read<{ objections: WithdrawableObjection[]; selected: string[] }>(endpoint('/withdrawable')),
+  selectForWithdrawal: (objectionIds: string[]) => send<{ selected: string[] }>('PUT', '/withdraw-selection', { objectionIds }),
+  withdraw: (reason: string, confirmed: boolean) => send<ObjectionSubmission>('POST', '/withdraw', { reason, confirmed }),
+  getWithdrawn: () => read<ObjectionSubmission>(buildBackendUrl(`${BASE_PATH}/withdrawn`)),
 };

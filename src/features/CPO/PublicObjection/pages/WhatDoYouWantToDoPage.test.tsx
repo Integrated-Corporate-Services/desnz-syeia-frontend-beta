@@ -47,7 +47,7 @@ describe('WhatDoYouWantToDoPage (SYEIA-2925)', () => {
   it('keeps the previous choice when coming back', async () => {
     vi.spyOn(publicObjectionService, 'get').mockResolvedValue(journeyFixture({ action: 'withdraw' }));
     renderPage(<WhatDoYouWantToDoPage />);
-    expect(await screen.findByLabelText('Withdraw an objection I have submitted')).toBeChecked();
+    await waitFor(() => expect(screen.getByLabelText('Withdraw an objection I have submitted')).toBeChecked());
   });
 
   it('shows the error when nothing is chosen', async () => {

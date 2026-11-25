@@ -10,7 +10,7 @@ const HEADING = 'Find your postal address';
 
 /** SYEIA-2930: postcode lookup, with manual entry when the lookup finds nothing or is unavailable. */
 const FindAddressPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, save, navigate, withChange } = useObjectionForm();
   const [postcode, setPostcode] = useState('');
   const [property, setProperty] = useState('');
   const [loaded, setLoaded] = useState(false);
@@ -27,7 +27,7 @@ const FindAddressPage: React.FC = () => {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     const result = await save(() => publicObjectionService.searchAddress(postcode, property));
-    if (result?.addressSearch.status === 'found') navigate(OBJECTION_ROUTES.CHOOSE_ADDRESS);
+    if (result?.addressSearch.status === 'found') navigate(withChange(OBJECTION_ROUTES.CHOOSE_ADDRESS));
     else if (result) setSearched(true);
   };
 
@@ -46,13 +46,13 @@ const FindAddressPage: React.FC = () => {
           {status === 'none' && (
             <div className="govuk-inset-text" role="status">
               We could not find any addresses for {journey.addressSearch.postcode}. Check the postcode or{' '}
-              <Link className="govuk-link" to={OBJECTION_ROUTES.MANUAL_ADDRESS}>enter the address manually</Link>.
+              <Link className="govuk-link" to={withChange(OBJECTION_ROUTES.MANUAL_ADDRESS)}>enter the address manually</Link>.
             </div>
           )}
           {status === 'unavailable' && (
             <div className="govuk-inset-text" role="status">
               Sorry, we cannot find addresses at the moment.{' '}
-              <Link className="govuk-link" to={OBJECTION_ROUTES.MANUAL_ADDRESS}>Enter the address manually</Link>.
+              <Link className="govuk-link" to={withChange(OBJECTION_ROUTES.MANUAL_ADDRESS)}>Enter the address manually</Link>.
             </div>
           )}
           <form onSubmit={submit} noValidate>
@@ -76,7 +76,7 @@ const FindAddressPage: React.FC = () => {
               error={errorFor('property')}
             />
             <p className="govuk-body">
-              <Link className="govuk-link" to={OBJECTION_ROUTES.MANUAL_ADDRESS}>Enter the address manually</Link>
+              <Link className="govuk-link" to={withChange(OBJECTION_ROUTES.MANUAL_ADDRESS)}>Enter the address manually</Link>
             </p>
             <button className="govuk-button" type="submit" disabled={saving}>Continue</button>
           </form>

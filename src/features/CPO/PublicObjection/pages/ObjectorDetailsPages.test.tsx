@@ -65,11 +65,15 @@ describe('Your details pages', () => {
       expect(save).toHaveBeenCalledWith('name@example.com');
     });
 
-    it('goes back to the choice of action when withdrawing', async () => {
+    it('asks for the email used to submit, and goes back to the choice of action, when withdrawing (SYEIA-2943)', async () => {
       vi.spyOn(publicObjectionService, 'get').mockResolvedValue(journeyFixture({ action: 'withdraw' }));
       renderPage(<ObjectorEmailPage />);
-      await screen.findByLabelText('Enter your email address');
+      await screen.findByLabelText('Enter the email address used to submit the objection');
       expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/object-to-a-cpo/what-do-you-want-to-do');
+      expect(screen.getByText('I don’t have access to the email address')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'compulsorypurchaseorders@energysecurity.gov.uk' }))
+        .toHaveAttribute('href', 'mailto:compulsorypurchaseorders@energysecurity.gov.uk');
+      expect(screen.queryByText(/submit objections in writing to the postal address/)).not.toBeInTheDocument();
     });
 
     it('stays on the page when the code cannot be sent', async () => {

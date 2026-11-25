@@ -9,23 +9,23 @@ const NOT_SHOWN = 'not-shown';
 
 /** SYEIA-2930: pick one of the addresses found for the postcode. */
 const ChooseAddressPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, save, navigate, withChange, goNext } = useObjectionForm();
   const [choice, setChoice] = useState('');
   const error = errorFor('address');
   const results = journey?.addressSearch.results ?? [];
 
   useEffect(() => {
     // Nothing to choose from (for example after a refresh), so go back to the search.
-    if (journey && journey.addressSearch.status !== 'found') navigate(OBJECTION_ROUTES.ADDRESS, { replace: true });
-  }, [journey, navigate]);
+    if (journey && journey.addressSearch.status !== 'found') navigate(withChange(OBJECTION_ROUTES.ADDRESS), { replace: true });
+  }, [journey, navigate, withChange]);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (choice === NOT_SHOWN) {
-      navigate(OBJECTION_ROUTES.MANUAL_ADDRESS);
+      navigate(withChange(OBJECTION_ROUTES.MANUAL_ADDRESS));
       return;
     }
-    if (await save(() => publicObjectionService.selectAddress(choice))) navigate(OBJECTION_ROUTES.WHO_IS_OBJECTING);
+    if (await save(() => publicObjectionService.selectAddress(choice))) goNext(OBJECTION_ROUTES.WHO_IS_OBJECTING);
   };
 
   return (
