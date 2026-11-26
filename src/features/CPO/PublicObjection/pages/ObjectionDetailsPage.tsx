@@ -12,7 +12,7 @@ const HEADING = 'Provide the objection';
 
 /** SYEIA-2932: the objection text and supporting documents. */
 const ObjectionDetailsPage: React.FC = () => {
-  const { journey, setJourney, saving, errors, errorFor, save, navigate, changing, withChange } = useObjectionForm();
+  const { journey, setJourney, saving, errors, errorFor, clearError, save, navigate, changing, withChange } = useObjectionForm();
   const [objectionDetails, setObjectionDetails] = useState('');
   const [loaded, setLoaded] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -87,7 +87,7 @@ const ObjectionDetailsPage: React.FC = () => {
                 rows={5}
                 aria-describedby={`objection-details-hint objection-details-count${detailsError ? ' objection-details-error' : ''}`}
                 value={objectionDetails}
-                onChange={(event) => setObjectionDetails(event.target.value)}
+                onChange={(event) => { setObjectionDetails(event.target.value); clearError('objection-details'); }}
               />
               <div
                 id="objection-details-count"

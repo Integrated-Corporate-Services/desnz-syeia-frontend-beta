@@ -119,6 +119,10 @@ describe('Withdraw pages (SYEIA-2943 / SYEIA-2946)', () => {
       expect(await screen.findByRole('link', { name: 'Confirm that you want to withdraw and understand this cannot be undone' }))
         .toHaveAttribute('href', '#withdraw-confirmed');
       expect(navigateMock).not.toHaveBeenCalled();
+
+      // Ticking the box removes the error straight away.
+      fireEvent.click(screen.getByRole('checkbox'));
+      expect(screen.queryByRole('link', { name: 'Confirm that you want to withdraw and understand this cannot be undone' })).not.toBeInTheDocument();
     });
 
     it('goes back to choose when several objections are found but none is selected', async () => {

@@ -22,7 +22,7 @@ const COPY = {
 
 /** SYEIA-2946: check the objections being withdrawn, give an optional reason and confirm. */
 const WithdrawConfirmPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, act, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, act, navigate } = useObjectionForm();
   const { withdrawable, loadError } = useWithdrawableObjections();
   const [reason, setReason] = useState('');
   const [confirmed, setConfirmed] = useState(false);
@@ -72,7 +72,7 @@ const WithdrawConfirmPage: React.FC = () => {
             rows={5}
             aria-describedby={`withdrawal-reason-count${reasonError ? ' withdrawal-reason-error' : ''}`}
             value={reason}
-            onChange={(event) => setReason(event.target.value)}
+            onChange={(event) => { setReason(event.target.value); clearError('withdrawal-reason'); }}
           />
           <div
             id="withdrawal-reason-count"
@@ -103,7 +103,7 @@ const WithdrawConfirmPage: React.FC = () => {
                 type="checkbox"
                 aria-describedby={confirmError ? 'withdraw-confirmed-error' : undefined}
                 checked={confirmed}
-                onChange={(event) => setConfirmed(event.target.checked)}
+                onChange={(event) => { setConfirmed(event.target.checked); clearError('withdraw-confirmed'); }}
               />
               <label className="govuk-label govuk-checkboxes__label" htmlFor="withdraw-confirmed">{copy.confirm}</label>
             </div>

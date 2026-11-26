@@ -10,7 +10,7 @@ const HEADING = 'Find your postal address';
 
 /** SYEIA-2930: postcode lookup, with manual entry when the lookup finds nothing or is unavailable. */
 const FindAddressPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate, withChange } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, save, navigate, withChange } = useObjectionForm();
   const [postcode, setPostcode] = useState('');
   const [property, setProperty] = useState('');
   const [loaded, setLoaded] = useState(false);
@@ -63,7 +63,7 @@ const FindAddressPage: React.FC = () => {
               widthClass="govuk-input--width-10"
               autoComplete="postal-code"
               value={postcode}
-              onChange={(value) => { setPostcode(value); setSearched(false); }}
+              onChange={(value) => { setPostcode(value); setSearched(false); clearError('postcode'); }}
               error={errorFor('postcode')}
             />
             <QuestionInput
@@ -73,7 +73,7 @@ const FindAddressPage: React.FC = () => {
               isPageHeading={false}
               widthClass="govuk-!-width-two-thirds"
               value={property}
-              onChange={setProperty}
+              onChange={(value) => { setProperty(value); clearError('property'); }}
               error={errorFor('property')}
             />
             <p className="govuk-body">

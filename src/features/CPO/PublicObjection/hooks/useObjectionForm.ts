@@ -72,5 +72,10 @@ export function useObjectionForm({ loadJourney = true } = {}) {
 
   const errorFor = (fieldId: string) => errors.find((error) => error.fieldId === fieldId)?.message;
 
-  return { journey, setJourney, loading, saving, errors, setErrors, errorFor, act, save, navigate, changing, withChange, goNext };
+  // As in S37 and NWL: changing a field removes its inline error and its error summary entry.
+  const clearError = useCallback((fieldId: string) => {
+    setErrors((current) => (current.some((error) => error.fieldId === fieldId) ? current.filter((error) => error.fieldId !== fieldId) : current));
+  }, []);
+
+  return { journey, setJourney, loading, saving, errors, setErrors, errorFor, clearError, act, save, navigate, changing, withChange, goNext };
 }

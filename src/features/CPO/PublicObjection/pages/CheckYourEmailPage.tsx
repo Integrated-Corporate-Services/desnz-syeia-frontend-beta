@@ -12,7 +12,7 @@ const HEADING = 'Enter the security code';
 
 /** SYEIA-2929: verify the email address with the 6-digit security code. */
 const CheckYourEmailPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, save, navigate } = useObjectionForm();
   const [securityCode, setSecurityCode] = useState('');
   const [codeResent, setCodeResent] = useState(false);
 
@@ -59,7 +59,7 @@ const CheckYourEmailPage: React.FC = () => {
               autoComplete="one-time-code"
               inputMode="numeric"
               value={securityCode}
-              onChange={setSecurityCode}
+              onChange={(value) => { setSecurityCode(value); clearError('security-code'); }}
               error={errorFor('security-code')}
             />
             <button className="govuk-button" type="submit" disabled={saving}>Continue</button>

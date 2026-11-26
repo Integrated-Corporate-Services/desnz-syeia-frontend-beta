@@ -16,7 +16,7 @@ const ACTION_OPTIONS = [
 
 /** SYEIA-2925: confirm the CPO and choose to submit or withdraw an objection. */
 const WhatDoYouWantToDoPage: React.FC = () => {
-  const { journey, loading, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, loading, saving, errors, errorFor, clearError, save, navigate } = useObjectionForm();
   const [action, setAction] = useState('');
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const WhatDoYouWantToDoPage: React.FC = () => {
               value={action}
               error={errorFor('action-submit')}
               options={ACTION_OPTIONS}
-              onChange={(event) => setAction(event.target.value)}
+              onChange={(event) => { setAction(event.target.value); clearError('action-submit'); }}
             />
             <button className="govuk-button" type="submit" disabled={saving}>Continue</button>
           </form>

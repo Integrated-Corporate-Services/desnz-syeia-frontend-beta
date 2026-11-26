@@ -9,7 +9,7 @@ const NOT_SHOWN = 'not-shown';
 
 /** SYEIA-2930: pick one of the addresses found for the postcode. */
 const ChooseAddressPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate, withChange, goNext } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, save, navigate, withChange, goNext } = useObjectionForm();
   const [choice, setChoice] = useState('');
   const error = errorFor('address');
   const results = journey?.addressSearch.results ?? [];
@@ -48,14 +48,14 @@ const ChooseAddressPage: React.FC = () => {
                       type="radio"
                       value={result.id}
                       checked={choice === result.id}
-                      onChange={() => setChoice(result.id)}
+                      onChange={() => { setChoice(result.id); clearError('address'); }}
                     />
                     <label className="govuk-label govuk-radios__label" htmlFor={index === 0 ? 'address' : `address-${index}`}>{result.label}</label>
                   </div>
                 ))}
                 <div className="govuk-radios__divider">or</div>
                 <div className="govuk-radios__item">
-                  <input className="govuk-radios__input" id="address-not-shown" name="address" type="radio" value={NOT_SHOWN} checked={choice === NOT_SHOWN} onChange={() => setChoice(NOT_SHOWN)} />
+                  <input className="govuk-radios__input" id="address-not-shown" name="address" type="radio" value={NOT_SHOWN} checked={choice === NOT_SHOWN} onChange={() => { setChoice(NOT_SHOWN); clearError('address'); }} />
                   <label className="govuk-label govuk-radios__label" htmlFor="address-not-shown">My address is not shown here</label>
                 </div>
               </div>

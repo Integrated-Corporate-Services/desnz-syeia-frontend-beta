@@ -46,6 +46,21 @@ describe('Your details pages', () => {
       expect(await screen.findByRole('link', { name: 'Enter a valid full name' })).toHaveAttribute('href', '#full-name');
       expect(screen.getByLabelText('Enter your full name')).toHaveClass('govuk-input--error');
     });
+
+    it('removes the error as soon as the name is changed, as in S37 and NWL', async () => {
+      vi.spyOn(publicObjectionService, 'get').mockResolvedValue(journeyFixture());
+      vi.spyOn(publicObjectionService, 'saveFullName').mockRejectedValue(
+        new ObjectionFieldErrors([{ field: 'fullName', message: 'Enter your full name' }]),
+      );
+      renderPage(<ObjectorNamePage />);
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+      expect(await screen.findByText('There is a problem')).toBeInTheDocument();
+
+      fireEvent.change(screen.getByLabelText('Enter your full name'), { target: { value: 'P' } });
+      expect(screen.queryByText('There is a problem')).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Enter your full name')).not.toHaveClass('govuk-input--error');
+    });
   });
 
   describe('ObjectorEmailPage (SYEIA-2928)', () => {

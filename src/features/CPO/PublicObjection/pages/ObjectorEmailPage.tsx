@@ -11,7 +11,7 @@ const WITHDRAW_HEADING = 'Enter the email address used to submit the objection';
 
 /** SYEIA-2928: the email address the security code is sent to (also used by the withdraw journey). */
 const ObjectorEmailPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, save, navigate } = useObjectionForm();
   const [email, setEmail] = useState('');
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const ObjectorEmailPage: React.FC = () => {
             autoComplete="email"
             inputMode="email"
             value={email}
-            onChange={setEmail}
+            onChange={(value) => { setEmail(value); clearError('email'); }}
             error={errorFor('email')}
           />
           {!withdrawing && (

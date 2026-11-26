@@ -21,7 +21,7 @@ const OPTIONS: { value: ObjectorType; id: string; label: string; hint: string }[
 
 /** SYEIA-2931: who the objection is for; decides whether objector names are asked for. */
 const WhoIsObjectingPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate, changing, withChange } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, save, navigate, changing, withChange } = useObjectionForm();
   const [objectorType, setObjectorType] = useState<ObjectorType | null>(null);
   const error = errorFor('objector-type');
 
@@ -61,7 +61,7 @@ const WhoIsObjectingPage: React.FC = () => {
                       value={option.value}
                       aria-describedby={`${option.id}-hint`}
                       checked={objectorType === option.value}
-                      onChange={() => setObjectorType(option.value)}
+                      onChange={() => { setObjectorType(option.value); clearError('objector-type'); }}
                     />
                     <label className="govuk-label govuk-radios__label" htmlFor={option.id}>{option.label}</label>
                     <div className="govuk-hint govuk-radios__hint" id={`${option.id}-hint`}>{option.hint}</div>

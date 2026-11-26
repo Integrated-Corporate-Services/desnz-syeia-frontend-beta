@@ -9,7 +9,7 @@ const HEADING = 'Provide the names of all objectors';
 
 /** SYEIA-2937: names of everyone making the objection; each gets their own objection reference. */
 const ObjectorNamesPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, save, navigate } = useObjectionForm();
   const [names, setNames] = useState<string[]>(['']);
   const [loaded, setLoaded] = useState(false);
 
@@ -20,7 +20,10 @@ const ObjectorNamesPage: React.FC = () => {
     }
   }, [journey, loaded]);
 
-  const update = (index: number, value: string) => setNames((current) => current.map((name, i) => (i === index ? value : name)));
+  const update = (index: number, value: string) => {
+    setNames((current) => current.map((name, i) => (i === index ? value : name)));
+    clearError(`objector-name-${index}`);
+  };
   // At least one name field always stays (AC10).
   const remove = (index: number) => setNames((current) => (current.length > 1 ? current.filter((_, i) => i !== index) : current));
 

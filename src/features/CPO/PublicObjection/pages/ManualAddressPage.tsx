@@ -7,10 +7,11 @@ import { publicObjectionService } from '../services/publicObjectionService';
 
 const HEADING = 'Enter your postal address';
 const EMPTY = { addressLine1: '', addressLine2: '', town: '', county: '', postcode: '' };
+const FIELD_IDS: Record<keyof typeof EMPTY, string> = { addressLine1: 'address-line-1', addressLine2: 'address-line-2', town: 'town', county: 'county', postcode: 'postcode' };
 
 /** SYEIA-2930 AC9: the address typed in by hand. */
 const ManualAddressPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, goNext } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, save, goNext } = useObjectionForm();
   const [address, setAddress] = useState(EMPTY);
   const [loaded, setLoaded] = useState(false);
 
@@ -24,7 +25,10 @@ const ManualAddressPage: React.FC = () => {
     }
   }, [journey, loaded]);
 
-  const update = (field: keyof typeof EMPTY) => (value: string) => setAddress((current) => ({ ...current, [field]: value }));
+  const update = (field: keyof typeof EMPTY) => (value: string) => {
+    setAddress((current) => ({ ...current, [field]: value }));
+    clearError(FIELD_IDS[field]);
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();

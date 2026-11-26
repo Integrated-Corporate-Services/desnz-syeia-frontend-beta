@@ -9,7 +9,7 @@ const HEADING = 'Enter your full name';
 
 /** SYEIA-2926: the objector's full name. */
 const ObjectorNamePage: React.FC = () => {
-  const { journey, saving, errors, errorFor, save, goNext } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, save, goNext } = useObjectionForm();
   const [fullName, setFullName] = useState('');
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const ObjectorNamePage: React.FC = () => {
             label={HEADING}
             autoComplete="name"
             value={fullName}
-            onChange={setFullName}
+            onChange={(value) => { setFullName(value); clearError('full-name'); }}
             error={errorFor('full-name')}
           />
           <button className="govuk-button" type="submit" disabled={saving}>Continue</button>

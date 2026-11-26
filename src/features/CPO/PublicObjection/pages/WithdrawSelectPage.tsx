@@ -11,7 +11,7 @@ const NONE_HEADING = 'There are no objections to withdraw';
 
 /** SYEIA-2943: choose which objections to withdraw. With only one, go straight to confirming it. */
 const WithdrawSelectPage: React.FC = () => {
-  const { journey, saving, errors, errorFor, act, navigate } = useObjectionForm();
+  const { journey, saving, errors, errorFor, clearError, act, navigate } = useObjectionForm();
   const { withdrawable, loadError } = useWithdrawableObjections();
   // Until the user ticks something, show the choice saved on an earlier visit.
   const [picked, setPicked] = useState<string[] | null>(null);
@@ -73,7 +73,7 @@ const WithdrawSelectPage: React.FC = () => {
                       value={objection.objectionId}
                       aria-describedby={`${id}-hint`}
                       checked={selected.includes(objection.objectionId)}
-                      onChange={() => toggle(objection.objectionId)}
+                      onChange={() => { toggle(objection.objectionId); clearError('withdraw-selection'); }}
                     />
                     <label className="govuk-label govuk-checkboxes__label" htmlFor={id}>{objection.objectorName}</label>
                     <div className="govuk-hint govuk-checkboxes__hint" id={`${id}-hint`}>{objection.objectionReference}</div>

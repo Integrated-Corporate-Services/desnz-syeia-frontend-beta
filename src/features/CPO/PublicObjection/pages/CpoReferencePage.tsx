@@ -10,7 +10,7 @@ const HEADING = 'Enter the CPO reference number';
 
 /** SYEIA-2924: find the CPO the user wants to object to. */
 const CpoReferencePage: React.FC = () => {
-  const { saving, errors, errorFor, save, navigate } = useObjectionForm({ loadJourney: false });
+  const { saving, errors, errorFor, clearError, save, navigate } = useObjectionForm({ loadJourney: false });
   const [reference, setReference] = useState('');
 
   const submit = async (event: React.FormEvent) => {
@@ -27,7 +27,7 @@ const CpoReferencePage: React.FC = () => {
           hint="For example CPO000001"
           widthClass="govuk-input--width-10"
           value={reference}
-          onChange={setReference}
+          onChange={(value) => { setReference(value); clearError('reference'); }}
           error={errorFor('reference')}
         />
         <button className="govuk-button" type="submit" disabled={saving}>Continue</button>
