@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import ErrorSummary from '../../../components/commonFormFields/ErrorSummary';
 import PageTitle from '../../../components/PageTitle';
 import BackLink from '../components/BackLink';
+import CasesFileDropzone from '../components/CasesFileDropzone';
 import { withMigrationAdmin } from '../components/withMigrationAdmin';
 import { MIGRATION_CONTENT, MIGRATION_PATHS } from '../constants';
 import { useErrorSummaryFocus } from '../hooks/useErrorSummaryFocus';
@@ -84,18 +85,19 @@ export const CasesFilePage: React.FC = () => {
                   <span className="govuk-visually-hidden">Error:</span> {fieldError}
                 </p>
               )}
-              <input
-                className={`govuk-file-upload${fieldError ? ' govuk-file-upload--error' : ''}`}
+              <CasesFileDropzone
                 id={FIELD_ID}
-                name="casesFile"
-                type="file"
-                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                aria-describedby={`${FIELD_ID}-hint${fieldError ? ` ${FIELD_ID}-error` : ''}`}
-                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                file={file}
+                onChange={(chosen) => {
+                  setFile(chosen);
+                  setFieldError(null);
+                }}
+                hasError={Boolean(fieldError)}
+                disabled={uploading}
+                uploading={uploading}
+                uploadingText={CONTENT.UPLOADING}
+                describedBy={`${FIELD_ID}-hint${fieldError ? ` ${FIELD_ID}-error` : ''}`}
               />
-            </div>
-            <div role="status" aria-live="polite">
-              {uploading && <p className="govuk-body govuk-!-font-weight-bold">{CONTENT.UPLOADING}</p>}
             </div>
             <button className="govuk-button" type="submit" data-module="govuk-button" disabled={uploading} aria-disabled={uploading}>
               {CONTENT.CONTINUE}

@@ -106,6 +106,41 @@ describe('CasesFilePage', () => {
     expect(await screen.findByTestId('location')).toBeInTheDocument();
   });
 
+  it('shows the same drop zone as the S37 and NWL upload pages', () => {
+    renderPage();
+    expect(screen.getByTestId('cases-file-dropzone')).toHaveClass('gds-upload-dropzone');
+    expect(screen.getByRole('button', { name: 'Choose file' })).toBeInTheDocument();
+    expect(screen.getByText('or drop file')).toBeInTheDocument();
+    expect(screen.getByText('No file chosen')).toBeInTheDocument();
+  });
+
+  it('lists the chosen file with its size and lets the admin remove it', () => {
+    renderPage();
+    chooseFile('cases.xlsx', 2048);
+    expect(screen.getAllByText('cases.xlsx').length).toBeGreaterThan(0);
+    expect(screen.getByText('2.0KB')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Remove cases.xlsx' }));
+    expect(screen.queryByRole('link', { name: 'Remove cases.xlsx' })).not.toBeInTheDocument();
+    expect(screen.getByText('No file chosen')).toBeInTheDocument();
+  });
+
+  it('accepts a file dropped on the drop zone', async () => {
+    vi.mocked(uploadCasesFile).mockResolvedValue(sampleUpload);
+    renderPage();
+    const file = new File(['x'], 'dropped.xlsx');
+    fireEvent.drop(screen.getByTestId('cases-file-dropzone'), { dataTransfer: { files: [file] } });
+    expect(screen.getByRole('link', { name: 'Remove dropped.xlsx' })).toBeInTheDocument();
+    submit();
+    await waitFor(() => expect(uploadCasesFile).toHaveBeenCalledWith('INP-001', file));
+  });
+
+  it('marks the drop zone as an error when the file is missing', async () => {
+    renderPage();
+    submit();
+    await screen.findByRole('link', { name: 'Select an Excel file' });
+    expect(screen.getByTestId('cases-file-dropzone')).toHaveClass('gds-upload-dropzone--error');
+  });
+
   it('redirects users who are not Tech Admins', () => {
     mocks.role = 'APPLICANT_USER';
     renderPage();

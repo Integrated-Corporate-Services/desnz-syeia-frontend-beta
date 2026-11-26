@@ -4,3 +4,4 @@ export { default as BackLink } from './BackLink';
 export { MigrationNotFound, ServiceProblem, SuccessBanner, LoadingMessage } from './PageMessages';
 export { default as ApplicationDataSummary } from './ApplicationDataSummary';
 export { default as MigrationTasksPanel } from './MigrationTasksPanel';
+export { default as CasesFileDropzone } from './CasesFileDropzone';
