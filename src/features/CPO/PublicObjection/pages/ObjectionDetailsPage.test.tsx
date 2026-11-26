@@ -70,9 +70,22 @@ describe('ObjectionDetailsPage (SYEIA-2932)', () => {
     const file = new File(['%PDF'], 'ridge-lane-photos.pdf', { type: 'application/pdf' });
     fireEvent.change(await screen.findByLabelText('Upload documents (optional)'), { target: { files: [file] } });
 
-    expect(await screen.findByText('ridge-lane-photos.pdf', { selector: 'dt' })).toBeInTheDocument();
+    expect(await screen.findByText('ridge-lane-photos.pdf', { selector: '.govuk-task-list__name-and-hint > span' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Documents uploaded' })).toBeInTheDocument();
     expect(upload).toHaveBeenCalledWith(file);
+  });
+
+  it('uploads a file dropped on the drop zone', async () => {
+    vi.spyOn(publicObjectionService, 'get').mockResolvedValue(verified());
+    const upload = vi.spyOn(publicObjectionService, 'uploadDocument').mockResolvedValue(verified([photos]));
+    renderPage(<ObjectionDetailsPage />);
+
+    const file = new File(['%PDF'], 'ridge-lane-photos.pdf', { type: 'application/pdf' });
+    const dropZone = (await screen.findByText('or drop file')).closest('.gds-upload-dropzone') as HTMLElement;
+    fireEvent.drop(dropZone, { dataTransfer: { files: [file] } });
+
+    await waitFor(() => expect(upload).toHaveBeenCalledWith(file));
+    expect(await screen.findByText('ridge-lane-photos.pdf', { selector: '.govuk-task-list__name-and-hint > span' })).toBeInTheDocument();
   });
 
   it('shows why a file was refused', async () => {
@@ -96,7 +109,7 @@ describe('ObjectionDetailsPage (SYEIA-2932)', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Remove ridge-lane-photos.pdf' }));
 
-    await waitFor(() => expect(screen.queryByText('ridge-lane-photos.pdf', { selector: 'dt' })).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText('ridge-lane-photos.pdf', { selector: '.govuk-task-list__name-and-hint > span' })).not.toBeInTheDocument());
     expect(remove).toHaveBeenCalledWith('file-1');
   });
 
